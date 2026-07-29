@@ -1,7 +1,5 @@
 import { cache } from 'react';
-import { format, subDays } from 'date-fns';
-import { fetchGa4TrafficByChannel } from '@/lib/google/ga4';
-import { getAuthorizedClient, refreshAccessToken } from '@/lib/google/oauth';
+import { refreshAccessToken } from '@/lib/google/oauth';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 import type {
   AeoAnalysisRow,
@@ -356,17 +354,21 @@ async function getFreshAccessToken(connectionId: string) {
   const isExpired = expiry > 0 && expiry < Date.now() + 60_000;
   if (!isExpired || !connection.refresh_token) return connection.access_token;
 
-  const refreshed = await refreshAccessToken(connection.refresh_token);
-  await supabase
-    .from('google_connections')
-    .update({
-      access_token: refreshed.access_token,
-      token_expiry: refreshed.expiry_date ? new Date(refreshed.expiry_date).toISOString() : null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', connection.id);
-
-  return refreshed.access_token ?? connection.access_token;
+  try {
+    const refreshed = await refreshAccessToken(connection.refresh_token);
+    await supabase
+      .from('google_connections')
+      .update({
+        access_token: refreshed.access_token,
+        token_expiry: refreshed.expiry_date ? new Date(refreshed.expiry_date).toISOString() : null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', connection.id);
+    return refreshed.access_token ?? connection.access_token;
+  } catch {
+    // Token revoked or expired (common in Testing mode) — return null so callers degrade gracefully.
+    return null;
+  }
 }
 
 function summarizeLeads(leads: Lead[]): LeadFunnelSummary {
@@ -419,6 +421,31 @@ function summarizeLeads(leads: Lead[]): LeadFunnelSummary {
     closedLeads,
     totalValue,
   };
+}
+
+async function getLatestTrafficByChannelSnapshot(projectId: string): Promise<ChannelTrafficRow[]> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from('report_exports')
+    .select('snapshot')
+    .eq('project_id', projectId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+
+  const snapshot = data?.snapshot;
+  if (
+    snapshot &&
+    typeof snapshot === 'object' &&
+    'trafficByChannel' in snapshot &&
+    Array.isArray((snapshot as { trafficByChannel?: unknown }).trafficByChannel)
+  ) {
+    return ((snapshot as { trafficByChannel?: unknown }).trafficByChannel as ChannelTrafficRow[]) ?? [];
+  }
+
+  return [];
 }
 
 function isMissingRelationError(message: string) {
@@ -540,32 +567,11 @@ export async function listLeadStatusHistory(projectId: string, leadId: string) {
 }
 
 export const getProjectLeadReportingSummary = cache(
-  async (projectId: string): Promise<ProjectLeadReportingSummary> => {
-    const supabase = getSupabaseAdmin();
-    const [leads, ga4Property] = await Promise.all([
-      listLeads(projectId),
-      supabase
-        .from('ga4_properties')
-        .select('*')
-        .eq('project_id', projectId)
-        .eq('is_selected', true)
-        .maybeSingle(),
+  async (projectId: string, preloadedLeads?: Lead[]): Promise<ProjectLeadReportingSummary> => {
+    const [trafficByChannel, leads] = await Promise.all([
+      getLatestTrafficByChannelSnapshot(projectId),
+      preloadedLeads ? Promise.resolve(preloadedLeads) : listLeads(projectId),
     ]);
-
-    let trafficByChannel: ChannelTrafficRow[] = [];
-    const property = (ga4Property.data as Ga4Property | null) ?? null;
-    if (property?.connection_id) {
-      const accessToken = await getFreshAccessToken(property.connection_id);
-      if (accessToken) {
-        const auth = getAuthorizedClient({
-          access_token: accessToken,
-          expiry_date: null,
-        });
-        const endDate = format(new Date(), 'yyyy-MM-dd');
-        const startDate = format(subDays(new Date(), 28), 'yyyy-MM-dd');
-        trafficByChannel = await fetchGa4TrafficByChannel(auth, property.property_id, startDate, endDate);
-      }
-    }
 
     return {
       trafficByChannel,

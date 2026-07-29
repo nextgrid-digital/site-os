@@ -1,5 +1,6 @@
-import { redirect } from 'next/navigation';
+// Homepage must stay on the Site-OS visual shell — do not restore the old slate form.
+import { SiteOsLanding } from '@/components/marketing/site-os/site-os-landing';
 
 export default function HomePage() {
-  redirect('/operator');
+  return <SiteOsLanding />;
 }

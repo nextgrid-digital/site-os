@@ -1,5 +1,6 @@
 import type { DraftFinding } from '@/lib/audit/finding-generators';
 import type { AeoAnalysis } from '@/lib/aeo/schema';
+import type { WebsiteCategory } from '@/lib/audit/site-classification';
 import type { ArchitectureInput, FindingSeverity } from '@/lib/supabase/types';
 
 export interface FindingScores {
@@ -52,10 +53,77 @@ function aeoBoost(finding: DraftFinding, aeo: AeoAnalysis | null | undefined): n
   return clamp(score);
 }
 
+function applyCategoryWeights(
+  finding: DraftFinding,
+  category: WebsiteCategory | null | undefined,
+  scores: { revenue: number; buyer: number; urgency: number }
+) {
+  if (!category || category === 'unknown' || category === 'hybrid') return scores;
+
+  const title = `${finding.type} ${finding.category} ${finding.title}`.toLowerCase();
+  const isProof = title.includes('proof') || title.includes('case') || title.includes('trust');
+  const isCta =
+    finding.category === 'conversion' || title.includes('cta') || title.includes('conversion');
+  const isStructure = finding.category === 'architecture' || title.includes('missing');
+  const isClarity = finding.category === 'on_page' || title.includes('title') || title.includes('meta');
+
+  switch (category) {
+    case 'saas':
+    case 'app':
+      if (isCta || title.includes('pricing') || title.includes('signup')) scores.revenue += 10;
+      if (isClarity) scores.buyer += 8;
+      if (isProof) scores.urgency += 6;
+      break;
+    case 'service':
+    case 'agency':
+      if (isCta || title.includes('contact') || title.includes('lead')) scores.revenue += 12;
+      if (isProof) scores.buyer += 10;
+      if (isStructure) scores.urgency += 6;
+      break;
+    case 'ecommerce':
+    case 'product_dtc':
+      if (title.includes('product') || title.includes('cart') || title.includes('shop') || isCta) {
+        scores.revenue += 12;
+      }
+      if (isProof) scores.buyer += 8;
+      if (isStructure) scores.urgency += 6;
+      break;
+    case 'course':
+    case 'coaching':
+      if (isProof || title.includes('authority')) scores.buyer += 12;
+      if (isCta || title.includes('enroll')) scores.revenue += 10;
+      if (isClarity) scores.urgency += 6;
+      break;
+    case 'local':
+      if (title.includes('contact') || title.includes('location') || isCta) scores.revenue += 12;
+      if (isProof) scores.buyer += 8;
+      break;
+    case 'media':
+    case 'personal_brand':
+      if (isClarity) scores.buyer += 10;
+      if (title.includes('newsletter') || isCta) scores.revenue += 8;
+      break;
+    case 'nonprofit':
+      if (title.includes('donate') || isCta) scores.revenue += 12;
+      if (isProof) scores.buyer += 10;
+      break;
+    case 'marketplace':
+    case 'community':
+      if (isStructure || isCta) scores.revenue += 10;
+      if (isProof) scores.buyer += 8;
+      break;
+    default:
+      break;
+  }
+
+  return scores;
+}
+
 export function scoreFinding(
   finding: DraftFinding,
   intake?: ArchitectureInput | null,
-  aeo?: AeoAnalysis | null
+  aeo?: AeoAnalysis | null,
+  category?: WebsiteCategory | null
 ): ScoredFinding {
   const severityBase = SEVERITY_BASE[finding.severity];
   const opportunityScore =
@@ -135,6 +203,8 @@ export function scoreFinding(
     urgency += 5;
   }
 
+  ({ revenue, buyer, urgency } = applyCategoryWeights(finding, category, { revenue, buyer, urgency }));
+
   const aeo_value = aeoBoost(finding, aeo);
   const revenue_impact = clamp(revenue);
   const buyer_importance = clamp(buyer);
@@ -166,9 +236,10 @@ export function scoreFinding(
 export function scoreAndSortFindings(
   findings: DraftFinding[],
   intake?: ArchitectureInput | null,
-  aeo?: AeoAnalysis | null
+  aeo?: AeoAnalysis | null,
+  category?: WebsiteCategory | null
 ): ScoredFinding[] {
   return findings
-    .map((finding) => scoreFinding(finding, intake, aeo))
+    .map((finding) => scoreFinding(finding, intake, aeo, category))
     .toSorted((a, b) => b.priority_score - a.priority_score || a.title.localeCompare(b.title));
 }

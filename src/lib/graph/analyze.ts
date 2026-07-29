@@ -394,7 +394,9 @@ export function analyzeCommercialGraph(input: {
   });
 
   const missingPageKinds =
-    input.siteOnly?.pageInventory.filter((i) => !i.present).map((i) => i.kind) ?? [];
+    input.siteOnly?.pageInventory
+      .filter((i) => !i.present && i.kind !== 'other' && i.kind !== 'home' && i.expectedForCategory !== false)
+      .map((i) => i.kind) ?? [];
   const hasIntegrationsSignal = input.pages.some((p) =>
     /integrat/i.test(`${p.path} ${p.title ?? ''} ${p.textExcerpt ?? ''}`)
   );
@@ -409,6 +411,7 @@ export function analyzeCommercialGraph(input: {
     queries: input.queries,
     missingPageKinds,
     hasIntegrationsSignal,
+    websiteCategory: input.siteOnly?.classification?.category ?? null,
   });
 
   const scores = scoreCommercialGraph({

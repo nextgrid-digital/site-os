@@ -14,6 +14,7 @@ function page(overrides: Partial<CrawledPage> & { path: string }): CrawledPage {
       'A meta description that is long enough to pass the clarity threshold for audits.',
     h1: overrides.h1 ?? 'Heading',
     ogImageUrl: overrides.ogImageUrl ?? null,
+    faviconUrl: overrides.faviconUrl ?? null,
     internalLinks: overrides.internalLinks ?? ['/', '/about'],
     hasFaq: overrides.hasFaq ?? false,
     hasFaqSchema: overrides.hasFaqSchema ?? false,
@@ -53,11 +54,13 @@ test('buildSiteOnlyAnalysisSync flags missing FAQ and proof pages', () => {
   });
 
   assert.ok(analysis.architectureGaps.some((gap) => /faq/i.test(gap)));
-  assert.ok(analysis.architectureGaps.some((gap) => /case study|proof/i.test(gap)));
+  assert.ok(analysis.architectureGaps.some((gap) => /case study|proof|case_study/i.test(gap)));
   assert.ok(analysis.proofGaps.length > 0);
-  assert.ok(analysis.buyerMoments.some((moment) => /Book a call/i.test(moment)));
+  assert.ok(analysis.classification);
+  assert.ok(analysis.buyerMoments.some((moment) => /conversion goal/i.test(moment)));
   assert.ok(analysis.whatTheSiteSays.some((line) => /Homepage title/i.test(line)));
   assert.ok(analysis.recommendedNextSteps.length > 0);
+  assert.ok(analysis.conversionBlockers);
   assert.equal(analysis.ogImageUrl, null);
 });
 

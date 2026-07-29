@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { runAudit } from '@/lib/audit/run-audit';
+import { getClientIntake } from '@/lib/db/client-intake';
 import { getProjectOverview, isFullBriefUnlocked } from '@/lib/db/projects';
 import { hasSupabaseConfig } from '@/lib/supabase/server';
 
@@ -30,7 +31,11 @@ export async function POST(
       }
     }
 
-    const result = await runAudit(projectId, runType);
+    // Read client intake goal for scoring (if available)
+    const intake = runType === 'full' ? await getClientIntake(projectId) : null;
+    const goalCategory = intake?.goal_category ?? null;
+
+    const result = await runAudit(projectId, runType, goalCategory);
     return NextResponse.json({ auditRunId: result.auditRunId, status: 'completed' });
   } catch (error) {
     return NextResponse.json(

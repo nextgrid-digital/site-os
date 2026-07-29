@@ -6,14 +6,9 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
   { label: 'Overview', suffix: '' },
-  { label: 'Connect', suffix: '/connect' },
-  { label: 'Leads', suffix: '/leads' },
-  { label: 'Audit', suffix: '/audit' },
-  { label: 'Findings', suffix: '/findings' },
-  { label: 'Architecture', suffix: '/architecture' },
-  { label: 'Pricing', suffix: '/pricing' },
   { label: 'Report', suffix: '/report' },
-  { label: 'Settings', suffix: '/settings' },
+  { label: 'Intake', suffix: '/settings' },
+  { label: 'Connect', suffix: '/connect' },
 ];
 
 export function ProjectNav({ projectId }: { projectId: string; currentPath?: string }) {
@@ -21,7 +16,7 @@ export function ProjectNav({ projectId }: { projectId: string; currentPath?: str
 
   return (
     <div className="overflow-x-auto">
-      <nav className="inline-flex min-w-full gap-1 rounded-lg border border-border bg-muted/40 p-1">
+      <nav className="inline-flex min-w-full gap-1 rounded-xl bg-white/4 p-1">
         {navItems.map((item) => {
           const href = `/operator/projects/${projectId}${item.suffix}`;
           const active =
@@ -33,9 +28,9 @@ export function ProjectNav({ projectId }: { projectId: string; currentPath?: str
               key={item.label}
               href={href}
               className={cn(
-                'rounded-md px-3 py-1.5 text-sm whitespace-nowrap transition-colors',
+                'rounded-lg px-3 py-1.5 text-sm whitespace-nowrap transition-colors',
                 active
-                  ? 'bg-background text-foreground shadow-sm'
+                  ? 'bg-white text-black'
                   : 'text-muted-foreground hover:text-foreground'
               )}
             >

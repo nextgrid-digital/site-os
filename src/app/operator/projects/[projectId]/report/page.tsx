@@ -21,11 +21,10 @@ export default async function ReportPage({
 
   const { project, intake } = workspace;
   const supabase = getSupabaseAdmin();
-  const { data: prompts } = await supabase
-    .from('agent_prompts')
-    .select('*')
-    .eq('audit_run_id', audit.auditRun.id);
-  const leadReporting = await getProjectLeadReportingSummary(projectId);
+  const [{ data: prompts }, leadReporting] = await Promise.all([
+    supabase.from('agent_prompts').select('*').eq('audit_run_id', audit.auditRun.id),
+    getProjectLeadReportingSummary(projectId),
+  ]);
 
   return (
     <OperatorShell>

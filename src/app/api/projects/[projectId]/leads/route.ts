@@ -8,10 +8,8 @@ export async function GET(
 ) {
   try {
     const { projectId } = await context.params;
-    const [leads, reporting] = await Promise.all([
-      listLeads(projectId),
-      getProjectLeadReportingSummary(projectId),
-    ]);
+    const leads = await listLeads(projectId);
+    const reporting = await getProjectLeadReportingSummary(projectId, leads);
     return NextResponse.json({ leads, reporting });
   } catch (error) {
     return NextResponse.json(

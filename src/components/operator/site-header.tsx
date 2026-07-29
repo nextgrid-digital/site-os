@@ -5,19 +5,19 @@ import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 
 const SEGMENT_LABELS: Record<string, { title: string; description: string }> = {
-  operator: { title: 'Dashboard', description: 'Operator cockpit' },
-  projects: { title: 'Projects', description: 'Audit workspaces' },
-  connect: { title: 'Connect', description: 'Google property mapping' },
-  leads: { title: 'Leads', description: 'Channel attribution and funnel tracking' },
-  audit: { title: 'Run', description: 'Kick off a brief' },
-  findings: { title: 'Findings', description: 'Lead blocker queue' },
-  architecture: { title: 'Architecture', description: 'Missing page gaps' },
-  pricing: { title: 'Pricing', description: 'Offer recommendation' },
-  report: { title: 'Presale Brief', description: 'Lead blockers and execution' },
-  'work-orders': { title: 'Fix Queue', description: 'What to unblock first' },
-  graph: { title: 'Lead Map', description: 'Commercial coverage for leads' },
-  systems: { title: 'Page Plays', description: 'Scalable buyer conversation pages' },
-  settings: { title: 'Settings', description: 'Intake and project notes' },
+  operator: { title: 'Dashboard', description: 'Internal consulting flow' },
+  projects: { title: 'Projects', description: 'Client audit workspaces' },
+  connect: { title: 'Connect', description: 'Bring in Google data when needed' },
+  leads: { title: 'Leads', description: 'Advanced pipeline view' },
+  audit: { title: 'Audit', description: 'Run a preview or paid audit' },
+  findings: { title: 'Findings', description: 'Advanced issue list' },
+  architecture: { title: 'Architecture', description: 'Advanced content gaps' },
+  pricing: { title: 'Pricing', description: 'Internal scoping view' },
+  report: { title: 'Report', description: 'Client-ready audit summary' },
+  'work-orders': { title: 'Work Orders', description: 'Advanced execution queue' },
+  graph: { title: 'Graph', description: 'Advanced buyer path map' },
+  systems: { title: 'Systems', description: 'Advanced page opportunities' },
+  settings: { title: 'Intake', description: 'Client requirements and notes' },
 };
 
 function headerFromPath(pathname: string) {
@@ -30,7 +30,7 @@ function headerFromPath(pathname: string) {
   if (parts[1] === 'projects' && parts[2]) {
     const section = parts[3] ?? '';
     if (!section) {
-      return { title: 'Project hub', description: 'Fix lead blockers · Presale Brief · Connect' };
+      return { title: 'Project hub', description: 'Preview audit, paid audit, intake, and client report' };
     }
     return SEGMENT_LABELS[section] ?? { title: 'Project', description: 'Site-OS' };
   }

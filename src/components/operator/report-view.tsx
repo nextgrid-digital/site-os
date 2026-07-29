@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { LeadFunnelSummary } from '@/components/operator/lead-funnel-summary';
+import { ReportPdfButton } from '@/components/operator/report-pdf-button';
 import { UnlockFullBriefCta } from '@/components/operator/unlock-full-brief-cta';
 import { shouldShowReportNextStep } from '@/lib/reports/report-next-step';
 import { BriefStatusRail } from '@/components/operator/brief-status-rail';
@@ -436,12 +437,12 @@ export function ReportView({
 
   return (
     <div className="grid w-full gap-8 print:shadow-none xl:grid-cols-[180px_minmax(0,1fr)_280px]">
-      <div className="hidden min-h-0 xl:block xl:self-stretch">
+      <div className="hidden min-h-0 xl:block xl:self-stretch" data-no-print>
         <BriefToc items={tocItems} />
       </div>
 
       {brief ? (
-        <div className="order-1 min-h-0 xl:order-3 xl:self-stretch">
+        <div className="order-1 min-h-0 xl:order-3 xl:self-stretch" data-no-print>
           <BriefStatusRail
             brief={brief}
             isFullRun={isFullRun}
@@ -456,11 +457,12 @@ export function ReportView({
       <div className="order-2 flex min-w-0 flex-col xl:order-2">
         <div className="typeset typeset-docs mx-auto w-full max-w-[90ch]">
           <header className="space-y-3">
-            <div>
-              <h1>
-                {headline}
-                <span className="not-typeset text-white/45"> · {project.name}</span>
-              </h1>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h1>
+                  {headline}
+                  <span className="not-typeset text-white/45"> · {project.name}</span>
+                </h1>
               <p>{website.url}</p>
               {brief ? (
                 <p className="not-typeset mt-1 text-xs text-white/45">
@@ -473,6 +475,8 @@ export function ReportView({
                   Confidence {brief.confidenceScore}
                 </p>
               ) : null}
+              </div>
+              <ReportPdfButton />
             </div>
             <div className="not-typeset flex flex-wrap gap-x-4 gap-y-1 text-sm text-white/70">
               <p>

@@ -49,7 +49,7 @@ const TIERS = {
 
 export function recommendPricing(
   findings: Array<Pick<DraftFinding, 'severity' | 'category'> & { priority_score?: number }>,
-  runType: 'mini' | 'full'
+  runType: 'mini' | 'free' | 'full'
 ): PricingRecommendation {
   const highSeverity = findings.filter((f) => f.severity === 'high' || f.severity === 'critical').length;
   const architectureGaps = findings.filter((f) => f.category === 'architecture').length;
@@ -63,6 +63,20 @@ export function recommendPricing(
       rationale:
         'Site audit covers crawl and intake evidence. Search Console, GA4, and full execution depth stay locked until data is connected and a full audit is run.',
       included_items: [...TIERS.teaser.items, `Next: ${TIERS.brief.tier} (${TIERS.brief.price})`],
+    };
+  }
+
+  if (runType === 'free') {
+    return {
+      recommended_tier: 'Free full audit',
+      price_range: '$0',
+      rationale:
+        'Full free audit from crawl and AI review only. Search Console and GA4 stay available as a paid connected upgrade.',
+      included_items: [
+        ...TIERS.teaser.items,
+        'Full finding list with clarity, trust, CTA, and structure gaps',
+        `Upgrade: ${TIERS.brief.tier} (${TIERS.brief.price})`,
+      ],
     };
   }
 

@@ -1,0 +1,343 @@
+/* Site-OS homepage styles — scoped under .site-os-home */
+@import "./ditto.css";
+
+/* Design tokens (values). */
+.site-os-home {
+  --background: oklch(0.97 0 0);
+  --foreground: oklch(0.145 0 0);
+  --primary: oklch(0.565 0.11 164.584);
+  --accent: oklch(0.657 0.23 35.095);
+  --border: oklab(0.922 0 0 / 0.3);
+  --muted-foreground: oklch(0.556 0 0);
+  --surface: oklab(0.922 0 0 / 0.7);
+  --surface-2: oklab(0.922 0 0 / 0.4);
+  --surface-3: oklch(1 0 0);
+  --surface-4: oklch(0.922 0 0);
+  --surface-5: oklab(0.97 0 0 / 0.2);
+  --surface-6: oklab(0.922 0 0 / 0.6);
+  --surface-7: oklab(0.97 0 0 / 0.4);
+  --surface-8: oklab(1 0 0 / 0.1);
+  --muted: oklab(0.556 0 0 / 0.8);
+  --color-001: oklab(0.145 0 0 / 0.03);
+  --color-002: oklch(0.205 0 0);
+  --color-003: oklab(0.556 0 0 / 0.45);
+  --color-004: oklab(1 0 0 / 0.7);
+  --color-005: oklab(0.145 0 0 / 0.85);
+  --color-006: oklab(1 0 0 / 0.85);
+  --color-007: oklch(0.985 0 0);
+  --color-008: oklab(0.145 0 0 / 0.4);
+  --color-009: oklab(1 0 0 / 0.5);
+  --font-body: InterVariable, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-001: LTRemark, Georgia, serif;
+  --font-002: "Helvetica Neue", Arial, Helvetica, sans-serif;
+  --font-003: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-size-001: 10px;
+  --font-size-002: 11px;
+  --font-size-003: 12px;
+  --font-size-004: 14px;
+  --font-size-005: 16px;
+  --font-size-006: 18px;
+  --font-size-007: 20px;
+  --font-size-008: 24px;
+  --font-size-009: 36px;
+  --font-size-010: 48px;
+  --font-weight-001: 400;
+  --font-weight-002: 500;
+  --font-weight-003: 600;
+  --line-height-001: 20px;
+  --line-height-002: 24px;
+  --line-height-003: 16px;
+  --line-height-004: 14.2857px;
+  --line-height-005: 11px;
+  --line-height-006: 15px;
+  --line-height-007: 17.875px;
+  --line-height-008: 19.25px;
+  --line-height-009: 28px;
+  --line-height-010: 12px;
+  --line-height-011: 14px;
+  --line-height-012: 40px;
+  --line-height-013: 15.7143px;
+  --line-height-014: 15.125px;
+  --line-height-015: 16.5px;
+  --line-height-016: 25px;
+  --line-height-017: 32px;
+  --line-height-018: 48px;
+  --space-001: -1px;
+  --space-002: 2px;
+  --space-003: 4px;
+  --space-004: 4px 12px;
+  --space-005: 6px;
+  --space-006: 8px;
+  --space-007: 8px 12px;
+  --space-008: normal 8px;
+  --space-009: 10px;
+  --space-010: 12px;
+  --space-011: 14px;
+  --space-012: 16px;
+  --space-013: 20px;
+  --space-014: 24px;
+  --space-015: 32px;
+  --space-016: 40px;
+  --space-017: 48px;
+  --space-018: 80px;
+  --space-019: 89px;
+  --space-020: 105.594px;
+  --radius-001: 2px;
+  --radius-002: 3.35544e+07px;
+  --radius-003: 4px;
+  --radius-004: 6px;
+  --radius-005: 8px;
+  --radius-006: 10px;
+  --radius-007: 14px;
+  --radius-008: 9999px;
+  --shadow-001: rgba(0, 0, 0, 0.18) 0px 1px 2px 0px;
+  --shadow-002: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.145 0 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+  --shadow-003: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(1 0 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+  --z-001: 10;
+  --z-002: 20;
+  --bp-375: 375px;
+  --bp-768: 768px;
+  --bp-1280: 1280px;
+  --bp-1920: 1920px;
+  --clr-0: rgba(0, 0, 0, 0);
+  --clr-1: rgba(15, 12, 12, 0.12);
+  --clr-2: rgba(15, 12, 12, 0.14);
+  --clr-3: rgba(15, 12, 12, 0.1);
+  --clr-4: oklab(1 0 0 / 0.15);
+  --clr-5: oklab(1 0 0 / 0.65);
+  --clr-6: oklch(0.672 0.22 37.09);
+  --clr-7: oklch(0.723 0.162 238.815);
+  --clr-8: rgba(0, 0, 0, 0.18);
+  --clr-9: oklab(1 0 0 / 0.95);
+  --clr-10: oklch(0.673 0 0);
+  --clr-11: oklch(0.4915 0 0);
+  --clr-12: oklch(0.31825 0 0);
+  --clr-13: rgba(0, 0, 0, 0.15);
+  --clr-14: oklab(0.145 0 0 / 0.1);
+  --clr-15: oklab(0.922 0 0 / 0.5);
+  --clr-16: oklab(0.922 0 0 / 0.35);
+  --clr-17: oklch(0.661 0.121 71.707);
+  --clr-18: oklch(0.566 0.197 12.263);
+  --clr-19: oklab(0.145 0 0 / 0.15);
+  --clr-20: rgb(0, 0, 0);
+  --clr-21: rgba(15, 12, 12, 0.06);
+  --clr-22: rgba(15, 12, 12, 0.08);
+  --clr-23: oklab(0.556 0 0 / 0.5);
+  --clr-24: oklab(0.205 0 0 / 0.8);
+  --clr-25: oklab(1 0 0 / 0.561703);
+  --clr-26: oklab(0.145 0 0 / 0.8);
+  --clr-27: oklab(0.97 0 0 / 0.8);
+  --clr-28: oklab(0.546016 0 0);
+}
+
+@font-face {
+  font-family: "InterVariable";
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/assets/cloned/fonts/372cd182bc37.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "InterVariable";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/assets/cloned/fonts/ab4ee6887515.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "LTRemark";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/cloned/fonts/5d52c24f0d6f.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "LTRemark";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/cloned/fonts/2246358d1b7e.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "LTRemark";
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/assets/cloned/fonts/b0f0ad4f1b64.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "LTRemark";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/assets/cloned/fonts/f17edb6da9d8.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "LTRemark";
+  font-style: italic;
+  font-weight: 900;
+  font-display: swap;
+  src: url("/assets/cloned/fonts/8f29696cbeed.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "LTRemark";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("/assets/cloned/fonts/72a61c5a971a.otf") format("opentype");
+}
+
+@layer base {
+  .site-os-home,
+  .site-os-home *,
+  .site-os-home *::before,
+  .site-os-home *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 0 solid currentColor;
+  }
+
+  .site-os-home {
+    -webkit-text-size-adjust: 100%;
+    line-height: normal;
+    margin: 0;
+    font-family: var(--font-body);
+    overflow-x: clip;
+    color: var(--foreground);
+    background: var(--background);
+  }
+
+  .site-os-home ul,
+  .site-os-home ol,
+  .site-os-home menu {
+    list-style: none;
+  }
+
+  .site-os-home a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .site-os-home button,
+  .site-os-home input,
+  .site-os-home select,
+  .site-os-home textarea,
+  .site-os-home optgroup {
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    text-align: inherit;
+    letter-spacing: inherit;
+  }
+
+  .site-os-home button {
+    cursor: pointer;
+  }
+
+  .site-os-home table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .site-os-home img,
+  .site-os-home picture,
+  .site-os-home video,
+  .site-os-home canvas,
+  .site-os-home svg {
+    display: inline-block;
+  }
+
+  .site-os-home [data-ditto-lottie] > div > svg,
+  .site-os-home [data-ditto-lottie] > div > canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .site-os-home h1,
+  .site-os-home h2,
+  .site-os-home h3,
+  .site-os-home h4,
+  .site-os-home h5,
+  .site-os-home h6,
+  .site-os-home p,
+  .site-os-home figure,
+  .site-os-home blockquote,
+  .site-os-home dl,
+  .site-os-home dd {
+    margin: 0;
+  }
+
+  .site-os-home h1,
+  .site-os-home h2,
+  .site-os-home h3,
+  .site-os-home h4,
+  .site-os-home h5,
+  .site-os-home h6 {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  .site-os-home b,
+  .site-os-home strong,
+  .site-os-home th {
+    font-weight: inherit;
+  }
+
+  .site-os-home em,
+  .site-os-home i,
+  .site-os-home cite,
+  .site-os-home var,
+  .site-os-home dfn,
+  .site-os-home address,
+  .site-os-home q {
+    font-style: inherit;
+  }
+
+  .site-os-home small,
+  .site-os-home big,
+  .site-os-home sub,
+  .site-os-home sup {
+    font-size: inherit;
+  }
+
+  .site-os-home sub,
+  .site-os-home sup {
+    vertical-align: inherit;
+  }
+
+  .site-os-home code,
+  .site-os-home kbd,
+  .site-os-home samp,
+  .site-os-home pre,
+  .site-os-home tt,
+  .site-os-home var {
+    font-family: inherit;
+    font-size: inherit;
+  }
+
+  .site-os-home mark {
+    background-color: transparent;
+    color: inherit;
+  }
+
+  .site-os-home abbr[title] {
+    text-decoration: none;
+  }
+
+  .site-os-home fieldset,
+  .site-os-home legend {
+    min-width: 0;
+  }
+}

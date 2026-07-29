@@ -1,6 +1,6 @@
 export type ProjectStatus = 'active' | 'archived';
 export type AuditRunStatus = 'pending' | 'running' | 'completed' | 'failed';
-export type AuditRunType = 'mini' | 'full';
+export type AuditRunType = 'mini' | 'free' | 'full';
 export type FindingSeverity = 'low' | 'medium' | 'high' | 'critical';
 export type FindingStatus = 'open' | 'reviewed' | 'resolved';
 export type LeadStage = 'new' | 'qualified' | 'proposal' | 'won' | 'lost';

@@ -12,12 +12,17 @@ import {
 } from '@/lib/audit/finding-generators';
 import { generatePromptForFinding } from '@/lib/audit/prompt-generator';
 import { recommendPricing } from '@/lib/audit/pricing';
+import { applyGoalWeights } from '@/lib/audit/goal-scoring';
 import { scoreAndSortFindings, type ScoredFinding } from '@/lib/audit/score-findings';
 import { buildSiteOnlyAnalysis } from '@/lib/audit/site-only-analysis';
 import { analyzeCommercialGraph, toCommercialGraphBriefSlice } from '@/lib/graph/analyze';
 import { persistCommercialGraph } from '@/lib/graph/persist';
 import { buildGrowthBrief } from '@/lib/reports/build-growth-brief';
-import { fetchGa4LandingPages, type Ga4LandingPageRow } from '@/lib/google/ga4';
+import {
+  fetchGa4LandingPages,
+  normalizeTrafficChannel,
+  type Ga4LandingPageRow,
+} from '@/lib/google/ga4';
 import { getAuthorizedClient, refreshAccessToken } from '@/lib/google/oauth';
 import {
   fetchSearchConsolePerformance,
@@ -30,6 +35,7 @@ import type {
   ArchitectureInput,
   ArchitectureRecommendation,
   AuditMetrics,
+  ChannelTrafficRow,
   Finding,
   PageMetric,
   PricingPlan,
@@ -46,6 +52,27 @@ export interface AuditRunResult {
   architecture: ArchitectureRecommendation[];
   pageMetrics: PageMetric[];
   queryMetrics: QueryMetric[];
+}
+
+function buildTrafficByChannelSnapshot(rows: Ga4LandingPageRow[]): ChannelTrafficRow[] {
+  const totals = new Map<string, ChannelTrafficRow>();
+
+  for (const row of rows) {
+    const channel = normalizeTrafficChannel(row.sourceMedium);
+    const existing = totals.get(channel) ?? {
+      sourceMedium: channel,
+      channel,
+      sessions: 0,
+      engagedSessions: 0,
+      conversions: 0,
+    };
+    existing.sessions += row.sessions;
+    existing.engagedSessions += row.engagedSessions;
+    existing.conversions += row.conversions;
+    totals.set(channel, existing);
+  }
+
+  return Array.from(totals.values()).sort((a, b) => b.sessions - a.sessions);
 }
 
 async function getValidAccessToken(connection: {
@@ -74,7 +101,7 @@ async function getValidAccessToken(connection: {
   return refreshed.access_token ?? connection.access_token;
 }
 
-export async function runAudit(projectId: string, runType: 'mini' | 'full' = 'full'): Promise<AuditRunResult> {
+export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'full' = 'full', goalCategory?: string | null): Promise<AuditRunResult> {
   const supabase = getSupabaseAdmin();
 
   const { data: project, error: projectError } = await supabase
@@ -104,7 +131,7 @@ export async function runAudit(projectId: string, runType: 'mini' | 'full' = 'fu
     .eq('is_selected', true)
     .maybeSingle();
 
-  const needsGoogle = Boolean(gscProperty || ga4Property);
+  const needsGoogle = runType === 'full' && Boolean(gscProperty || ga4Property);
   let connection: {
     id: string;
     access_token: string;
@@ -139,6 +166,7 @@ export async function runAudit(projectId: string, runType: 'mini' | 'full' = 'fu
       run_type: runType,
       status: 'running',
       started_at: new Date().toISOString(),
+      goal_category: goalCategory ?? null,
     })
     .select('*')
     .single();
@@ -153,43 +181,69 @@ export async function runAudit(projectId: string, runType: 'mini' | 'full' = 'fu
       pageRows: [],
     };
     let ga4Data: Ga4LandingPageRow[] = [];
+    let gscConnected = false;
+    let ga4Connected = false;
 
     const crawlPromise = crawlWebsite(website.url, website.crawl_max_pages);
 
-    if (connection && (gscProperty || ga4Property)) {
-      const accessToken = await getValidAccessToken(connection);
-      const auth = getAuthorizedClient({
-        access_token: accessToken,
-        refresh_token: connection.refresh_token,
-        expiry_date: connection.token_expiry ? new Date(connection.token_expiry).getTime() : null,
-      });
+    // Free/mini audits are crawl-only. Never block them on expired Google tokens.
+    if (connection && needsGoogle) {
+      try {
+        const accessToken = await getValidAccessToken(connection);
+        const auth = getAuthorizedClient({
+          access_token: accessToken,
+          refresh_token: connection.refresh_token,
+          expiry_date: connection.token_expiry ? new Date(connection.token_expiry).getTime() : null,
+        });
 
-      const [gscResult, ga4Result, crawlResult] = await Promise.all([
-        gscProperty
-          ? fetchSearchConsolePerformance(auth, gscProperty.site_url, startDate, endDate)
-          : Promise.resolve({ queryRows: [], pageRows: [] }),
-        ga4Property
-          ? fetchGa4LandingPages(auth, ga4Property.property_id, startDate, endDate)
-          : Promise.resolve([] as Ga4LandingPageRow[]),
-        crawlPromise,
-      ]);
-      gscData = gscResult;
-      ga4Data = ga4Result;
+        const [gscResult, ga4Result, crawlResult] = await Promise.all([
+          gscProperty
+            ? fetchSearchConsolePerformance(auth, gscProperty.site_url, startDate, endDate)
+            : Promise.resolve({ queryRows: [], pageRows: [] }),
+          ga4Property
+            ? fetchGa4LandingPages(auth, ga4Property.property_id, startDate, endDate)
+            : Promise.resolve([] as Ga4LandingPageRow[]),
+          crawlPromise,
+        ]);
+        gscData = gscResult;
+        ga4Data = ga4Result;
+        gscConnected = Boolean(gscProperty);
+        ga4Connected = Boolean(ga4Property);
 
-      return await finalizeAuditRun({
-        supabase,
-        auditRunId: auditRun.id,
-        projectId,
-        projectName: project.name,
-        website,
-        runType,
-        intake,
-        gscConnected: Boolean(gscProperty),
-        ga4Connected: Boolean(ga4Property),
-        gscData,
-        ga4Data,
-        crawlResult,
-      });
+        return await finalizeAuditRun({
+          supabase,
+          auditRunId: auditRun.id,
+          projectId,
+          projectName: project.name,
+          website,
+          runType,
+          intake,
+          gscConnected,
+          ga4Connected,
+          gscData,
+          ga4Data,
+          crawlResult,
+          goalCategory,
+        });
+      } catch (googleError) {
+        console.error('[runAudit] Google fetch failed; continuing crawl-only', googleError);
+        const crawlResult = await crawlPromise;
+        return await finalizeAuditRun({
+          supabase,
+          auditRunId: auditRun.id,
+          projectId,
+          projectName: project.name,
+          website,
+          runType,
+          intake,
+          gscConnected: false,
+          ga4Connected: false,
+          gscData,
+          ga4Data,
+          crawlResult,
+          goalCategory,
+        });
+      }
     }
 
     const crawlResult = await crawlPromise;
@@ -206,6 +260,7 @@ export async function runAudit(projectId: string, runType: 'mini' | 'full' = 'fu
       gscData,
       ga4Data,
       crawlResult,
+      goalCategory,
     });
   } catch (error) {
     await supabase
@@ -226,13 +281,14 @@ async function finalizeAuditRun(input: {
   projectId: string;
   projectName: string;
   website: { id: string; url: string; crawl_max_pages: number };
-  runType: 'mini' | 'full';
+  runType: 'mini' | 'free' | 'full';
   intake: ArchitectureInput | null;
   gscConnected: boolean;
   ga4Connected: boolean;
   gscData: { queryRows: GscQueryRow[]; pageRows: GscPageRow[] };
   ga4Data: Ga4LandingPageRow[];
   crawlResult: Awaited<ReturnType<typeof crawlWebsite>>;
+  goalCategory?: string | null;
 }): Promise<AuditRunResult> {
   const {
     supabase,
@@ -247,6 +303,7 @@ async function finalizeAuditRun(input: {
     gscData,
     ga4Data,
     crawlResult,
+    goalCategory,
   } = input;
 
   const draftFindings = generateFindings({
@@ -279,6 +336,8 @@ async function finalizeAuditRun(input: {
     });
   }
 
+  const detectedCategory = siteOnlyAnalysis.classification?.category ?? null;
+
   let aeoResult;
   try {
     aeoResult = await runAeoAnalysis({
@@ -300,7 +359,13 @@ async function finalizeAuditRun(input: {
     };
   }
 
-  const scoredFindings = scoreAndSortFindings(draftFindings, intake, aeoResult.analysis);
+  const baseScoredFindings = scoreAndSortFindings(
+    draftFindings,
+    intake,
+    aeoResult.analysis,
+    detectedCategory
+  );
+  const scoredFindings = applyGoalWeights(baseScoredFindings, goalCategory as Parameters<typeof applyGoalWeights>[1]);
   const limitedFindings =
     runType === 'mini' ? selectTeaserFindings(scoredFindings) : scoredFindings;
   const pricing = recommendPricing(limitedFindings, runType);
@@ -590,6 +655,7 @@ async function finalizeAuditRun(input: {
   const reportType = growthBrief.reportType;
   const reportTitle =
     reportType === 'teaser' ? `${projectName} Site audit` : `${projectName} Full audit`;
+  const trafficByChannel = buildTrafficByChannelSnapshot(ga4Data);
 
   const reportSnapshot = {
     project: { id: projectId, name: projectName },
@@ -609,6 +675,7 @@ async function finalizeAuditRun(input: {
     dataAvailability,
     siteOnlyAnalysis,
     confidenceScore,
+    trafficByChannel,
     crawlErrors: crawlResult.errors,
     generatedAt: new Date().toISOString(),
   };
@@ -652,11 +719,13 @@ function selectTeaserFindings(scored: ScoredFinding[]): ScoredFinding[] {
     scored.find((f) => f.category === 'on_page') ??
     scored[0];
   const architecture = scored.find((f) => f.category === 'architecture');
+  const trust = scored.find((f) => f.type?.includes('trust') || f.type?.includes('proof'));
   if (leak) selected.push(leak);
-  if (architecture && architecture !== leak) selected.push(architecture);
+  if (architecture && !selected.includes(architecture)) selected.push(architecture);
+  if (trust && !selected.includes(trust)) selected.push(trust);
   for (const finding of scored) {
-    if (selected.length >= 3) break;
+    if (selected.length >= 5) break;
     if (!selected.includes(finding)) selected.push(finding);
   }
-  return selected.length > 0 ? selected : scored.slice(0, 3);
+  return selected.length > 0 ? selected : scored.slice(0, 5);
 }

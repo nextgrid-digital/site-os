@@ -14,12 +14,12 @@ export default async function LeadsPage({
   const { projectId } = await params;
   if (!hasSupabaseConfig()) notFound();
 
-  const [project, leads, reporting] = await Promise.all([
+  const [project, leads] = await Promise.all([
     getProjectOverview(projectId),
     listLeads(projectId),
-    getProjectLeadReportingSummary(projectId),
   ]);
   if (!project) notFound();
+  const reporting = await getProjectLeadReportingSummary(projectId, leads);
 
   return (
     <OperatorShell>
@@ -33,7 +33,7 @@ export default async function LeadsPage({
         projectId={projectId}
         reporting={reporting}
         title={`${project.name} lead funnel`}
-        description="Live GA4 traffic summary plus app-owned lead pipeline."
+        description="Cached audit traffic summary plus app-owned lead pipeline."
       />
       <LeadsTable projectId={projectId} initialLeads={leads} />
     </OperatorShell>

@@ -1,0 +1,15 @@
+@keyframes site-os-agent-tool-in { 
+  0% { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0px); }
+}
+@keyframes siteOsBreakdownBarGrow { 
+  0% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+@keyframes siteOsHeatmapPreviewCellReveal { 
+  0% { opacity: 0; transform: scale(0.78); }
+  100% { opacity: var(--site-os-heatmap-preview-opacity, 1); transform: scale(1); }
+}
+@keyframes pulse { 
+  50% { opacity: 0.5; }
+}

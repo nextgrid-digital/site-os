@@ -14,6 +14,7 @@ const pages: CrawledPage[] = [
     metaDescription: 'Analytics for teams',
     h1: 'Acme',
     ogImageUrl: null,
+      faviconUrl: null,
     internalLinks: [],
     hasFaq: false,
     hasFaqSchema: false,

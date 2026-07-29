@@ -24,8 +24,9 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
-  title: 'Site-OS | Internal Audit OS',
-  description: 'Internal audit operating system for operators.',
+  title: 'Site-OS | Free website audit',
+  description:
+    'Paste a URL for a free crawl audit. Sign in for the full free report. Upgrade to connect Search Console and GA4.',
 };
 
 export default function RootLayout({

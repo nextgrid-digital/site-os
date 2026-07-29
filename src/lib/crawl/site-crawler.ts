@@ -10,6 +10,7 @@ export interface CrawledPage {
   metaDescription: string | null;
   h1: string | null;
   ogImageUrl: string | null;
+  faviconUrl: string | null;
   internalLinks: string[];
   hasFaq: boolean;
   hasFaqSchema: boolean;
@@ -38,6 +39,24 @@ export function extractOgImageUrl($: cheerio.CheerioAPI, pageUrl: string): strin
     $('meta[property="twitter:image"]').attr('content') ||
     null;
   return resolveMediaUrl(pageUrl, raw);
+}
+
+export function extractFaviconUrl($: cheerio.CheerioAPI, pageUrl: string): string | null {
+  const candidates = [
+    $('link[rel="apple-touch-icon"]').attr('href'),
+    $('link[rel="apple-touch-icon-precomposed"]').attr('href'),
+    $('link[rel="icon"]').attr('href'),
+    $('link[rel="shortcut icon"]').attr('href'),
+  ];
+  for (const raw of candidates) {
+    const resolved = resolveMediaUrl(pageUrl, raw);
+    if (resolved) return resolved;
+  }
+  try {
+    return new URL('/favicon.ico', pageUrl).href;
+  } catch {
+    return null;
+  }
 }
 
 export interface CrawlResult {
@@ -112,6 +131,7 @@ function parsePage(url: string, html: string, statusCode: number, baseUrl: strin
     null;
   const h1 = $('h1').first().text().trim() || null;
   const ogImageUrl = extractOgImageUrl($, url);
+  const faviconUrl = extractFaviconUrl($, url);
 
   const internalLinks = new Set<string>();
   $('a[href]').each((_, el) => {
@@ -128,6 +148,7 @@ function parsePage(url: string, html: string, statusCode: number, baseUrl: strin
     metaDescription,
     h1,
     ogImageUrl,
+    faviconUrl,
     internalLinks: [...internalLinks],
     hasFaq: detectFaq($),
     hasFaqSchema: detectFaqSchema($),

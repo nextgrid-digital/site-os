@@ -1,4 +1,5 @@
 import { generateGraphWorkOrderPrompt } from '@/lib/audit/prompt-generator';
+import type { WebsiteCategory } from '@/lib/audit/site-classification';
 import type { CrawledPage } from '@/lib/crawl/site-crawler';
 import { PATTERN_CATALOG, type PatternCatalogEntry } from '@/lib/graph/pattern-catalog';
 import { scoreProgrammaticPattern } from '@/lib/graph/programmatic-score';
@@ -31,6 +32,52 @@ function pageCorpus(pages: CrawledPage[]): string {
 
 function siteAlreadyCovers(corpus: string, needles: RegExp[]): boolean {
   return needles.some((n) => n.test(corpus));
+}
+
+function familiesForCategory(
+  category: WebsiteCategory | null | undefined
+): Set<ProgrammaticPatternFamily> | null {
+  if (!category || category === 'hybrid' || category === 'unknown') return null;
+
+  switch (category) {
+    case 'saas':
+    case 'app':
+      return new Set([
+        'profiles',
+        'comparisons',
+        'integrations',
+        'use_case',
+        'examples',
+        'glossary',
+        'templates',
+        'converters',
+        'curation',
+      ]);
+    case 'service':
+    case 'agency':
+    case 'coaching':
+      return new Set(['profiles', 'comparisons', 'use_case', 'examples', 'locations', 'curation']);
+    case 'local':
+      return new Set(['locations', 'profiles', 'examples', 'curation']);
+    case 'ecommerce':
+    case 'product_dtc':
+      return new Set(['profiles', 'comparisons', 'use_case', 'examples', 'curation', 'directories']);
+    case 'course':
+      return new Set(['profiles', 'use_case', 'examples', 'glossary', 'curation']);
+    case 'marketplace':
+      return new Set(['directories', 'profiles', 'comparisons', 'use_case', 'curation']);
+    case 'media':
+    case 'personal_brand':
+      return new Set(['glossary', 'examples', 'curation', 'profiles']);
+    case 'nonprofit':
+      return new Set(['profiles', 'examples', 'locations', 'curation']);
+    case 'community':
+      return new Set(['profiles', 'use_case', 'examples', 'directories']);
+    default: {
+      const _exhaustive: never = category;
+      return _exhaustive;
+    }
+  }
 }
 
 function gapTypesForFamily(
@@ -153,6 +200,7 @@ export function detectProgrammaticOpportunities(input: {
   queries: Array<{ query: string; impressions: number; clicks: number; page_path: string | null }>;
   missingPageKinds: string[];
   hasIntegrationsSignal: boolean;
+  websiteCategory?: WebsiteCategory | null;
 }): DraftProgrammaticOpportunity[] {
   const products = labelsOf(input.entities, 'product').concat(
     labelsOf(input.entities, 'offer').filter((o) => o.length > 1)
@@ -174,15 +222,23 @@ export function detectProgrammaticOpportunities(input: {
     input.queries.map((q) => q.query)
   );
 
-  const businessType = (input.intake?.business_type ?? '').toLowerCase();
+  const detectedCategory = input.websiteCategory ?? null;
+  const businessType = (
+    detectedCategory ??
+    input.intake?.business_type ??
+    ''
+  ).toLowerCase();
   const siteType = (input.intake?.site_type ?? '').toLowerCase();
-  const isLocalBiz = /local|agency|service|clinic|law|real.?estate/.test(
-    `${businessType} ${siteType}`
-  );
+  const isLocalBiz =
+    detectedCategory === 'local' ||
+    /local|agency|service|clinic|law|real.?estate/.test(`${businessType} ${siteType}`);
+
+  const allowedFamilies = familiesForCategory(detectedCategory);
 
   const opportunities: DraftProgrammaticOpportunity[] = [];
 
   for (const entry of PATTERN_CATALOG) {
+    if (allowedFamilies && !allowedFamilies.has(entry.family)) continue;
     const demand = demandForFamily(hits, entry.family);
     const linkedGaps = gapTypesForFamily(entry.family, input.gaps);
     const hasGraphTrigger = linkedGaps.length > 0;

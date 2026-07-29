@@ -613,7 +613,8 @@ export function buildGrowthBrief(input: GrowthBriefInput): GrowthBrief {
             (item) =>
               !item.present &&
               item.kind !== 'other' &&
-              item.kind !== 'home'
+              item.kind !== 'home' &&
+              (item.expectedForCategory !== false)
           ).length,
           criticalFindings: input.metrics?.high_severity_count ?? 0,
           ogImageUrl: siteOnly.ogImageUrl,

@@ -3,6 +3,8 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@source "../components/marketing/site-os";
+
 .typeset-docs {
   --typeset-font-body: var(--font-inter);
   --typeset-font-heading: var(--font-inter);
@@ -65,6 +67,60 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  /* Site-OS homepage capture tokens + breakpoints */
+  --breakpoint-vp375: 375px;
+  --breakpoint-vp768: 768px;
+  --breakpoint-vp1280: 1280px;
+  --breakpoint-vp1920: 1920px;
+  --breakpoint-md: 572px;
+  --breakpoint-lg: 1025px;
+  --breakpoint-2xl: 1601px;
+  --color-clr-0: var(--clr-0);
+  --color-color-007: var(--color-007);
+  --color-color-002: var(--color-002);
+  --color-surface-3: var(--surface-3);
+  --color-surface: var(--surface);
+  --color-color-004: var(--color-004);
+  --color-surface-8: var(--surface-8);
+  --color-clr-1: var(--clr-1);
+  --color-clr-2: var(--clr-2);
+  --color-clr-3: var(--clr-3);
+  --color-clr-4: var(--clr-4);
+  --color-color-006: var(--color-006);
+  --color-surface-7: var(--surface-7);
+  --color-clr-5: var(--clr-5);
+  --color-clr-6: var(--clr-6);
+  --color-color-009: var(--color-009);
+  --color-color-001: var(--color-001);
+  --color-surface-2: var(--surface-2);
+  --color-color-008: var(--color-008);
+  --color-surface-4: var(--surface-4);
+  --color-color-005: var(--color-005);
+  --color-clr-7: var(--clr-7);
+  --color-clr-8: var(--clr-8);
+  --color-clr-9: var(--clr-9);
+  --color-surface-6: var(--surface-6);
+  --color-surface-5: var(--surface-5);
+  --color-clr-10: var(--clr-10);
+  --color-clr-11: var(--clr-11);
+  --color-clr-12: var(--clr-12);
+  --color-clr-13: var(--clr-13);
+  --color-clr-14: var(--clr-14);
+  --color-clr-15: var(--clr-15);
+  --color-clr-16: var(--clr-16);
+  --color-clr-17: var(--clr-17);
+  --color-clr-18: var(--clr-18);
+  --color-clr-19: var(--clr-19);
+  --color-clr-20: var(--clr-20);
+  --color-color-003: var(--color-003);
+  --color-clr-21: var(--clr-21);
+  --color-clr-22: var(--clr-22);
+  --color-clr-23: var(--clr-23);
+  --color-clr-24: var(--clr-24);
+  --color-clr-25: var(--clr-25);
+  --color-clr-26: var(--clr-26);
+  --color-clr-27: var(--clr-27);
+  --color-clr-28: var(--clr-28);
 }
 
 :root {
@@ -164,10 +220,8 @@
   body {
     @apply bg-background text-foreground;
     background-image:
-      radial-gradient(ellipse 80% 50% at 0% -20%, oklch(0.42 0.09 195 / 0.08), transparent),
-      linear-gradient(oklch(0.88 0.015 250 / 0.35) 1px, transparent 1px),
-      linear-gradient(90deg, oklch(0.88 0.015 250 / 0.35) 1px, transparent 1px);
-    background-size: auto, 48px 48px, 48px 48px;
+      radial-gradient(ellipse 80% 50% at 0% -20%, oklch(0.42 0.09 195 / 0.05), transparent);
+    background-size: auto;
   }
   html {
     @apply font-sans;
@@ -177,6 +231,12 @@
     background: #0a0a0b;
     background-image: none;
   }
+  /* Site-OS homepage capture — match light shell, no Site-OS radial wash */
+  body:has(.site-os-home) {
+    background: oklch(0.97 0 0);
+    background-image: none;
+    color: oklch(0.145 0 0);
+  }
 }
 
 @layer utilities {
@@ -185,10 +245,10 @@
   }
 
   .report-sheet {
-    background: #141416;
+    background: rgb(255 255 255 / 0.03);
     color: var(--foreground);
-    border: 1px solid rgb(255 255 255 / 0.08);
-    border-radius: 1rem;
+    border: 0;
+    border-radius: 1.5rem;
     box-shadow: none;
   }
 
@@ -197,15 +257,15 @@
   }
 
   .section-rail {
-    @apply relative rounded-2xl border border-white/8 bg-white/[0.03];
+    @apply relative rounded-3xl bg-white/[0.03];
   }
 }
 
-/* Operator chrome — Kobbe-like near-black shell, scoped to /operator */
+/* Operator chrome — Site-OS near-black shell, scoped to /operator */
 .operator-shell {
   --background: #0a0a0b;
   --foreground: #f4f4f5;
-  --card: #141416;
+  --card: rgb(255 255 255 / 0.03);
   --card-foreground: #f4f4f5;
   --popover: #18181b;
   --popover-foreground: #f4f4f5;
@@ -218,7 +278,7 @@
   --accent: #27272a;
   --accent-foreground: #fafafa;
   --destructive: #f87171;
-  --border: rgb(255 255 255 / 0.1);
+  --border: rgb(255 255 255 / 0.06);
   --input: rgb(255 255 255 / 0.12);
   --ring: #a1a1aa;
   --priority: #fb7185;
@@ -268,11 +328,66 @@
   border-color: var(--border);
 }
 
+/* ─── PDF / Print styles (dark mode) ─── */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 12mm 10mm;
+  }
+
+  html, body {
+    background: #0a0a0b !important;
+    color: #f4f4f5 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background-image: none !important;
+  }
+
+  [data-no-print],
+  nav,
+  .brief-toc,
+  .brief-status-rail,
+  header button,
+  footer {
+    display: none !important;
+  }
+
+  .operator-shell {
+    padding: 0 !important;
+  }
+
+  .xl\:grid-cols-\[180px_minmax\(0\,1fr\)_280px\] {
+    display: block !important;
+  }
+
+  .report-sheet,
+  [data-slot='card'] {
+    background: #141416 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .section-rail {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  * {
+    box-shadow: none !important;
+  }
+}
+
 /* Growth Brief memo — same dark operator surface as Overview / Run cards */
 .operator-shell .report-sheet {
-  background: #141416;
+  background: rgb(255 255 255 / 0.03);
   color: var(--foreground);
-  border-color: rgb(255 255 255 / 0.08);
+  border-color: rgb(255 255 255 / 0.06);
   box-shadow: none;
   color-scheme: dark;
 }

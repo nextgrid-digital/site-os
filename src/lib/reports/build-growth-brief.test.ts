@@ -35,6 +35,7 @@ function page(path: string, title: string): CrawledPage {
     metaDescription: 'A meta description that is long enough to pass thresholds in site analysis.',
     h1: title,
     ogImageUrl: null,
+    faviconUrl: null,
     internalLinks: ['/'],
     hasFaq: false,
     hasFaqSchema: false,

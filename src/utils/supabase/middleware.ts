@@ -32,6 +32,18 @@ export const createClient = (request: NextRequest) => {
 };
 
 export async function updateSession(request: NextRequest) {
+  const hasSupabaseAuthCookie = request.cookies
+    .getAll()
+    .some(({ name }) => name.startsWith('sb-') && name.includes('auth-token'));
+
+  if (!hasSupabaseAuthCookie) {
+    return NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    });
+  }
+
   const { supabase, supabaseResponse } = createClient(request);
 
   // Refresh the auth token so Server Components get a valid session.
