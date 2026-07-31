@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getAppUrl } from '@/lib/app-url';
 import { upsertGoogleConnection } from '@/lib/db/google';
 import { exchangeCodeForTokens } from '@/lib/google/oauth';
 
@@ -7,10 +8,11 @@ export async function GET(request: Request) {
   const code = searchParams.get('code');
   const state = searchParams.get('state');
   const error = searchParams.get('error');
+  const appUrl = getAppUrl(request);
 
   if (error) {
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/operator?error=${encodeURIComponent(error)}`
+      `${appUrl}/operator?error=${encodeURIComponent(error)}`
     );
   }
 
@@ -19,16 +21,18 @@ export async function GET(request: Request) {
   }
 
   try {
-    const parsed = JSON.parse(Buffer.from(state, 'base64url').toString('utf8')) as { projectId: string };
-    const tokens = await exchangeCodeForTokens(code);
+    const parsed = JSON.parse(Buffer.from(state, 'base64url').toString('utf8')) as {
+      projectId: string;
+    };
+    const tokens = await exchangeCodeForTokens(code, request);
     await upsertGoogleConnection(tokens);
 
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/audit/${parsed.projectId}/connect?connected=1`
+      `${appUrl}/audit/${parsed.projectId}/connect?connected=1`
     );
   } catch (callbackError) {
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/operator?error=${encodeURIComponent(
+      `${appUrl}/operator?error=${encodeURIComponent(
         callbackError instanceof Error ? callbackError.message : 'OAuth failed.'
       )}`
     );

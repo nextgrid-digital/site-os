@@ -215,6 +215,11 @@
     background: var(--background);
   }
 
+  /* Audit Evidence / Journey embeds — inherit page #F3F3F3, no second wash */
+  .site-os-home.site-os-home--flush {
+    background: transparent;
+  }
+
   .site-os-home ul,
   .site-os-home ol,
   .site-os-home menu {

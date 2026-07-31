@@ -1,5 +1,6 @@
 import { AppShell } from '@/components/audit/app-shell';
 import { AuditTabKeepAlive } from '@/components/audit/audit-tab-keep-alive';
+import { loadConnectedStatusForProject } from '@/lib/db/connected-metrics';
 import { resolveAuditWorkspace } from '@/lib/db/resolve-audit-workspace';
 
 export default async function AuditProjectLayout({
@@ -11,6 +12,7 @@ export default async function AuditProjectLayout({
 }) {
   const { projectId: id } = await params;
   const workspace = await resolveAuditWorkspace(id);
+  const connected = await loadConnectedStatusForProject(workspace.projectId);
 
   return (
     <AppShell
@@ -18,7 +20,19 @@ export default async function AuditProjectLayout({
       signedIn={workspace.signedIn}
       showSignIn={!workspace.signedIn}
     >
-      <AuditTabKeepAlive workspaceId={workspace.workspaceId} domain={workspace.domain}>
+      <AuditTabKeepAlive
+        workspaceId={workspace.workspaceId}
+        projectId={workspace.projectId}
+        domain={workspace.domain}
+        websiteUrl={workspace.website.url}
+        connection={{
+          gscConnected: connected.gscConnected,
+          ga4Connected: connected.ga4Connected,
+          gscPropertyLabel: connected.gscPropertyLabel,
+          ga4PropertyLabel: connected.ga4PropertyLabel,
+          googleConnected: connected.googleConnected,
+        }}
+      >
         {children}
       </AuditTabKeepAlive>
     </AppShell>

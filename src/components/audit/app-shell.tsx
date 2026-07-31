@@ -20,7 +20,10 @@ export function AppShell({
   fullBleed,
 }: AppShellProps) {
   return (
-    <div className="min-h-dvh bg-[#F3F3F3] text-zinc-950">
+    <div
+      className="min-h-dvh bg-[#F3F3F3] text-zinc-950"
+      {...(!fullBleed ? { 'data-audit-app': '' } : {})}
+    >
       <SiteNav
         userInitials={userInitials}
         showSignIn={showSignIn}

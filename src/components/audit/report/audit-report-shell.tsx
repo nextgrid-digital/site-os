@@ -129,8 +129,6 @@ export function AuditReportShell({
           siteIdentity={siteIdentity}
           projectId={projectId}
           connectedMetrics={connectedMetrics}
-          showRerun={showRerun}
-          rerunSlot={showRerun ? resolvedRerunSlot : null}
           showUpgradeBanner={showUpgradeBanner}
         />
       ) : (

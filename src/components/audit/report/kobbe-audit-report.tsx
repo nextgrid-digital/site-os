@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState } from 'react';
 import '@/components/marketing/site-os/site-os-home.css';
 import { HeroDemoDashboard } from '@/components/marketing/site-os/demo/hero-demo-dashboard';
 import {
@@ -116,35 +116,6 @@ function contradictionPayload(c: BrandContradiction): EvidenceDrawerPayload {
   };
 }
 
-function ConnectionChip({
-  label,
-  connected,
-  detail,
-}: {
-  label: string;
-  connected: boolean;
-  detail: string | null;
-}) {
-  return (
-    <div
-      className={`inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${
-        connected
-          ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
-          : 'border-zinc-200 bg-zinc-50 text-zinc-600'
-      }`}
-    >
-      <span
-        className={`h-1.5 w-1.5 shrink-0 rounded-full ${connected ? 'bg-emerald-500' : 'bg-zinc-300'}`}
-        aria-hidden
-      />
-      <span className="shrink-0">{label}</span>
-      <span className="truncate font-normal text-zinc-500">
-        {connected ? detail || 'Connected' : 'Not connected'}
-      </span>
-    </div>
-  );
-}
-
 function Heatmap({ intensities }: { intensities: number[] }) {
   if (intensities.length === 0) {
     return (
@@ -178,19 +149,15 @@ function Heatmap({ intensities }: { intensities: number[] }) {
 
 export function KobbeAuditReport({
   view,
-  siteIdentity,
+  siteIdentity: _siteIdentity,
   projectId,
   connectedMetrics = null,
-  showRerun,
-  rerunSlot,
   showUpgradeBanner = true,
 }: {
   view: BrandEvidenceReportView;
   siteIdentity: SiteIdentity;
   projectId: string;
   connectedMetrics?: ConnectedAuditMetrics | null;
-  showRerun?: boolean;
-  rerunSlot?: ReactNode;
   showUpgradeBanner?: boolean;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -346,45 +313,18 @@ export function KobbeAuditReport({
   const ex = view.executive;
 
   return (
-    <div className="site-os-home -mx-8">
+    <div className="site-os-home site-os-home--flush -mx-8">
       {showUpgradeBanner ? (
         <div className="mx-auto max-w-280 px-8 pt-4 print:hidden">
           <ConnectedUpgradeBanner />
         </div>
       ) : null}
 
-      {/* Hero */}
-      <section className="block pt-8">
-        <div className="mx-auto max-w-280 px-8 py-12">
-          <div className="mx-auto max-w-3xl text-center text-balance">
-            <p className="text-xs font-medium tracking-[0.16em] text-muted-foreground uppercase">
-              Brand Evidence Record
-            </p>
-            <h1 className="mt-3 block [font-family:LTRemark,_Georgia,_serif] text-4xl leading-10 max-md:text-3xl md:text-5xl md:leading-14">
-              {siteIdentity.title}
-            </h1>
-            <p className="mt-2 text-muted-foreground">
-              {siteIdentity.domain} · Audit {ex.audit_date.slice(0, 10)} · {ex.pages_analyzed}{' '}
-              pages · {ex.sampled_prompts_tested} prompts
-            </p>
-          </div>
-
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-            <ConnectionChip
-              label="Search Console"
-              connected={Boolean(connectedMetrics?.gscConnected)}
-              detail={connectedMetrics?.gscPropertyLabel ?? null}
-            />
-            <ConnectionChip
-              label="GA4"
-              connected={Boolean(connectedMetrics?.ga4Connected)}
-              detail={connectedMetrics?.ga4PropertyLabel ?? null}
-            />
-            {showRerun && rerunSlot ? <div className="print:hidden">{rerunSlot}</div> : null}
-          </div>
-
+      {/* Hero dashboard */}
+      <section className="block">
+        <div className="mx-auto max-w-280 px-8 pb-12 pt-2">
           {connectedMetrics?.googleConnected && !hasGoogleRows ? (
-            <p className="mx-auto mt-3 max-w-xl text-center text-xs text-muted-foreground">
+            <p className="mx-auto mb-6 max-w-xl text-center text-xs text-muted-foreground">
               Properties are selected, but this audit stored no Google rows. Reconnect Google on the{' '}
               <Link
                 href={`/audit/${projectId}/connect`}
@@ -396,9 +336,7 @@ export function KobbeAuditReport({
             </p>
           ) : null}
 
-          <div className="mt-10">
-            <HeroDemoDashboard data={heroData} />
-          </div>
+          <HeroDemoDashboard data={heroData} />
         </div>
       </section>
 

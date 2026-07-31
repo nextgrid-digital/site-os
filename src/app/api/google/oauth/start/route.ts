@@ -42,6 +42,6 @@ export async function GET(request: Request) {
   }
 
   const state = Buffer.from(JSON.stringify({ projectId })).toString('base64url');
-  const url = getGoogleAuthUrl(state);
+  const url = getGoogleAuthUrl(state, request);
   return NextResponse.redirect(url);
 }

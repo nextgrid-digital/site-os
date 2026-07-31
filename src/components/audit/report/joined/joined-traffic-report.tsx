@@ -96,7 +96,7 @@ export function JoinedTrafficReport({
   );
 
   return (
-    <div className="site-os-home -mx-8">
+    <div className="site-os-home site-os-home--flush -mx-8">
       <section className="block">
         <div className="mx-auto max-w-280 px-8 py-12">
           <div className="mx-auto max-w-3xl text-center text-balance">

@@ -1,4 +1,5 @@
 import { google } from 'googleapis';
+import { getAppUrl } from '@/lib/app-url';
 
 export const GOOGLE_SCOPES = [
   'https://www.googleapis.com/auth/webmasters.readonly',
@@ -9,14 +10,14 @@ export function getOperatorEmail() {
   return process.env.OPERATOR_EMAIL ?? 'hello@nextgrid.digital';
 }
 
-export function getGoogleRedirectUri() {
-  return (
-    process.env.GOOGLE_REDIRECT_URI ??
-    `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/api/google/oauth/callback`
-  );
+export function getGoogleRedirectUri(request?: Request) {
+  if (process.env.GOOGLE_REDIRECT_URI?.trim()) {
+    return process.env.GOOGLE_REDIRECT_URI.trim().replace(/\/$/, '');
+  }
+  return `${getAppUrl(request)}/api/google/oauth/callback`;
 }
 
-export function createOAuthClient() {
+export function createOAuthClient(request?: Request) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
@@ -24,11 +25,11 @@ export function createOAuthClient() {
     throw new Error('Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET.');
   }
 
-  return new google.auth.OAuth2(clientId, clientSecret, getGoogleRedirectUri());
+  return new google.auth.OAuth2(clientId, clientSecret, getGoogleRedirectUri(request));
 }
 
-export function getGoogleAuthUrl(state: string) {
-  const client = createOAuthClient();
+export function getGoogleAuthUrl(state: string, request?: Request) {
+  const client = createOAuthClient(request);
   return client.generateAuthUrl({
     access_type: 'offline',
     prompt: 'consent',
@@ -37,8 +38,8 @@ export function getGoogleAuthUrl(state: string) {
   });
 }
 
-export async function exchangeCodeForTokens(code: string) {
-  const client = createOAuthClient();
+export async function exchangeCodeForTokens(code: string, request?: Request) {
+  const client = createOAuthClient(request);
   const { tokens } = await client.getToken(code);
   return tokens;
 }
