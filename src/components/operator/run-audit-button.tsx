@@ -11,16 +11,20 @@ export function RunAuditButton({
   rerunType,
   size = 'default',
   className,
+  reportHref,
 }: {
   projectId: string;
   fullBriefUnlocked?: boolean;
   rerunType?: 'mini' | 'full';
   size?: 'default' | 'sm' | 'lg' | 'icon' | 'xs';
   className?: string;
+  /** Where to navigate after a successful run. */
+  reportHref?: string;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const afterRunHref = reportHref ?? `/audit/${projectId}/growth`;
 
   async function runAudit(runType: 'mini' | 'full') {
     setLoading(true);
@@ -38,7 +42,7 @@ export function RunAuditButton({
       return;
     }
 
-    router.push(`/operator/projects/${projectId}/report`);
+    router.push(afterRunHref);
     router.refresh();
   }
 

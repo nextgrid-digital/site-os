@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuditTabCache } from '@/components/audit/audit-tab-cache';
 
 interface RerunFreeAuditButtonProps {
   websiteUrl: string;
@@ -10,6 +11,7 @@ interface RerunFreeAuditButtonProps {
 
 export function RerunFreeAuditButton({ websiteUrl, disabled }: RerunFreeAuditButtonProps) {
   const router = useRouter();
+  const tabCache = useAuditTabCache();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -34,6 +36,7 @@ export function RerunFreeAuditButton({ websiteUrl, disabled }: RerunFreeAuditBut
         setError('Failed to start audit');
         return;
       }
+      tabCache?.invalidateAll();
       router.push(`/audit/${sessionId}`);
       router.refresh();
     } catch {

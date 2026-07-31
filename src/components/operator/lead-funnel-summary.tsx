@@ -21,13 +21,16 @@ export function LeadFunnelSummary({
   title = 'Lead funnel',
   description = 'Traffic, lead gain, and current funnel coverage.',
   showManageButton = false,
+  leadsHref,
 }: {
   projectId: string;
   reporting: ProjectLeadReportingSummary;
   title?: string;
   description?: string;
   showManageButton?: boolean;
+  leadsHref?: string;
 }) {
+  const manageHref = leadsHref ?? `/audit/${projectId}/leads`;
   const topTraffic = reporting.trafficByChannel.slice(0, 6);
 
   return (
@@ -41,7 +44,7 @@ export function LeadFunnelSummary({
           <div className="flex flex-wrap gap-2">
             <Badge variant="outline">GA4 traffic: last 28 days</Badge>
             {showManageButton ? (
-              <Button size="sm" variant="outline" render={<Link href={`/operator/projects/${projectId}/leads`} />}>
+              <Button size="sm" variant="outline" render={<Link href={manageHref} />}>
                 Manage leads
               </Button>
             ) : null}

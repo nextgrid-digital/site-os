@@ -203,7 +203,7 @@ export interface ArchitectureInput {
   updated_at: string;
 }
 
-export type ReportType = 'teaser' | 'growth_brief';
+export type ReportType = 'teaser' | 'growth_brief' | 'brand_evidence_record';
 
 export interface AeoAnalysisRow {
   id: string;

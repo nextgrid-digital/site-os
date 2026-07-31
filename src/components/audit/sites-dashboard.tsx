@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { AppShell } from '@/components/audit/app-shell';
+import { ConnectedUpgradeBanner } from '@/components/audit/connected-upgrade-banner';
 
 export type SitesDashboardSite = {
   sessionId: string;
@@ -14,6 +15,7 @@ interface SitesDashboardProps {
   sites: SitesDashboardSite[];
   userInitials: string;
   highlightSessionId?: string | null;
+  showUpgradeBanner?: boolean;
 }
 
 function EmptySparkline() {
@@ -30,9 +32,14 @@ function EmptySparkline() {
   );
 }
 
-export function SitesDashboard({ sites, userInitials, highlightSessionId }: SitesDashboardProps) {
+export function SitesDashboard({
+  sites,
+  userInitials,
+  highlightSessionId,
+  showUpgradeBanner = true,
+}: SitesDashboardProps) {
   return (
-    <AppShell userInitials={userInitials}>
+    <AppShell userInitials={userInitials} signedIn>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <button
           type="button"
@@ -60,28 +67,7 @@ export function SitesDashboard({ sites, userInitials, highlightSessionId }: Site
         </div>
       </div>
 
-      <div className="mb-8 flex flex-col gap-3 rounded-xl bg-[#f8e8e6] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex gap-3">
-          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-rose-300 text-rose-700">
-            <AlertIcon />
-          </span>
-          <div className="space-y-0.5 text-sm leading-5 text-zinc-800">
-            <p className="font-semibold">
-              Free audits are unlocked. Connected insights need an upgrade.
-            </p>
-            <p className="text-zinc-600">
-              Choose a plan to connect Search Console and GA4, or Site-OS stays on crawl-only findings.
-              Yearly billing includes 2 months free.
-            </p>
-          </div>
-        </div>
-        <Link
-          href="/#pricing"
-          className="inline-flex shrink-0 items-center justify-center rounded-full bg-zinc-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-800"
-        >
-          Upgrade
-        </Link>
-      </div>
+      {showUpgradeBanner ? <ConnectedUpgradeBanner className="mb-8" /> : null}
 
       <section className="space-y-4">
         <h1 className="text-base font-semibold text-zinc-900">All</h1>
@@ -161,14 +147,6 @@ function ArrangeIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M4 6h16M4 12h10M4 18h7" />
-    </svg>
-  );
-}
-
-function AlertIcon() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-      <path d="M12 9v4M12 17h.01" />
     </svg>
   );
 }

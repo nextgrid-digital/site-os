@@ -1,8 +1,13 @@
-import Link from 'next/link';
+'use client';
+
+import { useMemo } from 'react';
+import { AuditInteractiveDashboard } from '@/components/audit/report/audit-interactive-dashboard';
 import { ReportSection } from '@/components/audit/report/report-section';
+import { buildAuditDashboardView } from '@/lib/audit/audit-dashboard-view';
 import type { FreeReportViewModel, StoryStepStatus } from '@/lib/audit/free-report-view';
 import type {
   ChannelTrafficRow,
+  Finding,
   PageMetric,
   QueryMetric,
 } from '@/lib/supabase/types';
@@ -54,36 +59,37 @@ function EmptyLine({ children }: { children: string }) {
 }
 
 export function HumanReportPanel({
+  projectId,
   view,
+  findings,
   traffic,
 }: {
+  projectId: string;
   view: FreeReportViewModel;
+  findings: Finding[];
   traffic?: HumanTrafficTables | null;
 }) {
   let section = 0;
   const idx = () => ++section;
 
-  const hasGa4 =
-    Boolean(traffic) &&
-    (traffic!.trafficByChannel.some((r) => r.sessions > 0) ||
-      traffic!.pageMetrics.some((p) => p.ga_sessions > 0));
-  const hasGsc =
-    Boolean(traffic) &&
-    (traffic!.queryMetrics.some((q) => q.impressions > 0 || q.clicks > 0) ||
-      traffic!.pageMetrics.some((p) => p.gsc_impressions > 0));
-
-  const landingPages = (traffic?.pageMetrics ?? [])
-    .filter((p) => p.ga_sessions > 0)
-    .toSorted((a, b) => b.ga_sessions - a.ga_sessions)
-    .slice(0, 8);
-
-  const channels = (traffic?.trafficByChannel ?? [])
-    .toSorted((a, b) => b.sessions - a.sessions)
-    .slice(0, 8);
-
-  const queries = (traffic?.queryMetrics ?? [])
-    .toSorted((a, b) => b.impressions - a.impressions)
-    .slice(0, 8);
+  const dashboard = useMemo(
+    () =>
+      buildAuditDashboardView({
+        projectId,
+        view,
+        findings,
+        traffic: traffic
+          ? {
+              projectId: traffic.projectId,
+              googleConnected: traffic.googleConnected,
+              trafficByChannel: traffic.trafficByChannel,
+              pageMetrics: traffic.pageMetrics,
+              queryMetrics: traffic.queryMetrics,
+            }
+          : null,
+      }),
+    [projectId, view, findings, traffic]
+  );
 
   return (
     <div className="space-y-10">
@@ -105,6 +111,18 @@ export function HumanReportPanel({
             </div>
           </dl>
         </div>
+      </ReportSection>
+
+      <ReportSection
+        index={idx()}
+        title="Dashboard"
+        lead={
+          traffic
+            ? 'Audit health from this crawl, plus live traffic when Google data is present.'
+            : 'Interactive drill-down from this crawl — scores, findings, and site structure.'
+        }
+      >
+        <AuditInteractiveDashboard data={dashboard} />
       </ReportSection>
 
       <ReportSection
@@ -289,125 +307,6 @@ export function HumanReportPanel({
           ))}
         </div>
       </ReportSection>
-
-      {traffic ? (
-        <>
-          <ReportSection
-            index={idx()}
-            title="Live traffic"
-            lead="Real GA4 / Search Console from the connected run — never sample data."
-          >
-            {hasGa4 || hasGsc ? (
-              <div className="space-y-8">
-                {hasGa4 && landingPages.length > 0 ? (
-                  <div>
-                    <p className="mb-2 text-[11px] font-medium tracking-[0.12em] text-zinc-400 uppercase">
-                      Top pages
-                    </p>
-                    <div className="overflow-x-auto rounded-xl border border-zinc-200">
-                      <table className="w-full min-w-[28rem] text-left text-sm">
-                        <thead className="border-b border-zinc-100 bg-zinc-50 text-[11px] tracking-wide text-zinc-400 uppercase">
-                          <tr>
-                            <th className="px-3 py-2 font-medium">Path</th>
-                            <th className="px-3 py-2 font-medium">Sessions</th>
-                            <th className="px-3 py-2 font-medium">Engaged</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-zinc-100">
-                          {landingPages.map((row) => (
-                            <tr key={row.id}>
-                              <td className="px-3 py-2 font-mono text-xs text-zinc-800">{row.path}</td>
-                              <td className="px-3 py-2 text-zinc-600">{row.ga_sessions}</td>
-                              <td className="px-3 py-2 text-zinc-600">{row.ga_engaged_sessions}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                ) : null}
-
-                {hasGa4 && channels.length > 0 ? (
-                  <div>
-                    <p className="mb-2 text-[11px] font-medium tracking-[0.12em] text-zinc-400 uppercase">
-                      Channels
-                    </p>
-                    <div className="overflow-x-auto rounded-xl border border-zinc-200">
-                      <table className="w-full min-w-[28rem] text-left text-sm">
-                        <thead className="border-b border-zinc-100 bg-zinc-50 text-[11px] tracking-wide text-zinc-400 uppercase">
-                          <tr>
-                            <th className="px-3 py-2 font-medium">Channel</th>
-                            <th className="px-3 py-2 font-medium">Sessions</th>
-                            <th className="px-3 py-2 font-medium">Conversions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-zinc-100">
-                          {channels.map((row) => (
-                            <tr key={`${row.channel}-${row.sourceMedium}`}>
-                              <td className="px-3 py-2 text-zinc-800">
-                                <span className="font-medium">{row.channel || 'Other'}</span>
-                                <span className="mt-0.5 block font-mono text-[11px] text-zinc-400">
-                                  {row.sourceMedium}
-                                </span>
-                              </td>
-                              <td className="px-3 py-2 text-zinc-600">{row.sessions}</td>
-                              <td className="px-3 py-2 text-zinc-600">{row.conversions}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                ) : null}
-
-                {hasGsc && queries.length > 0 ? (
-                  <div>
-                    <p className="mb-2 text-[11px] font-medium tracking-[0.12em] text-zinc-400 uppercase">
-                      Keywords
-                    </p>
-                    <div className="overflow-x-auto rounded-xl border border-zinc-200">
-                      <table className="w-full min-w-[28rem] text-left text-sm">
-                        <thead className="border-b border-zinc-100 bg-zinc-50 text-[11px] tracking-wide text-zinc-400 uppercase">
-                          <tr>
-                            <th className="px-3 py-2 font-medium">Query</th>
-                            <th className="px-3 py-2 font-medium">Clicks</th>
-                            <th className="px-3 py-2 font-medium">Impressions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-zinc-100">
-                          {queries.map((row) => (
-                            <tr key={row.id}>
-                              <td className="px-3 py-2 text-zinc-800">{row.query}</td>
-                              <td className="px-3 py-2 text-zinc-600">{row.clicks}</td>
-                              <td className="px-3 py-2 text-zinc-600">{row.impressions}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            ) : (
-              <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50/80 px-5 py-6 text-center">
-                <p className="text-sm font-medium text-zinc-800">
-                  {traffic.googleConnected
-                    ? 'Google is connected, but this run has no traffic rows yet.'
-                    : 'Connect Google Search Console and Analytics to unlock live traffic.'}
-                </p>
-                {traffic.showUpgradeCta !== false ? (
-                  <Link
-                    href={`/audit/${traffic.projectId}/upgrade`}
-                    className="mt-3 inline-flex rounded-lg bg-zinc-950 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-zinc-800"
-                  >
-                    Connect Google
-                  </Link>
-                ) : null}
-              </div>
-            )}
-          </ReportSection>
-        </>
-      ) : null}
     </div>
   );
 }

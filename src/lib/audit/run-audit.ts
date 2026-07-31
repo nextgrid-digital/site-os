@@ -7,6 +7,14 @@ import {
 } from '@/lib/audit/audit-readiness';
 import { crawlWebsite } from '@/lib/crawl/site-crawler';
 import {
+  buildBrandEvidenceRecord,
+  collectExternalSources,
+  collectSampledAiObservations,
+  diffBrandEvidenceRecords,
+  persistBrandEvidenceRecord,
+} from '@/lib/evidence';
+import type { BrandEvidenceReportView } from '@/lib/evidence/types';
+import {
   generateArchitectureRecommendations,
   generateFindings,
 } from '@/lib/audit/finding-generators';
@@ -19,8 +27,10 @@ import { analyzeCommercialGraph, toCommercialGraphBriefSlice } from '@/lib/graph
 import { persistCommercialGraph } from '@/lib/graph/persist';
 import { buildGrowthBrief } from '@/lib/reports/build-growth-brief';
 import {
+  fetchGa4AnalyticsBundle,
   fetchGa4LandingPages,
   normalizeTrafficChannel,
+  type Ga4AnalyticsBundle,
   type Ga4LandingPageRow,
 } from '@/lib/google/ga4';
 import { getAuthorizedClient, refreshAccessToken } from '@/lib/google/oauth';
@@ -48,7 +58,7 @@ export interface AuditRunResult {
   metrics: AuditMetrics;
   findings: Finding[];
   prompts: AgentPrompt[];
-  pricing: PricingPlan;
+  pricing: PricingPlan | null;
   architecture: ArchitectureRecommendation[];
   pageMetrics: PageMetric[];
   queryMetrics: QueryMetric[];
@@ -181,6 +191,16 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
       pageRows: [],
     };
     let ga4Data: Ga4LandingPageRow[] = [];
+    let ga4Analytics: Ga4AnalyticsBundle = {
+      overview: null,
+      daily: [],
+      countries: [],
+      devices: [],
+      browsers: [],
+      events: [],
+      conversionPeak: [],
+      funnelSteps: [],
+    };
     let gscConnected = false;
     let ga4Connected = false;
 
@@ -196,17 +216,21 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
           expiry_date: connection.token_expiry ? new Date(connection.token_expiry).getTime() : null,
         });
 
-        const [gscResult, ga4Result, crawlResult] = await Promise.all([
+        const [gscResult, ga4Result, ga4AnalyticsResult, crawlResult] = await Promise.all([
           gscProperty
             ? fetchSearchConsolePerformance(auth, gscProperty.site_url, startDate, endDate)
             : Promise.resolve({ queryRows: [], pageRows: [] }),
           ga4Property
             ? fetchGa4LandingPages(auth, ga4Property.property_id, startDate, endDate)
             : Promise.resolve([] as Ga4LandingPageRow[]),
+          ga4Property
+            ? fetchGa4AnalyticsBundle(auth, ga4Property.property_id, startDate, endDate)
+            : Promise.resolve(ga4Analytics),
           crawlPromise,
         ]);
         gscData = gscResult;
         ga4Data = ga4Result;
+        ga4Analytics = ga4AnalyticsResult;
         gscConnected = Boolean(gscProperty);
         ga4Connected = Boolean(ga4Property);
 
@@ -222,6 +246,7 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
           ga4Connected,
           gscData,
           ga4Data,
+          ga4Analytics,
           crawlResult,
           goalCategory,
         });
@@ -240,6 +265,7 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
           ga4Connected: false,
           gscData,
           ga4Data,
+          ga4Analytics,
           crawlResult,
           goalCategory,
         });
@@ -259,6 +285,7 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
       ga4Connected: false,
       gscData,
       ga4Data,
+      ga4Analytics,
       crawlResult,
       goalCategory,
     });
@@ -287,6 +314,7 @@ async function finalizeAuditRun(input: {
   ga4Connected: boolean;
   gscData: { queryRows: GscQueryRow[]; pageRows: GscPageRow[] };
   ga4Data: Ga4LandingPageRow[];
+  ga4Analytics: Ga4AnalyticsBundle;
   crawlResult: Awaited<ReturnType<typeof crawlWebsite>>;
   goalCategory?: string | null;
 }): Promise<AuditRunResult> {
@@ -302,6 +330,7 @@ async function finalizeAuditRun(input: {
     ga4Connected,
     gscData,
     ga4Data,
+    ga4Analytics,
     crawlResult,
     goalCategory,
   } = input;
@@ -513,64 +542,75 @@ async function finalizeAuditRun(input: {
       ? await supabase.from('findings').insert(findingsPayload).select('*')
       : { data: [] as Finding[] };
 
-  const promptsPayload = (findings ?? []).map((finding) => {
-    const prompt = generatePromptForFinding(
-      {
-        type: finding.type,
-        category: finding.category,
-        severity: finding.severity,
-        title: finding.title,
-        summary: finding.summary,
-        page_path: finding.page_path,
-        evidence: finding.evidence as Record<string, unknown>,
-        buyer_moment: finding.buyer_moment ?? 'Evaluation',
-        estimated_value: finding.estimated_value ?? 'Improved performance',
-      },
-      projectName,
-      website.url
-    );
-    return {
-      finding_id: finding.id,
-      audit_run_id: auditRunId,
-      ...prompt,
-    };
-  });
+  const skipPrescriptions = runType === 'free';
 
-  const { data: prompts } =
-    promptsPayload.length > 0
-      ? await supabase.from('agent_prompts').insert(promptsPayload).select('*')
-      : { data: [] as AgentPrompt[] };
+  let prompts: AgentPrompt[] = [];
+  let pricingPlan: PricingPlan | null = null;
+  let architectureRows: ArchitectureRecommendation[] = [];
 
-  const { data: pricingPlan } = await supabase
-    .from('pricing_plans')
-    .insert({
-      audit_run_id: auditRunId,
-      project_id: projectId,
-      recommended_tier: pricing.recommended_tier,
-      price_range: pricing.price_range,
-      rationale: pricing.rationale,
-      included_items: pricing.included_items,
-    })
-    .select('*')
-    .single();
+  if (!skipPrescriptions) {
+    const promptsPayload = (findings ?? []).map((finding) => {
+      const prompt = generatePromptForFinding(
+        {
+          type: finding.type,
+          category: finding.category,
+          severity: finding.severity,
+          title: finding.title,
+          summary: finding.summary,
+          page_path: finding.page_path,
+          evidence: finding.evidence as Record<string, unknown>,
+          buyer_moment: finding.buyer_moment ?? 'Evaluation',
+          estimated_value: finding.estimated_value ?? 'Improved performance',
+        },
+        projectName,
+        website.url
+      );
+      return {
+        finding_id: finding.id,
+        audit_run_id: auditRunId,
+        ...prompt,
+      };
+    });
 
-  const { data: architectureRows } =
-    architecture.length > 0
-      ? await supabase
-          .from('architecture_recommendations')
-          .insert(
-            architecture.map((item) => ({
-              audit_run_id: auditRunId,
-              project_id: projectId,
-              page_type: item.page_type,
-              title: item.title,
-              rationale: item.rationale,
-              priority: item.priority,
-              suggested_path: item.suggested_path,
-            }))
-          )
-          .select('*')
-      : { data: [] as ArchitectureRecommendation[] };
+    const promptsRes =
+      promptsPayload.length > 0
+        ? await supabase.from('agent_prompts').insert(promptsPayload).select('*')
+        : { data: [] as AgentPrompt[] };
+    prompts = promptsRes.data ?? [];
+
+    const { data: pricingRow } = await supabase
+      .from('pricing_plans')
+      .insert({
+        audit_run_id: auditRunId,
+        project_id: projectId,
+        recommended_tier: pricing.recommended_tier,
+        price_range: pricing.price_range,
+        rationale: pricing.rationale,
+        included_items: pricing.included_items,
+      })
+      .select('*')
+      .single();
+    pricingPlan = pricingRow;
+
+    const architectureRes =
+      architecture.length > 0
+        ? await supabase
+            .from('architecture_recommendations')
+            .insert(
+              architecture.map((item) => ({
+                audit_run_id: auditRunId,
+                project_id: projectId,
+                page_type: item.page_type,
+                title: item.title,
+                rationale: item.rationale,
+                priority: item.priority,
+                suggested_path: item.suggested_path,
+              }))
+            )
+            .select('*')
+        : { data: [] as ArchitectureRecommendation[] };
+    architectureRows = architectureRes.data ?? [];
+  }
 
   const { data: aeoRow } = await supabase
     .from('aeo_analyses')
@@ -676,6 +716,14 @@ async function finalizeAuditRun(input: {
     siteOnlyAnalysis,
     confidenceScore,
     trafficByChannel,
+    ga4Overview: ga4Analytics.overview,
+    ga4Daily: ga4Analytics.daily,
+    ga4Countries: ga4Analytics.countries,
+    ga4Devices: ga4Analytics.devices,
+    ga4Browsers: ga4Analytics.browsers,
+    ga4Events: ga4Analytics.events,
+    ga4ConversionPeak: ga4Analytics.conversionPeak,
+    ga4FunnelSteps: ga4Analytics.funnelSteps,
     crawlErrors: crawlResult.errors,
     generatedAt: new Date().toISOString(),
   };
@@ -687,6 +735,69 @@ async function finalizeAuditRun(input: {
     report_type: reportType,
     snapshot: reportSnapshot,
   });
+
+  try {
+    const { data: prevBerRow } = await supabase
+      .from('brand_evidence_snapshots')
+      .select('audit_run_id, snapshot')
+      .eq('project_id', projectId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const previousBer = (prevBerRow?.snapshot as BrandEvidenceReportView | null) ?? null;
+    const previousBerRunId =
+      typeof prevBerRow?.audit_run_id === 'string' ? prevBerRow.audit_run_id : null;
+
+    const sitemapFound = !crawlResult.errors.some((e) =>
+      e.toLowerCase().includes('no sitemap.xml found')
+    );
+    const [externalSources, aiSample] = await Promise.all([
+      collectExternalSources({
+        domain: new URL(website.url).hostname.replace(/^www\./, ''),
+        companyName: projectName,
+        websiteUrl: website.url,
+      }),
+      collectSampledAiObservations({
+        domain: new URL(website.url).hostname.replace(/^www\./, ''),
+        companyName: projectName,
+        websiteUrl: website.url,
+      }),
+    ]);
+
+    let brandEvidence = buildBrandEvidenceRecord({
+      projectId,
+      companyName: projectName,
+      domain: new URL(website.url).hostname.replace(/^www\./, ''),
+      websiteUrl: website.url,
+      crawledPages: crawlResult.pages,
+      siteOnly: siteOnlyAnalysis,
+      aeo: aeoResult.analysis,
+      intake,
+      sitemapFound,
+      crawlErrors: crawlResult.errors,
+      externalSources,
+      promptRuns: aiSample.promptRuns,
+      competitors: aiSample.competitors,
+      auditDate: new Date().toISOString(),
+    });
+
+    const historical_changes = diffBrandEvidenceRecords(
+      previousBer,
+      brandEvidence,
+      previousBerRunId
+    );
+    brandEvidence = { ...brandEvidence, historical_changes };
+
+    await persistBrandEvidenceRecord({
+      supabase,
+      auditRunId,
+      projectId,
+      view: brandEvidence,
+    });
+  } catch (berError) {
+    console.error('[runAudit] Brand Evidence Record persist failed', berError);
+  }
 
   await supabase
     .from('audit_runs')
@@ -705,7 +816,7 @@ async function finalizeAuditRun(input: {
     metrics: metrics!,
     findings: findings ?? [],
     prompts: prompts ?? [],
-    pricing: pricingPlan!,
+    pricing: pricingPlan,
     architecture: architectureRows ?? [],
     pageMetrics: pageMetrics ?? [],
     queryMetrics: queryMetrics ?? [],

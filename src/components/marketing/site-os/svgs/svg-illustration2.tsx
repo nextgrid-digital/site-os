@@ -1,7 +1,7 @@
 // @ts-nocheck
 export default function Illustration2({ cid }: { cid?: string }) {
   return (
-    <svg className="w-255.5 h-72 block overflow-hidden align-middle max-md:w-[17.8125rem] max-md:h-64 md:max-lg:w-167.5" data-component="image" height="288" viewBox="0 0 1022 288" width="1022" fill="currentColor" data-cid={cid}>
+    <svg className="w-full h-72 block overflow-hidden align-middle max-md:h-64" data-component="image" height="288" viewBox="0 0 1022 288" width="1022" fill="currentColor" data-cid={cid}>
       <title />
       <desc />
       <g tabIndex="-1" className="recharts-zIndex-layer_-100" />

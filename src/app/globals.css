@@ -391,3 +391,16 @@
   box-shadow: none;
   color-scheme: dark;
 }
+
+@keyframes audit-progress-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+.audit-progress-bar {
+  animation: audit-progress-indeterminate 1.4s ease-in-out infinite;
+}

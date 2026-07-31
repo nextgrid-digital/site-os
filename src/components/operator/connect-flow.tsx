@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { CheckCircle2, Link2 } from 'lucide-react';
+import { useInvalidateAuditTab } from '@/components/audit/audit-tab-cache';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -15,6 +16,8 @@ export function ConnectFlow({
   ga4Properties,
   operatorEmail,
   fullBriefUnlocked,
+  paidPlan = true,
+  workspaceBase,
 }: {
   projectId: string;
   googleConnected: boolean;
@@ -22,8 +25,13 @@ export function ConnectFlow({
   ga4Properties: Ga4Property[];
   operatorEmail?: string | null;
   fullBriefUnlocked: boolean;
+  paidPlan?: boolean;
+  /** Base path for in-app links, e.g. `/audit/{sessionOrProjectId}`. */
+  workspaceBase?: string;
 }) {
+  const base = workspaceBase ?? `/audit/${projectId}`;
   const router = useRouter();
+  const invalidateTab = useInvalidateAuditTab();
   const [selectedGsc, setSelectedGsc] = useState(
     gscProperties.find((property) => property.is_selected)?.id ?? ''
   );
@@ -50,6 +58,9 @@ export function ConnectFlow({
 
     const gscCount = data.properties?.gsc?.length ?? 0;
     const ga4Count = data.properties?.ga4?.length ?? 0;
+    invalidateTab('/connect');
+    invalidateTab('');
+    invalidateTab('/journey');
     router.refresh();
 
     if (gscCount === 0 && ga4Count === 0) {
@@ -76,13 +87,31 @@ export function ConnectFlow({
       setMessage(data.error ?? 'Failed to save mapping.');
       return;
     }
+    invalidateTab('/connect');
+    invalidateTab('');
+    invalidateTab('/journey');
     router.refresh();
     setMessage('Property mapping saved.');
   }
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      {!fullBriefUnlocked ? (
+      {!paidPlan ? (
+        <Card className="shadow-none lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Paid plan required</CardTitle>
+            <CardDescription>
+              Free accounts can run crawl-only audits. Upgrade to paid to unlock Search Console and
+              GA4 connections for this project.
+            </CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Button render={<a href="/#pricing" />}>View pricing</Button>
+          </CardFooter>
+        </Card>
+      ) : null}
+
+      {!fullBriefUnlocked && paidPlan ? (
         <Card className="shadow-none lg:col-span-2">
           <CardHeader>
             <CardTitle>Full audit access required</CardTitle>
@@ -92,16 +121,12 @@ export function ConnectFlow({
             </CardDescription>
           </CardHeader>
           <CardFooter>
-            <Button
-              render={<a href={`/operator/projects/${projectId}/report`} />}
-            >
-              Open report to unlock
-            </Button>
+            <Button render={<a href={base} />}>Open report to unlock</Button>
           </CardFooter>
         </Card>
       ) : null}
 
-      {fullBriefUnlocked ? (
+      {fullBriefUnlocked && paidPlan ? (
         <>
       <Card className="shadow-none">
         <CardHeader>

@@ -1,7 +1,7 @@
 import type { AeoAnalysis } from '@/lib/aeo/schema';
 import type { SiteOnlyAnalysis } from '@/lib/audit/site-only-analysis';
 
-export type AskAiProvider = 'chatgpt' | 'claude' | 'perplexity';
+export type AskAiProvider = 'chatgpt' | 'claude' | 'perplexity' | 'gemini';
 
 export interface AskAiProviderLink {
   id: AskAiProvider;
@@ -135,6 +135,9 @@ export function askAiProviderHref(provider: AskAiProvider, question: string): st
       return `https://claude.ai/new?q=${q}`;
     case 'perplexity':
       return `https://www.perplexity.ai/search?q=${q}`;
+    case 'gemini':
+      // Consumer Gemini may ignore q; still opens the app with the query in the URL.
+      return `https://gemini.google.com/app?q=${q}`;
     default: {
       const _exhaustive: never = provider;
       return _exhaustive;
@@ -148,6 +151,7 @@ export function askAiProviderLinks(question: string): AskAiProviderLink[] {
       { id: 'chatgpt', label: 'ChatGPT' },
       { id: 'claude', label: 'Claude' },
       { id: 'perplexity', label: 'Perplexity' },
+      { id: 'gemini', label: 'Gemini' },
     ] as const
   ).map((p) => ({
     ...p,

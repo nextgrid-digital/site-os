@@ -1,46 +1,38 @@
-import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { SITE_CONTENT_CLASS, SiteNav } from '@/components/audit/site-nav';
 
 interface AppShellProps {
   children: ReactNode;
   userInitials?: string | null;
   showSignIn?: boolean;
+  signedIn?: boolean;
   rightSlot?: ReactNode;
+  /** Skip constrained main — for full-bleed pages like the marketing home. */
+  fullBleed?: boolean;
 }
 
-export function AppShell({ children, userInitials, showSignIn, rightSlot }: AppShellProps) {
+export function AppShell({
+  children,
+  userInitials,
+  showSignIn,
+  signedIn,
+  rightSlot,
+  fullBleed,
+}: AppShellProps) {
   return (
-    <div className="min-h-dvh bg-[#fafafa] text-zinc-950">
-      <header className="border-b border-zinc-200/80">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <Link href="/app" className="flex items-center gap-2 font-semibold tracking-tight">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-900 text-[10px] font-semibold text-white">
-              SO
-            </span>
-            <span>Site-OS</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            {rightSlot}
-            {showSignIn ? (
-              <Link
-                href="/login?next=/app"
-                className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50"
-              >
-                Sign in
-              </Link>
-            ) : null}
-            {userInitials ? (
-              <div
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-200 text-xs font-semibold text-zinc-700"
-                aria-label="Account"
-              >
-                {userInitials}
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </header>
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6">{children}</main>
+    <div className="min-h-dvh bg-[#F3F3F3] text-zinc-950">
+      <SiteNav
+        userInitials={userInitials}
+        showSignIn={showSignIn}
+        signedIn={signedIn}
+        showMarketingNav={Boolean(fullBleed)}
+        rightSlot={rightSlot}
+      />
+      {fullBleed ? (
+        children
+      ) : (
+        <main className={`${SITE_CONTENT_CLASS} py-6`}>{children}</main>
+      )}
     </div>
   );
 }

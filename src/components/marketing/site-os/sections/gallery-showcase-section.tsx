@@ -65,7 +65,7 @@ export default function GalleryShowcaseSection({ textLink3Data = TextLink3_data,
             <div className="h-[73.375rem] block max-md:h-[91.6625rem] md:max-lg:h-[73.525rem]" data-cid="n1791">
               <astro-slot class="contents" data-cid="n1792">
                 <astro-island class="contents" data-cid="n1793">
-                  <div className="w-264 block relative mx-auto max-md:w-[19.4375rem] md:max-lg:w-176" data-cid="n1794">
+                  <div className="w-full block relative mx-auto" data-cid="n1794">
                     <section className="block mt-2 -mx-2 p-2" data-cid="n1795" aria-label="Web Vitals metrics">
                       <div className="grid relative gap-3 grid-rows-[201.6px] grid-cols-5 max-md:grid-rows-[95px_95px_95px] max-md:grid-cols-2 md:max-lg:grid-rows-[96px_96px] md:max-lg:grid-cols-3" data-cid="n1796">
                         {textLink3Data.map((d, i) => <TextLink3 key={i} d={d} cids={TextLink3_cids[i]} styles={TextLink3_styles[i]} />)}
@@ -86,13 +86,13 @@ export default function GalleryShowcaseSection({ textLink3Data = TextLink3_data,
                             </div>
                           </div>
                         </div>
-                        <div className="w-263.5 block min-w-0 pb-5 h-auto max-md:w-[19.3125rem] max-md:pb-4 md:max-lg:w-175.5" data-cid="n1852">
-                          <div className="w-263.5 block px-4 max-md:w-[19.3125rem] max-md:px-3 md:max-lg:w-175.5" data-cid="n1853">
+                        <div className="w-full block min-w-0 pb-5 h-auto max-md:pb-4" data-cid="n1852">
+                          <div className="w-full block px-4 max-md:px-3" data-cid="n1853">
                             <div className="block relative w-full" data-cid="n1854">
                               <div className="block relative text-xs leading-4 h-72 w-full max-md:h-64" data-cid="n1855">
                                 <div className="h-full min-h-50 block" data-cid="n1856">
                                   <div className="w-0 h-0 block" data-cid="n1857">
-                                    <div className="w-255.5 h-72 block relative shadow-[var(--clr-0)_0px_0px_0px_0px,var(--clr-0)_0px_0px_0px_0px,var(--clr-0)_0px_0px_0px_0px,var(--foreground)_0px_0px_0px_0px,var(--clr-0)_0px_0px_0px_0px] cursor-default max-md:w-[17.8125rem] max-md:h-64 md:max-lg:w-167.5" data-cid="n1858" height="288" width="1022">
+                                    <div className="w-full h-72 block relative shadow-[var(--clr-0)_0px_0px_0px_0px,var(--clr-0)_0px_0px_0px_0px,var(--clr-0)_0px_0px_0px_0px,var(--foreground)_0px_0px_0px_0px,var(--clr-0)_0px_0px_0px_0px] cursor-default max-md:h-64" data-cid="n1858" height="288" width="1022">
                                       <Illustration4 cid={"n1859"} />
                                     </div>
                                   </div>
@@ -114,7 +114,7 @@ export default function GalleryShowcaseSection({ textLink3Data = TextLink3_data,
                             Pages with the highest p75 for LCP (min. 3 samples per path)
                           </div>
                         </div>
-                        <div className="w-263.5 block min-w-0 pb-5 px-4 h-auto max-md:w-[19.3125rem] max-md:pb-4 max-md:px-3 md:max-lg:w-175.5" data-cid="n1871">
+                        <div className="w-full block min-w-0 pb-5 px-4 h-auto max-md:pb-4 max-md:px-3" data-cid="n1871">
                           <div className="h-45 block relative overflow-auto w-full" data-cid="n1872">
                             <table className="h-45 table [border-collapse:collapse] w-full" data-cid="n1873">
                               <thead className="table-header-group align-middle [border-collapse:collapse]" data-cid="n1874">

@@ -12,7 +12,6 @@ import {
   MoreHorizontal,
   ScrollText,
   Settings2,
-  TriangleAlert,
   Wallet,
 } from 'lucide-react';
 import {
@@ -37,20 +36,21 @@ const mainNav = [
 ];
 
 const primaryProjectNav = [
-  { title: 'Overview', suffix: '', icon: Building2 },
-  { title: 'Brief', suffix: '/report', icon: ScrollText },
-  { title: 'Run audit', suffix: '/audit', icon: FileSearch },
+  { title: 'Overview', suffix: '/overview', icon: Building2 },
+  { title: 'Evidence', suffix: '', icon: ScrollText },
+  { title: 'Growth', suffix: '/growth', icon: FileSearch },
   { title: 'Connect', suffix: '/connect', icon: Link2 },
-  { title: 'Settings', suffix: '/settings', icon: Settings2 },
+  { title: 'Intake', suffix: '/intake', icon: Settings2 },
 ];
 
 const moreProjectNav = [
-  { title: 'Findings', suffix: '/findings', icon: TriangleAlert },
   { title: 'Architecture', suffix: '/architecture', icon: Activity },
   { title: 'Pricing', suffix: '/pricing', icon: Wallet },
 ];
 
 function getProjectId(pathname: string) {
+  const auditMatch = pathname.match(/^\/audit\/([^/]+)/);
+  if (auditMatch) return auditMatch[1];
   const match = pathname.match(/^\/operator\/projects\/([^/]+)/);
   if (!match || match[1] === 'new') return null;
   return match[1];
@@ -68,10 +68,10 @@ function NavItems({
   return (
     <SidebarMenu>
       {items.map((item) => {
-        const href = `/operator/projects/${projectId}${item.suffix}`;
+        const href = `/audit/${projectId}${item.suffix}`;
         const active =
           item.suffix === ''
-            ? pathname === href
+            ? pathname === href || pathname === `${href}/`
             : pathname === href || pathname.startsWith(`${href}/`);
         return (
           <SidebarMenuItem key={item.title}>

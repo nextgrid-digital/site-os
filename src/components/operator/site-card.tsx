@@ -43,7 +43,7 @@ function auditMeta(card: SiteCardData) {
 export function SiteCard({ site }: { site: SiteCardData }) {
   return (
     <Link
-      href={`/operator/projects/${site.id}`}
+      href={`/audit/${site.id}/overview`}
       className={cn(
         'group block rounded-2xl border border-white/8 bg-[#141416] p-5 transition-colors',
         'hover:border-white/16 hover:bg-[#18181b]'

@@ -42,7 +42,7 @@ export default function SeeWhenVisitorsSection({ tile2Data = Tile2_data, cards =
                     <div className="w-full grid mb-4 gap-4 grid-rows-[301px_264px_301px] max-md:grid-rows-[289px_289px_215px_252px_289px_252px] md:max-lg:grid-rows-[301px_301px_227px_264px_301px_264px] grid-cols-1 lg:grid-cols-2" data-cid="n811">
                       {cards.map((d) => <CardGridItem key={d.variant} d={d} />)}
                     </div>
-                    <div className="w-264 border border-solid border-surface flex rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full max-md:w-[19.4375rem] md:max-lg:w-176" data-cid="n1101">
+                    <div className="w-full border border-solid border-surface flex rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full" data-cid="n1101">
                       <div className="h-15.5 grid pt-5 pb-4 px-4 rounded-tl-md rounded-tr-md items-start gap-1 grid-rows-[19.25px_2.75px] [grid-auto-rows:min-content] grid-cols-[1fr_auto] max-md:h-13.5 max-md:pt-4 max-md:pb-3 max-md:px-3" data-cid="n1102">
                         <div className="block font-medium leading-[1.1875rem]" data-cid="n1103">
                           Conversion peak
@@ -53,10 +53,10 @@ export default function SeeWhenVisitorsSection({ tile2Data = Tile2_data, cards =
                           </button>
                         </div>
                       </div>
-                      <div className="w-263.5 block min-w-0 pb-4 max-md:w-[19.3125rem] max-md:pb-3 md:max-lg:w-175.5" data-cid="n1107">
+                      <div className="w-full block min-w-0 pb-4 max-md:pb-3" data-cid="n1107">
                         <div className="block px-4 max-md:px-3" data-cid="n1108">
-                          <div className="w-255.5 block overflow-auto max-md:w-[17.8125rem] md:max-lg:w-167.5" data-cid="n1109">
-                            <div className="w-255.5 block min-w-160 max-md:w-160 md:max-lg:w-167.5" data-cid="n1110">
+                          <div className="w-full block overflow-auto" data-cid="n1109">
+                            <div className="w-full block min-w-0" data-cid="n1110">
                               <div className="grid gap-0.5 grid-rows-[14.2812px_38.9219px_38.9219px_38.9219px_38.9219px_38.9219px_38.9219px_38.9219px_25.875px] text-muted-foreground text-[0.625rem] leading-[0.875rem] grid-cols-[2.5rem_repeat(24,minmax(0,1fr))] max-md:grid-rows-[14.2812px_23px_23px_23px_23px_23px_23px_23px_25.875px] md:max-lg:grid-rows-[14.2812px_24.25px_24.25px_24.25px_24.25px_24.25px_24.25px_24.25px_25.875px]" data-cid="n1111">
                                 <div className="block" data-cid="n1112" />
                                 <div className="block text-center" data-cid="n1113">

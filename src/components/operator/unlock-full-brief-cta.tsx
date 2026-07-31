@@ -27,7 +27,7 @@ export function UnlockFullBriefCta({
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const connectHref = `/operator/projects/${projectId}/connect`;
+  const connectHref = `/audit/${projectId}/connect`;
   const reviewMailto = `mailto:nextgrid.digital@gmail.com?subject=${encodeURIComponent(
     `NextGrid review request — ${projectName}`
   )}`;
@@ -109,7 +109,7 @@ export function UnlockFullBriefCta({
         {isTeaser ? (
           <Button
             variant="ghost"
-            render={<Link href={`/operator/projects/${projectId}/audit`} />}
+            render={<Link href={`/audit/${projectId}`} />}
           >
             Run full audit
           </Button>

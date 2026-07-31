@@ -64,6 +64,7 @@ export function GrowthMemoBody({
   isTeaser,
   lockDeepSections: _lockDeepSections,
   projectId,
+  workspaceBase,
   operatorNotes,
   findings,
   firstPrompt: _firstPrompt,
@@ -72,10 +73,12 @@ export function GrowthMemoBody({
   isTeaser: boolean;
   lockDeepSections: boolean;
   projectId: string;
+  workspaceBase?: string;
   operatorNotes?: ArchitectureInput | null;
   findings: Finding[];
   firstPrompt: AgentPrompt | null;
 }) {
+  const base = workspaceBase ?? `/audit/${projectId}`;
   const site = brief.siteOnlySummary;
   const verdict = brief.auditVerdict;
   const dims = scoreDims(brief.scorecard);

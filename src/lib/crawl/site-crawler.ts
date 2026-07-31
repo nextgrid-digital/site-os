@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio';
+import { fetchSitemapUrls } from '@/lib/crawl/sitemap';
 import { isSameDomain, normalizePath, resolveInternalUrl } from '@/lib/utils/urls';
 
 const TEXT_EXCERPT_LIMIT = 3000;
@@ -169,10 +170,18 @@ function prioritizeQueue(links: string[], baseUrl: string) {
 
 export async function crawlWebsite(baseUrl: string, maxPages = 50): Promise<CrawlResult> {
   const origin = new URL(baseUrl).origin;
-  const queue = [baseUrl];
   const visited = new Set<string>();
   const pages: CrawledPage[] = [];
   const errors: string[] = [];
+
+  const sitemap = await fetchSitemapUrls(baseUrl);
+  errors.push(...sitemap.notes);
+
+  const seeded = prioritizeQueue(
+    sitemap.urls.filter((url) => url !== baseUrl),
+    baseUrl
+  );
+  const queue = [baseUrl, ...seeded];
 
   while (queue.length > 0 && pages.length < maxPages) {
     const current = queue.shift()!;

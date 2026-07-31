@@ -3,9 +3,13 @@ import { notFound, redirect } from 'next/navigation';
 import { AppShell } from '@/components/audit/app-shell';
 import { AuditReportClient } from '@/components/audit/audit-report-client';
 import { RerunFreeAuditButton } from '@/components/audit/rerun-free-audit-button';
-import type { AeoAnalysis } from '@/lib/aeo/schema';
 import { normalizeSiteOnlyAnalysis } from '@/lib/audit/normalize-site-only';
 import { buildSiteIdentity } from '@/lib/audit/site-identity';
+import { loadBrandEvidenceForAuditRun, loadPreviousBrandEvidenceSnapshot } from '@/lib/evidence/persist';
+import type { BrandEvidenceReportView } from '@/lib/evidence/types';
+import { loadConnectedMetricsForAuditRun, loadConnectedStatusForProject } from '@/lib/db/connected-metrics';
+import type { ConnectedAuditMetrics } from '@/lib/db/connected-metrics';
+import { getUserPlan } from '@/lib/db/profiles';
 import {
   createAuditSession,
   getAuditSession,
@@ -14,16 +18,8 @@ import {
   unlockAuditSession,
   type AuditSession,
 } from '@/lib/db/audit-sessions';
-import { getProjectLeadReportingSummary } from '@/lib/db/projects';
 import { getSupabaseAdmin, hasSupabaseConfig } from '@/lib/supabase/server';
-import type {
-  AgentPrompt,
-  ChannelTrafficRow,
-  Finding,
-  PageMetric,
-  QueryMetric,
-  Website,
-} from '@/lib/supabase/types';
+import type { Website } from '@/lib/supabase/types';
 import { createClient } from '@/utils/supabase/server';
 
 function sessionUnlockedForUser(
@@ -79,6 +75,15 @@ export default async function ClientAuditPage({
     .eq('project_id', projectId)
     .single();
   if (!website) notFound();
+
+  const { data: projectRow } = await supabase
+    .from('projects')
+    .select('full_brief_unlocked_at')
+    .eq('id', projectId)
+    .maybeSingle();
+  const projectUnlocked = Boolean(projectRow?.full_brief_unlocked_at);
+  const userPlan = user ? await getUserPlan(user.id) : 'free';
+  const showUpgradeBanner = !(userPlan === 'paid' && projectUnlocked);
 
   if (!session) {
     session = await createAuditSession({
@@ -151,110 +156,62 @@ export default async function ClientAuditPage({
         ? 'The free audit failed before results were ready.'
         : null;
 
-  const findings: Finding[] = auditRun?.status === 'completed'
-    ? (((
-        await supabase
-          .from('findings')
-          .select('*')
-          .eq('audit_run_id', auditRun.id)
-          .order('priority_score', { ascending: false })
-      ).data as Finding[] | null) ?? [])
-    : [];
-
   const siteOnly = normalizeSiteOnlyAnalysis(auditRun?.site_only_analysis ?? null);
-
-  let aeo: AeoAnalysis | null = null;
-  if (auditRun?.id && auditRun.status === 'completed') {
-    const { data: aeoRow } = await supabase
-      .from('aeo_analyses')
-      .select('analysis, status')
-      .eq('audit_run_id', auditRun.id)
-      .maybeSingle();
-    if (aeoRow?.status === 'completed' && aeoRow.analysis) {
-      aeo = aeoRow.analysis as AeoAnalysis;
-    }
-  }
 
   const hasPaidAudit = auditRun?.run_type === 'full' && auditRun?.status === 'completed';
   const hasIntake = Boolean(intake);
   const analyzing =
-    !runFailed &&
+    !sessionFailed &&
     (status === 'pending' ||
-      auditRun?.status === 'running' ||
-      (!siteOnly && !runFailed));
+      status === 'teaser_ready' ||
+      latestRun?.status === 'running' ||
+      (!siteOnly && status !== 'free_ready' && !runFailed));
 
-  let pageMetrics: PageMetric[] = [];
-  let queryMetrics: QueryMetric[] = [];
-  let trafficByChannel: ChannelTrafficRow[] = [];
-  let googleConnected = false;
-  let agentPrompts: AgentPrompt[] = [];
   let homePage: { title: string | null; meta_description: string | null } | null = null;
+  let brandEvidence: BrandEvidenceReportView | null = null;
+  let previousBrandEvidence: BrandEvidenceReportView | null = null;
+  let connectedMetrics: ConnectedAuditMetrics | null = null;
+  const showConnectedTab = userPlan === 'paid' && projectUnlocked;
 
   if (auditRun?.id && auditRun.status === 'completed') {
-    const [{ data: promptsData }, { data: homeRows }] = await Promise.all([
-      supabase.from('agent_prompts').select('*').eq('audit_run_id', auditRun.id),
-      supabase
-        .from('page_metrics')
-        .select('title, meta_description, path')
-        .eq('audit_run_id', auditRun.id)
-        .in('path', ['/', ''])
-        .limit(1),
-    ]);
-    agentPrompts = (promptsData as AgentPrompt[] | null) ?? [];
+    brandEvidence = await loadBrandEvidenceForAuditRun(supabase, auditRun.id);
+    previousBrandEvidence = await loadPreviousBrandEvidenceSnapshot(
+      supabase,
+      projectId,
+      auditRun.id
+    );
+    if (showConnectedTab) {
+      connectedMetrics = await loadConnectedMetricsForAuditRun(projectId, auditRun.id);
+    }
+    const { data: homeRows } = await supabase
+      .from('page_metrics')
+      .select('title, meta_description, path')
+      .eq('audit_run_id', auditRun.id)
+      .in('path', ['/', ''])
+      .limit(1);
     const home = (homeRows as Array<{ title: string | null; meta_description: string | null }> | null)?.[0];
     if (home) {
       homePage = { title: home.title, meta_description: home.meta_description };
-    } else {
-      // Fallback: first page metric if homepage path wasn't stored as /
-      const { data: anyHome } = await supabase
-        .from('page_metrics')
-        .select('title, meta_description, path')
-        .eq('audit_run_id', auditRun.id)
-        .order('created_at', { ascending: true })
-        .limit(1)
-        .maybeSingle();
-      if (anyHome) {
-        homePage = {
-          title: anyHome.title,
-          meta_description: anyHome.meta_description,
-        };
-      }
     }
+  } else if (showConnectedTab) {
+    connectedMetrics = await loadConnectedStatusForProject(projectId);
   }
 
-  if (hasPaidAudit && hasIntake && auditRun?.id) {
-    const [pagesRes, queriesRes, leadSummary, googleConn] = await Promise.all([
-      supabase.from('page_metrics').select('*').eq('audit_run_id', auditRun.id),
-      supabase.from('query_metrics').select('*').eq('audit_run_id', auditRun.id),
-      getProjectLeadReportingSummary(projectId),
-      supabase
-        .from('google_connections')
-        .select('id')
-        .order('updated_at', { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-    ]);
-    pageMetrics = (pagesRes.data as PageMetric[] | null) ?? [];
-    queryMetrics = (queriesRes.data as QueryMetric[] | null) ?? [];
-    trafficByChannel = leadSummary.trafficByChannel ?? [];
-    googleConnected = Boolean(googleConn.data?.id);
-  }
-
-  if (runFailed && !siteOnly) {
+  if (runFailed && !siteOnly && !brandEvidence) {
     return (
-      <AppShell userInitials={initialsFromEmail(user?.email)} showSignIn={!user}>
-        <div className="mx-auto flex max-w-xl flex-col items-center gap-4 py-10 text-center">
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-zinc-500">Free audit</p>
-          <h1 className="text-2xl font-semibold text-zinc-950">{website.domain}</h1>
-          <p className="text-sm text-zinc-600">
-            The audit did not finish.{' '}
-            {errorMessage && errorMessage !== 'invalid_grant'
-              ? errorMessage
-              : 'Please try again — free audits only need the public website URL.'}
-          </p>
-          <RerunFreeAuditButton websiteUrl={website.url} />
-        </div>
-      </AppShell>
+      <div className="mx-auto flex max-w-xl flex-col items-center gap-4 py-10 text-center">
+        <p className="text-xs font-medium uppercase tracking-[0.16em] text-zinc-500">
+          Brand Evidence Record
+        </p>
+        <h1 className="text-2xl font-semibold text-zinc-950">{website.domain}</h1>
+        <p className="text-sm text-zinc-600">
+          The audit did not finish.{' '}
+          {errorMessage && errorMessage !== 'invalid_grant'
+            ? errorMessage
+            : 'Please try again — free audits only need the public website URL.'}
+        </p>
+        <RerunFreeAuditButton websiteUrl={website.url} />
+      </div>
     );
   }
 
@@ -269,23 +226,17 @@ export default async function ClientAuditPage({
       sessionId={session.id}
       projectId={projectId}
       website={website as Website}
-      findings={findings}
-      siteOnly={siteOnly}
-      aeo={aeo}
+      brandEvidence={brandEvidence}
+      previousBrandEvidence={previousBrandEvidence}
+      connectedMetrics={connectedMetrics}
       hasPaidAudit={hasPaidAudit}
       hasIntake={hasIntake}
       analyzing={analyzing}
       failed={runFailed}
       userInitials={initialsFromEmail(user?.email)}
       signedIn={Boolean(user)}
-      traffic={{
-        trafficByChannel,
-        pageMetrics,
-        queryMetrics,
-        googleConnected,
-      }}
-      agentPrompts={agentPrompts}
       siteIdentity={siteIdentity}
+      showUpgradeBanner={showUpgradeBanner}
     />
   );
 }

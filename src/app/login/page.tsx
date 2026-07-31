@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { AuditShell } from '@/components/audit/audit-shell';
+import { AppShell } from '@/components/audit/app-shell';
 import { AuditSignInPanel } from '@/components/audit/audit-sign-in-panel';
 import { SponsorBanner } from '@/components/audit/sponsor-banner';
 
@@ -26,14 +26,14 @@ export default async function LoginPage({
   const showError = params.error === 'auth';
 
   return (
-    <AuditShell>
-      <div className="mx-auto max-w-lg space-y-8 pt-6">
+    <AppShell showSignIn={false}>
+      <div className="mx-auto max-w-lg space-y-8 pt-2">
         <div className="space-y-3 text-center">
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-sky-600">Account</p>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-950">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500">Account</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">
             Sign in to unlock your audit
           </h1>
-          <p className="text-sm leading-6 text-slate-600">
+          <p className="text-sm leading-6 text-zinc-500">
             Use Google or email and password. The full free audit is available after you sign in.
           </p>
           {showError ? (
@@ -42,12 +42,12 @@ export default async function LoginPage({
         </div>
         <AuditSignInPanel sessionId={sessionId} next={next} />
         <SponsorBanner />
-        <p className="text-center text-sm text-slate-500">
-          <Link href="/" className="font-medium text-sky-700 underline-offset-2 hover:underline">
+        <p className="text-center text-sm text-zinc-500">
+          <Link href="/#audit" className="font-medium text-zinc-800 underline-offset-2 hover:underline">
             Analyze a website URL
           </Link>
         </p>
       </div>
-    </AuditShell>
+    </AppShell>
   );
 }

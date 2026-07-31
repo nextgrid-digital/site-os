@@ -346,6 +346,7 @@ export function ReportView({
   growthBrief,
   fullBriefUnlocked = false,
   leadReporting,
+  workspaceBase,
 }: {
   project: Project & {
     gsc_property?: SearchConsoleProperty | null;
@@ -364,7 +365,9 @@ export function ReportView({
   growthBrief?: GrowthBrief | null;
   fullBriefUnlocked?: boolean;
   leadReporting: ProjectLeadReportingSummary;
+  workspaceBase?: string;
 }) {
+  const base = workspaceBase ?? `/audit/${project.id}`;
   const isTeaser = auditRun?.run_type === 'mini' || growthBrief?.reportType === 'teaser';
   const brief = growthBrief
     ? normalizeBrief(growthBrief, metrics, auditRun, {
@@ -520,6 +523,7 @@ export function ReportView({
               isTeaser={Boolean(isTeaser)}
               lockDeepSections={lockDeepSections}
               projectId={project.id}
+              workspaceBase={base}
               operatorNotes={operatorNotes}
               findings={findings}
               firstPrompt={firstPrompt}
@@ -569,12 +573,12 @@ export function ReportView({
               locked={lockDeepSections && !firstPrompt}
             />
             <div className="not-typeset flex flex-wrap gap-2">
-              <Button render={<Link href={`/operator/projects/${project.id}/work-orders`} />}>
+              <Button render={<Link href={`${base}/work-orders`} />}>
                 Open Fix Queue
               </Button>
               <Button
                 variant="outline"
-                render={<Link href={`/operator/projects/${project.id}/findings`} />}
+                render={<Link href={`${base}/findings`} />}
               >
                 Findings queue
               </Button>

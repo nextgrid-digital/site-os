@@ -8,25 +8,28 @@ import {
   ScrollText,
   Settings2,
 } from 'lucide-react';
+import { SITE_NAV_LINKS } from '@/components/audit/site-nav';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
 const primaryPills = [
-  { title: 'Overview', suffix: '', icon: Building2 },
-  { title: 'Report', suffix: '/report', icon: ScrollText },
-  { title: 'Intake', suffix: '/settings', icon: Settings2 },
+  { title: 'Overview', suffix: '/overview', icon: Building2 },
+  { title: 'Evidence', suffix: '', icon: ScrollText },
+  { title: 'Intake', suffix: '/intake', icon: Settings2 },
   { title: 'Connect', suffix: '/connect', icon: Link2 },
 ] as const;
 
 function getProjectId(pathname: string) {
+  const auditMatch = pathname.match(/^\/audit\/([^/]+)/);
+  if (auditMatch) return auditMatch[1];
   const match = pathname.match(/^\/operator\/projects\/([^/]+)/);
   if (!match || match[1] === 'new') return null;
   return match[1];
 }
 
 function isPillActive(pathname: string, projectId: string, suffix: string) {
-  const href = `/operator/projects/${projectId}${suffix}`;
-  if (suffix === '') return pathname === href;
+  const href = `/audit/${projectId}${suffix}`;
+  if (suffix === '') return pathname === href || pathname === `${href}/`;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -50,7 +53,7 @@ export function OperatorTopbar() {
             className="flex min-w-0 flex-1 items-center justify-center gap-1.5 overflow-x-auto"
           >
             {primaryPills.map((pill) => {
-              const href = `/operator/projects/${projectId}${pill.suffix}`;
+              const href = `/audit/${projectId}${pill.suffix}`;
               const active = isPillActive(pathname, projectId, pill.suffix);
               return (
                 <Link
@@ -72,14 +75,35 @@ export function OperatorTopbar() {
             })}
           </nav>
         ) : (
-          <div className="flex-1" />
+          <nav
+            aria-label="Primary"
+            className="hidden min-w-0 flex-1 items-center justify-center gap-1 md:flex"
+          >
+            {SITE_NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-white/70 transition hover:bg-white/8 hover:text-white"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
         )}
 
-        <Avatar size="sm" className="shrink-0 bg-white/10 text-white after:border-white/15">
-          <AvatarFallback className="bg-transparent text-[10px] font-semibold text-white">
-            NG
-          </AvatarFallback>
-        </Avatar>
+        <div className="flex shrink-0 items-center gap-2">
+          <Link
+            href="/#audit"
+            className="hidden rounded-full border border-white/15 px-3 py-1.5 text-sm font-medium text-white/80 transition hover:bg-white/8 hover:text-white sm:inline-flex"
+          >
+            New audit
+          </Link>
+          <Avatar size="sm" className="shrink-0 bg-white/10 text-white after:border-white/15">
+            <AvatarFallback className="bg-transparent text-[10px] font-semibold text-white">
+              NG
+            </AvatarFallback>
+          </Avatar>
+        </div>
       </div>
     </header>
   );

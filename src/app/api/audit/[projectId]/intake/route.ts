@@ -12,7 +12,14 @@ export async function POST(
   const { projectId } = await params;
   const body = await request.json();
 
-  const goalCategory = VALID_GOALS.includes(body.goal_category) ? body.goal_category : 'leads';
+  const goalCandidates: string[] = Array.isArray(body.goal_categories)
+    ? body.goal_categories
+    : typeof body.goal_category === 'string'
+      ? body.goal_category.split(',').map((v: string) => v.trim())
+      : [];
+  const goalCategory =
+    goalCandidates.find((g): g is GoalCategory => VALID_GOALS.includes(g as GoalCategory)) ??
+    'leads';
 
   const intake = await upsertClientIntake(projectId, {
     goal_category: goalCategory,

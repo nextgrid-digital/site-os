@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { SitesDashboard, type SitesDashboardSite } from '@/components/audit/sites-dashboard';
 import { listUnlockedAuditSessionsForUser } from '@/lib/db/audit-sessions';
+import { getUserPlan } from '@/lib/db/profiles';
 import { getSupabaseAdmin, hasSupabaseConfig } from '@/lib/supabase/server';
 import { createClient } from '@/utils/supabase/server';
 
@@ -88,11 +89,14 @@ export default async function AppHomePage({
     status: session.status,
   }));
 
+  const plan = await getUserPlan(user.id);
+
   return (
     <SitesDashboard
       sites={sites}
       userInitials={initialsFromEmail(user.email)}
       highlightSessionId={highlightSessionId ?? null}
+      showUpgradeBanner={plan !== 'paid'}
     />
   );
 }

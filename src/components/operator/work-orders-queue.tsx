@@ -45,12 +45,16 @@ export function WorkOrdersQueue({
   workOrders,
   briefFallbacks = [],
   filterAction,
+  workspaceBase,
 }: {
   projectId: string;
   workOrders: GraphWorkOrder[];
   briefFallbacks?: WorkOrderQueueItem[];
   filterAction?: string | null;
+  /** Base path for in-app links, e.g. `/audit/{id}`. */
+  workspaceBase?: string;
 }) {
+  const base = workspaceBase ?? `/audit/${projectId}`;
   const initial = useMemo(() => {
     if (workOrders.length > 0) return workOrders.map(fromDb);
     return briefFallbacks;
@@ -196,7 +200,7 @@ export function WorkOrdersQueue({
                   size="sm"
                   variant="ghost"
                   render={
-                    <Link href={`/operator/projects/${projectId}/findings/${selected.findingId}`} />
+                    <Link href={`${base}/findings/${selected.findingId}`} />
                   }
                 >
                   <ExternalLink className="size-3.5" />

@@ -27,10 +27,15 @@ function severityVariant(severity: Finding['severity']) {
 export function FindingsTable({
   projectId,
   findings,
+  detailBase,
 }: {
   projectId: string;
   findings: Finding[];
+  /** Base path for finding detail links, e.g. `/audit/{id}/findings`. */
+  detailBase?: string;
 }) {
+  const base = detailBase ?? `/audit/${projectId}/findings`;
+
   if (findings.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
@@ -71,7 +76,7 @@ export function FindingsTable({
             <TableCell className="font-mono text-xs">{finding.page_path ?? '—'}</TableCell>
             <TableCell className="text-right">
               <Link
-                href={`/operator/projects/${projectId}/findings/${finding.id}`}
+                href={`${base}/${finding.id}`}
                 className="text-sm underline-offset-4 hover:underline"
               >
                 Open

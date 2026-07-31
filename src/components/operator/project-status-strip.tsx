@@ -21,19 +21,19 @@ export function ProjectStatusStrip({
   const stages = [
     {
       label: 'Connect',
-      href: `/operator/projects/${projectId}/connect`,
+      href: `/audit/${projectId}/connect`,
       done: connectDone,
       active: !readyToAudit,
     },
     {
       label: 'Run',
-      href: `/operator/projects/${projectId}/audit`,
+      href: `/audit/${projectId}`,
       done: hasBrief,
       active: readyToAudit && !hasBrief,
     },
     {
       label: 'Fix Queue',
-      href: `/operator/projects/${projectId}/work-orders`,
+      href: `/audit/${projectId}/work-orders`,
       done: hasOpenWorkOrders === false && hasBrief,
       active: hasBrief,
     },

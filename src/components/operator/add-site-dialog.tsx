@@ -51,7 +51,7 @@ export function AddSiteDialog({
     setOpen(false);
     setName('');
     setWebsiteUrl('');
-    router.push(`/operator/projects/${data.project.id}`);
+    router.push(`/audit/${data.project.id}/overview`);
     router.refresh();
   }
 

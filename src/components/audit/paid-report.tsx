@@ -1,85 +1,63 @@
 import { AppShell } from '@/components/audit/app-shell';
 import { AuditReportShell } from '@/components/audit/report/audit-report-shell';
-import type { AeoAnalysis } from '@/lib/aeo/schema';
-import {
-  toDisplayAgentPrompts,
-  type DisplayAgentPrompt,
-} from '@/lib/audit/display-agent-prompts';
-import { buildFreeReportView } from '@/lib/audit/free-report-view';
+import { RerunFullAuditButton } from '@/components/audit/rerun-full-audit-button';
+import type { BrandEvidenceReportView } from '@/lib/evidence/types';
+import type { ConnectedAuditMetrics } from '@/lib/db/connected-metrics';
 import { buildSiteIdentity, type SiteIdentity } from '@/lib/audit/site-identity';
-import type { SiteOnlyAnalysis } from '@/lib/audit/site-only-analysis';
-import type {
-  AgentPrompt,
-  ChannelTrafficRow,
-  Finding,
-  PageMetric,
-  QueryMetric,
-  Website,
-} from '@/lib/supabase/types';
-
-export interface PaidTrafficData {
-  trafficByChannel: ChannelTrafficRow[];
-  pageMetrics: PageMetric[];
-  queryMetrics: QueryMetric[];
-  googleConnected: boolean;
-}
+import type { Website } from '@/lib/supabase/types';
 
 interface PaidReportProps {
   projectId: string;
   website: Website;
-  findings: Finding[];
-  siteOnly: SiteOnlyAnalysis | null;
-  aeo: AeoAnalysis | null;
-  traffic: PaidTrafficData;
-  agentPrompts?: AgentPrompt[];
-  displayPrompts?: DisplayAgentPrompt[];
+  brandEvidence: BrandEvidenceReportView | null;
+  previousBrandEvidence?: BrandEvidenceReportView | null;
+  connectedMetrics?: ConnectedAuditMetrics | null;
   siteIdentity?: SiteIdentity;
   userInitials?: string | null;
+  signedIn?: boolean;
+  showUpgradeBanner?: boolean;
+  embedded?: boolean;
 }
 
 export function PaidReport({
   projectId,
   website,
-  findings,
-  siteOnly,
-  aeo,
-  traffic,
-  agentPrompts = [],
-  displayPrompts,
+  brandEvidence,
+  previousBrandEvidence = null,
+  connectedMetrics = null,
   siteIdentity,
   userInitials,
+  signedIn = false,
+  showUpgradeBanner = true,
+  embedded = false,
 }: PaidReportProps) {
-  const identity = siteIdentity ?? buildSiteIdentity({ website, siteOnly });
-  const view = buildFreeReportView({
-    siteOnly,
-    aeo,
-    findings,
-    domain: identity.domain,
-    title: identity.title,
-  });
-  const prompts =
-    displayPrompts ?? toDisplayAgentPrompts(agentPrompts, findings, website);
+  const identity = siteIdentity ?? buildSiteIdentity({ website, siteOnly: null });
+  const isSignedIn = signedIn || Boolean(userInitials);
+
+  const body = (
+    <AuditReportShell
+      projectId={projectId}
+      website={website}
+      siteIdentity={identity}
+      brandEvidence={brandEvidence}
+      previousBrandEvidence={previousBrandEvidence}
+      connectedMetrics={connectedMetrics}
+      variant="paid"
+      showRerun
+      rerunSlot={<RerunFullAuditButton projectId={projectId} />}
+      showUpgradeBanner={showUpgradeBanner}
+    />
+  );
+
+  if (embedded) return body;
 
   return (
-    <AppShell userInitials={userInitials} showSignIn={false}>
-      <AuditReportShell
-        projectId={projectId}
-        website={website}
-        siteIdentity={identity}
-        view={view}
-        prompts={prompts}
-        hasResults={Boolean(siteOnly)}
-        variant="paid"
-        showRerun={false}
-        traffic={{
-          projectId,
-          googleConnected: traffic.googleConnected,
-          trafficByChannel: traffic.trafficByChannel,
-          pageMetrics: traffic.pageMetrics,
-          queryMetrics: traffic.queryMetrics,
-          showUpgradeCta: !traffic.googleConnected,
-        }}
-      />
+    <AppShell
+      userInitials={userInitials}
+      signedIn={isSignedIn}
+      showSignIn={!isSignedIn}
+    >
+      {body}
     </AppShell>
   );
 }

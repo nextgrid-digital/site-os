@@ -3,101 +3,90 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FreeReport } from '@/components/audit/free-report';
-import { PaidReport, type PaidTrafficData } from '@/components/audit/paid-report';
-import type { AeoAnalysis } from '@/lib/aeo/schema';
+import { PaidReport } from '@/components/audit/paid-report';
+import { useInvalidateAuditTab } from '@/components/audit/audit-tab-cache';
+import type { BrandEvidenceReportView } from '@/lib/evidence/types';
+import type { ConnectedAuditMetrics } from '@/lib/db/connected-metrics';
 import { buildSiteIdentity, type SiteIdentity } from '@/lib/audit/site-identity';
-import type { SiteOnlyAnalysis } from '@/lib/audit/site-only-analysis';
-import type { AgentPrompt, Finding, Website } from '@/lib/supabase/types';
-
-type ReportState = 'full_free' | 'paid';
+import type { Website } from '@/lib/supabase/types';
 
 interface Props {
   sessionId: string;
   projectId: string;
   website: Website;
-  findings: Finding[];
-  siteOnly: SiteOnlyAnalysis | null;
-  aeo: AeoAnalysis | null;
+  brandEvidence: BrandEvidenceReportView | null;
+  previousBrandEvidence?: BrandEvidenceReportView | null;
+  connectedMetrics?: ConnectedAuditMetrics | null;
   hasPaidAudit: boolean;
   hasIntake: boolean;
   analyzing: boolean;
   failed: boolean;
   userInitials?: string | null;
   signedIn?: boolean;
-  traffic?: PaidTrafficData;
-  agentPrompts?: AgentPrompt[];
   siteIdentity?: SiteIdentity;
+  showUpgradeBanner?: boolean;
 }
-
-const EMPTY_TRAFFIC: PaidTrafficData = {
-  trafficByChannel: [],
-  pageMetrics: [],
-  queryMetrics: [],
-  googleConnected: false,
-};
 
 export function AuditReportClient({
   projectId,
   website,
-  findings,
-  siteOnly,
-  aeo,
+  brandEvidence,
+  previousBrandEvidence = null,
+  connectedMetrics = null,
   hasPaidAudit,
   hasIntake,
   analyzing,
   userInitials,
   signedIn,
-  traffic = EMPTY_TRAFFIC,
-  agentPrompts = [],
   siteIdentity,
+  showUpgradeBanner = true,
 }: Props) {
   const router = useRouter();
+  const invalidateTab = useInvalidateAuditTab();
 
   useEffect(() => {
     if (!analyzing) return;
     const id = window.setInterval(() => {
+      invalidateTab('');
+      invalidateTab('/journey');
       router.refresh();
     }, 4000);
     return () => window.clearInterval(id);
-  }, [analyzing, router]);
+  }, [analyzing, invalidateTab, router]);
 
-  const state: ReportState = hasPaidAudit && hasIntake ? 'paid' : 'full_free';
-  const identity =
-    siteIdentity ?? buildSiteIdentity({ website, siteOnly });
+  const identity = siteIdentity ?? buildSiteIdentity({ website, siteOnly: null });
+  const showPaid = hasPaidAudit && hasIntake;
 
-  switch (state) {
-    case 'full_free':
-      return (
-        <FreeReport
-          projectId={projectId}
-          website={website}
-          findings={findings}
-          siteOnly={siteOnly}
-          aeo={aeo}
-          agentPrompts={agentPrompts}
-          siteIdentity={identity}
-          analyzing={analyzing}
-          userInitials={userInitials}
-          showSignIn={!signedIn}
-        />
-      );
-    case 'paid':
-      return (
-        <PaidReport
-          projectId={projectId}
-          website={website}
-          findings={findings}
-          siteOnly={siteOnly}
-          aeo={aeo}
-          traffic={traffic}
-          agentPrompts={agentPrompts}
-          siteIdentity={identity}
-          userInitials={userInitials}
-        />
-      );
-    default: {
-      const _exhaustive: never = state;
-      return _exhaustive;
-    }
+  if (showPaid) {
+    return (
+      <PaidReport
+        projectId={projectId}
+        website={website}
+        brandEvidence={brandEvidence}
+        previousBrandEvidence={previousBrandEvidence}
+        connectedMetrics={connectedMetrics}
+        siteIdentity={identity}
+        userInitials={userInitials}
+        signedIn={Boolean(signedIn)}
+        showUpgradeBanner={showUpgradeBanner}
+        embedded
+      />
+    );
   }
+
+  return (
+    <FreeReport
+      projectId={projectId}
+      website={website}
+      brandEvidence={brandEvidence}
+      previousBrandEvidence={previousBrandEvidence}
+      connectedMetrics={connectedMetrics}
+      siteIdentity={identity}
+      analyzing={analyzing}
+      userInitials={userInitials}
+      signedIn={Boolean(signedIn)}
+      showUpgradeBanner={showUpgradeBanner}
+      embedded
+    />
+  );
 }

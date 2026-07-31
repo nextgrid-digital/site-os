@@ -50,13 +50,13 @@ export default function SeeWhereVisitorsSection({ tile4Data = Tile4_data, tile5D
                           39 completed, 52% total conversion
                         </div>
                       </div>
-                      <div className="w-263.5 block min-w-0 pt-2 max-md:w-[19.3125rem] md:max-lg:w-175.5" data-cid="n1668">
+                      <div className="w-full block min-w-0 pt-2" data-cid="n1668">
                         <div className="block w-full" data-cid="n1669">
                           <div className="block pb-5 px-4 w-full max-md:pb-4 max-md:px-3" data-cid="n1670">
                             <div className="hidden max-md:block" data-cid="n1671">
                               {tile4Data.map((d, i) => <Tile4 key={i} d={d} cids={Tile4_cids[i]} styles={Tile4_styles[i]} />)}
                             </div>
-                            <div className="w-255.5 block max-md:hidden md:max-lg:w-167.5" data-cid="n1726">
+                            <div className="w-full block max-md:hidden" data-cid="n1726">
                               <div className="h-80 min-h-80 border-r border-solid border-r-clr-15 border-l border-l-clr-15 block relative overflow-hidden" data-cid="n1727">
                                 <Illustration3 cid={"n1728"} />
                                 <div className="w-255 min-h-80 grid relative z-10 grid-cols-3 grid-rows-1 aspect-[3.188] md:max-lg:w-167 md:max-lg:aspect-[2.088]" data-cid="n1729">
@@ -77,7 +77,7 @@ export default function SeeWhereVisitorsSection({ tile4Data = Tile4_data, tile5D
                           All time
                         </div>
                       </div>
-                      <div className="w-263.5 block min-w-0 pb-5 px-4 max-md:w-[19.3125rem] max-md:pb-4 max-md:px-3 md:max-lg:w-175.5" data-cid="n1758">
+                      <div className="w-full block min-w-0 pb-5 px-4 max-md:pb-4 max-md:px-3" data-cid="n1758">
                         <div className="block relative overflow-auto w-full" data-cid="n1759">
                           <table className="table [border-collapse:collapse] w-full" data-cid="n1760">
                             <thead className="table-header-group align-middle [border-collapse:collapse]" data-cid="n1761">

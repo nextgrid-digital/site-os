@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useInvalidateAuditTab } from '@/components/audit/audit-tab-cache';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -21,6 +22,7 @@ export function SettingsForm({
   notes: Note[];
 }) {
   const router = useRouter();
+  const invalidateTab = useInvalidateAuditTab();
   const [websiteUrl, setWebsiteUrl] = useState(website?.url ?? '');
   const [businessType, setBusinessType] = useState(architectureInput?.business_type ?? '');
   const [siteType, setSiteType] = useState(architectureInput?.site_type ?? '');
@@ -49,6 +51,8 @@ export function SettingsForm({
       body: JSON.stringify({ websiteUrl }),
     });
     setMessage(response.ok ? 'Website updated.' : 'Failed to update website.');
+    invalidateTab('/intake');
+    invalidateTab('');
     router.refresh();
   }
 
@@ -75,6 +79,8 @@ export function SettingsForm({
       }),
     });
     setMessage(response.ok ? 'Architecture inputs saved.' : 'Failed to save architecture inputs.');
+    invalidateTab('/intake');
+    invalidateTab('');
     router.refresh();
   }
 
@@ -86,6 +92,7 @@ export function SettingsForm({
     });
     setMessage(response.ok ? 'Note added.' : 'Failed to add note.');
     setNoteBody('');
+    invalidateTab('/intake');
     router.refresh();
   }
 

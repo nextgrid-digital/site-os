@@ -32,7 +32,7 @@ export function CreateProjectForm() {
       return;
     }
 
-    router.push(`/operator/projects/${data.project.id}`);
+    router.push(`/audit/${data.project.id}/overview`);
     router.refresh();
   }
 

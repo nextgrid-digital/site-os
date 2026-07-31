@@ -1,7 +1,7 @@
 // @ts-nocheck
 import './site-os-home.css';
+import { AppShell } from '@/components/audit/app-shell';
 import DittoMotion from './ditto/DittoMotion';
-import Navbar from './sections/navbar';
 import HeroSection from './sections/hero-section';
 import S8kbDefaultTrackerSection from './sections/s8kb-default-tracker-section';
 import ProductGridSection from './sections/product-grid-section';
@@ -16,14 +16,22 @@ import ProductGridSection2 from './sections/product-grid-section2';
 import FaqSection from './sections/faq-section';
 import Footer from './sections/footer';
 
-export function SiteOsLanding() {
+export function SiteOsLanding({
+  userInitials = null,
+  signedIn = false,
+}: {
+  userInitials?: string | null;
+  signedIn?: boolean;
+}) {
   return (
-    <div className="site-os-home min-h-dvh">
-      <Navbar />
-      <main
-        className="block isolate min-w-0 grow w-320 h-[14745.3px] max-md:w-[23.4375rem] max-md:h-[1307.5rem] md:max-lg:w-192 md:max-lg:h-[1006.1875rem] 2xl:w-480 2xl:h-[15625.3px]"
-        data-cid="n23"
-      >
+    <AppShell
+      fullBleed
+      userInitials={userInitials}
+      signedIn={signedIn}
+      showSignIn={!signedIn}
+    >
+    <div className="site-os-home">
+      <main className="block isolate min-w-0 w-full grow" data-cid="n23">
         <HeroSection />
         <S8kbDefaultTrackerSection />
         <ProductGridSection />
@@ -110,5 +118,6 @@ export function SiteOsLanding() {
         }}
       />
     </div>
+    </AppShell>
   );
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { runAudit } from '@/lib/audit/run-audit';
 import { getClientIntake } from '@/lib/db/client-intake';
+import { PaidPlanRequiredError, requirePaidSession } from '@/lib/db/profiles';
 import { getProjectOverview, isFullBriefUnlocked } from '@/lib/db/projects';
 import { hasSupabaseConfig } from '@/lib/supabase/server';
 
@@ -19,6 +20,7 @@ export async function POST(
     const runType = body.runType === 'mini' ? 'mini' : 'full';
 
     if (runType === 'full') {
+      await requirePaidSession();
       const project = await getProjectOverview(projectId);
       if (!project) {
         return NextResponse.json({ error: 'Project not found.' }, { status: 404 });
@@ -31,13 +33,15 @@ export async function POST(
       }
     }
 
-    // Read client intake goal for scoring (if available)
     const intake = runType === 'full' ? await getClientIntake(projectId) : null;
     const goalCategory = intake?.goal_category ?? null;
 
     const result = await runAudit(projectId, runType, goalCategory);
     return NextResponse.json({ auditRunId: result.auditRunId, status: 'completed' });
   } catch (error) {
+    if (error instanceof PaidPlanRequiredError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Audit failed.' },
       { status: 500 }

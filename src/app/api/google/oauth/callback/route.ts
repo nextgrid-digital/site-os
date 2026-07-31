@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     await upsertGoogleConnection(tokens);
 
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/operator/projects/${parsed.projectId}/connect?connected=1`
+      `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/audit/${parsed.projectId}/connect?connected=1`
     );
   } catch (callbackError) {
     return NextResponse.redirect(

@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { after, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { buildTeaserSnapshot } from '@/lib/audit/teaser-snapshot';
 import { AUDIT_SESSION_COOKIE } from '@/lib/audit/session-cookie';
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     }
   }
 
-  void (async () => {
+  after(async () => {
     try {
       await runAudit(projectId, 'free', null);
       const { data: auditRun } = await supabase
@@ -112,9 +112,13 @@ export async function POST(request: Request) {
       await markAuditSessionFreeReady(session.id);
     } catch (error) {
       console.error('[audit/start] free audit failed', error);
-      try { await markAuditSessionFailed(session.id); } catch { /* ignore */ }
+      try {
+        await markAuditSessionFailed(session.id);
+      } catch {
+        /* ignore */
+      }
     }
-  })();
+  });
 
   const response = NextResponse.json({
     sessionId: session.id,

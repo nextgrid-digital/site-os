@@ -73,9 +73,9 @@ export default function LogoCloudSection({ logos = logosContent, tile3Data = Til
             <div className="h-[851.1px] block max-md:h-[73.7875rem] md:max-lg:h-[855.1px]" data-cid="n1429">
               <astro-slot class="contents" data-cid="n1430">
                 <astro-island class="contents" data-cid="n1431">
-                  <div className="w-264 block relative max-md:w-[19.4375rem] md:max-lg:w-176" data-cid="n1432">
-                    <section className="block mt-2 -mx-2 p-2" data-cid="n1433" aria-label="Key metrics">
-                      <div className="grid relative gap-3 grid-rows-[166px] grid-cols-6 max-md:grid-rows-[77px_77px_77px] max-md:grid-cols-2 md:max-lg:grid-rows-[77px_81px] md:max-lg:grid-cols-3" data-cid="n1434">
+                  <div className="w-full block relative" data-cid="n1432">
+                    <section className="block mt-2" data-cid="n1433" aria-label="Key metrics">
+                      <div className="grid relative gap-3 grid-rows-[166px] grid-cols-6 items-stretch max-md:grid-rows-[77px_77px_77px] max-md:grid-cols-2 md:max-lg:grid-rows-[77px_81px] md:max-lg:grid-cols-3" data-cid="n1434">
                         {tile3Data.map((d, i) => <Tile3 key={i} d={d} cids={Tile3_cids[i]} styles={Tile3_styles[i]} />)}
                       </div>
                     </section>
@@ -95,13 +95,13 @@ export default function LogoCloudSection({ logos = logosContent, tile3Data = Til
                               </button>
                             </div>
                           </div>
-                          <div className="w-263.5 block min-w-0 pb-5 h-auto max-md:w-[19.3125rem] max-md:pb-4 md:max-lg:w-175.5" data-cid="n1492">
-                            <div className="w-263.5 block px-4 max-md:w-[19.3125rem] max-md:px-3 md:max-lg:w-175.5" data-cid="n1493">
+                          <div className="w-full block min-w-0 pb-5 h-auto max-md:pb-4" data-cid="n1492">
+                            <div className="w-full block px-4 max-md:px-3" data-cid="n1493">
                               <div className="block relative text-color-002 w-full" data-cid="n1494">
                                 <div className="block relative text-xs leading-4 h-72 w-full max-md:h-64" data-cid="n1495">
                                   <div className="h-full min-h-50 block" data-cid="n1496">
                                     <div className="w-0 h-0 block" data-cid="n1497">
-                                      <div className="w-255.5 h-72 block relative shadow-[var(--clr-0)_0px_0px_0px_0px,var(--clr-0)_0px_0px_0px_0px,var(--clr-0)_0px_0px_0px_0px,var(--color-002)_0px_0px_0px_0px,var(--clr-0)_0px_0px_0px_0px] cursor-default max-md:w-[17.8125rem] max-md:h-64 md:max-lg:w-167.5" data-cid="n1498" height="288" width="1022">
+                                      <div className="w-full h-72 block relative shadow-[var(--clr-0)_0px_0px_0px_0px,var(--clr-0)_0px_0px_0px_0px,var(--clr-0)_0px_0px_0px_0px,var(--color-002)_0px_0px_0px_0px,var(--clr-0)_0px_0px_0px_0px] cursor-default max-md:h-64" data-cid="n1498" height="288" width="1022">
                                         <Illustration2 cid={"n1499"} />
                                       </div>
                                     </div>
@@ -140,7 +140,7 @@ export default function LogoCloudSection({ logos = logosContent, tile3Data = Til
                           </div>
                         </div>
                       </div>
-                      <div className="w-264 grid gap-4 grid-rows-[238px] grid-cols-2 max-md:w-[19.4375rem] max-md:grid-rows-[253.25px_253.25px] max-md:grid-cols-1 md:max-lg:w-176" data-cid="n1513">
+                      <div className="w-full grid gap-4 grid-rows-[238px] grid-cols-2 max-md:grid-rows-[253.25px_253.25px] max-md:grid-cols-1" data-cid="n1513">
                         <div className="border border-solid border-surface flex rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full" data-cid="n1514">
                           <div className="grid pt-5 pb-4 px-4 rounded-tl-md rounded-tr-md items-center gap-y-2 gap-x-3 grid-rows-[24px] [grid-auto-rows:min-content] grid-cols-[minmax(0,1fr)_auto] max-md:pt-4 max-md:pb-3 max-md:px-3 max-md:items-start max-md:gap-x-1 max-md:grid-rows-[19.25px_24px] max-md:grid-cols-1" data-cid="n1515">
                             <div className="w-11 block min-w-0 font-medium leading-[1.1875rem]" data-cid="n1516">
