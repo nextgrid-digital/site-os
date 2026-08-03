@@ -123,6 +123,10 @@ function toTableRows(
 /** Secondary KPI strip under the hero (real overview only). */
 export function buildAnalyticsKpiTiles(connected: ConnectedAuditMetrics | null): AnalyticsKpiTile[] {
   const o = connected?.ga4Overview;
+  const impressions = gscImpressions(connected);
+  const clicks = gscClicks(connected);
+  const ctr = impressions > 0 ? clicks / impressions : 0;
+
   if (!o) {
     return [
       { id: 'sessions', label: 'Sessions', value: '—' },
@@ -130,14 +134,20 @@ export function buildAnalyticsKpiTiles(connected: ConnectedAuditMetrics | null):
       { id: 'bounce', label: 'Bounce rate', value: '—' },
       { id: 'duration', label: 'Session time', value: '—' },
       { id: 'conversions', label: 'Conversions', value: '—' },
-      { id: 'revenue', label: 'Revenue', value: '—', hidden: true },
+      {
+        id: 'impressions',
+        label: 'Impressions',
+        value: impressions > 0 ? fmt(impressions) : '—',
+        hint: impressions > 0 && ctr > 0 ? fmtPct(ctr) : 'GSC',
+      },
     ];
   }
 
   const days = Math.max(1, connected?.ga4Daily.length || 28);
   const avgDaily = o.sessions / days;
+  const hasRevenue = o.totalRevenue != null;
 
-  return [
+  const tiles: AnalyticsKpiTile[] = [
     {
       id: 'sessions',
       label: 'Sessions',
@@ -154,7 +164,7 @@ export function buildAnalyticsKpiTiles(connected: ConnectedAuditMetrics | null):
       id: 'bounce',
       label: 'Bounce rate',
       value: fmtPct(o.bounceRate),
-      emphasize: true,
+      emphasize: !hasRevenue,
     },
     {
       id: 'duration',
@@ -166,15 +176,43 @@ export function buildAnalyticsKpiTiles(connected: ConnectedAuditMetrics | null):
       label: 'Conversions',
       value: fmt(o.conversions),
     },
-    {
+  ];
+
+  if (hasRevenue) {
+    tiles.push({
       id: 'revenue',
       label: 'Revenue',
-      value: o.totalRevenue != null ? fmtMoney(o.totalRevenue) : '—',
-      hint: o.totalRevenue != null ? `${fmt(o.conversions)} conv.` : undefined,
-      hidden: o.totalRevenue == null,
-      emphasize: o.totalRevenue != null,
-    },
-  ];
+      value: fmtMoney(o.totalRevenue!),
+      hint: `${fmt(o.conversions)} conv.`,
+      emphasize: true,
+    });
+  } else {
+    tiles.push({
+      id: 'impressions',
+      label: 'Impressions',
+      value: impressions > 0 ? fmt(impressions) : '—',
+      hint:
+        impressions > 0 && ctr > 0
+          ? fmtPct(ctr)
+          : connected?.gscConnected
+            ? 'GSC'
+            : 'No GSC',
+    });
+  }
+
+  return tiles;
+}
+
+function gscImpressions(connected: ConnectedAuditMetrics | null): number {
+  const fromMetrics = connected?.metrics?.total_impressions ?? 0;
+  if (fromMetrics > 0) return fromMetrics;
+  return (connected?.pageMetrics ?? []).reduce((sum, p) => sum + (p.gsc_impressions || 0), 0);
+}
+
+function gscClicks(connected: ConnectedAuditMetrics | null): number {
+  const fromMetrics = connected?.metrics?.total_clicks ?? 0;
+  if (fromMetrics > 0) return fromMetrics;
+  return (connected?.pageMetrics ?? []).reduce((sum, p) => sum + (p.gsc_clicks || 0), 0);
 }
 
 export function buildPagesBarRows(connected: ConnectedAuditMetrics | null): AnalyticsBarRow[] {
