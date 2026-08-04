@@ -1,0 +1,39 @@
+/* Report-only design tokens — no marketing @font-face payloads. */
+.site-os-home {
+  --background: oklch(0.97 0 0);
+  --foreground: oklch(0.145 0 0);
+  --primary: oklch(0.565 0.11 164.584);
+  --accent: oklch(0.657 0.23 35.095);
+  --border: oklab(0.922 0 0 / 0.3);
+  --muted-foreground: oklch(0.556 0 0);
+  --surface: oklab(0.922 0 0 / 0.7);
+  --surface-2: oklab(0.922 0 0 / 0.4);
+  --surface-3: oklch(1 0 0);
+  --surface-4: oklch(0.922 0 0);
+  --surface-5: oklab(0.97 0 0 / 0.2);
+  --surface-6: oklab(0.922 0 0 / 0.6);
+  --surface-7: oklab(0.97 0 0 / 0.4);
+  --surface-8: oklab(1 0 0 / 0.1);
+  --muted: oklab(0.556 0 0 / 0.8);
+  --color-001: oklab(0.145 0 0 / 0.03);
+  --color-002: oklch(0.205 0 0);
+  --color-003: oklab(0.556 0 0 / 0.45);
+  --color-004: oklab(1 0 0 / 0.7);
+  --color-005: oklab(0.145 0 0 / 0.85);
+  --color-006: oklab(1 0 0 / 0.85);
+  --color-007: oklch(0.985 0 0);
+  --color-008: oklab(0.145 0 0 / 0.4);
+  --color-009: oklab(1 0 0 / 0.5);
+  --clr-0: transparent;
+  --clr-1: oklab(0.145 0 0 / 0.04);
+  --clr-2: oklab(0.145 0 0 / 0.08);
+  --clr-3: oklab(0.145 0 0 / 0.12);
+  --clr-21: oklab(0.145 0 0 / 0.08);
+  --clr-22: oklab(0.145 0 0 / 0.06);
+  --clr-25: oklch(0.99 0 0);
+  color: var(--foreground);
+}
+
+.site-os-home.site-os-home--flush {
+  background: transparent;
+}

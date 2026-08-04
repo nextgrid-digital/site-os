@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 import type {
   Ga4ConversionPeakCell,
@@ -46,13 +47,18 @@ const EMPTY_ANALYTICS = {
   ga4FunnelSteps: [] as Ga4FunnelStep[],
 };
 
+const PAGE_METRIC_COLUMNS =
+  'id, audit_run_id, path, url, title, meta_description, h1, internal_link_count, has_faq, has_faq_schema, gsc_clicks, gsc_impressions, gsc_ctr, gsc_position, ga_sessions, ga_engaged_sessions, ga_conversions, flags, created_at';
+const QUERY_METRIC_COLUMNS =
+  'id, audit_run_id, query, page_path, clicks, impressions, ctr, position, opportunity_score, created_at';
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
 function trafficFromSnapshot(snapshot: unknown): ChannelTrafficRow[] {
   if (!isRecord(snapshot) || !Array.isArray(snapshot.trafficByChannel)) return [];
-  return snapshot.trafficByChannel as ChannelTrafficRow[];
+  return (snapshot.trafficByChannel as ChannelTrafficRow[]).slice(0, 40);
 }
 
 function analyticsFromSnapshot(snapshot: unknown): typeof EMPTY_ANALYTICS {
@@ -64,24 +70,26 @@ function analyticsFromSnapshot(snapshot: unknown): typeof EMPTY_ANALYTICS {
 
   return {
     ga4Overview: overview,
-    ga4Daily: Array.isArray(snapshot.ga4Daily) ? (snapshot.ga4Daily as Ga4DailyRow[]) : [],
+    ga4Daily: Array.isArray(snapshot.ga4Daily)
+      ? (snapshot.ga4Daily as Ga4DailyRow[]).slice(0, 90)
+      : [],
     ga4Countries: Array.isArray(snapshot.ga4Countries)
-      ? (snapshot.ga4Countries as Ga4DimensionRow[])
+      ? (snapshot.ga4Countries as Ga4DimensionRow[]).slice(0, 40)
       : [],
     ga4Devices: Array.isArray(snapshot.ga4Devices)
-      ? (snapshot.ga4Devices as Ga4DimensionRow[])
+      ? (snapshot.ga4Devices as Ga4DimensionRow[]).slice(0, 20)
       : [],
     ga4Browsers: Array.isArray(snapshot.ga4Browsers)
-      ? (snapshot.ga4Browsers as Ga4DimensionRow[])
+      ? (snapshot.ga4Browsers as Ga4DimensionRow[]).slice(0, 20)
       : [],
     ga4Events: Array.isArray(snapshot.ga4Events)
-      ? (snapshot.ga4Events as Ga4DimensionRow[])
+      ? (snapshot.ga4Events as Ga4DimensionRow[]).slice(0, 40)
       : [],
     ga4ConversionPeak: Array.isArray(snapshot.ga4ConversionPeak)
       ? (snapshot.ga4ConversionPeak as Ga4ConversionPeakCell[])
       : [],
     ga4FunnelSteps: Array.isArray(snapshot.ga4FunnelSteps)
-      ? (snapshot.ga4FunnelSteps as Ga4FunnelStep[])
+      ? (snapshot.ga4FunnelSteps as Ga4FunnelStep[]).slice(0, 12)
       : [],
   };
 }
@@ -117,7 +125,7 @@ async function loadConnectionStatus(projectId: string) {
 }
 
 /** Connection status only — used when there is no completed audit run yet. */
-export async function loadConnectedStatusForProject(
+export const loadConnectedStatusForProject = cache(async function loadConnectedStatusForProject(
   projectId: string
 ): Promise<ConnectedAuditMetrics> {
   const status = await loadConnectionStatus(projectId);
@@ -130,13 +138,16 @@ export async function loadConnectedStatusForProject(
     trafficByChannel: [],
     ...EMPTY_ANALYTICS,
   };
-}
+});
 
 export async function loadConnectedMetricsForAuditRun(
   projectId: string,
-  auditRunId: string
+  auditRunId: string,
+  options?: { pageLimit?: number; queryLimit?: number }
 ): Promise<ConnectedAuditMetrics> {
   const supabase = getSupabaseAdmin();
+  const pageLimit = options?.pageLimit ?? 80;
+  const queryLimit = options?.queryLimit ?? 150;
 
   const [
     { data: metrics },
@@ -146,12 +157,18 @@ export async function loadConnectedMetricsForAuditRun(
     status,
   ] = await Promise.all([
     supabase.from('audit_metrics').select('*').eq('audit_run_id', auditRunId).maybeSingle(),
-    supabase.from('page_metrics').select('*').eq('audit_run_id', auditRunId).order('path'),
+    supabase
+      .from('page_metrics')
+      .select(PAGE_METRIC_COLUMNS)
+      .eq('audit_run_id', auditRunId)
+      .order('ga_sessions', { ascending: false })
+      .limit(pageLimit),
     supabase
       .from('query_metrics')
-      .select('*')
+      .select(QUERY_METRIC_COLUMNS)
       .eq('audit_run_id', auditRunId)
-      .order('impressions', { ascending: false }),
+      .order('impressions', { ascending: false })
+      .limit(queryLimit),
     supabase
       .from('report_exports')
       .select('snapshot')

@@ -7,6 +7,7 @@ import type { Website } from '@/lib/supabase/types';
 
 interface FreeReportProps {
   projectId: string;
+  sessionId?: string;
   website: Website;
   brandEvidence: BrandEvidenceReportView | null;
   previousBrandEvidence?: BrandEvidenceReportView | null;
@@ -22,6 +23,7 @@ interface FreeReportProps {
 
 export function FreeReport({
   projectId,
+  sessionId,
   website,
   brandEvidence,
   previousBrandEvidence = null,
@@ -30,7 +32,7 @@ export function FreeReport({
   analyzing,
   userInitials,
   signedIn = false,
-  showUpgradeBanner = true,
+  showUpgradeBanner = false,
   embedded = false,
 }: FreeReportProps) {
   const identity = siteIdentity ?? buildSiteIdentity({ website, siteOnly: null });
@@ -39,6 +41,7 @@ export function FreeReport({
   const body = (
     <AuditReportShell
       projectId={projectId}
+      sessionId={sessionId}
       website={website}
       siteIdentity={identity}
       brandEvidence={brandEvidence}
@@ -47,6 +50,7 @@ export function FreeReport({
       analyzing={analyzing}
       variant="free"
       showUpgradeBanner={showUpgradeBanner}
+      signedIn={isSignedIn}
     />
   );
 

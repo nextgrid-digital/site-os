@@ -128,7 +128,7 @@ export default function HeroSection({
               className="mt-1.5 block text-muted-foreground 2xl:text-lg 2xl:leading-7"
               data-cid="n29"
             >
-              Paste a URL for a free crawl audit. Sign in to unlock the full free report. Upgrade to
+              Paste a URL for a free crawl audit — no login required. Sign in to save sites and
               connect Search Console and GA4.
             </p>
           </div>

@@ -6,8 +6,8 @@
 @source "../components/marketing/site-os";
 
 .typeset-docs {
-  --typeset-font-body: var(--font-inter);
-  --typeset-font-heading: var(--font-inter);
+  --typeset-font-body: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --typeset-font-heading: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --typeset-font-mono: var(--font-geist);
   --typeset-size: 15px;
   --typeset-leading: 1.75;

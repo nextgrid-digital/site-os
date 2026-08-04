@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { after, NextResponse } from 'next/server';
 import { runAudit } from '@/lib/audit/run-audit';
 import { getClientIntake } from '@/lib/db/client-intake';
 import { PaidPlanRequiredError, requirePaidSession } from '@/lib/db/profiles';
@@ -36,8 +36,15 @@ export async function POST(
     const intake = runType === 'full' ? await getClientIntake(projectId) : null;
     const goalCategory = intake?.goal_category ?? null;
 
-    const result = await runAudit(projectId, runType, goalCategory);
-    return NextResponse.json({ auditRunId: result.auditRunId, status: 'completed' });
+    after(async () => {
+      try {
+        await runAudit(projectId, runType, goalCategory);
+      } catch (error) {
+        console.error('[run-audit] background failed', error);
+      }
+    });
+
+    return NextResponse.json({ status: 'started', projectId, runType });
   } catch (error) {
     if (error instanceof PaidPlanRequiredError) {
       return NextResponse.json({ error: error.message }, { status: error.status });

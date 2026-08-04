@@ -31,10 +31,11 @@ export default async function LoginPage({
         <div className="space-y-3 text-center">
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500">Account</p>
           <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">
-            Sign in to unlock your audit
+            Sign in to save your sites
           </h1>
           <p className="text-sm leading-6 text-zinc-500">
-            Use Google or email and password. The full free audit is available after you sign in.
+            Use Google or email and password. Free audits work without an account — sign in to keep
+            sites on Your sites and connect Google.
           </p>
           {showError ? (
             <p className="text-sm text-red-600">Authentication failed. Please try again.</p>

@@ -15,7 +15,7 @@ export default function ProductGridSection2({ logos = logosContent } = {}) {
               Free crawl or paid connected
             </h2>
             <p className="block mt-1.5 text-muted-foreground 2xl:text-lg 2xl:leading-7" data-cid="n2169">
-              Start free with a URL. Sign in for the full free report. Upgrade to connect Search Console and GA4.
+              Start free with a URL. Sign in to save sites. Connect Search Console and GA4 when you are ready.
             </p>
           </div>
         </div>
@@ -64,7 +64,7 @@ export default function ProductGridSection2({ logos = logosContent } = {}) {
                           </span>
                         </span>
                         <p className="block text-muted-foreground text-sm font-medium leading-5 whitespace-nowrap" data-cid="n2193">
-                          Sign in unlocks full free report
+                          Sign in to save this site
                         </p>
                       </div>
                     </div>
@@ -127,7 +127,7 @@ export default function ProductGridSection2({ logos = logosContent } = {}) {
                       {logos.map((d, i) => <Logo3 key={i} d={d} cids={Logo3_cids[i]} styles={Logo3_styles[i]} />)}
                     </ul>
                     <p className="border-t border-solid border-t-surface-4 block mt-4 pt-4 text-muted-foreground text-xs font-medium leading-4 text-balance" data-cid="n2280">
-                      Free to start · sign in for the full free report · upgrade anytime for GSC + GA4
+                      Free to start · sign in to save sites · connect GSC + GA4 anytime
                     </p>
                   </div>
                   <div className="w-[27.975rem] h-[47.4375rem] min-h-full flex relative justify-center items-center overflow-hidden max-lg:hidden 2xl:h-[48.4375rem]" data-cid="n2281" aria-hidden="true">

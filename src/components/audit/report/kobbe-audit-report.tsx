@@ -1,20 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
-import '@/components/marketing/site-os/site-os-home.css';
-import { HeroDemoDashboard } from '@/components/marketing/site-os/demo/hero-demo-dashboard';
-import {
-  EvidenceDrawer,
-  type EvidenceDrawerPayload,
-} from '@/components/audit/evidence/evidence-drawer';
+import '@/components/audit/report/audit-report-tokens.css';
 import { ConnectedUpgradeBanner } from '@/components/audit/connected-upgrade-banner';
-import { AnalyticsConversionPeak } from '@/components/audit/report/analytics/analytics-conversion-peak';
-import { AnalyticsDetailTables } from '@/components/audit/report/analytics/analytics-detail-tables';
-import { AnalyticsDimensionGrid } from '@/components/audit/report/analytics/analytics-dimension-grid';
-import { AnalyticsKpiRow } from '@/components/audit/report/analytics/analytics-kpi-row';
-import { AnalyticsPathFunnel } from '@/components/audit/report/analytics/analytics-path-funnel';
-import { AnalyticsPerformanceEmpty } from '@/components/audit/report/analytics/analytics-performance-empty';
+import { KobbeDeferredAnalytics } from '@/components/audit/report/kobbe-deferred-analytics';
 import { SectionHeading } from '@/components/audit/report/section-heading';
 import {
   buildAnalyticsKpiTiles,
@@ -42,6 +33,26 @@ import type {
   BrandEvidenceReportView,
   KeyObservation,
 } from '@/lib/evidence/types';
+import type { EvidenceDrawerPayload } from '@/components/audit/evidence/evidence-drawer';
+
+const HeroDemoDashboard = dynamic(
+  () =>
+    import('@/components/marketing/site-os/demo/hero-demo-dashboard').then(
+      (mod) => mod.HeroDemoDashboard
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-64 animate-pulse rounded-2xl border border-zinc-200 bg-zinc-100" aria-hidden />
+    ),
+  }
+);
+
+const EvidenceDrawer = dynamic(
+  () =>
+    import('@/components/audit/evidence/evidence-drawer').then((mod) => mod.EvidenceDrawer),
+  { ssr: false }
+);
 
 const REPORT_FAQ = [
   {
@@ -152,7 +163,7 @@ export function KobbeAuditReport({
   siteIdentity: _siteIdentity,
   projectId,
   connectedMetrics = null,
-  showUpgradeBanner = true,
+  showUpgradeBanner = false,
 }: {
   view: BrandEvidenceReportView;
   siteIdentity: SiteIdentity;
@@ -163,7 +174,7 @@ export function KobbeAuditReport({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [payload, setPayload] = useState<EvidenceDrawerPayload | null>(null);
   const [faqOpen, setFaqOpen] = useState<number | null>(0);
-  const [secondaryTab, setSecondaryTab] = useState<'keywords' | 'channels'>('keywords');
+  const [secondaryTab, setSecondaryTab] = useState<'keywords' | 'channels'>('channels');
 
   const open = (next: EvidenceDrawerPayload) => {
     setPayload(next);
@@ -336,32 +347,53 @@ export function KobbeAuditReport({
             </p>
           ) : null}
 
-          <HeroDemoDashboard data={heroData} />
+          {hasGoogleRows ? (
+            <>
+              <div className="mb-6 flex flex-wrap justify-center gap-2">
+                {(
+                  [
+                    { id: 'channels' as const, label: 'Channels' },
+                    { id: 'keywords' as const, label: 'Keywords' },
+                  ] as const
+                ).map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setSecondaryTab(tab.id)}
+                    className={
+                      secondaryTab === tab.id
+                        ? 'rounded-lg bg-foreground px-3 py-1.5 text-xs font-medium text-surface-3'
+                        : 'rounded-lg border border-surface bg-surface-3 px-3 py-1.5 text-xs font-medium text-muted-foreground'
+                    }
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+              <HeroDemoDashboard
+                data={secondaryTab === 'keywords' ? keywordsData : heroData}
+              />
+            </>
+          ) : (
+            <div className="rounded-[14px] border border-dashed border-zinc-300 bg-white p-8 text-center">
+              <p className="text-sm font-semibold text-zinc-950">Traffic dashboard</p>
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">
+                Connect Google Search Console and Analytics to see live traffic and search evidence
+                here.
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Connected analytics long-scroll */}
-      <section className="block pt-4">
-        <div className="mx-auto max-w-280 space-y-10 px-8 py-12">
-          <SectionHeading
-            title="Traffic and search evidence"
-            lead="Real GA4 and Search Console numbers from this audit run. For the joined Search → visit → outcome story, open the Journey tab."
-          />
-          <AnalyticsKpiRow tiles={analyticsKpis} />
-          <AnalyticsDimensionGrid cards={dimensionCards} />
-          <AnalyticsDetailTables
-            sources={detailTables.sources}
-            countries={detailTables.countries}
-            devices={detailTables.devices}
-            browsers={detailTables.browsers}
-            pages={detailTables.pages}
-            events={detailTables.events}
-          />
-          <AnalyticsConversionPeak cells={peakCells} />
-          <AnalyticsPathFunnel steps={funnelSteps} />
-          <AnalyticsPerformanceEmpty />
-        </div>
-      </section>
+      {/* Connected analytics long-scroll — deferred until near viewport */}
+      <KobbeDeferredAnalytics
+        analyticsKpis={analyticsKpis}
+        dimensionCards={dimensionCards}
+        detailTables={detailTables}
+        peakCells={peakCells}
+        funnelSteps={funnelSteps}
+      />
 
       {/* 3x3 evidence grid */}
       <section className="block pt-8">
@@ -515,40 +547,6 @@ export function KobbeAuditReport({
         </div>
       </section>
 
-      {/* Secondary GSC/GA dashboard */}
-      <section className="block pt-8">
-        <div className="mx-auto max-w-280 px-8 py-16">
-          <SectionHeading
-            title="More connected search and traffic data"
-            lead="Switch between Search Console keywords and channel-oriented views."
-          />
-          <div className="mt-8 flex flex-wrap justify-center gap-2">
-            {(
-              [
-                { id: 'keywords' as const, label: 'Keywords' },
-                { id: 'channels' as const, label: 'Channels' },
-              ] as const
-            ).map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setSecondaryTab(tab.id)}
-                className={
-                  secondaryTab === tab.id
-                    ? 'rounded-lg bg-foreground px-3 py-1.5 text-xs font-medium text-surface-3'
-                    : 'rounded-lg border border-surface bg-surface-3 px-3 py-1.5 text-xs font-medium text-muted-foreground'
-                }
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-          <div className="mt-8">
-            <HeroDemoDashboard data={secondaryTab === 'keywords' ? keywordsData : heroData} />
-          </div>
-        </div>
-      </section>
-
       {/* Personalized summary — factual counts only */}
       <section className="block pt-8">
         <div className="mx-auto max-w-280 px-8 py-16">
@@ -622,7 +620,9 @@ export function KobbeAuditReport({
         </div>
       </section>
 
-      <EvidenceDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} payload={payload} />
+      {drawerOpen || payload ? (
+        <EvidenceDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} payload={payload} />
+      ) : null}
     </div>
   );
 }

@@ -93,10 +93,10 @@ export function OperatorTopbar() {
 
         <div className="flex shrink-0 items-center gap-2">
           <Link
-            href="/#audit"
+            href="/app"
             className="hidden rounded-full border border-white/15 px-3 py-1.5 text-sm font-medium text-white/80 transition hover:bg-white/8 hover:text-white sm:inline-flex"
           >
-            New audit
+            Your sites
           </Link>
           <Avatar size="sm" className="shrink-0 bg-white/10 text-white after:border-white/15">
             <AvatarFallback className="bg-transparent text-[10px] font-semibold text-white">

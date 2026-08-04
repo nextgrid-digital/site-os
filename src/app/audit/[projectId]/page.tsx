@@ -1,26 +1,27 @@
-import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
-import { AppShell } from '@/components/audit/app-shell';
-import { AuditReportClient } from '@/components/audit/audit-report-client';
+import { Suspense } from 'react';
+import { FreeReport } from '@/components/audit/free-report';
+import { PaidReport } from '@/components/audit/paid-report';
+import { AuditStatusPoller } from '@/components/audit/audit-status-poller';
 import { RerunFreeAuditButton } from '@/components/audit/rerun-free-audit-button';
 import { normalizeSiteOnlyAnalysis } from '@/lib/audit/normalize-site-only';
 import { buildSiteIdentity } from '@/lib/audit/site-identity';
-import { loadBrandEvidenceForAuditRun, loadPreviousBrandEvidenceSnapshot } from '@/lib/evidence/persist';
+import { loadBrandEvidenceForAuditRun } from '@/lib/evidence/persist';
+import { slimBrandEvidenceForKobbe } from '@/lib/evidence/slim-for-kobbe';
 import type { BrandEvidenceReportView } from '@/lib/evidence/types';
-import { loadConnectedMetricsForAuditRun, loadConnectedStatusForProject } from '@/lib/db/connected-metrics';
-import type { ConnectedAuditMetrics } from '@/lib/db/connected-metrics';
-import { getUserPlan } from '@/lib/db/profiles';
 import {
-  createAuditSession,
-  getAuditSession,
-  getLatestAuditSessionForProject,
+  loadConnectedMetricsForAuditRun,
+  loadConnectedStatusForProject,
+} from '@/lib/db/connected-metrics';
+import type { ConnectedAuditMetrics } from '@/lib/db/connected-metrics';
+import {
   isAuditSessionUnlocked,
   unlockAuditSession,
   type AuditSession,
 } from '@/lib/db/audit-sessions';
-import { getSupabaseAdmin, hasSupabaseConfig } from '@/lib/supabase/server';
+import { resolveAuditWorkspace } from '@/lib/db/resolve-audit-workspace';
+import { getSupabaseAdmin } from '@/lib/supabase/server';
 import type { Website } from '@/lib/supabase/types';
-import { createClient } from '@/utils/supabase/server';
 
 function sessionUnlockedForUser(
   session: AuditSession | null,
@@ -32,14 +33,111 @@ function sessionUnlockedForUser(
   return false;
 }
 
-function initialsFromEmail(email: string | null | undefined) {
-  if (!email) return null;
-  const local = email.split('@')[0] || email;
-  const parts = local.split(/[._-]/).filter(Boolean);
-  if (parts.length >= 2) {
-    return `${parts[0][0] ?? ''}${parts[1][0] ?? ''}`.toUpperCase();
+function EvidenceBodyFallback() {
+  return (
+    <div className="animate-pulse space-y-6" aria-busy="true" aria-label="Loading evidence">
+      <div className="flex items-start gap-4">
+        <div className="h-12 w-12 shrink-0 rounded-2xl bg-zinc-200" />
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="h-7 w-2/3 max-w-md rounded-lg bg-zinc-200" />
+          <div className="h-4 w-1/2 max-w-sm rounded bg-zinc-200" />
+        </div>
+      </div>
+      <div className="h-48 rounded-2xl border border-zinc-200 bg-white" />
+    </div>
+  );
+}
+
+async function EvidenceReportBody({
+  projectId,
+  sessionId,
+  website,
+  auditRunId,
+  hasPaidAudit,
+  hasIntake,
+  analyzing,
+  userInitials,
+  signedIn,
+  siteOnly,
+}: {
+  projectId: string;
+  sessionId: string;
+  website: Website;
+  auditRunId: string | null;
+  hasPaidAudit: boolean;
+  hasIntake: boolean;
+  analyzing: boolean;
+  userInitials: string | null;
+  signedIn: boolean;
+  siteOnly: ReturnType<typeof normalizeSiteOnlyAnalysis>;
+}) {
+  const supabase = getSupabaseAdmin();
+  let homePage: { title: string | null; meta_description: string | null } | null = null;
+  let brandEvidence: BrandEvidenceReportView | null = null;
+  let connectedMetrics: ConnectedAuditMetrics | null = null;
+
+  if (auditRunId) {
+    const [evidence, metrics, homeRowsResult] = await Promise.all([
+      loadBrandEvidenceForAuditRun(supabase, auditRunId),
+      loadConnectedMetricsForAuditRun(projectId, auditRunId),
+      supabase
+        .from('page_metrics')
+        .select('title, meta_description, path')
+        .eq('audit_run_id', auditRunId)
+        .in('path', ['/', ''])
+        .limit(1),
+    ]);
+    brandEvidence = slimBrandEvidenceForKobbe(evidence);
+    connectedMetrics = metrics;
+    const home = (
+      homeRowsResult.data as Array<{ title: string | null; meta_description: string | null }> | null
+    )?.[0];
+    if (home) {
+      homePage = { title: home.title, meta_description: home.meta_description };
+    }
+  } else {
+    connectedMetrics = await loadConnectedStatusForProject(projectId);
   }
-  return local.slice(0, 2).toUpperCase();
+
+  const siteIdentity = buildSiteIdentity({
+    website,
+    siteOnly,
+    homePage,
+  });
+
+  const showPaid = hasPaidAudit && hasIntake;
+  const report = showPaid ? (
+    <PaidReport
+      projectId={projectId}
+      website={website}
+      brandEvidence={brandEvidence}
+      connectedMetrics={connectedMetrics}
+      siteIdentity={siteIdentity}
+      userInitials={userInitials}
+      signedIn={signedIn}
+      embedded
+    />
+  ) : (
+    <FreeReport
+      projectId={projectId}
+      sessionId={sessionId}
+      website={website}
+      brandEvidence={brandEvidence}
+      connectedMetrics={connectedMetrics}
+      siteIdentity={siteIdentity}
+      analyzing={analyzing}
+      userInitials={userInitials}
+      signedIn={signedIn}
+      embedded
+    />
+  );
+
+  return (
+    <>
+      {analyzing ? <AuditStatusPoller sessionId={sessionId} /> : null}
+      {report}
+    </>
+  );
 }
 
 export default async function ClientAuditPage({
@@ -48,50 +146,11 @@ export default async function ClientAuditPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId: id } = await params;
-  if (!hasSupabaseConfig()) notFound();
+  const workspace = await resolveAuditWorkspace(id);
+  const { projectId, website, user, userInitials, signedIn } = workspace;
+  let session = workspace.session;
 
-  const supabase = getSupabaseAdmin();
-  const cookieStore = await cookies();
-  const authClient = createClient(cookieStore);
-  const {
-    data: { user },
-  } = await authClient.auth.getUser();
-
-  let session: AuditSession | null = await getAuditSession(id);
-  let projectId = session?.project_id ?? null;
-
-  if (!session) {
-    const { data: project } = await supabase.from('projects').select('id').eq('id', id).maybeSingle();
-    if (!project) notFound();
-    projectId = project.id;
-    session = await getLatestAuditSessionForProject(project.id);
-  }
-
-  if (!projectId) notFound();
-
-  const { data: website } = await supabase
-    .from('websites')
-    .select('*')
-    .eq('project_id', projectId)
-    .single();
-  if (!website) notFound();
-
-  const { data: projectRow } = await supabase
-    .from('projects')
-    .select('full_brief_unlocked_at')
-    .eq('id', projectId)
-    .maybeSingle();
-  const projectUnlocked = Boolean(projectRow?.full_brief_unlocked_at);
-  const userPlan = user ? await getUserPlan(user.id) : 'free';
-  const showUpgradeBanner = !(userPlan === 'paid' && projectUnlocked);
-
-  if (!session) {
-    session = await createAuditSession({
-      projectId,
-      websiteUrl: website.url,
-      domain: website.domain,
-    });
-  }
+  if (!session) notFound();
 
   if (user?.email && !sessionUnlockedForUser(session, user)) {
     session = await unlockAuditSession(session.id, {
@@ -109,45 +168,37 @@ export default async function ClientAuditPage({
     }
   }
 
+  const supabase = getSupabaseAdmin();
   const status = session.status ?? 'pending';
   const sessionFailed = status === 'failed';
 
-  const { data: intake } = await supabase
-    .from('client_intake')
-    .select('*')
-    .eq('project_id', projectId)
-    .maybeSingle();
+  const [intakeResult, completedResult, latestRunResult] = await Promise.all([
+    supabase.from('client_intake').select('id').eq('project_id', projectId).maybeSingle(),
+    supabase
+      .from('audit_runs')
+      .select('id, status, run_type, error_message, site_only_analysis, created_at')
+      .eq('project_id', projectId)
+      .eq('status', 'completed')
+      .not('site_only_analysis', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(2),
+    supabase
+      .from('audit_runs')
+      .select('id, status, run_type, error_message, created_at')
+      .eq('project_id', projectId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
 
-  // Prefer newest full completed run when intake exists; else newest completed with site_only.
-  const { data: fullCompletedRuns } = intake
-    ? await supabase
-        .from('audit_runs')
-        .select('*')
-        .eq('project_id', projectId)
-        .eq('status', 'completed')
-        .eq('run_type', 'full')
-        .order('created_at', { ascending: false })
-        .limit(1)
-    : { data: null };
+  const intake = intakeResult.data;
+  const completedRuns = completedResult.data ?? [];
+  const fullCompleted = completedRuns.find((r) => r.run_type === 'full') ?? null;
+  const siteOnlyCompleted = completedRuns[0] ?? null;
+  const latestRun = latestRunResult.data;
 
-  const { data: completedRuns } = await supabase
-    .from('audit_runs')
-    .select('*')
-    .eq('project_id', projectId)
-    .eq('status', 'completed')
-    .not('site_only_analysis', 'is', null)
-    .order('created_at', { ascending: false })
-    .limit(1);
-
-  const { data: latestRun } = await supabase
-    .from('audit_runs')
-    .select('*')
-    .eq('project_id', projectId)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  const auditRun = fullCompletedRuns?.[0] ?? completedRuns?.[0] ?? latestRun ?? null;
+  const auditRun =
+    (intake ? fullCompleted : null) ?? siteOnlyCompleted ?? latestRun ?? null;
   const runFailed = auditRun?.status === 'failed' || sessionFailed;
   const errorMessage =
     typeof auditRun?.error_message === 'string' && auditRun.error_message
@@ -156,7 +207,11 @@ export default async function ClientAuditPage({
         ? 'The free audit failed before results were ready.'
         : null;
 
-  const siteOnly = normalizeSiteOnlyAnalysis(auditRun?.site_only_analysis ?? null);
+  const siteOnlyRaw =
+    'site_only_analysis' in (auditRun ?? {})
+      ? (auditRun as { site_only_analysis?: unknown }).site_only_analysis
+      : null;
+  const siteOnly = normalizeSiteOnlyAnalysis(siteOnlyRaw ?? null);
 
   const hasPaidAudit = auditRun?.run_type === 'full' && auditRun?.status === 'completed';
   const hasIntake = Boolean(intake);
@@ -167,37 +222,7 @@ export default async function ClientAuditPage({
       latestRun?.status === 'running' ||
       (!siteOnly && status !== 'free_ready' && !runFailed));
 
-  let homePage: { title: string | null; meta_description: string | null } | null = null;
-  let brandEvidence: BrandEvidenceReportView | null = null;
-  let previousBrandEvidence: BrandEvidenceReportView | null = null;
-  let connectedMetrics: ConnectedAuditMetrics | null = null;
-  const showConnectedTab = userPlan === 'paid' && projectUnlocked;
-
-  if (auditRun?.id && auditRun.status === 'completed') {
-    brandEvidence = await loadBrandEvidenceForAuditRun(supabase, auditRun.id);
-    previousBrandEvidence = await loadPreviousBrandEvidenceSnapshot(
-      supabase,
-      projectId,
-      auditRun.id
-    );
-    if (showConnectedTab) {
-      connectedMetrics = await loadConnectedMetricsForAuditRun(projectId, auditRun.id);
-    }
-    const { data: homeRows } = await supabase
-      .from('page_metrics')
-      .select('title, meta_description, path')
-      .eq('audit_run_id', auditRun.id)
-      .in('path', ['/', ''])
-      .limit(1);
-    const home = (homeRows as Array<{ title: string | null; meta_description: string | null }> | null)?.[0];
-    if (home) {
-      homePage = { title: home.title, meta_description: home.meta_description };
-    }
-  } else if (showConnectedTab) {
-    connectedMetrics = await loadConnectedStatusForProject(projectId);
-  }
-
-  if (runFailed && !siteOnly && !brandEvidence) {
+  if (runFailed && !siteOnly) {
     return (
       <div className="mx-auto flex max-w-xl flex-col items-center gap-4 py-10 text-center">
         <p className="text-xs font-medium uppercase tracking-[0.16em] text-zinc-500">
@@ -215,28 +240,23 @@ export default async function ClientAuditPage({
     );
   }
 
-  const siteIdentity = buildSiteIdentity({
-    website: website as Website,
-    siteOnly,
-    homePage,
-  });
+  const completedAuditId =
+    auditRun?.status === 'completed' && typeof auditRun.id === 'string' ? auditRun.id : null;
 
   return (
-    <AuditReportClient
-      sessionId={session.id}
-      projectId={projectId}
-      website={website as Website}
-      brandEvidence={brandEvidence}
-      previousBrandEvidence={previousBrandEvidence}
-      connectedMetrics={connectedMetrics}
-      hasPaidAudit={hasPaidAudit}
-      hasIntake={hasIntake}
-      analyzing={analyzing}
-      failed={runFailed}
-      userInitials={initialsFromEmail(user?.email)}
-      signedIn={Boolean(user)}
-      siteIdentity={siteIdentity}
-      showUpgradeBanner={showUpgradeBanner}
-    />
+    <Suspense fallback={<EvidenceBodyFallback />}>
+      <EvidenceReportBody
+        projectId={projectId}
+        sessionId={session.id}
+        website={website as Website}
+        auditRunId={completedAuditId}
+        hasPaidAudit={hasPaidAudit}
+        hasIntake={hasIntake}
+        analyzing={analyzing}
+        userInitials={userInitials}
+        signedIn={signedIn}
+        siteOnly={siteOnly}
+      />
+    </Suspense>
   );
 }

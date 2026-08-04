@@ -46,11 +46,14 @@ export const resolveAuditWorkspace = cache(async function resolveAuditWorkspace(
   const supabase = getSupabaseAdmin();
   const cookieStore = await cookies();
   const authClient = createClient(cookieStore);
-  const {
-    data: { user },
-  } = await authClient.auth.getUser();
 
-  let session: AuditSession | null = await getAuditSession(id);
+  const [userResult, sessionById] = await Promise.all([
+    authClient.auth.getUser(),
+    getAuditSession(id),
+  ]);
+  const user = userResult.data.user;
+
+  let session: AuditSession | null = sessionById;
   let projectId = session?.project_id ?? null;
 
   if (!session) {
@@ -64,7 +67,7 @@ export const resolveAuditWorkspace = cache(async function resolveAuditWorkspace(
 
   const { data: website } = await supabase
     .from('websites')
-    .select('*')
+    .select('id, project_id, url, domain, crawl_max_pages, created_at')
     .eq('project_id', projectId)
     .single();
   if (!website) notFound();

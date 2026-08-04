@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   useAuditTabCache,
   type AuditPrimaryTabSuffix,
@@ -60,7 +60,6 @@ export function AuditWorkspaceTabs({
   websiteUrl,
   connection,
 }: {
-  /** Canonical id used in URLs (prefer session id). */
   workspaceId: string;
   projectId: string;
   domain?: string;
@@ -68,6 +67,7 @@ export function AuditWorkspaceTabs({
   connection: WorkspaceConnectionStatus;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const tabCache = useAuditTabCache();
   const base = `/audit/${workspaceId}`;
 
@@ -101,6 +101,10 @@ export function AuditWorkspaceTabs({
               <Link
                 key={tab.label}
                 href={href}
+                prefetch
+                onMouseEnter={() => {
+                  router.prefetch(href);
+                }}
                 onClick={(event) => {
                   if (!tabCache || !cached) return;
                   event.preventDefault();

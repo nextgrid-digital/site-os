@@ -68,8 +68,8 @@ export type FeatureCard2DataItem = {
 };
 export const featureCard2Data: FeatureCard2DataItem[] = [
     { href: "/#how-it-works", title: "Free crawl audit", description: "Paste a URL, crawl the site, and get scored findings without Google connect." },
-    { href: "/#pricing", title: "Full free report", description: "Sign in to unlock the complete free audit, graph gaps, and fix prompts." },
-    { href: "/audit", title: "Connected upgrade", description: "Add Search Console and GA4 for query, session, and conversion depth." },
+    { href: "/login?next=/app", title: "Save your sites", description: "Sign in to keep audits on Your sites and reopen them anytime." },
+    { href: "/#audit", title: "Connect Google", description: "Add Search Console and GA4 for query, session, and conversion depth." },
     { href: "/#faq", title: "Growth brief", description: "Share a client-ready brief with findings, priorities, and pricing guidance." }
 ];
 
@@ -90,8 +90,8 @@ export type FeatureCardData2Item = {
   description: string;
 };
 export const featureCardData2: FeatureCardData2Item[] = [
-    { title: "Connect Google", description: "OAuth into Search Console and GA4 on a paid connected audit." },
-    { title: "Keep scope clear", description: "Free crawl first; paid connect adds query and session depth without replacing findings." },
+    { title: "Connect Google", description: "OAuth into Search Console and GA4 after you sign in." },
+    { title: "Keep scope clear", description: "Free crawl first; connect adds query and session depth without replacing findings." },
     { title: "Read it in context", description: "GSC queries and GA4 sessions sit beside crawl findings and graph gaps." }
 ];
 

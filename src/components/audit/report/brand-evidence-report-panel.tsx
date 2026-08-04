@@ -144,7 +144,7 @@ export function BrandEvidenceReportPanel({
   showRerun,
   rerunSlot,
   connectedMetrics = null,
-  showUpgradeBanner = true,
+  showUpgradeBanner = false,
 }: {
   view: BrandEvidenceReportView;
   previous?: BrandEvidenceReportView | null;

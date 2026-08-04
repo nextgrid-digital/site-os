@@ -3,12 +3,9 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 
-export function UserAccountMenu({
-  initials,
-}: {
-  initials: string;
-}) {
+export function UserAccountMenu(_props: { initials?: string } = {}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
@@ -50,12 +47,16 @@ export function UserAccountMenu({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-200 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-300"
-        aria-label="Account menu"
+        className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2.5 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50"
+        aria-label="Dashboard menu"
         aria-expanded={open}
         aria-haspopup="menu"
       >
-        {initials}
+        Dashboard
+        <ChevronDown
+          className={`size-3.5 text-zinc-500 transition ${open ? 'rotate-180' : ''}`}
+          aria-hidden
+        />
       </button>
       {open ? (
         <div

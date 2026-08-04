@@ -53,7 +53,7 @@ export function RunAuditButton({
     return (
       <div className={className ?? 'flex flex-wrap items-center gap-2'}>
         <Button size={size} onClick={() => runAudit(effectiveType)} disabled={loading}>
-          {loading ? 'Running…' : 'Rerun audit'}
+          {loading ? 'Starting…' : 'Rerun audit'}
         </Button>
         {error ? <p className="w-full text-sm text-destructive">{error}</p> : null}
       </div>
@@ -63,7 +63,7 @@ export function RunAuditButton({
   return (
     <div className={className ?? 'flex flex-wrap items-center gap-2'}>
       <Button size={size} onClick={() => runAudit('mini')} disabled={loading}>
-        {loading ? 'Running…' : 'Run site audit'}
+        {loading ? 'Starting…' : 'Run site audit'}
       </Button>
       {fullBriefUnlocked ? (
         <Button

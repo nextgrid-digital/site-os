@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 interface HomeAuditFormProps {
   className?: string;
+  rowClassName?: string;
   inputClassName?: string;
   buttonClassName?: string;
   actionsClassName?: string;
@@ -18,6 +19,7 @@ interface HomeAuditFormProps {
 
 export function HomeAuditForm({
   className,
+  rowClassName,
   inputClassName,
   buttonClassName,
   actionsClassName,
@@ -29,7 +31,7 @@ export function HomeAuditForm({
   helperText = 'Paste any public URL. Free audit adapts to the site type — no login required.',
 }: HomeAuditFormProps = {}) {
   const router = useRouter();
-  const [url, setUrl] = useState('https://');
+  const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -65,40 +67,39 @@ export function HomeAuditForm({
     }
   }
 
-  const submitButton = (
-    <button
-      type="submit"
-      disabled={loading}
-      className={
-        buttonClassName ??
-        'w-full rounded-xl bg-sky-600 px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:opacity-50'
-      }
-    >
-      {loading ? loadingLabel : buttonLabel}
-    </button>
-  );
-
   return (
     <form onSubmit={handleSubmit} className={className ?? 'space-y-4'}>
-      <input
-        type="url"
-        placeholder="yourwebsite.com"
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-        required
-        className={
-          inputClassName ??
-          'w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-100'
-        }
-      />
+      <div className={rowClassName ?? 'flex w-full items-stretch gap-2'}>
+        <input
+          type="text"
+          inputMode="url"
+          autoComplete="url"
+          placeholder="yourwebsite.com"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          required
+          aria-label="Website URL"
+          className={
+            inputClassName ??
+            'min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-100'
+          }
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className={
+            buttonClassName ??
+            'shrink-0 rounded-xl bg-sky-600 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:opacity-50'
+          }
+        >
+          {loading ? loadingLabel : buttonLabel}
+        </button>
+      </div>
       {actions ? (
         <div className={actionsClassName ?? 'flex flex-wrap items-center justify-center gap-2'}>
-          {submitButton}
           {actions}
         </div>
-      ) : (
-        submitButton
-      )}
+      ) : null}
       {error ? (
         <p className={errorClassName ?? 'text-center text-xs text-red-600'}>{error}</p>
       ) : null}

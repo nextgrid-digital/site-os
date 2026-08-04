@@ -10,8 +10,8 @@ export interface SiteIdentity {
   ogImageUrl: string | null;
 }
 
-function googleFaviconUrl(domain: string) {
-  return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`;
+export function googleFaviconUrl(domain: string, size = 128) {
+  return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=${size}`;
 }
 
 export function buildSiteIdentity(input: {

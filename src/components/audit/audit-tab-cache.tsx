@@ -14,6 +14,9 @@ import { usePathname, useRouter } from 'next/navigation';
 
 export type AuditPrimaryTabSuffix = '' | '/journey' | '/connect' | '/intake';
 
+/** Heavy report trees — remount on revisit instead of retaining DOM. */
+const EPHEMERAL_TAB_SUFFIXES = new Set<AuditPrimaryTabSuffix>(['', '/journey']);
+
 export const AUDIT_PRIMARY_TAB_SUFFIXES: readonly AuditPrimaryTabSuffix[] = [
   '',
   '/journey',
@@ -185,6 +188,13 @@ export function AuditTabPanels({ children }: { children: ReactNode }) {
     }
   }
 
+  // Drop heavy Evidence/Journey trees when leaving so charts do not stay mounted.
+  for (const suffix of EPHEMERAL_TAB_SUFFIXES) {
+    if (suffix !== activeSuffix && store.cache.has(suffix)) {
+      store.cache.delete(suffix);
+    }
+  }
+
   if (pathSuffix === null && optimisticSuffix === null) {
     return <>{children}</>;
   }
@@ -192,6 +202,9 @@ export function AuditTabPanels({ children }: { children: ReactNode }) {
   return (
     <>
       {AUDIT_PRIMARY_TAB_SUFFIXES.map((suffix) => {
+        if (EPHEMERAL_TAB_SUFFIXES.has(suffix) && suffix !== activeSuffix) {
+          return null;
+        }
         const node = store.cache.get(suffix);
         if (!node) return null;
         const active = suffix === activeSuffix;

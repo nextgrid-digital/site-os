@@ -28,7 +28,7 @@ export function PaidReport({
   siteIdentity,
   userInitials,
   signedIn = false,
-  showUpgradeBanner = true,
+  showUpgradeBanner = false,
   embedded = false,
 }: PaidReportProps) {
   const identity = siteIdentity ?? buildSiteIdentity({ website, siteOnly: null });
@@ -46,6 +46,7 @@ export function PaidReport({
       showRerun
       rerunSlot={<RerunFullAuditButton projectId={projectId} />}
       showUpgradeBanner={showUpgradeBanner}
+      signedIn={isSignedIn}
     />
   );
 

@@ -15,8 +15,6 @@ export function ConnectFlow({
   gscProperties,
   ga4Properties,
   operatorEmail,
-  fullBriefUnlocked,
-  paidPlan = true,
   workspaceBase,
 }: {
   projectId: string;
@@ -24,12 +22,12 @@ export function ConnectFlow({
   gscProperties: SearchConsoleProperty[];
   ga4Properties: Ga4Property[];
   operatorEmail?: string | null;
-  fullBriefUnlocked: boolean;
+  /** @deprecated Ignored — Site-OS is fully free. */
+  fullBriefUnlocked?: boolean;
+  /** @deprecated Ignored — Site-OS is fully free. */
   paidPlan?: boolean;
-  /** Base path for in-app links, e.g. `/audit/{sessionOrProjectId}`. */
   workspaceBase?: string;
 }) {
-  const base = workspaceBase ?? `/audit/${projectId}`;
   const router = useRouter();
   const invalidateTab = useInvalidateAuditTab();
   const [selectedGsc, setSelectedGsc] = useState(
@@ -40,6 +38,8 @@ export function ConnectFlow({
   );
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [mappingSaved, setMappingSaved] = useState(false);
+  const reportHref = workspaceBase || `/audit/${projectId}`;
 
   async function syncProperties() {
     setLoading(true);
@@ -91,43 +91,21 @@ export function ConnectFlow({
     invalidateTab('');
     invalidateTab('/journey');
     router.refresh();
+    setMappingSaved(true);
     setMessage('Property mapping saved.');
   }
 
   return (
+    <div className="space-y-4">
+      {mappingSaved || googleConnected ? (
+        <div className="flex flex-wrap gap-2">
+          <Button render={<a href={reportHref} />}>View report</Button>
+          <Button variant="outline" render={<a href="/app" />}>
+            Your sites
+          </Button>
+        </div>
+      ) : null}
     <div className="grid gap-4 lg:grid-cols-2">
-      {!paidPlan ? (
-        <Card className="shadow-none lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Paid plan required</CardTitle>
-            <CardDescription>
-              Free accounts can run crawl-only audits. Upgrade to paid to unlock Search Console and
-              GA4 connections for this project.
-            </CardDescription>
-          </CardHeader>
-          <CardFooter>
-            <Button render={<a href="/#pricing" />}>View pricing</Button>
-          </CardFooter>
-        </Card>
-      ) : null}
-
-      {!fullBriefUnlocked && paidPlan ? (
-        <Card className="shadow-none lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Full audit access required</CardTitle>
-            <CardDescription>
-              Connect Search Console and GA4 after unlocking full audit access (~$700). Data
-              connections unlock search and engagement evidence in the report.
-            </CardDescription>
-          </CardHeader>
-          <CardFooter>
-            <Button render={<a href={base} />}>Open report to unlock</Button>
-          </CardFooter>
-        </Card>
-      ) : null}
-
-      {fullBriefUnlocked && paidPlan ? (
-        <>
       <Card className="shadow-none">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -224,8 +202,7 @@ export function ConnectFlow({
           </p>
         </CardFooter>
       </Card>
-        </>
-      ) : null}
+    </div>
     </div>
   );
 }

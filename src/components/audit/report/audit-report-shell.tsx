@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import type { ReactNode } from 'react';
-import { KobbeAuditReport } from '@/components/audit/report/kobbe-audit-report';
 import { RerunFreeAuditButton } from '@/components/audit/rerun-free-audit-button';
 import type { BrandEvidenceReportView } from '@/lib/evidence/types';
 import type { ConnectedAuditMetrics } from '@/lib/db/connected-metrics';
@@ -11,8 +11,28 @@ import type { Website } from '@/lib/supabase/types';
 import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 
+const KobbeAuditReport = dynamic(
+  () =>
+    import('@/components/audit/report/kobbe-audit-report').then((mod) => mod.KobbeAuditReport),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="animate-pulse space-y-6 py-4" aria-busy="true" aria-label="Loading report">
+        <div className="h-48 rounded-2xl border border-zinc-200 bg-zinc-100" />
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-24 rounded-2xl border border-zinc-200 bg-zinc-100" />
+          ))}
+        </div>
+        <div className="h-64 rounded-2xl border border-zinc-200 bg-zinc-100" />
+      </div>
+    ),
+  }
+);
+
 interface AuditReportShellProps {
   projectId: string;
+  sessionId?: string;
   website: Website;
   siteIdentity: SiteIdentity;
   brandEvidence: BrandEvidenceReportView | null;
@@ -23,6 +43,7 @@ interface AuditReportShellProps {
   showRerun?: boolean;
   rerunSlot?: ReactNode;
   showUpgradeBanner?: boolean;
+  signedIn?: boolean;
 }
 
 function SiteFavicon({ src, domain }: { src: string; domain: string }) {
@@ -88,7 +109,7 @@ function AuditProgress({ domain }: { domain: string }) {
         <div className="audit-progress-bar h-full w-1/3 rounded-full bg-zinc-950" />
       </div>
       <p className="text-center text-xs text-zinc-500">
-        Collecting public evidence. This page refreshes automatically.
+        Collecting public evidence. This page updates when the audit finishes.
       </p>
     </div>
   );
@@ -96,6 +117,7 @@ function AuditProgress({ domain }: { domain: string }) {
 
 export function AuditReportShell({
   projectId,
+  sessionId,
   website,
   siteIdentity,
   brandEvidence,
@@ -105,9 +127,14 @@ export function AuditReportShell({
   variant,
   showRerun = true,
   rerunSlot,
-  showUpgradeBanner = true,
+  showUpgradeBanner = false,
+  signedIn = false,
 }: AuditReportShellProps) {
   void previousBrandEvidence;
+  const saveHref = `/login?next=${encodeURIComponent(
+    `/app?session=${encodeURIComponent(sessionId || projectId)}`
+  )}&sessionId=${encodeURIComponent(sessionId || '')}`;
+
   if (analyzing) {
     return (
       <div className="space-y-8">
@@ -153,6 +180,25 @@ export function AuditReportShell({
         </div>
       )}
 
+      {variant === 'free' && !signedIn && !analyzing ? (
+        <div className="rounded-2xl border border-zinc-200 bg-white px-5 py-5 print:hidden">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-zinc-900">Save this site</p>
+              <p className="mt-0.5 text-xs leading-5 text-zinc-500">
+                Sign in to keep this audit on Your sites and connect Google later.
+              </p>
+            </div>
+            <Link
+              href={saveHref}
+              className="inline-flex shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-900 transition hover:bg-zinc-50"
+            >
+              Sign in to save
+            </Link>
+          </div>
+        </div>
+      ) : null}
+
       {variant === 'free' ? (
         <div className="rounded-2xl border border-zinc-200 bg-white px-5 py-5 print:hidden">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -164,7 +210,7 @@ export function AuditReportShell({
               </p>
             </div>
             <Link
-              href={`/audit/${projectId}/upgrade`}
+              href={`/audit/${projectId}/connect`}
               className="inline-flex shrink-0 items-center justify-center rounded-lg bg-zinc-950 px-3 py-2 text-xs font-medium text-white transition hover:bg-zinc-800"
             >
               Connect sources

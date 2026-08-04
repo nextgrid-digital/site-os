@@ -180,13 +180,22 @@ export const getLatestCompletedAudit = cache(async (projectId: string) => {
     { data: aeo },
   ] = await Promise.all([
     supabase.from('audit_metrics').select('*').eq('audit_run_id', auditRun.id).maybeSingle(),
-    supabase.from('findings').select('*').eq('audit_run_id', auditRun.id).order('priority_score', { ascending: false }),
+    supabase
+      .from('findings')
+      .select('*')
+      .eq('audit_run_id', auditRun.id)
+      .order('priority_score', { ascending: false })
+      .limit(100),
     supabase.from('pricing_plans').select('*').eq('audit_run_id', auditRun.id).maybeSingle(),
     supabase.from('architecture_recommendations').select('*').eq('audit_run_id', auditRun.id),
-    supabase.from('query_metrics').select('*').eq('audit_run_id', auditRun.id),
+    supabase
+      .from('query_metrics')
+      .select('*')
+      .eq('audit_run_id', auditRun.id)
+      .limit(200),
     supabase
       .from('report_exports')
-      .select('*')
+      .select('id, audit_run_id, format, created_at, snapshot')
       .eq('audit_run_id', auditRun.id)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -603,8 +612,70 @@ export const listPropertyOptions = cache(async (projectId: string) => {
   };
 });
 
-export function isFullBriefUnlocked(project: Pick<Project, 'full_brief_unlocked_at'>) {
-  return Boolean(project.full_brief_unlocked_at);
+/** Site-OS is fully free: full audit / connect access is always unlocked. */
+export function isFullBriefUnlocked(_project: Pick<Project, 'full_brief_unlocked_at'>) {
+  return true;
+}
+
+export class SiteDeleteError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'SiteDeleteError';
+    this.status = status;
+  }
+}
+
+/**
+ * Remove a site from the signed-in user's dashboard.
+ * Deletes their unlocked audit_sessions for the project; if no unlocked
+ * sessions remain for anyone, deletes the project (cascade).
+ */
+export async function deleteProjectForUser(userId: string, projectId: string) {
+  const supabase = getSupabaseAdmin();
+
+  const { data: owned, error: ownedError } = await supabase
+    .from('audit_sessions')
+    .select('id')
+    .eq('project_id', projectId)
+    .eq('user_id', userId)
+    .not('full_unlocked_at', 'is', null)
+    .limit(1);
+
+  if (ownedError) throw new Error(ownedError.message);
+  if (!owned?.length) {
+    throw new SiteDeleteError('Site not found or you do not have access.', 404);
+  }
+
+  const { error: deleteSessionsError } = await supabase
+    .from('audit_sessions')
+    .delete()
+    .eq('project_id', projectId)
+    .eq('user_id', userId);
+
+  if (deleteSessionsError) throw new Error(deleteSessionsError.message);
+
+  const { data: remaining, error: remainingError } = await supabase
+    .from('audit_sessions')
+    .select('id')
+    .eq('project_id', projectId)
+    .not('full_unlocked_at', 'is', null)
+    .not('user_id', 'is', null)
+    .limit(1);
+
+  if (remainingError) throw new Error(remainingError.message);
+
+  if (!remaining?.length) {
+    const { error: deleteProjectError } = await supabase
+      .from('projects')
+      .delete()
+      .eq('id', projectId);
+    if (deleteProjectError) throw new Error(deleteProjectError.message);
+    return { deletedProject: true as const };
+  }
+
+  return { deletedProject: false as const };
 }
 
 export async function unlockFullBrief(projectId: string) {

@@ -21,10 +21,10 @@ export function CoveragePreview({ projectId, showUpgradeLink = true }: CoverageP
   return (
     <section className="space-y-6 rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
       <div className="space-y-2">
-        <h2 className="text-lg font-semibold text-slate-950">Paid connected audit upgrade</h2>
+        <h2 className="text-lg font-semibold text-slate-950">Connected sources</h2>
         <p className="text-sm text-slate-500">
-          The free audit is complete for crawl + AI review. The paid upgrade adds Search Console,
-          GA4, and deeper prioritization.
+          The free audit covers crawl and AI review. Connect Google Search Console and Analytics
+          for traffic and search evidence.
         </p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -41,10 +41,10 @@ export function CoveragePreview({ projectId, showUpgradeLink = true }: CoverageP
       {showUpgradeLink ? (
         <div className="pt-2">
           <Link
-            href={`/audit/${projectId}/upgrade`}
+            href={`/audit/${projectId}/connect`}
             className="inline-flex rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500"
           >
-            Upgrade to connected audit
+            Connect Google sources
           </Link>
         </div>
       ) : null}

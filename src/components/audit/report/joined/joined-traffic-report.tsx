@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo } from 'react';
-import '@/components/marketing/site-os/site-os-home.css';
+import '@/components/audit/report/audit-report-tokens.css';
 import { JoinedChainBreaks } from '@/components/audit/report/joined/joined-chain-breaks';
 import { JoinedPageStoryTable } from '@/components/audit/report/joined/joined-page-story-table';
 import { JoinedQueryBridges } from '@/components/audit/report/joined/joined-query-bridges';

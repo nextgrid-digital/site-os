@@ -6,8 +6,8 @@ import { LogoCloudItem_styles, Tile10_styles } from "../_styles";
 import { logos3 as logosContent } from "../content";
 const Tile10_data: Tile10Data[] = [
     { text: "01", description: "Paste the URL", description2: "Start a free crawl audit from the homepage. No Google connect required for the free report." },
-    { text: "02", description: "Sign in for the full free report", description2: "Unlock scored findings, graph gaps, AEO, and AI fix prompts after Google or email sign-in." },
-    { text: "03", description: "Open the growth brief", description2: "Share findings, priorities, and pricing guidance—or upgrade to connect GSC and GA4." }
+    { text: "02", description: "Read the free report", description2: "See scored findings, graph gaps, AEO, and AI fix prompts as soon as the crawl finishes." },
+    { text: "03", description: "Save and connect", description2: "Sign in to keep the site on Your sites, then connect GSC and GA4 for traffic evidence." }
 ];
 /** Logo Cloud section. */
 export default function LogoCloudSection3({ logos = logosContent, tile10Data = Tile10_data } = {}) {
@@ -21,7 +21,7 @@ export default function LogoCloudSection3({ logos = logosContent, tile10Data = T
                 From one URL to a brief you can actually share.
               </h2>
               <p className="block mt-1.5 text-muted-foreground 2xl:text-lg 2xl:leading-7" data-cid="n2094">
-                Paste a URL once, let the crawl run, sign in for the full free report, then upgrade for GSC, GA4, and a goal-shaped connected audit.
+                Paste a URL once, read the free report, sign in to save the site, then connect GSC and GA4 for traffic evidence.
               </p>
             </div>
           </div>

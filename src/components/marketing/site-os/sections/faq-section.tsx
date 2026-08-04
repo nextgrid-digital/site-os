@@ -8,7 +8,7 @@ const MediaCard2_data: MediaCard2Data[] = [
     { id: "base-ui-_r24R_rH2_", title: "Do I need Google Search Console to start?" },
     { id: "base-ui-_r24R_13H2_", title: "What does the free crawl audit include?" },
     { id: "base-ui-_r24R_1bH2_", title: "What does a paid connected audit add?" },
-    { id: "base-ui-_r24R_1jH2_", title: "How do I see my full free report?" },
+    { id: "base-ui-_r24R_1jH2_", title: "How do I save my free report?" },
     { id: "base-ui-_r24R_1rH2_", title: "Can I use Site-OS on any website?" },
     { id: "base-ui-_r24R_23H2_", title: "Does Site-OS store my Google credentials?" },
     { id: "base-ui-_r24R_2bH2_", title: "What is AEO analysis?" },

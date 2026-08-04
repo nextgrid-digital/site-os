@@ -48,7 +48,7 @@ export function RerunFullAuditButton({ projectId, disabled }: RerunFullAuditButt
         disabled={loading || disabled}
         className="inline-flex items-center justify-center rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {loading ? 'Running…' : 'Re-run full audit'}
+        {loading ? 'Starting…' : 'Re-run full audit'}
       </button>
       {error ? <p className="max-w-[16rem] text-right text-xs text-red-600">{error}</p> : null}
     </div>

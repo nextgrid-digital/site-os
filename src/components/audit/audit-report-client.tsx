@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { FreeReport } from '@/components/audit/free-report';
 import { PaidReport } from '@/components/audit/paid-report';
@@ -28,6 +28,7 @@ interface Props {
 }
 
 export function AuditReportClient({
+  sessionId,
   projectId,
   website,
   brandEvidence,
@@ -39,20 +40,50 @@ export function AuditReportClient({
   userInitials,
   signedIn,
   siteIdentity,
-  showUpgradeBanner = true,
+  showUpgradeBanner = false,
 }: Props) {
   const router = useRouter();
   const invalidateTab = useInvalidateAuditTab();
+  const refreshedRef = useRef(false);
 
   useEffect(() => {
     if (!analyzing) return;
-    const id = window.setInterval(() => {
-      invalidateTab('');
-      invalidateTab('/journey');
-      router.refresh();
-    }, 4000);
-    return () => window.clearInterval(id);
-  }, [analyzing, invalidateTab, router]);
+    refreshedRef.current = false;
+
+    let cancelled = false;
+    let timer: number | undefined;
+
+    async function poll() {
+      try {
+        const res = await fetch(`/api/audit/${sessionId}/status`, { cache: 'no-store' });
+        if (!res.ok || cancelled) return;
+        const data = (await res.json()) as { analyzing?: boolean; ready?: boolean };
+        if (cancelled) return;
+        if (data.ready || data.analyzing === false) {
+          if (!refreshedRef.current) {
+            refreshedRef.current = true;
+            invalidateTab('');
+            invalidateTab('/journey');
+            router.refresh();
+          }
+          return;
+        }
+      } catch {
+        // Ignore transient poll failures; retry on next tick.
+      }
+      if (!cancelled) {
+        timer = window.setTimeout(() => {
+          void poll();
+        }, 4000);
+      }
+    }
+
+    void poll();
+    return () => {
+      cancelled = true;
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
+  }, [analyzing, sessionId, invalidateTab, router]);
 
   const identity = siteIdentity ?? buildSiteIdentity({ website, siteOnly: null });
   const showPaid = hasPaidAudit && hasIntake;
@@ -77,6 +108,7 @@ export function AuditReportClient({
   return (
     <FreeReport
       projectId={projectId}
+      sessionId={sessionId}
       website={website}
       brandEvidence={brandEvidence}
       previousBrandEvidence={previousBrandEvidence}

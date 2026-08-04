@@ -1,48 +1,21 @@
 import { cookies } from 'next/headers';
-import { getSupabaseAdmin } from '@/lib/supabase/server';
 import { createClient } from '@/utils/supabase/server';
 
 export type UserPlan = 'free' | 'paid';
 
-function planFromRow(plan: string | null | undefined): UserPlan {
-  return plan === 'paid' ? 'paid' : 'free';
-}
-
 /**
- * Resolve a user's plan. Prefer the signed-in cookie client (RLS: read own)
- * so this works without SUPABASE_SERVICE_ROLE_KEY. Admin is only a fallback
- * for cross-user lookups.
+ * Site-OS is fully free: every signed-in user is treated as paid.
+ * The profiles.plan column remains for future billing but is ignored.
  */
-export async function getUserPlan(userId: string): Promise<UserPlan> {
-  const cookieStore = await cookies();
-  const auth = createClient(cookieStore);
-  const {
-    data: { user },
-  } = await auth.auth.getUser();
-
-  if (user?.id === userId) {
-    const { data } = await auth
-      .from('profiles')
-      .select('plan')
-      .eq('user_id', userId)
-      .maybeSingle();
-    return planFromRow(data?.plan);
-  }
-
-  const supabase = getSupabaseAdmin();
-  const { data } = await supabase
-    .from('profiles')
-    .select('plan')
-    .eq('user_id', userId)
-    .maybeSingle();
-  return planFromRow(data?.plan);
+export async function getUserPlan(_userId: string): Promise<UserPlan> {
+  return 'paid';
 }
 
-export async function isPaidUser(userId: string): Promise<boolean> {
-  return (await getUserPlan(userId)) === 'paid';
+export async function isPaidUser(_userId: string): Promise<boolean> {
+  return true;
 }
 
-/** Resolve the signed-in user and whether they have plan=paid. */
+/** Resolve the signed-in user. Signed-in users always have isPaid=true. */
 export async function getSessionPlan(): Promise<{
   userId: string | null;
   email: string | null;
@@ -60,40 +33,30 @@ export async function getSessionPlan(): Promise<{
     return { userId: null, email: null, plan: 'free', signedIn: false, isPaid: false };
   }
 
-  const { data } = await auth
-    .from('profiles')
-    .select('plan')
-    .eq('user_id', user.id)
-    .maybeSingle();
-  const plan = planFromRow(data?.plan);
-
   return {
     userId: user.id,
     email: user.email ?? null,
-    plan,
+    plan: 'paid',
     signedIn: true,
-    isPaid: plan === 'paid',
+    isPaid: true,
   };
 }
 
 export class PaidPlanRequiredError extends Error {
   status: number;
 
-  constructor(message = 'A paid plan is required to unlock connected Search Console and GA4.', status = 403) {
+  constructor(message = 'Sign in to unlock connected Search Console and GA4.', status = 403) {
     super(message);
     this.name = 'PaidPlanRequiredError';
     this.status = status;
   }
 }
 
-/** Throws PaidPlanRequiredError unless the session user has plan=paid. */
+/** Throws PaidPlanRequiredError unless the user is signed in. */
 export async function requirePaidSession() {
   const session = await getSessionPlan();
   if (!session.signedIn || !session.userId) {
-    throw new PaidPlanRequiredError('Sign in with a paid account to continue.', 401);
-  }
-  if (!session.isPaid) {
-    throw new PaidPlanRequiredError();
+    throw new PaidPlanRequiredError('Sign in to continue.', 401);
   }
   return session;
 }

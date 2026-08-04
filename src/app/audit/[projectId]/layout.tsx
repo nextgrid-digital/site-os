@@ -12,7 +12,9 @@ export default async function AuditProjectLayout({
 }) {
   const { projectId: id } = await params;
   const workspace = await resolveAuditWorkspace(id);
-  const connected = await loadConnectedStatusForProject(workspace.projectId);
+  // Cached — safe to await after workspace; often already warm from parallel child work.
+  const connectedPromise = loadConnectedStatusForProject(workspace.projectId);
+  const connected = await connectedPromise;
 
   return (
     <AppShell
