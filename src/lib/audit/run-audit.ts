@@ -26,6 +26,17 @@ import { buildSiteOnlyAnalysis } from '@/lib/audit/site-only-analysis';
 import { analyzeCommercialGraph, toCommercialGraphBriefSlice } from '@/lib/graph/analyze';
 import { persistCommercialGraph } from '@/lib/graph/persist';
 import { buildGrowthBrief } from '@/lib/reports/build-growth-brief';
+import { websiteSyncFromCrawl } from '@/lib/connectors/website/sync';
+import { ga4SyncResult } from '@/lib/connectors/ga4/sync';
+import { searchConsoleSyncResult } from '@/lib/connectors/search-console/sync';
+import { googleAdsSyncResult } from '@/lib/connectors/google-ads/sync';
+import type { ConnectorSyncResult } from '@/lib/connectors/types';
+import {
+  fetchGoogleAdsBundle,
+  isGoogleAdsConfigured,
+  totalAdsSpend,
+  type GoogleAdsBundle,
+} from '@/lib/google/ads';
 import {
   fetchGa4AnalyticsBundle,
   fetchGa4LandingPages,
@@ -140,8 +151,15 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
     .eq('project_id', projectId)
     .eq('is_selected', true)
     .maybeSingle();
+  const { data: adsAccount } = await supabase
+    .from('google_ads_accounts')
+    .select('*')
+    .eq('project_id', projectId)
+    .eq('is_selected', true)
+    .maybeSingle();
 
-  const needsGoogle = runType === 'full' && Boolean(gscProperty || ga4Property);
+  const needsGoogle =
+    runType === 'full' && Boolean(gscProperty || ga4Property || adsAccount);
   let connection: {
     id: string;
     access_token: string;
@@ -150,7 +168,8 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
   } | null = null;
 
   if (needsGoogle) {
-    const connectionId = gscProperty?.connection_id ?? ga4Property?.connection_id;
+    const connectionId =
+      gscProperty?.connection_id ?? ga4Property?.connection_id ?? adsAccount?.connection_id;
     if (!connectionId) throw new Error('Google connection is missing for the selected property.');
 
     const { data: connectionRow } = await supabase
@@ -201,8 +220,15 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
       conversionPeak: [],
       funnelSteps: [],
     };
+    let adsBundle: GoogleAdsBundle = { campaigns: [], keywords: [], landingPages: [] };
     let gscConnected = false;
     let ga4Connected = false;
+    let adsConnected = false;
+    const emptyAds = (): GoogleAdsBundle => ({
+      campaigns: [],
+      keywords: [],
+      landingPages: [],
+    });
 
     const crawlPromise = crawlWebsite(website.url, website.crawl_max_pages);
 
@@ -216,7 +242,7 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
           expiry_date: connection.token_expiry ? new Date(connection.token_expiry).getTime() : null,
         });
 
-        const [gscResult, ga4Result, ga4AnalyticsResult, crawlResult] = await Promise.all([
+        const settled = await Promise.allSettled([
           gscProperty
             ? fetchSearchConsolePerformance(auth, gscProperty.site_url, startDate, endDate)
             : Promise.resolve({ queryRows: [], pageRows: [] }),
@@ -226,13 +252,49 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
           ga4Property
             ? fetchGa4AnalyticsBundle(auth, ga4Property.property_id, startDate, endDate)
             : Promise.resolve(ga4Analytics),
+          adsAccount && isGoogleAdsConfigured()
+            ? fetchGoogleAdsBundle(accessToken, adsAccount.customer_id, startDate, endDate)
+            : Promise.resolve(emptyAds()),
           crawlPromise,
         ]);
-        gscData = gscResult;
-        ga4Data = ga4Result;
-        ga4Analytics = ga4AnalyticsResult;
-        gscConnected = Boolean(gscProperty);
-        ga4Connected = Boolean(ga4Property);
+
+        const gscSettled = settled[0];
+        const ga4Settled = settled[1];
+        const ga4AnalyticsSettled = settled[2];
+        const adsSettled = settled[3];
+        const crawlSettled = settled[4];
+
+        if (crawlSettled.status === 'rejected') throw crawlSettled.reason;
+
+        const crawlResult = crawlSettled.value;
+
+        if (gscSettled.status === 'fulfilled') {
+          gscData = gscSettled.value;
+          gscConnected = Boolean(gscProperty);
+        } else {
+          console.error('[runAudit] GSC fetch failed', gscSettled.reason);
+        }
+
+        if (ga4Settled.status === 'fulfilled') {
+          ga4Data = ga4Settled.value;
+          ga4Connected = Boolean(ga4Property);
+        } else {
+          console.error('[runAudit] GA4 landing fetch failed', ga4Settled.reason);
+        }
+
+        if (ga4AnalyticsSettled.status === 'fulfilled') {
+          ga4Analytics = ga4AnalyticsSettled.value;
+          if (ga4Property) ga4Connected = true;
+        } else {
+          console.error('[runAudit] GA4 analytics fetch failed', ga4AnalyticsSettled.reason);
+        }
+
+        if (adsSettled.status === 'fulfilled') {
+          adsBundle = adsSettled.value;
+          adsConnected = Boolean(adsAccount) && isGoogleAdsConfigured();
+        } else {
+          console.error('[runAudit] Ads fetch failed', adsSettled.reason);
+        }
 
         return await finalizeAuditRun({
           supabase,
@@ -244,9 +306,11 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
           intake,
           gscConnected,
           ga4Connected,
+          adsConnected,
           gscData,
           ga4Data,
           ga4Analytics,
+          adsBundle,
           crawlResult,
           goalCategory,
         });
@@ -263,9 +327,11 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
           intake,
           gscConnected: false,
           ga4Connected: false,
+          adsConnected: false,
           gscData,
           ga4Data,
           ga4Analytics,
+          adsBundle,
           crawlResult,
           goalCategory,
         });
@@ -283,9 +349,11 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
       intake,
       gscConnected: false,
       ga4Connected: false,
+      adsConnected: false,
       gscData,
       ga4Data,
       ga4Analytics,
+      adsBundle,
       crawlResult,
       goalCategory,
     });
@@ -312,9 +380,11 @@ async function finalizeAuditRun(input: {
   intake: ArchitectureInput | null;
   gscConnected: boolean;
   ga4Connected: boolean;
+  adsConnected: boolean;
   gscData: { queryRows: GscQueryRow[]; pageRows: GscPageRow[] };
   ga4Data: Ga4LandingPageRow[];
   ga4Analytics: Ga4AnalyticsBundle;
+  adsBundle: GoogleAdsBundle;
   crawlResult: Awaited<ReturnType<typeof crawlWebsite>>;
   goalCategory?: string | null;
 }): Promise<AuditRunResult> {
@@ -328,9 +398,11 @@ async function finalizeAuditRun(input: {
     intake,
     gscConnected,
     ga4Connected,
+    adsConnected,
     gscData,
     ga4Data,
     ga4Analytics,
+    adsBundle,
     crawlResult,
     goalCategory,
   } = input;
@@ -468,15 +540,37 @@ async function finalizeAuditRun(input: {
   ).length;
 
   const intakeCounts = countFilledIntakeFields(intake as unknown as Record<string, unknown> | null);
+  const adsSpend = totalAdsSpend(adsBundle);
   const { readiness, dataAvailability } = detectAuditReadiness({
     gscConnected,
     ga4Connected,
+    adsConnected,
     gscImpressions: totalImpressions,
     ga4Sessions: totalSessions,
+    adsSpend,
     hasCrawl: crawlResult.pages.length > 0,
     hasIntake: intakeCounts.filled > 0,
     hasGemini: aeoResult.status === 'completed' || siteOnlyAnalysis.inferred?.status === 'completed',
   });
+
+  const connectorSyncs: ConnectorSyncResult[] = [
+    websiteSyncFromCrawl(crawlResult),
+    ...(gscConnected ? [searchConsoleSyncResult(gscData)] : []),
+    ...(ga4Connected ? [ga4SyncResult(ga4Data, ga4Analytics)] : []),
+    ...(adsConnected
+      ? [
+          googleAdsSyncResult(
+            adsBundle,
+            crawlResult.pages.map((p) => ({ path: p.path, title: p.title, h1: p.h1 }))
+          ),
+        ]
+      : []),
+  ];
+
+  const adsSync = connectorSyncs.find((s) => s.connectorId === 'google_ads');
+  const connectorsSnapshot = Object.fromEntries(
+    connectorSyncs.map((s) => [s.connectorId, s.payload ?? { outcome: s.outcome, hasData: s.hasData }])
+  );
 
   const confidenceScore = computeConfidenceScore({
     readiness,
@@ -724,6 +818,8 @@ async function finalizeAuditRun(input: {
     ga4Events: ga4Analytics.events,
     ga4ConversionPeak: ga4Analytics.conversionPeak,
     ga4FunnelSteps: ga4Analytics.funnelSteps,
+    connectors: connectorsSnapshot,
+    googleAds: adsSync?.payload ?? null,
     crawlErrors: crawlResult.errors,
     generatedAt: new Date().toISOString(),
   };

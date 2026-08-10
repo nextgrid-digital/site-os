@@ -27,7 +27,7 @@ export function UnlockFullBriefCta({
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const connectHref = `/audit/${projectId}/connect`;
+  const connectHref = `/audit/${projectId}/settings`;
   const reviewMailto = `mailto:nextgrid.digital@gmail.com?subject=${encodeURIComponent(
     `NextGrid review request — ${projectName}`
   )}`;

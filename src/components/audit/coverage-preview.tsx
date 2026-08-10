@@ -41,7 +41,7 @@ export function CoveragePreview({ projectId, showUpgradeLink = true }: CoverageP
       {showUpgradeLink ? (
         <div className="pt-2">
           <Link
-            href={`/audit/${projectId}/connect`}
+            href={`/audit/${projectId}/settings`}
             className="inline-flex rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500"
           >
             Connect Google sources

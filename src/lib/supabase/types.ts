@@ -56,6 +56,18 @@ export interface Ga4Property {
   created_at: string;
 }
 
+export interface GoogleAdsAccount {
+  id: string;
+  project_id: string;
+  connection_id: string | null;
+  customer_id: string;
+  descriptive_name: string;
+  currency_code: string | null;
+  time_zone: string | null;
+  is_selected: boolean;
+  created_at: string;
+}
+
 export type AuditReadiness =
   | 'no_data'
   | 'search_console_only'
@@ -65,11 +77,14 @@ export type AuditReadiness =
 export interface DataAvailability {
   gscConnected: boolean;
   ga4Connected: boolean;
+  adsConnected?: boolean;
   gscHasData: boolean;
   ga4HasData: boolean;
+  adsHasData?: boolean;
   gscImpressions: number;
   ga4Sessions: number;
-  basedOn: Array<'crawl' | 'intake' | 'search_console' | 'ga4' | 'gemini'>;
+  adsSpend?: number;
+  basedOn: Array<'crawl' | 'intake' | 'search_console' | 'ga4' | 'google_ads' | 'gemini'>;
 }
 
 export interface AuditRun {
@@ -511,5 +526,6 @@ export interface ProjectOverview extends ProjectWithWebsite {
   latest_audit: AuditRun | null;
   gsc_property: SearchConsoleProperty | null;
   ga4_property: Ga4Property | null;
+  ads_account: GoogleAdsAccount | null;
   google_connected: boolean;
 }

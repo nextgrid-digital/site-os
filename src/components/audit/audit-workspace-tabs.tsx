@@ -12,46 +12,20 @@ import { cn } from '@/lib/utils';
 
 const PRIMARY_TABS: { label: string; suffix: AuditPrimaryTabSuffix }[] = [
   { label: 'Evidence', suffix: '' },
-  { label: 'Journey', suffix: '/journey' },
+  { label: 'Brand', suffix: '/journey' },
   { label: 'Connect', suffix: '/connect' },
 ];
 
 export type WorkspaceConnectionStatus = {
   gscConnected: boolean;
   ga4Connected: boolean;
+  adsConnected: boolean;
   gscPropertyLabel: string | null;
   ga4PropertyLabel: string | null;
+  adsAccountLabel: string | null;
+  websiteConnected: boolean;
   googleConnected: boolean;
 };
-
-function ConnectionChip({
-  label,
-  connected,
-  detail,
-}: {
-  label: string;
-  connected: boolean;
-  detail: string | null;
-}) {
-  return (
-    <div
-      className={`inline-flex max-w-[14rem] items-center gap-2 rounded-full border px-2.5 py-1 text-[11px] font-medium ${
-        connected
-          ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
-          : 'border-zinc-200 bg-white text-zinc-600'
-      }`}
-    >
-      <span
-        className={`h-1.5 w-1.5 shrink-0 rounded-full ${connected ? 'bg-emerald-500' : 'bg-zinc-300'}`}
-        aria-hidden
-      />
-      <span className="shrink-0">{label}</span>
-      <span className="truncate font-normal text-zinc-500">
-        {connected ? detail || 'Connected' : 'Not connected'}
-      </span>
-    </div>
-  );
-}
 
 export function AuditWorkspaceTabs({
   workspaceId,
@@ -123,24 +97,12 @@ export function AuditWorkspaceTabs({
           })}
         </nav>
 
-        <div className="flex max-w-full flex-wrap items-center gap-2 lg:justify-end">
-          <ConnectionChip
-            label="Search Console"
-            connected={connection.gscConnected}
-            detail={connection.gscPropertyLabel}
-          />
-          <ConnectionChip
-            label="GA4"
-            connected={connection.ga4Connected}
-            detail={connection.ga4PropertyLabel}
-          />
-          <div className="print:hidden">
-            {connection.googleConnected ? (
-              <RerunFullAuditButton projectId={projectId} />
-            ) : (
-              <RerunFreeAuditButton websiteUrl={websiteUrl} />
-            )}
-          </div>
+        <div className="flex max-w-full flex-wrap items-center gap-2 lg:justify-end print:hidden">
+          {connection.googleConnected ? (
+            <RerunFullAuditButton projectId={projectId} />
+          ) : (
+            <RerunFreeAuditButton websiteUrl={websiteUrl} />
+          )}
         </div>
       </div>
     </div>

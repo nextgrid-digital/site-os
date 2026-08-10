@@ -1,9 +1,16 @@
 import { google } from 'googleapis';
 import { getAppUrl } from '@/lib/app-url';
 
+export const GOOGLE_SEARCH_CONSOLE_SCOPE =
+  'https://www.googleapis.com/auth/webmasters.readonly';
+export const GOOGLE_ANALYTICS_SCOPE =
+  'https://www.googleapis.com/auth/analytics.readonly';
+export const GOOGLE_ADS_SCOPE = 'https://www.googleapis.com/auth/adwords';
+
 export const GOOGLE_SCOPES = [
-  'https://www.googleapis.com/auth/webmasters.readonly',
-  'https://www.googleapis.com/auth/analytics.readonly',
+  GOOGLE_SEARCH_CONSOLE_SCOPE,
+  GOOGLE_ANALYTICS_SCOPE,
+  GOOGLE_ADS_SCOPE,
 ];
 
 export function getOperatorEmail() {

@@ -40,8 +40,12 @@ export async function POST(
       typeof body.ga4PropertyId === 'string' && body.ga4PropertyId.trim()
         ? String(body.ga4PropertyId)
         : null;
+    const adsAccountId =
+      typeof body.adsAccountId === 'string' && body.adsAccountId.trim()
+        ? String(body.adsAccountId)
+        : null;
 
-    await selectProperties(projectId, gscPropertyId, ga4PropertyId);
+    await selectProperties(projectId, gscPropertyId, ga4PropertyId, adsAccountId);
     const properties = await listPropertyOptions(projectId);
     return NextResponse.json({ properties });
   } catch (error) {

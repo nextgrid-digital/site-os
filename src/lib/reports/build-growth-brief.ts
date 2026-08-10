@@ -417,10 +417,13 @@ type GrowthBriefInput = {
 const DEFAULT_AVAILABILITY: DataAvailability = {
   gscConnected: false,
   ga4Connected: false,
+  adsConnected: false,
   gscHasData: false,
   ga4HasData: false,
+  adsHasData: false,
   gscImpressions: 0,
   ga4Sessions: 0,
+  adsSpend: 0,
   basedOn: ['crawl'],
 };
 
@@ -548,6 +551,8 @@ export function buildGrowthBrief(input: GrowthBriefInput): GrowthBrief {
                 return 'Search Console';
               case 'ga4':
                 return 'GA4';
+              case 'google_ads':
+                return 'Google Ads';
               case 'gemini':
                 return 'AI inference';
               default: {

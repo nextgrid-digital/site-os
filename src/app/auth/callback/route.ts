@@ -4,15 +4,22 @@ import { AUDIT_SESSION_COOKIE } from '@/lib/audit/session-cookie';
 import { unlockAuditSession } from '@/lib/db/audit-sessions';
 import { createClient } from '@/utils/supabase/server';
 
+function safeNextPath(raw: string | null): string | null {
+  if (!raw || !raw.startsWith('/') || raw.startsWith('//')) return null;
+  return raw;
+}
+
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
   const cookieStore = await cookies();
   const sessionId =
     url.searchParams.get('sessionId') || cookieStore.get(AUDIT_SESSION_COOKIE)?.value || null;
-  const next = sessionId
+  const nextParam = safeNextPath(url.searchParams.get('next'));
+  const defaultNext = sessionId
     ? `/app?session=${encodeURIComponent(sessionId)}`
     : '/app';
+  const next = nextParam ?? defaultNext;
   const fail = new URL(
     `/login?error=auth${sessionId ? `&sessionId=${encodeURIComponent(sessionId)}` : ''}`,
     url.origin

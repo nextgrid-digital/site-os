@@ -4,6 +4,7 @@ import {
   AuditWorkspacePanel,
 } from '@/components/audit/audit-workspace-panel';
 import { ConnectFlow } from '@/components/operator/connect-flow';
+import { loadProjectConnectorStatuses } from '@/lib/connectors/project-status';
 import { getSessionPlan } from '@/lib/db/profiles';
 import { resolveAuditWorkspace } from '@/lib/db/resolve-audit-workspace';
 import {
@@ -28,11 +29,12 @@ export default async function AuditConnectPage({
   const workspace = await resolveAuditWorkspace(id);
   const projectId = workspace.projectId;
 
-  const [project, properties, connection, session] = await Promise.all([
+  const [project, properties, connection, session, connectorState] = await Promise.all([
     getProjectOverview(projectId),
     listPropertyOptions(projectId),
     getGoogleConnection(),
     getSessionPlan(),
+    loadProjectConnectorStatuses(projectId),
   ]);
   if (!project) notFound();
 
@@ -41,13 +43,13 @@ export default async function AuditConnectPage({
       title="Connect"
       description={
         session.signedIn
-          ? 'Connect Google, sync properties, and save the Search Console + GA4 mapping.'
-          : 'Sign in to connect Search Console and GA4.'
+          ? 'Connect Google, sync properties, and map Search Console, GA4, and Ads to this project.'
+          : 'Sign in to connect Search Console, GA4, and Ads.'
       }
     >
       {!session.signedIn ? (
         <div className="rounded-[14px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Sign in to connect Search Console and GA4.
+          Sign in to connect acquisition sources.
         </div>
       ) : null}
       {query.connected && session.signedIn ? (
@@ -61,6 +63,8 @@ export default async function AuditConnectPage({
           googleConnected={Boolean(connection)}
           gscProperties={properties.gsc}
           ga4Properties={properties.ga4}
+          adsAccounts={properties.ads}
+          connectorStatuses={connectorState.statuses}
           operatorEmail={connection?.operator_email ?? getOperatorEmail()}
           fullBriefUnlocked
           paidPlan

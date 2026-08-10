@@ -11,7 +11,7 @@ interface AuthModalProps {
   onUnlocked: () => void;
 }
 
-export function AuthModal({ open, sessionId, domain, onClose, onUnlocked }: AuthModalProps) {
+export function AuthModal({ open, sessionId, onClose, onUnlocked }: AuthModalProps) {
   useEffect(() => {
     if (!open) return;
 
@@ -40,12 +40,7 @@ export function AuthModal({ open, sessionId, domain, onClose, onUnlocked }: Auth
         onClick={onClose}
       />
       <div className="relative z-10 w-full max-w-md">
-        <AuthSignInGate
-          sessionId={sessionId}
-          headline={`Sign in to open your Site-OS audit for ${domain || 'your site'}`}
-          description="Use Google or email and password to unlock your free audit dashboard."
-          onUnlocked={onUnlocked}
-        />
+        <AuthSignInGate sessionId={sessionId} onUnlocked={onUnlocked} />
         <button
           type="button"
           onClick={onClose}

@@ -3,6 +3,11 @@ import { getOperatorEmail } from '@/lib/google/oauth';
 import { listGa4Properties } from '@/lib/google/ga4';
 import { getAuthorizedClient } from '@/lib/google/oauth';
 import { listSearchConsoleSites } from '@/lib/google/search-console';
+import {
+  isGoogleAdsConfigured,
+  listAccessibleAdsCustomers,
+} from '@/lib/google/ads';
+import { GOOGLE_ADS_SCOPE } from '@/lib/google/oauth';
 
 export async function upsertGoogleConnection(tokens: {
   access_token?: string | null;
@@ -56,13 +61,23 @@ export async function syncPropertyOptions(projectId: string) {
     expiry_date: connection.token_expiry ? new Date(connection.token_expiry).getTime() : null,
   });
 
-  const [gscSites, ga4Properties] = await Promise.all([
+  const scopes: string[] = Array.isArray(connection.scopes) ? connection.scopes : [];
+  const hasAdsScope = scopes.some((s) => s === GOOGLE_ADS_SCOPE || s.includes('adwords'));
+
+  const [gscSites, ga4Properties, adsAccounts] = await Promise.all([
     listSearchConsoleSites(auth),
     listGa4Properties(auth),
+    hasAdsScope && isGoogleAdsConfigured()
+      ? listAccessibleAdsCustomers(connection.access_token).catch((error) => {
+          console.error('[syncPropertyOptions] Ads list failed', error);
+          return [];
+        })
+      : Promise.resolve([]),
   ]);
 
   await supabase.from('search_console_properties').delete().eq('project_id', projectId);
   await supabase.from('ga4_properties').delete().eq('project_id', projectId);
+  await supabase.from('google_ads_accounts').delete().eq('project_id', projectId);
 
   if (gscSites.length > 0) {
     await supabase.from('search_console_properties').insert(
@@ -88,17 +103,33 @@ export async function syncPropertyOptions(projectId: string) {
       }))
     );
   }
+
+  if (adsAccounts.length > 0) {
+    await supabase.from('google_ads_accounts').insert(
+      adsAccounts.map((account) => ({
+        project_id: projectId,
+        connection_id: connection.id,
+        customer_id: account.customerId,
+        descriptive_name: account.descriptiveName,
+        currency_code: account.currencyCode,
+        time_zone: account.timeZone,
+        is_selected: false,
+      }))
+    );
+  }
 }
 
 export async function selectProperties(
   projectId: string,
   gscPropertyId: string | null,
-  ga4PropertyId: string | null
+  ga4PropertyId: string | null,
+  adsAccountId: string | null = null
 ) {
   const supabase = getSupabaseAdmin();
 
   await supabase.from('search_console_properties').update({ is_selected: false }).eq('project_id', projectId);
   await supabase.from('ga4_properties').update({ is_selected: false }).eq('project_id', projectId);
+  await supabase.from('google_ads_accounts').update({ is_selected: false }).eq('project_id', projectId);
 
   if (gscPropertyId) {
     const { error: gscError } = await supabase
@@ -114,5 +145,13 @@ export async function selectProperties(
       .update({ is_selected: true })
       .eq('id', ga4PropertyId);
     if (ga4Error) throw new Error(ga4Error.message);
+  }
+
+  if (adsAccountId) {
+    const { error: adsError } = await supabase
+      .from('google_ads_accounts')
+      .update({ is_selected: true })
+      .eq('id', adsAccountId);
+    if (adsError) throw new Error(adsError.message);
   }
 }

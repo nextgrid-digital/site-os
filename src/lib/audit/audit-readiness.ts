@@ -9,15 +9,19 @@ export type DataAvailabilitySource =
   | 'intake'
   | 'search_console'
   | 'ga4'
+  | 'google_ads'
   | 'gemini';
 
 export interface DataAvailability {
   gscConnected: boolean;
   ga4Connected: boolean;
+  adsConnected: boolean;
   gscHasData: boolean;
   ga4HasData: boolean;
+  adsHasData: boolean;
   gscImpressions: number;
   ga4Sessions: number;
+  adsSpend: number;
   basedOn: DataAvailabilitySource[];
 }
 
@@ -27,14 +31,19 @@ export const GA4_SESSIONS_THRESHOLD = 30;
 export function detectAuditReadiness(input: {
   gscConnected: boolean;
   ga4Connected: boolean;
+  adsConnected?: boolean;
   gscImpressions: number;
   ga4Sessions: number;
+  adsSpend?: number;
   hasCrawl: boolean;
   hasIntake: boolean;
   hasGemini: boolean;
 }): { readiness: AuditReadiness; dataAvailability: DataAvailability } {
   const gscHasData = input.gscConnected && input.gscImpressions >= GSC_IMPRESSIONS_THRESHOLD;
   const ga4HasData = input.ga4Connected && input.ga4Sessions >= GA4_SESSIONS_THRESHOLD;
+  const adsConnected = Boolean(input.adsConnected);
+  const adsSpend = input.adsSpend ?? 0;
+  const adsHasData = adsConnected && adsSpend > 0;
 
   let readiness: AuditReadiness;
   if (gscHasData && ga4HasData) {
@@ -52,6 +61,7 @@ export function detectAuditReadiness(input: {
   if (input.hasIntake) basedOn.push('intake');
   if (gscHasData) basedOn.push('search_console');
   if (ga4HasData) basedOn.push('ga4');
+  if (adsHasData) basedOn.push('google_ads');
   if (input.hasGemini) basedOn.push('gemini');
 
   return {
@@ -59,10 +69,13 @@ export function detectAuditReadiness(input: {
     dataAvailability: {
       gscConnected: input.gscConnected,
       ga4Connected: input.ga4Connected,
+      adsConnected,
       gscHasData,
       ga4HasData,
+      adsHasData,
       gscImpressions: input.gscImpressions,
       ga4Sessions: input.ga4Sessions,
+      adsSpend,
       basedOn,
     },
   };

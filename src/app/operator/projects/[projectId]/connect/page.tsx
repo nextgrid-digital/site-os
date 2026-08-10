@@ -6,5 +6,5 @@ export default async function LegacyConnectPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  redirect(`/audit/${projectId}/connect`);
+  redirect(`/audit/${projectId}/settings`);
 }

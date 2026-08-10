@@ -1,22 +1,17 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { AnalyticsConversionPeak } from '@/components/audit/report/analytics/analytics-conversion-peak';
-import { AnalyticsDetailTables } from '@/components/audit/report/analytics/analytics-detail-tables';
-import { AnalyticsDimensionGrid } from '@/components/audit/report/analytics/analytics-dimension-grid';
-import { AnalyticsKpiRow } from '@/components/audit/report/analytics/analytics-kpi-row';
-import { AnalyticsPathFunnel } from '@/components/audit/report/analytics/analytics-path-funnel';
-import { AnalyticsPerformanceEmpty } from '@/components/audit/report/analytics/analytics-performance-empty';
+import {
+  ConnectedAnalyticsSuite,
+  type ConnectedAnalyticsDetailTables,
+  type ConnectedAnalyticsDimensionCard,
+} from '@/components/audit/report/analytics/connected-analytics-suite';
 import { SectionHeading } from '@/components/audit/report/section-heading';
-import type { AnalyticsBarRow, AnalyticsKpiTile, AnalyticsTableRow } from '@/lib/audit/connected-analytics';
-import type { AnalyticsPeakCell, AnalyticsFunnelStepView } from '@/lib/audit/connected-analytics';
-
-type DimensionCard = {
-  title: string;
-  kind: 'page' | 'source' | 'country' | 'device' | 'search' | 'event';
-  rows: AnalyticsBarRow[];
-  empty: string;
-};
+import type {
+  AnalyticsFunnelStepView,
+  AnalyticsKpiTile,
+  AnalyticsPeakCell,
+} from '@/lib/audit/connected-analytics';
 
 export function KobbeDeferredAnalytics({
   analyticsKpis,
@@ -26,15 +21,8 @@ export function KobbeDeferredAnalytics({
   funnelSteps,
 }: {
   analyticsKpis: AnalyticsKpiTile[];
-  dimensionCards: DimensionCard[];
-  detailTables: {
-    sources: AnalyticsTableRow[];
-    countries: AnalyticsTableRow[];
-    devices: AnalyticsTableRow[];
-    browsers: AnalyticsTableRow[];
-    pages: AnalyticsTableRow[];
-    events: AnalyticsTableRow[];
-  };
+  dimensionCards: ConnectedAnalyticsDimensionCard[];
+  detailTables: ConnectedAnalyticsDetailTables;
   peakCells: AnalyticsPeakCell[];
   funnelSteps: AnalyticsFunnelStepView[];
 }) {
@@ -65,21 +53,14 @@ export function KobbeDeferredAnalytics({
           lead="Real GA4 and Search Console numbers from this audit run. For the joined Search → visit → outcome story, open the Journey tab."
         />
         {visible ? (
-          <>
-            <AnalyticsKpiRow tiles={analyticsKpis} />
-            <AnalyticsDimensionGrid cards={dimensionCards} />
-            <AnalyticsDetailTables
-              sources={detailTables.sources}
-              countries={detailTables.countries}
-              devices={detailTables.devices}
-              browsers={detailTables.browsers}
-              pages={detailTables.pages}
-              events={detailTables.events}
-            />
-            <AnalyticsConversionPeak cells={peakCells} />
-            <AnalyticsPathFunnel steps={funnelSteps} />
-            <AnalyticsPerformanceEmpty />
-          </>
+          <ConnectedAnalyticsSuite
+            kpis={analyticsKpis}
+            dimensionCards={dimensionCards}
+            detailTables={detailTables}
+            peakCells={peakCells}
+            funnelSteps={funnelSteps}
+            showPerformanceEmpty
+          />
         ) : (
           <div className="h-64 animate-pulse rounded-2xl border border-zinc-200 bg-zinc-100" aria-hidden />
         )}

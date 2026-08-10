@@ -1,0 +1,118 @@
+# Site-OS — Google Ads API Design Documentation
+NextGrid Digital · Internal agency tooling
+
+Note: This tool is for internal NextGrid operators only. It is not a public self-serve multi-tenant Ads product. Screenshots of the Brand dashboard Ads section can be attached separately if requested.
+
+---
+
+## Company name
+NextGrid Digital
+
+## Company website
+https://nextgrid.digital
+
+## API contact
+hello@nextgrid.digital
+
+---
+
+## Business model
+NextGrid Digital is a digital agency. We help client brands improve acquisition and conversion performance across website, search, analytics, and paid media.
+
+We are building an internal operating system called **Site-OS**. Site-OS is used by NextGrid operators to audit a client brand in one place. It connects:
+
+- Website crawl data
+- Google Analytics 4 (read-only)
+- Google Search Console (read-only)
+- Google Ads (read-only)
+
+Clients grant access to our operator Google account (`hello@nextgrid.digital`). We do not sell a public Google Ads management product to end customers. Ads API access is only used for accounts we manage or have been invited to.
+
+---
+
+## Tool access / use
+**Who uses the tool**
+- Internal NextGrid operators and ad/audit managers only
+
+**What the tool does with Google Ads**
+- Reads campaign, keyword, spend, click, impression, conversion, and landing-page performance
+- Shows that data in a unified Brand dashboard alongside website, Search Console, and GA4
+- Surfaces wasted-spend signals and mismatches between ad intent and landing pages
+- Supports agency audit recommendations and client reporting
+
+**What the tool does NOT do**
+- Create, edit, pause, or delete campaigns, ads, ad groups, keywords, budgets, or billing settings
+- Automate bid changes
+- Provide App Conversion Tracking / remarketing (ACT) features
+- Expose Ads API tokens to external/public users
+
+**Who receives outputs**
+- NextGrid internal team
+- Client-facing audit findings derived from the data (human-reviewed), not direct API access
+
+---
+
+## Tool design
+1. Operator connects Google OAuth (Search Console + Analytics + Ads readonly scopes) using the NextGrid operator account.
+2. Operator maps one Google Ads customer account to a Site-OS project (alongside optional GA4 and Search Console properties).
+3. During a full audit run, Site-OS calls the Google Ads API to fetch approximately the last 28 days of performance for the mapped account.
+4. Results are stored in Site-OS audit snapshots / project data.
+5. The Brand dashboard Ads section reads that stored data and displays:
+   - Account-level spend and conversions
+   - Campaign table
+   - Waste signals (high spend / weak conversions)
+   - Landing-page mismatch signals vs crawled site pages
+
+If Ads is not connected, the dashboard shows an empty state and continues using other connected sources. No fake/demo Ads data is shown.
+
+---
+
+## Internal logic
+- Auth: Google OAuth 2.0 with Ads readonly scope; tokens stored for the single NextGrid operator connection.
+- Developer token: NextGrid manager-account developer token used only by Site-OS server-side code.
+- Sync model: on-demand during full audit (not continuous bidding automation).
+- Access control: internal Site-OS workspace only; operators must already have Google Ads UI access to the client account.
+- Failure handling: if Ads API access is missing or partial, Site-OS continues the audit with website / GSC / GA4 and marks Ads as disconnected or partial.
+
+---
+
+## Google Ads API services / resources used
+Read-only reporting via Google Ads API search queries, including:
+
+- `customer` — list accessible customers / account metadata
+- `campaign` + `metrics` — campaign performance (impressions, clicks, cost, conversions, CTR)
+- `keyword_view` + `metrics` — keyword performance
+- `landing_page_view` + `metrics` — landing-page performance
+
+No mutation / write services are used.
+
+---
+
+## Tool mockups (described)
+
+### Connect — source mapping
+- Source cards for Website, GA4, Search Console, Google Ads
+- Google account connect / reconnect
+- Dropdown to select one Ads account per project
+- Sync + Save mapping
+
+### Brand dashboard — Ads section
+- Spend / Conversions / Waste signals summary
+- Campaign table (name, clicks, spend, conversions)
+- Wasted spend callouts
+- Ad intent vs landing page mismatch callouts
+- Empty state when Ads is not connected: explains what would appear and links to Connect
+
+### Brand dashboard — unified view
+Sections: Overview, Channels, Pages, Search, Ads, Social (later), Funnel, Issues, Next steps  
+Ads is one section inside one connected brand view — not a separate Ads-only product.
+
+---
+
+## Compliance summary
+- Internal agency use only
+- Read-only Ads reporting
+- Client accounts accessed only with granted permission
+- No public token sharing
+- No ACT usage
+- No third-party resale of the developer token

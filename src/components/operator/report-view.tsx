@@ -56,10 +56,13 @@ function normalizeBrief(
     auditRun?.data_availability ?? {
       gscConnected: metrics.total_impressions > 0 || gscHasData,
       ga4Connected: metrics.total_sessions > 0 || ga4HasData,
+      adsConnected: false,
       gscHasData,
       ga4HasData,
+      adsHasData: false,
       gscImpressions: metrics.total_impressions,
       ga4Sessions: metrics.total_sessions,
+      adsSpend: 0,
       basedOn: ['crawl' as const],
     };
 

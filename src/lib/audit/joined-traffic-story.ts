@@ -11,6 +11,7 @@ export type JoinedStatus = {
   conversions: number;
   hasGsc: boolean;
   hasGa4: boolean;
+  hasAds: boolean;
   emptyReason: string | null;
 };
 
@@ -179,6 +180,7 @@ export function buildJoinedTrafficStory(
       conversions: 0,
       hasGsc: false,
       hasGa4: false,
+      hasAds: false,
       emptyReason: 'No connected Google metrics stored for this audit yet.',
     },
     pages: [],
@@ -219,14 +221,18 @@ export function buildJoinedTrafficStory(
     sessions > 0 ||
     conversions > 0 ||
     pages.some((p) => p.ga_sessions > 0 || p.ga_conversions > 0);
+  const hasAds =
+    connected.adsConnected ||
+    Boolean(connected.googleAds && (connected.googleAds.spend > 0 || connected.googleAds.campaigns.length > 0));
 
-  if (!hasGsc && !hasGa4) {
+  if (!hasGsc && !hasGa4 && !hasAds) {
     return {
       ...empty,
       status: {
         ...empty.status,
         hasGsc: connected.gscConnected,
         hasGa4: connected.ga4Connected,
+        hasAds: connected.adsConnected,
         emptyReason: connected.googleConnected
           ? 'Properties are selected, but this audit stored no Google rows. Reconnect and re-run a full audit.'
           : empty.status.emptyReason,
@@ -384,6 +390,7 @@ export function buildJoinedTrafficStory(
       conversions,
       hasGsc,
       hasGa4,
+      hasAds,
       emptyReason: null,
     },
     pages: pageRows,

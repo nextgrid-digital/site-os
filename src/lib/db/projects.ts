@@ -8,6 +8,7 @@ import type {
   ChannelTrafficRow,
   Finding,
   Ga4Property,
+  GoogleAdsAccount,
   GoogleConnection,
   GraphWorkOrder,
   Lead,
@@ -64,8 +65,14 @@ export const getProjectOverview = cache(async (projectId: string): Promise<Proje
   const { data: project } = await supabase.from('projects').select('*').eq('id', projectId).maybeSingle();
   if (!project) return null;
 
-  const [{ data: website }, { data: latestAudit }, { data: gsc }, { data: ga4 }, { data: connection }] =
-    await Promise.all([
+  const [
+    { data: website },
+    { data: latestAudit },
+    { data: gsc },
+    { data: ga4 },
+    { data: ads },
+    { data: connection },
+  ] = await Promise.all([
       supabase.from('websites').select('*').eq('project_id', projectId).maybeSingle(),
       supabase
         .from('audit_runs')
@@ -81,6 +88,12 @@ export const getProjectOverview = cache(async (projectId: string): Promise<Proje
         .eq('is_selected', true)
         .maybeSingle(),
       supabase.from('ga4_properties').select('*').eq('project_id', projectId).eq('is_selected', true).maybeSingle(),
+      supabase
+        .from('google_ads_accounts')
+        .select('*')
+        .eq('project_id', projectId)
+        .eq('is_selected', true)
+        .maybeSingle(),
       supabase.from('google_connections').select('id').limit(1).maybeSingle(),
     ]);
 
@@ -90,6 +103,7 @@ export const getProjectOverview = cache(async (projectId: string): Promise<Proje
     latest_audit: (latestAudit as AuditRun | null) ?? null,
     gsc_property: (gsc as SearchConsoleProperty | null) ?? null,
     ga4_property: (ga4 as Ga4Property | null) ?? null,
+    ads_account: (ads as GoogleAdsAccount | null) ?? null,
     google_connected: Boolean(connection),
   };
 });
@@ -602,13 +616,15 @@ export const getGoogleConnection = cache(async (): Promise<GoogleConnection | nu
 
 export const listPropertyOptions = cache(async (projectId: string) => {
   const supabase = getSupabaseAdmin();
-  const [{ data: gsc }, { data: ga4 }] = await Promise.all([
+  const [{ data: gsc }, { data: ga4 }, { data: ads }] = await Promise.all([
     supabase.from('search_console_properties').select('*').eq('project_id', projectId),
     supabase.from('ga4_properties').select('*').eq('project_id', projectId),
+    supabase.from('google_ads_accounts').select('*').eq('project_id', projectId),
   ]);
   return {
     gsc: (gsc as SearchConsoleProperty[]) ?? [],
     ga4: (ga4 as Ga4Property[]) ?? [],
+    ads: (ads as GoogleAdsAccount[]) ?? [],
   };
 });
 

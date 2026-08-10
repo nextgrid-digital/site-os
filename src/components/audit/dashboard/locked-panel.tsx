@@ -20,7 +20,7 @@ export function LockedPanel({
       <p className="text-sm font-medium text-zinc-800">{title}</p>
       <p className="max-w-xs text-xs leading-5 text-zinc-500">{description}</p>
       <Link
-        href={`/audit/${projectId}/connect`}
+        href={`/audit/${projectId}/settings`}
         className="rounded-lg bg-zinc-950 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-zinc-800"
       >
         {ctaLabel}

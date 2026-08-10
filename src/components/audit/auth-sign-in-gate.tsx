@@ -9,29 +9,33 @@ const SESSION_COOKIE = AUDIT_SESSION_COOKIE;
 interface AuthSignInGateProps {
   sessionId: string;
   onUnlocked: () => void;
-  headline?: string;
-  description?: string;
 }
 
-type Mode = 'signin' | 'signup';
+type Mode = 'signin' | 'signup' | 'forgot';
 
 export function AuthSignInGate({
   sessionId,
   onUnlocked,
-  headline = 'Sign in to see your report',
-  description = 'Use Google or email and password. No report is shown until you sign in.',
 }: AuthSignInGateProps) {
   const [mode, setMode] = useState<Mode>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  function switchMode(next: Mode) {
+    setMode(next);
+    setError('');
+    setMessage('');
+  }
 
   async function handleGoogle() {
     setGoogleLoading(true);
     setError('');
+    setMessage('');
     try {
       if (sessionId) {
         document.cookie = `${SESSION_COOKIE}=${encodeURIComponent(sessionId)}; path=/; max-age=3600; samesite=lax`;
@@ -58,10 +62,40 @@ export function AuthSignInGate({
     }
   }
 
+  async function handleForgotSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setMessage('');
+
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(typeof data.error === 'string' ? data.error : 'Could not send reset link');
+        return;
+      }
+      setMessage(
+        typeof data.message === 'string'
+          ? data.message
+          : 'If an account exists for that email, a reset link is on the way.'
+      );
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setMessage('');
 
     if (mode === 'signup' && password !== confirmPassword) {
       setError('Passwords do not match');
@@ -95,58 +129,17 @@ export function AuthSignInGate({
     }
   }
 
-  return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-      <div className="space-y-2">
-        <h2 className="text-xl font-semibold text-slate-950">{headline}</h2>
-        <p className="text-sm leading-6 text-slate-600">{description}</p>
-      </div>
-
-      <div className="mt-6 space-y-4">
-        <button
-          type="button"
-          onClick={handleGoogle}
-          disabled={googleLoading || loading}
-          className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:opacity-50"
-        >
-          <GoogleIcon />
-          {googleLoading ? 'Redirecting…' : 'Continue with Google'}
-        </button>
-
-        <div className="flex items-center gap-3">
-          <div className="h-px flex-1 bg-slate-200" />
-          <span className="text-xs text-slate-400">or email</span>
-          <div className="h-px flex-1 bg-slate-200" />
+  if (mode === 'forgot') {
+    return (
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <div className="space-y-2">
+          <h2 className="text-xl font-semibold text-slate-950">Reset your password</h2>
+          <p className="text-sm leading-6 text-slate-600">
+            Enter your email and we&apos;ll send a link to choose a new password.
+          </p>
         </div>
 
-        <div className="flex rounded-xl border border-slate-200 p-1">
-          <button
-            type="button"
-            onClick={() => {
-              setMode('signin');
-              setError('');
-            }}
-            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition ${
-              mode === 'signin' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Sign in
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setMode('signup');
-              setError('');
-            }}
-            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition ${
-              mode === 'signup' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Sign up
-          </button>
-        </div>
-
-        <form onSubmit={handleEmailSubmit} className="space-y-3">
+        <form onSubmit={handleForgotSubmit} className="mt-6 space-y-3">
           <input
             type="email"
             placeholder="you@company.com"
@@ -156,44 +149,143 @@ export function AuthSignInGate({
             autoComplete="email"
             className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-100"
           />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-            autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-100"
-          />
-          {mode === 'signup' ? (
-            <input
-              type="password"
-              placeholder="Confirm password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              minLength={6}
-              autoComplete="new-password"
-              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-100"
-            />
-          ) : null}
           <button
             type="submit"
-            disabled={loading || googleLoading}
+            disabled={loading}
             className="w-full rounded-xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:opacity-50"
           >
-            {loading
-              ? mode === 'signup'
-                ? 'Creating account…'
-                : 'Signing in…'
-              : mode === 'signup'
-                ? 'Create account'
-                : 'Sign in'}
+            {loading ? 'Sending…' : 'Send reset link'}
+          </button>
+          <button
+            type="button"
+            onClick={() => switchMode('signin')}
+            className="w-full py-2 text-sm font-medium text-slate-600 transition hover:text-slate-900"
+          >
+            Back to sign in
           </button>
         </form>
 
-        {error ? <p className="text-xs text-red-600">{error}</p> : null}
+        {message ? <p className="mt-4 text-xs text-emerald-700">{message}</p> : null}
+        {error ? <p className="mt-4 text-xs text-red-600">{error}</p> : null}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div
+        role="tablist"
+        aria-label="Account"
+        className="flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm"
+      >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'signin'}
+          onClick={() => switchMode('signin')}
+          className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition ${
+            mode === 'signin' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          Sign in
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'signup'}
+          onClick={() => switchMode('signup')}
+          className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition ${
+            mode === 'signup' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          Sign up
+        </button>
+      </div>
+
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <div className="space-y-4">
+          <form onSubmit={handleEmailSubmit} className="space-y-3">
+            <input
+              type="email"
+              placeholder="you@company.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-100"
+            />
+            <div className="space-y-1.5">
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-100"
+              />
+              {mode === 'signin' ? (
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => switchMode('forgot')}
+                    className="text-xs font-medium text-slate-500 transition hover:text-slate-800"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+              ) : null}
+            </div>
+            {mode === 'signup' ? (
+              <input
+                type="password"
+                placeholder="Confirm password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={6}
+                autoComplete="new-password"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-100"
+              />
+            ) : null}
+            <button
+              type="submit"
+              disabled={loading || googleLoading}
+              className="w-full rounded-xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:opacity-50"
+            >
+              {loading
+                ? mode === 'signup'
+                  ? 'Creating account…'
+                  : 'Signing in…'
+                : mode === 'signup'
+                  ? 'Create account'
+                  : 'Sign in'}
+            </button>
+          </form>
+
+          {error ? <p className="text-xs text-red-600">{error}</p> : null}
+
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-slate-200" />
+            <span className="text-xs text-slate-400">or Google</span>
+            <div className="h-px flex-1 bg-slate-200" />
+          </div>
+
+          <button
+            type="button"
+            onClick={handleGoogle}
+            disabled={googleLoading || loading}
+            className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:opacity-50"
+          >
+            <GoogleIcon />
+            {googleLoading
+              ? 'Redirecting…'
+              : mode === 'signup'
+                ? 'Sign up with Google'
+                : 'Continue with Google'}
+          </button>
+        </div>
       </div>
     </div>
   );

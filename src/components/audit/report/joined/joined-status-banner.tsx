@@ -37,6 +37,11 @@ export function JoinedStatusBanner({
             GA4
           </span>
         ) : null}
+        {status.hasAds ? (
+          <span className="rounded-full bg-violet-50 px-2.5 py-0.5 text-xs font-medium text-violet-800">
+            Ads
+          </span>
+        ) : null}
       </div>
       <p className="mt-3 text-lg font-semibold tracking-tight sm:text-xl">{status.headline}</p>
       {status.breakCallout ? (

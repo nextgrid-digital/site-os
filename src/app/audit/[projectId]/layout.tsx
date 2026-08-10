@@ -28,10 +28,13 @@ export default async function AuditProjectLayout({
         domain={workspace.domain}
         websiteUrl={workspace.website.url}
         connection={{
+          websiteConnected: Boolean(workspace.website.url),
           gscConnected: connected.gscConnected,
           ga4Connected: connected.ga4Connected,
+          adsConnected: connected.adsConnected,
           gscPropertyLabel: connected.gscPropertyLabel,
           ga4PropertyLabel: connected.ga4PropertyLabel,
+          adsAccountLabel: connected.adsAccountLabel,
           googleConnected: connected.googleConnected,
         }}
       >

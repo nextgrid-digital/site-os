@@ -21,7 +21,7 @@ export function ProjectStatusStrip({
   const stages = [
     {
       label: 'Connect',
-      href: `/audit/${projectId}/connect`,
+      href: `/audit/${projectId}/settings`,
       done: connectDone,
       active: !readyToAudit,
     },

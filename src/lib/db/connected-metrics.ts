@@ -8,19 +8,38 @@ import type {
   Ga4Overview,
 } from '@/lib/google/ga4';
 import type {
+  AdsCampaignRow,
+  AdsKeywordRow,
+  AdsLandingMismatch,
+  AdsLandingPageRow,
+  AdsWasteSignal,
+} from '@/lib/google/ads';
+import type {
   AuditMetrics,
   ChannelTrafficRow,
   PageMetric,
   QueryMetric,
 } from '@/lib/supabase/types';
 
+export type ConnectedAdsMetrics = {
+  campaigns: AdsCampaignRow[];
+  keywords: AdsKeywordRow[];
+  landingPages: AdsLandingPageRow[];
+  wasteSignals: AdsWasteSignal[];
+  landingMismatches: AdsLandingMismatch[];
+  spend: number;
+  conversions: number;
+};
+
 export type ConnectedAuditMetrics = {
   auditRunId: string | null;
   googleConnected: boolean;
   gscConnected: boolean;
   ga4Connected: boolean;
+  adsConnected: boolean;
   gscPropertyLabel: string | null;
   ga4PropertyLabel: string | null;
+  adsAccountLabel: string | null;
   metrics: AuditMetrics | null;
   pageMetrics: PageMetric[];
   queryMetrics: QueryMetric[];
@@ -34,6 +53,7 @@ export type ConnectedAuditMetrics = {
   ga4Events: Ga4DimensionRow[];
   ga4ConversionPeak: Ga4ConversionPeakCell[];
   ga4FunnelSteps: Ga4FunnelStep[];
+  googleAds: ConnectedAdsMetrics | null;
 };
 
 const EMPTY_ANALYTICS = {
@@ -94,9 +114,37 @@ function analyticsFromSnapshot(snapshot: unknown): typeof EMPTY_ANALYTICS {
   };
 }
 
+function adsFromSnapshot(snapshot: unknown): ConnectedAdsMetrics | null {
+  if (!isRecord(snapshot)) return null;
+  const fromConnectors =
+    isRecord(snapshot.connectors) && isRecord(snapshot.connectors.google_ads)
+      ? snapshot.connectors.google_ads
+      : null;
+  const raw = isRecord(snapshot.googleAds)
+    ? snapshot.googleAds
+    : fromConnectors;
+  if (!raw || !isRecord(raw)) return null;
+
+  return {
+    campaigns: Array.isArray(raw.campaigns) ? (raw.campaigns as AdsCampaignRow[]).slice(0, 50) : [],
+    keywords: Array.isArray(raw.keywords) ? (raw.keywords as AdsKeywordRow[]).slice(0, 80) : [],
+    landingPages: Array.isArray(raw.landingPages)
+      ? (raw.landingPages as AdsLandingPageRow[]).slice(0, 50)
+      : [],
+    wasteSignals: Array.isArray(raw.wasteSignals)
+      ? (raw.wasteSignals as AdsWasteSignal[]).slice(0, 12)
+      : [],
+    landingMismatches: Array.isArray(raw.landingMismatches)
+      ? (raw.landingMismatches as AdsLandingMismatch[]).slice(0, 12)
+      : [],
+    spend: typeof raw.spend === 'number' ? raw.spend : 0,
+    conversions: typeof raw.conversions === 'number' ? raw.conversions : 0,
+  };
+}
+
 async function loadConnectionStatus(projectId: string) {
   const supabase = getSupabaseAdmin();
-  const [{ data: gsc }, { data: ga4 }] = await Promise.all([
+  const [{ data: gsc }, { data: ga4 }, { data: ads }] = await Promise.all([
     supabase
       .from('search_console_properties')
       .select('id, site_url')
@@ -111,16 +159,26 @@ async function loadConnectionStatus(projectId: string) {
       .eq('is_selected', true)
       .limit(1)
       .maybeSingle(),
+    supabase
+      .from('google_ads_accounts')
+      .select('id, customer_id, descriptive_name')
+      .eq('project_id', projectId)
+      .eq('is_selected', true)
+      .limit(1)
+      .maybeSingle(),
   ]);
 
   const gscConnected = Boolean(gsc);
   const ga4Connected = Boolean(ga4);
+  const adsConnected = Boolean(ads);
   return {
     gscConnected,
     ga4Connected,
-    googleConnected: gscConnected || ga4Connected,
+    adsConnected,
+    googleConnected: gscConnected || ga4Connected || adsConnected,
     gscPropertyLabel: gsc?.site_url ?? null,
     ga4PropertyLabel: ga4?.property_name || ga4?.property_id || null,
+    adsAccountLabel: ads?.descriptive_name || ads?.customer_id || null,
   };
 }
 
@@ -137,6 +195,7 @@ export const loadConnectedStatusForProject = cache(async function loadConnectedS
     queryMetrics: [],
     trafficByChannel: [],
     ...EMPTY_ANALYTICS,
+    googleAds: null,
   };
 });
 
@@ -180,6 +239,7 @@ export async function loadConnectedMetricsForAuditRun(
   ]);
 
   const snapshot = report?.snapshot;
+  const googleAds = adsFromSnapshot(snapshot);
 
   return {
     auditRunId,
@@ -189,5 +249,6 @@ export async function loadConnectedMetricsForAuditRun(
     queryMetrics: (queryMetrics as QueryMetric[]) ?? [],
     trafficByChannel: trafficFromSnapshot(snapshot),
     ...analyticsFromSnapshot(snapshot),
+    googleAds,
   };
 }

@@ -33,12 +33,7 @@ export function ReportAuthGate({
         </p>
       </header>
 
-      <AuthSignInGate
-        sessionId={sessionId}
-        headline="Sign in to Site-OS"
-        description="Use Google or email and password to unlock your free audit dashboard."
-        onUnlocked={onUnlocked}
-      />
+      <AuthSignInGate sessionId={sessionId} onUnlocked={onUnlocked} />
     </div>
   );
 }
