@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { selectProperties, syncPropertyOptions } from '@/lib/db/google';
+import { syncGoogleConnectionInventory } from '@/lib/db/google-inventory';
 import { listPropertyOptions } from '@/lib/db/projects';
 
 export async function GET(
@@ -28,6 +29,11 @@ export async function POST(
 
     if (body.action === 'sync') {
       await syncPropertyOptions(projectId);
+      try {
+        await syncGoogleConnectionInventory();
+      } catch (inventoryError) {
+        console.error('[properties] inventory sync failed', inventoryError);
+      }
       const properties = await listPropertyOptions(projectId);
       return NextResponse.json({ properties });
     }

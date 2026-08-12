@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import Link from 'next/link';
+import { SoftAuditTabLink } from '@/components/audit/soft-audit-tab-link';
 import { ReportPdfButton } from '@/components/operator/report-pdf-button';
 import type { GrowthBrief } from '@/lib/reports/build-growth-brief';
 import type { MonthlyCompareSection } from '@/lib/workflow/monthly-compare';
@@ -44,12 +44,13 @@ export function ClientWorkflowBrief({
             filename={`${domain}-workflow-brief.pdf`}
             backgroundColor="#ffffff"
           />
-          <Link
+          <SoftAuditTabLink
             href={`${workspaceBase}/work`}
+            suffix="/work"
             className="inline-flex h-8 items-center rounded-lg bg-white px-3 text-sm font-medium text-zinc-800 shadow-sm hover:bg-zinc-50"
           >
             Open Work
-          </Link>
+          </SoftAuditTabLink>
         </div>
       </div>
 
@@ -168,14 +169,18 @@ export function ClientWorkflowBrief({
             <Empty>Recommendations appear once the growth brief is available.</Empty>
           )}
           <p className="mt-4 text-sm text-zinc-500">
-            Deep source detail:{''}
-            <Link href={`${workspaceBase}/evidence`} className="underline underline-offset-2">
+            Deep source detail:{' '}
+            <a href={`${workspaceBase}/evidence`} className="underline underline-offset-2">
               Evidence
-            </Link>
-            {'·'}
-            <Link href={`${workspaceBase}/workflow`} className="underline underline-offset-2">
+            </a>
+            {' · '}
+            <SoftAuditTabLink
+              href={`${workspaceBase}/workflow`}
+              suffix="/workflow"
+              className="underline underline-offset-2"
+            >
               Dashboard
-            </Link>
+            </SoftAuditTabLink>
           </p>
         </BriefSection>
       </article>

@@ -7,9 +7,9 @@ import { hasSupabaseConfig } from '@/lib/supabase/server';
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const projectId = searchParams.get('projectId');
-  if (!projectId) {
-    return NextResponse.json({ error: 'projectId is required.' }, { status: 400 });
-  }
+  const returnTo = searchParams.get('returnTo');
+  const safeReturnTo =
+    returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//') ? returnTo : '/app';
 
   if (!hasSupabaseConfig()) {
     return NextResponse.json({ error: 'Supabase is not configured.' }, { status: 500 });
@@ -19,29 +19,40 @@ export async function GET(request: Request) {
     await requirePaidSession();
   } catch (error) {
     if (error instanceof PaidPlanRequiredError) {
+      const next = projectId
+        ? `/audit/${projectId}/connect`
+        : safeReturnTo;
       if (error.status === 401) {
         return NextResponse.redirect(
-          new URL(`/login?next=${encodeURIComponent(`/audit/${projectId}/connect`)}`, request.url)
+          new URL(`/login?next=${encodeURIComponent(next)}`, request.url)
         );
       }
-      return NextResponse.redirect(
-        new URL(`/audit/${projectId}/connect?upgrade=1`, request.url)
-      );
+      if (projectId) {
+        return NextResponse.redirect(
+          new URL(`/audit/${projectId}/connect?upgrade=1`, request.url)
+        );
+      }
+      return NextResponse.redirect(new URL('/login', request.url));
     }
     throw error;
   }
 
-  const project = await getProjectOverview(projectId);
-  if (!project) {
-    return NextResponse.json({ error: 'Project not found.' }, { status: 404 });
-  }
-  if (!isFullBriefUnlocked(project)) {
-    return NextResponse.redirect(
-      new URL(`/audit/${projectId}/connect`, request.url)
-    );
+  if (projectId) {
+    const project = await getProjectOverview(projectId);
+    if (!project) {
+      return NextResponse.json({ error: 'Project not found.' }, { status: 404 });
+    }
+    if (!isFullBriefUnlocked(project)) {
+      return NextResponse.redirect(new URL(`/audit/${projectId}/connect`, request.url));
+    }
   }
 
-  const state = Buffer.from(JSON.stringify({ projectId })).toString('base64url');
+  const state = Buffer.from(
+    JSON.stringify({
+      projectId: projectId ?? null,
+      returnTo: safeReturnTo,
+    })
+  ).toString('base64url');
   const url = getGoogleAuthUrl(state, request);
   return NextResponse.redirect(url);
 }

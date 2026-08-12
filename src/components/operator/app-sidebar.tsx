@@ -9,9 +9,7 @@ import {
   FolderKanban,
   LayoutDashboard,
   Link2,
-  MoreHorizontal,
   ScrollText,
-  Settings2,
   Wallet,
 } from 'lucide-react';
 import {
@@ -42,14 +40,6 @@ const primaryProjectNav = [
   { title: 'Leads', suffix: '/leads', icon: Wallet },
   { title: 'Monthly', suffix: '/monthly', icon: Activity },
   { title: 'Setup', suffix: '/connect', icon: Link2 },
-];
-
-const moreProjectNav = [
-  { title: 'Overview', suffix: '/overview', icon: LayoutDashboard },
-  { title: 'Evidence', suffix: '/evidence', icon: ScrollText },
-  { title: 'Intake', suffix: '/intake', icon: Settings2 },
-  { title: 'Architecture', suffix: '/architecture', icon: Activity },
-  { title: 'Pricing', suffix: '/pricing', icon: Wallet },
 ];
 
 function getProjectId(pathname: string) {
@@ -146,15 +136,6 @@ export function AppSidebar() {
               <SidebarGroupLabel>Current project</SidebarGroupLabel>
               <SidebarGroupContent>
                 <NavItems items={primaryProjectNav} projectId={projectId} pathname={pathname} />
-              </SidebarGroupContent>
-            </SidebarGroup>
-            <SidebarGroup>
-              <SidebarGroupLabel className="flex items-center gap-1">
-                <MoreHorizontal className="size-3" />
-                More
-              </SidebarGroupLabel>
-              <SidebarGroupContent>
-                <NavItems items={moreProjectNav} projectId={projectId} pathname={pathname} />
               </SidebarGroupContent>
             </SidebarGroup>
           </>

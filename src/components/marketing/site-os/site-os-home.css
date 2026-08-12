@@ -130,6 +130,60 @@
   --clr-28: oklab(0.546016 0 0);
 }
 
+/* Dark mode — marketing homepage tokens follow html.dark (neutral black) */
+.dark .site-os-home {
+  --background: #151515;
+  --foreground: oklch(0.96 0 0);
+  --primary: oklch(0.96 0 0);
+  --accent: oklch(0.8 0.18 195);
+  --border: rgb(255 255 255 / 0.05);
+  --muted-foreground: oklch(0.62 0 0);
+  --surface: oklab(1 0 0 / 0.06);
+  --surface-2: oklab(1 0 0 / 0.05);
+  --surface-3: #1c1c1c;
+  --surface-4: #222222;
+  --surface-5: oklab(1 0 0 / 0.05);
+  --surface-6: oklab(1 0 0 / 0.08);
+  --surface-7: oklab(1 0 0 / 0.06);
+  --surface-8: oklab(1 0 0 / 0.1);
+  --muted: #1c1c1c;
+  --color-001: oklab(1 0 0 / 0.04);
+  --color-002: oklch(0.92 0 0);
+  --color-003: oklab(0.62 0 0 / 0.55);
+  --color-004: oklab(0.11 0 0 / 0.85);
+  --color-005: oklab(0.96 0 0 / 0.9);
+  --color-006: oklab(0.08 0 0 / 0.85);
+  --color-007: #151515;
+  --color-008: oklab(0.96 0 0 / 0.45);
+  --color-009: oklab(0.08 0 0 / 0.55);
+  --clr-1: rgba(255, 255, 255, 0.1);
+  --clr-2: rgba(255, 255, 255, 0.12);
+  --clr-3: rgba(255, 255, 255, 0.08);
+  --clr-4: oklab(1 0 0 / 0.2);
+  --clr-5: oklab(1 0 0 / 0.55);
+  --clr-8: rgba(0, 0, 0, 0.35);
+  --clr-9: oklab(0.11 0 0 / 0.95);
+  --clr-10: oklch(0.72 0 0);
+  --clr-11: oklch(0.82 0 0);
+  --clr-12: oklch(0.9 0 0);
+  --clr-13: rgba(255, 255, 255, 0.12);
+  --clr-14: oklab(1 0 0 / 0.12);
+  --clr-15: oklab(1 0 0 / 0.18);
+  --clr-16: oklab(1 0 0 / 0.12);
+  --clr-19: oklab(1 0 0 / 0.12);
+  --clr-20: rgb(255, 255, 255);
+  --clr-21: rgba(255, 255, 255, 0.06);
+  --clr-22: rgba(255, 255, 255, 0.08);
+  --clr-23: oklab(0.62 0 0 / 0.5);
+  --clr-24: oklab(0.92 0 0 / 0.85);
+  --clr-25: oklab(0.11 0 0 / 0.7);
+  --clr-26: oklab(0.96 0 0 / 0.85);
+  --clr-27: oklab(0.11 0 0 / 0.85);
+  --clr-28: oklab(0.72 0 0);
+  color: var(--foreground);
+  color-scheme: dark;
+}
+
 @font-face {
   font-family: "InterVariable";
   font-style: italic;

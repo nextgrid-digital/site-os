@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { SoftAuditTabLink } from '@/components/audit/soft-audit-tab-link';
 import { SectionHeading } from '@/components/audit/report/section-heading';
 import type { FunnelAssessment } from '@/lib/audit/funnel-assessment';
 
@@ -26,12 +26,13 @@ export function FunnelAssessmentBrief({
               {assessment.emptyReason}
             </p>
             {assessment.connectHint && connectHref ? (
-              <Link
+              <SoftAuditTabLink
                 href={connectHref}
+                suffix="/connect"
                 className="mt-3 inline-block text-sm font-medium underline underline-offset-2 hover:text-foreground"
               >
                 Open Settings
-              </Link>
+              </SoftAuditTabLink>
             ) : null}
           </div>
         </div>

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Trash2 } from 'lucide-react';
+import { SiteSourceConnectionIcons } from '@/components/audit/google-source-icons';
 import { SiteCardFavicon } from '@/components/audit/site-card-favicon';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,6 +23,11 @@ export type SitesDashboardSite = {
   domain: string;
   findingsCount: number | null;
   status: string;
+  connections: {
+    gsc: boolean;
+    ga4: boolean;
+    ads: boolean;
+  };
 };
 
 function SiteStatusStrip({ status }: { status: string }) {
@@ -54,7 +60,7 @@ export function SiteCard({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const href = `/audit/${site.sessionId}`;
+  const href = `/audit/${site.sessionId}/workflow`;
 
   async function handleDelete() {
     setLoading(true);
@@ -84,6 +90,10 @@ export function SiteCard({
         prefetch
         onMouseEnter={() => {
           router.prefetch(href);
+          router.prefetch(`/audit/${site.sessionId}/brief`);
+        }}
+        onFocus={() => {
+          router.prefetch(href);
         }}
         className={`block rounded-2xl bg-white p-4 shadow-sm transition hover:shadow-md ${
           highlighted ? 'ring-1 ring-zinc-900' : ''
@@ -97,14 +107,19 @@ export function SiteCard({
           </div>
         </div>
         <SiteStatusStrip status={site.status} />
-        <div className="mt-3 flex items-center justify-between text-sm">
-          <span className="inline-flex items-center gap-2 text-zinc-600">
-            <span className="h-2.5 w-2.5 rounded-[2px] bg-zinc-950" aria-hidden="true" />
+        <div className="mt-3 flex items-center justify-between gap-3 text-sm">
+          <span className="inline-flex min-w-0 items-center gap-2 text-zinc-600">
+            <span className="h-2.5 w-2.5 shrink-0 rounded-[2px] bg-zinc-950" aria-hidden="true" />
             Findings
+            <span className="font-medium text-zinc-950">
+              {site.findingsCount ?? (site.status === 'pending' ? '…' : 0)}
+            </span>
           </span>
-          <span className="font-medium text-zinc-950">
-            {site.findingsCount ?? (site.status === 'pending' ? '…' : 0)}
-          </span>
+          <SiteSourceConnectionIcons
+            gsc={site.connections.gsc}
+            ga4={site.connections.ga4}
+            ads={site.connections.ads}
+          />
         </div>
       </Link>
 

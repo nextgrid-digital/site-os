@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { CheckCircle2, Link2, RefreshCw, Save } from 'lucide-react';
 import { useInvalidateAuditTab } from '@/components/audit/audit-tab-cache';
+import { ClientGoogleInviteCard } from '@/components/audit/client-google-invite-card';
 import { ConnectorSourceCards } from '@/components/audit/connectors/connector-source-cards';
 import { Label } from '@/components/ui/label';
 import type { ConnectorStatus } from '@/lib/connectors/types';
@@ -299,6 +300,8 @@ export function ConnectFlow({
           </div>
         </section>
       </div>
+
+      <ClientGoogleInviteCard operatorEmail={operatorEmail} />
     </div>
   );
 }

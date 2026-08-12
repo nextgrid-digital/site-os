@@ -243,11 +243,14 @@ async function loadConnectionStatus(projectId: string) {
   };
 }
 
+/** Cached per request — layout + metrics loaders share one connection status. */
+const loadConnectionStatusCached = cache(loadConnectionStatus);
+
 /** Connection status only — used when there is no completed audit run yet. */
 export const loadConnectedStatusForProject = cache(async function loadConnectedStatusForProject(
   projectId: string
 ): Promise<ConnectedAuditMetrics> {
-  const status = await loadConnectionStatus(projectId);
+  const status = await loadConnectionStatusCached(projectId);
   return {
     auditRunId: null,
     ...status,
@@ -263,19 +266,32 @@ export const loadConnectedStatusForProject = cache(async function loadConnectedS
 export async function loadConnectedMetricsForAuditRun(
   projectId: string,
   auditRunId: string,
-  options?: { pageLimit?: number; queryLimit?: number }
+  options?: { pageLimit?: number; queryLimit?: number; snapshot?: unknown }
 ): Promise<ConnectedAuditMetrics> {
   const supabase = getSupabaseAdmin();
   const pageLimit = options?.pageLimit ?? 80;
   const queryLimit = options?.queryLimit ?? 500;
 
-  const [
-    { data: metrics },
-    { data: pageMetrics },
-    { data: queryMetrics },
-    { data: report },
-    status,
-  ] = await Promise.all([
+  const statusPromise = loadConnectionStatusCached(projectId);
+
+  let snapshot = options?.snapshot;
+  if (snapshot === undefined) {
+    const { data: report } = await supabase
+      .from('report_exports')
+      .select('snapshot')
+      .eq('audit_run_id', auditRunId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    snapshot = report?.snapshot;
+  }
+
+  const status = await statusPromise;
+  const fromSnapshot = metricsFromSnapshot(snapshot, auditRunId, status, pageLimit, queryLimit);
+  if (fromSnapshot) return fromSnapshot;
+
+  // Legacy audits without page/query arrays in snapshot — fall back to relational tables.
+  const [{ data: metrics }, { data: pageMetrics }, { data: queryMetrics }] = await Promise.all([
     supabase.from('audit_metrics').select('*').eq('audit_run_id', auditRunId).maybeSingle(),
     supabase
       .from('page_metrics')
@@ -289,18 +305,7 @@ export async function loadConnectedMetricsForAuditRun(
       .eq('audit_run_id', auditRunId)
       .order('impressions', { ascending: false })
       .limit(queryLimit),
-    supabase
-      .from('report_exports')
-      .select('snapshot')
-      .eq('audit_run_id', auditRunId)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-    loadConnectionStatus(projectId),
   ]);
-
-  const snapshot = report?.snapshot;
-  const googleAds = adsFromSnapshot(snapshot);
 
   return {
     auditRunId,
@@ -310,6 +315,94 @@ export async function loadConnectedMetricsForAuditRun(
     queryMetrics: (queryMetrics as QueryMetric[]) ?? [],
     trafficByChannel: trafficFromSnapshot(snapshot),
     ...analyticsFromSnapshot(snapshot),
-    googleAds,
+    googleAds: adsFromSnapshot(snapshot),
   };
 }
+
+function metricsFromSnapshot(
+  snapshot: unknown,
+  auditRunId: string,
+  status: Awaited<ReturnType<typeof loadConnectionStatus>>,
+  pageLimit: number,
+  queryLimit: number
+): ConnectedAuditMetrics | null {
+  if (!isRecord(snapshot)) return null;
+
+  const pageMetrics = Array.isArray(snapshot.pageMetrics)
+    ? (snapshot.pageMetrics as PageMetric[]).slice(0, pageLimit)
+    : null;
+  const queryMetrics = Array.isArray(snapshot.queryMetrics)
+    ? (snapshot.queryMetrics as QueryMetric[]).slice(0, queryLimit)
+    : null;
+
+  // Require at least one of the heavy arrays so we know this is a modern snapshot.
+  if (!pageMetrics && !queryMetrics) return null;
+
+  const metrics = isRecord(snapshot.metrics)
+    ? (snapshot.metrics as unknown as AuditMetrics)
+    : null;
+
+  return {
+    auditRunId,
+    ...status,
+    metrics,
+    pageMetrics: pageMetrics ?? [],
+    queryMetrics: queryMetrics ?? [],
+    trafficByChannel: trafficFromSnapshot(snapshot),
+    ...analyticsFromSnapshot(snapshot),
+    googleAds: adsFromSnapshot(snapshot),
+  };
+}
+
+/**
+ * Preferred completed run + connected metrics from snapshot (Dashboard entry).
+ * One report_exports.snapshot read — no kitchen-sink / double fetch.
+ */
+export const loadDashboardMetricsForProject = cache(async function loadDashboardMetricsForProject(
+  projectId: string
+): Promise<{
+  auditRunId: string | null;
+  connected: ConnectedAuditMetrics;
+  growthBrief: unknown | null;
+}> {
+  const supabase = getSupabaseAdmin();
+  const { data: runs } = await supabase
+    .from('audit_runs')
+    .select('id, run_type, completed_at')
+    .eq('project_id', projectId)
+    .eq('status', 'completed')
+    .order('completed_at', { ascending: false })
+    .limit(5);
+
+  const preferred =
+    (runs ?? []).find((r) => r.run_type === 'full') ?? (runs ?? [])[0] ?? null;
+
+  if (!preferred?.id) {
+    return {
+      auditRunId: null,
+      connected: await loadConnectedStatusForProject(projectId),
+      growthBrief: null,
+    };
+  }
+
+  const { data: report } = await supabase
+    .from('report_exports')
+    .select('snapshot')
+    .eq('audit_run_id', preferred.id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const snapshot = report?.snapshot;
+  const connected = await loadConnectedMetricsForAuditRun(projectId, preferred.id, {
+    snapshot,
+  });
+  const growthBrief =
+    isRecord(snapshot) && 'growthBrief' in snapshot ? snapshot.growthBrief ?? null : null;
+
+  return {
+    auditRunId: preferred.id,
+    connected,
+    growthBrief,
+  };
+});

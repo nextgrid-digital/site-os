@@ -3,6 +3,7 @@ import { refreshAccessToken } from '@/lib/google/oauth';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 import type {
   AeoAnalysisRow,
+  AgentPrompt,
   ArchitectureInput,
   AuditRun,
   ChannelTrafficRow,
@@ -302,12 +303,6 @@ export async function updateFindingWorkflow(
   return data as Finding;
 }
 
-export type ProjectWorkspace = {
-  project: ProjectOverview;
-  audit: Awaited<ReturnType<typeof getLatestCompletedAudit>>;
-  intake: ArchitectureInput | null;
-};
-
 export const getProjectWorkspace = cache(async (projectId: string): Promise<ProjectWorkspace | null> => {
   const [project, audit, intake] = await Promise.all([
     getProjectOverview(projectId),
@@ -317,6 +312,91 @@ export const getProjectWorkspace = cache(async (projectId: string): Promise<Proj
   if (!project) return null;
   return { project, audit, intake };
 });
+
+/** Lean work bundle — findings + work orders + prompts for one run (no metrics/snapshot). */
+export const getAuditWorkBundle = cache(async function getAuditWorkBundle(auditRunId: string) {
+  const supabase = getSupabaseAdmin();
+  const [{ data: findings }, workOrders, { data: prompts }] = await Promise.all([
+    supabase
+      .from('findings')
+      .select('*')
+      .eq('audit_run_id', auditRunId)
+      .order('priority_score', { ascending: false })
+      .limit(100),
+    getWorkOrdersForAudit(auditRunId),
+    supabase.from('agent_prompts').select('*').eq('audit_run_id', auditRunId),
+  ]);
+
+  return {
+    findings: (findings as Finding[]) ?? [],
+    workOrders,
+    prompts: (prompts as AgentPrompt[]) ?? [],
+  };
+});
+
+/** Growth brief only from latest report export for a run. */
+export const getGrowthBriefForAuditRun = cache(async function getGrowthBriefForAuditRun(
+  auditRunId: string
+) {
+  const supabase = getSupabaseAdmin();
+  const { data: report } = await supabase
+    .from('report_exports')
+    .select('snapshot')
+    .eq('audit_run_id', auditRunId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const snapshot = report?.snapshot;
+  if (
+    snapshot &&
+    typeof snapshot === 'object' &&
+    snapshot !== null &&
+    'growthBrief' in snapshot
+  ) {
+    return (snapshot as { growthBrief?: unknown }).growthBrief ?? null;
+  }
+  return null;
+});
+
+/** Preferred completed audit run id for a project (full preferred). */
+export const getPreferredCompletedAuditRunId = cache(async function getPreferredCompletedAuditRunId(
+  projectId: string
+): Promise<string | null> {
+  const meta = await getPreferredCompletedAuditRunMeta(projectId);
+  return meta?.id ?? null;
+});
+
+/** Preferred completed run with timestamps — layout last-audit label. */
+export const getPreferredCompletedAuditRunMeta = cache(
+  async function getPreferredCompletedAuditRunMeta(projectId: string): Promise<{
+    id: string;
+    completed_at: string | null;
+    created_at: string | null;
+  } | null> {
+    const supabase = getSupabaseAdmin();
+    const { data: runs } = await supabase
+      .from('audit_runs')
+      .select('id, run_type, completed_at, created_at')
+      .eq('project_id', projectId)
+      .eq('status', 'completed')
+      .order('completed_at', { ascending: false })
+      .limit(5);
+    const preferred =
+      (runs ?? []).find((r) => r.run_type === 'full') ?? (runs ?? [])[0] ?? null;
+    if (!preferred?.id) return null;
+    return {
+      id: preferred.id,
+      completed_at: preferred.completed_at ?? null,
+      created_at: preferred.created_at ?? null,
+    };
+  }
+);
+
+export type ProjectWorkspace = {
+  project: ProjectOverview;
+  audit: Awaited<ReturnType<typeof getLatestCompletedAudit>>;
+  intake: ArchitectureInput | null;
+};
 
 export async function getFindingDetail(projectId: string, findingId: string) {
   const supabase = getSupabaseAdmin();
@@ -632,6 +712,14 @@ export const getProjectLeadReportingSummary = cache(
     };
   }
 );
+
+/** Dashboard only needs CRM lead summary — skip full snapshot traffic read. */
+export const getLeadSummaryOnly = cache(async function getLeadSummaryOnly(
+  projectId: string
+): Promise<LeadFunnelSummary> {
+  const leads = await listLeads(projectId);
+  return summarizeLeads(leads);
+});
 
 export const getGoogleConnection = cache(async (): Promise<GoogleConnection | null> => {
   const supabase = getSupabaseAdmin();

@@ -7,19 +7,11 @@ import {
   buildDashboardSourceChips,
   DashboardSourceStrip,
 } from '@/components/audit/dashboard/dashboard-source-strip';
-import { DashboardFunnelViews } from '@/components/audit/dashboard/dashboard-funnel-views';
-import { DashboardLeadsBlock } from '@/components/audit/dashboard/dashboard-leads-block';
 import { FunnelHealthStrip } from '@/components/audit/dashboard/funnel-health-strip';
-import { GoogleDataInventory } from '@/components/audit/dashboard/google-data-inventory';
-import { ConnectedAnalyticsSuite } from '@/components/audit/report/analytics/connected-analytics-suite';
-import { BrandAdsSection } from '@/components/audit/report/brand/brand-ads-section';
 import {
   BrandEmptyState,
   BrandSectionNav,
 } from '@/components/audit/report/brand/brand-section-nav';
-import { JoinedChainBreaks } from '@/components/audit/report/joined/joined-chain-breaks';
-import { JoinedPageStoryTable } from '@/components/audit/report/joined/joined-page-story-table';
-import { JoinedQueryBridges } from '@/components/audit/report/joined/joined-query-bridges';
 import { SectionHeading } from '@/components/audit/report/section-heading';
 import {
   buildAnalyticsKpiTiles,
@@ -33,7 +25,9 @@ import {
   buildSearchBarRows,
   buildSourcesBarRows,
   hasAnyTrafficData,
+  type AnalyticsKpiTile,
 } from '@/lib/audit/connected-analytics';
+import { AnalyticsKpiRow } from '@/components/audit/report/analytics/analytics-kpi-row';
 import {
   buildHeroDashboardFromConnected,
   buildKeywordsHeroDashboard,
@@ -44,20 +38,83 @@ import { buildJoinedTrafficStory } from '@/lib/audit/joined-traffic-story';
 import type { ConnectedAuditMetrics } from '@/lib/db/connected-metrics';
 import type { LeadFunnelSummary } from '@/lib/supabase/types';
 
+const sectionFallback = (
+  <div className="h-40 animate-pulse rounded-2xl bg-zinc-100" aria-hidden />
+);
+
 const HeroDemoDashboard = dynamic(
   () =>
     import('@/components/marketing/site-os/demo/hero-demo-dashboard').then(
       (mod) => mod.HeroDemoDashboard
     ),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="h-64 animate-pulse rounded-2xl bg-zinc-100" aria-hidden />
-    ),
-  }
+  { ssr: false, loading: () => sectionFallback }
 );
 
-function ChainKpiStrip({
+const ConnectedAnalyticsSuite = dynamic(
+  () =>
+    import('@/components/audit/report/analytics/connected-analytics-suite').then(
+      (mod) => mod.ConnectedAnalyticsSuite
+    ),
+  { ssr: false, loading: () => sectionFallback }
+);
+
+const GoogleDataInventory = dynamic(
+  () =>
+    import('@/components/audit/dashboard/google-data-inventory').then(
+      (mod) => mod.GoogleDataInventory
+    ),
+  { ssr: false, loading: () => sectionFallback }
+);
+
+const JoinedPageStoryTable = dynamic(
+  () =>
+    import('@/components/audit/report/joined/joined-page-story-table').then(
+      (mod) => mod.JoinedPageStoryTable
+    ),
+  { ssr: false, loading: () => sectionFallback }
+);
+
+const JoinedQueryBridges = dynamic(
+  () =>
+    import('@/components/audit/report/joined/joined-query-bridges').then(
+      (mod) => mod.JoinedQueryBridges
+    ),
+  { ssr: false, loading: () => sectionFallback }
+);
+
+const BrandAdsSection = dynamic(
+  () =>
+    import('@/components/audit/report/brand/brand-ads-section').then(
+      (mod) => mod.BrandAdsSection
+    ),
+  { ssr: false, loading: () => sectionFallback }
+);
+
+const DashboardFunnelViews = dynamic(
+  () =>
+    import('@/components/audit/dashboard/dashboard-funnel-views').then(
+      (mod) => mod.DashboardFunnelViews
+    ),
+  { ssr: false, loading: () => sectionFallback }
+);
+
+const DashboardLeadsBlock = dynamic(
+  () =>
+    import('@/components/audit/dashboard/dashboard-leads-block').then(
+      (mod) => mod.DashboardLeadsBlock
+    ),
+  { ssr: false, loading: () => sectionFallback }
+);
+
+const JoinedChainBreaks = dynamic(
+  () =>
+    import('@/components/audit/report/joined/joined-chain-breaks').then(
+      (mod) => mod.JoinedChainBreaks
+    ),
+  { ssr: false, loading: () => sectionFallback }
+);
+
+function buildChainKpiTiles({
   impressions,
   clicks,
   sessions,
@@ -71,38 +128,50 @@ function ChainKpiStrip({
   engaged: number;
   conversions: number;
   adsSpend: number | null;
-}) {
-  const cells = [
-    { label: 'Impressions', value: impressions },
-    { label: 'Clicks', value: clicks },
-    { label: 'Sessions', value: sessions },
-    { label: 'Engaged', value: engaged },
-    { label: 'GA4 conversions', value: conversions },
+}): AnalyticsKpiTile[] {
+  return [
+    {
+      id: 'impressions',
+      label: 'Impressions',
+      value: impressions.toLocaleString(),
+      hint: 'GSC',
+      hintAccent: true,
+    },
+    {
+      id: 'clicks',
+      label: 'Clicks',
+      value: clicks.toLocaleString(),
+      hint: 'GSC',
+      hintAccent: true,
+    },
+    {
+      id: 'sessions',
+      label: 'Sessions',
+      value: sessions.toLocaleString(),
+      hint: 'GA4',
+    },
+    {
+      id: 'engaged',
+      label: 'Engaged',
+      value: engaged.toLocaleString(),
+      hint: 'GA4',
+    },
+    {
+      id: 'conversions',
+      label: 'Conversions',
+      value: conversions.toLocaleString(),
+      hint: 'GA4',
+    },
+    {
+      id: 'ads-spend',
+      label: 'Ads spend',
+      value:
+        adsSpend != null && adsSpend > 0
+          ? adsSpend.toLocaleString(undefined, { maximumFractionDigits: 0 })
+          : '—',
+      hint: 'Ads',
+    },
   ];
-
-  return (
-    <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
-      {cells.map((cell) => (
-        <div
-          key={cell.label}
-          className="rounded-[14px] bg-white px-3 py-3"
-        >
-          <p className="text-[11px] tracking-wide text-zinc-400 uppercase">{cell.label}</p>
-          <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-950">
-            {cell.value.toLocaleString()}
-          </p>
-        </div>
-      ))}
-      <div className="rounded-[14px] bg-white px-3 py-3">
-        <p className="text-[11px] tracking-wide text-zinc-400 uppercase">Ads spend</p>
-        <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-950">
-          {adsSpend != null && adsSpend > 0
-            ? adsSpend.toLocaleString(undefined, { maximumFractionDigits: 0 })
-            : '—'}
-        </p>
-      </div>
-    </div>
-  );
 }
 
 /**
@@ -269,13 +338,15 @@ export function JoinedTrafficReport({
             title="Chain KPIs"
             lead="Query → click → landing → engagement → GA4 conversion (not CRM leads)"
           />
-          <ChainKpiStrip
-            impressions={impressions}
-            clicks={story.status.searchClicks}
-            sessions={story.status.sessions}
-            engaged={engaged}
-            conversions={story.status.conversions}
-            adsSpend={adsSpend}
+          <AnalyticsKpiRow
+            tiles={buildChainKpiTiles({
+              impressions,
+              clicks: story.status.searchClicks,
+              sessions: story.status.sessions,
+              engaged,
+              conversions: story.status.conversions,
+              adsSpend,
+            })}
           />
           {story.status.breakCallout ? (
             <p className="rounded-lg bg-zinc-50 px-3 py-2 text-sm text-zinc-700">

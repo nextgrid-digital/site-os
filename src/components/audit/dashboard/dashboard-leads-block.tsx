@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { SoftAuditTabLink } from '@/components/audit/soft-audit-tab-link';
 import { leadStageLabel, leadStatusLabel } from '@/lib/leads';
 import type { LeadFunnelSummary } from '@/lib/supabase/types';
 
@@ -26,12 +26,13 @@ export function DashboardLeadsBlock({
         <p className="text-xs text-zinc-500">
           App-owned pipeline — separate from GA4 conversions above.
         </p>
-        <Link
+        <SoftAuditTabLink
           href={leadsHref}
+          suffix="/leads"
           className="text-xs font-medium text-zinc-600 underline-offset-2 hover:text-zinc-950 hover:underline"
         >
           Open Leads
-        </Link>
+        </SoftAuditTabLink>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

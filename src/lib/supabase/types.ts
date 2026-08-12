@@ -31,6 +31,18 @@ export interface GoogleConnection {
   refresh_token: string | null;
   token_expiry: string | null;
   scopes: string[];
+  /** Cached GSC/GA4/Ads list for this OAuth connection. */
+  inventory?: {
+    gsc?: Array<{ siteUrl: string; permissionLevel?: string | null }>;
+    ga4?: Array<{ propertyId: string; propertyName: string; accountName: string }>;
+    ads?: Array<{
+      customerId: string;
+      descriptiveName: string;
+      currencyCode?: string | null;
+      timeZone?: string | null;
+    }>;
+  } | null;
+  inventory_synced_at?: string | null;
   created_at: string;
   updated_at: string;
 }

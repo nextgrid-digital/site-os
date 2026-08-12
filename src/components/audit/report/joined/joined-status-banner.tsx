@@ -1,3 +1,4 @@
+import { SoftAuditTabLink } from '@/components/audit/soft-audit-tab-link';
 import type { JoinedStatus } from '@/lib/audit/joined-traffic-story';
 
 export function JoinedStatusBanner({
@@ -13,12 +14,13 @@ export function JoinedStatusBanner({
         <p className="text-sm font-medium">Search → visit → outcome</p>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">{status.emptyReason}</p>
         {connectHref ? (
-          <a
+          <SoftAuditTabLink
             href={connectHref}
+            suffix="/connect"
             className="mt-3 inline-block text-sm font-medium underline underline-offset-2 hover:text-foreground"
           >
             Open Connect
-          </a>
+          </SoftAuditTabLink>
         ) : null}
       </div>
     );

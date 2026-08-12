@@ -1,5 +1,6 @@
 import { google } from 'googleapis';
 import { getAppUrl } from '@/lib/app-url';
+export { getOperatorEmail } from '@/lib/google/operator-email';
 
 export const GOOGLE_SEARCH_CONSOLE_SCOPE =
   'https://www.googleapis.com/auth/webmasters.readonly';
@@ -12,10 +13,6 @@ export const GOOGLE_SCOPES = [
   GOOGLE_ANALYTICS_SCOPE,
   GOOGLE_ADS_SCOPE,
 ];
-
-export function getOperatorEmail() {
-  return process.env.OPERATOR_EMAIL ?? 'hello@nextgrid.digital';
-}
 
 export function getGoogleRedirectUri(request?: Request) {
   if (process.env.GOOGLE_REDIRECT_URI?.trim()) {

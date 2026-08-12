@@ -43,7 +43,7 @@ export function JoinedQueryBridges({ rows }: { rows: JoinedQueryBridge[] }) {
 
   return (
     <div className="overflow-x-auto rounded-[14px] bg-surface-3">
-      <table className="w-full min-w-[64rem] border-collapse text-left text-sm">
+      <table className="w-full min-w-[52rem] border-collapse text-left text-sm">
         <thead>
           <tr className="border-b border-surface-6 text-xs text-muted-foreground">
             <th className="px-4 py-3 font-medium">Query</th>
@@ -52,8 +52,6 @@ export function JoinedQueryBridges({ rows }: { rows: JoinedQueryBridge[] }) {
             <th className="px-4 py-3 text-right font-medium">Clicks</th>
             <th className="px-4 py-3 text-right font-medium">CTR</th>
             <th className="px-4 py-3 text-right font-medium">Pos.</th>
-            <th className="px-4 py-3 text-right font-medium">Sessions</th>
-            <th className="px-4 py-3 text-right font-medium">Conv.</th>
             <th className="px-4 py-3 font-medium">Tag</th>
           </tr>
         </thead>
@@ -88,12 +86,6 @@ export function JoinedQueryBridges({ rows }: { rows: JoinedQueryBridge[] }) {
               <td className="px-4 py-2.5 text-right tabular-nums">{pct(row.ctr)}</td>
               <td className="px-4 py-2.5 text-right tabular-nums">
                 {row.position > 0 ? row.position.toFixed(1) : '—'}
-              </td>
-              <td className="px-4 py-2.5 text-right tabular-nums">
-                {row.sessions != null ? row.sessions.toLocaleString() : '—'}
-              </td>
-              <td className="px-4 py-2.5 text-right tabular-nums">
-                {row.conversions != null ? row.conversions.toLocaleString() : '—'}
               </td>
               <td className="px-4 py-2.5">
                 <span

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { SoftAuditTabLink } from '@/components/audit/soft-audit-tab-link';
 import { cn } from '@/lib/utils';
 
 export type DashboardSourceChip = {
@@ -43,12 +43,13 @@ export function DashboardSourceStrip({
           )}
         </div>
       ))}
-      <Link
+      <SoftAuditTabLink
         href={connectHref}
+        suffix="/connect"
         className="text-xs font-medium text-zinc-600 underline-offset-2 hover:text-zinc-950 hover:underline"
       >
         Setup
-      </Link>
+      </SoftAuditTabLink>
     </div>
   );
 }

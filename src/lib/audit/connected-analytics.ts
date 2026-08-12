@@ -30,6 +30,8 @@ export type AnalyticsKpiTile = {
   label: string;
   value: string;
   hint?: string;
+  /** Idle hint uses teal accent (e.g. GSC / positive deltas). */
+  hintAccent?: boolean;
   /** Hide tile entirely (e.g. revenue when unavailable). */
   hidden?: boolean;
   emphasize?: boolean;
@@ -159,6 +161,7 @@ export function buildAnalyticsKpiTiles(connected: ConnectedAuditMetrics | null):
       label: 'Engaged',
       value: fmt(o.engagedSessions),
       hint: o.sessions > 0 ? shareOf(o.engagedSessions, o.sessions) : undefined,
+      hintAccent: o.sessions > 0,
     },
     {
       id: 'bounce',
@@ -197,6 +200,9 @@ export function buildAnalyticsKpiTiles(connected: ConnectedAuditMetrics | null):
           : connected?.gscConnected
             ? 'GSC'
             : 'No GSC',
+      hintAccent: Boolean(
+        (impressions > 0 && ctr > 0) || connected?.gscConnected,
+      ),
     });
   }
 

@@ -1,24 +1,36 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
 import {
   useAuditTabCache,
   type AuditPrimaryTabSuffix,
 } from '@/components/audit/audit-tab-cache';
 import { RerunFreeAuditButton } from '@/components/audit/rerun-free-audit-button';
 import { RerunFullAuditButton } from '@/components/audit/rerun-full-audit-button';
+import { Tabs, TabsList, TabsTrigger } from '@/components/motion/tabs';
 import { cn } from '@/lib/utils';
 
-const PRIMARY_TABS: { label: string; suffix: AuditPrimaryTabSuffix }[] = [
-  { label: 'Dashboard', suffix: '/workflow' },
-  { label: 'Brief', suffix: '/brief' },
-  { label: 'Work', suffix: '/work' },
-  { label: 'Leads', suffix: '/leads' },
-  { label: 'Monthly', suffix: '/monthly' },
-  { label: 'Setup', suffix: '/connect' },
+const PRIMARY_TABS: {
+  id: string;
+  label: string;
+  suffix: AuditPrimaryTabSuffix;
+}[] = [
+  { id: 'workflow', label: 'Dashboard', suffix: '/workflow' },
+  { id: 'brief', label: 'Brief', suffix: '/brief' },
+  { id: 'work', label: 'Work', suffix: '/work' },
+  { id: 'leads', label: 'Leads', suffix: '/leads' },
+  { id: 'monthly', label: 'Monthly', suffix: '/monthly' },
+  { id: 'connect', label: 'Setup', suffix: '/connect' },
 ];
+
+function suffixToId(suffix: AuditPrimaryTabSuffix): string {
+  return suffix.slice(1);
+}
+
+function idToSuffix(id: string): AuditPrimaryTabSuffix | null {
+  const match = PRIMARY_TABS.find((tab) => tab.id === id);
+  return match?.suffix ?? null;
+}
 
 export type WorkspaceConnectionStatus = {
   gscConnected: boolean;
@@ -54,7 +66,7 @@ function formatLastAuditLabel(iso: string | null | undefined) {
 }
 
 export function AuditWorkspaceTabs({
-  workspaceId,
+  workspaceId: _workspaceId,
   projectId,
   domain,
   websiteUrl,
@@ -70,11 +82,9 @@ export function AuditWorkspaceTabs({
   lastAuditAt?: string | null;
   navigationDisabled?: boolean;
 }) {
-  const pathname = usePathname();
-  const router = useRouter();
   const tabCache = useAuditTabCache();
-  const base = `/audit/${workspaceId}`;
   const [lastAuditLabel, setLastAuditLabel] = useState(() => formatLastAuditLabel(lastAuditAt));
+  const activeId = suffixToId(tabCache?.activeSuffix ?? '/workflow');
 
   useEffect(() => {
     setLastAuditLabel(formatLastAuditLabel(lastAuditAt));
@@ -85,73 +95,53 @@ export function AuditWorkspaceTabs({
     return () => window.clearInterval(timer);
   }, [lastAuditAt]);
 
-  if (pathname.includes('/upgrade')) return null;
-
-  function isActive(suffix: AuditPrimaryTabSuffix) {
-    if (tabCache?.activeSuffix !== undefined && tabCache.activeSuffix !== null) {
-      return tabCache.activeSuffix === suffix;
-    }
-    if (suffix === '/workflow') {
-      return (
-        pathname === base ||
-        pathname === `${base}/` ||
-        pathname === `${base}/workflow` ||
-        pathname.startsWith(`${base}/workflow/`)
-      );
-    }
-    return pathname === `${base}${suffix}` || pathname.startsWith(`${base}${suffix}/`);
-  }
-
   return (
     <div className="mb-6 flex flex-col gap-3 pb-4">
       {domain ? (
-        <p className="text-xs font-medium tracking-[0.14em] text-zinc-400 uppercase">{domain}</p>
+        <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
+          {domain}
+        </p>
       ) : null}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <nav
-          aria-label="Audit workspace"
-          aria-disabled={navigationDisabled}
-          className={cn('flex max-w-full flex-wrap gap-1 rounded-xl bg-zinc-50 p-1',
-            navigationDisabled && 'pointer-events-none opacity-50'
-          )}
+        <Tabs
+          variant="pill"
+          value={activeId}
+          onValueChange={(id) => {
+            if (navigationDisabled || !tabCache) return;
+            const suffix = idToSuffix(id);
+            if (!suffix) return;
+            tabCache.setTab(suffix);
+          }}
         >
-          {PRIMARY_TABS.map((tab) => {
-            const href = `${base}${tab.suffix}`;
-            const active = isActive(tab.suffix);
-            const cached = tabCache?.isCached(tab.suffix) ?? false;
-            return (
-              <Link
-                key={tab.label}
-                href={href}
-                prefetch={!navigationDisabled}
-                tabIndex={navigationDisabled ? -1 : undefined}
-                onMouseEnter={() => {
-                  if (navigationDisabled) return;
-                  router.prefetch(href);
-                }}
-                onClick={(event) => {
-                  if (navigationDisabled) {
-                    event.preventDefault();
-                    return;
-                  }
-                  if (!tabCache || !cached) return;
-                  event.preventDefault();
-                  tabCache.activateTab(tab.suffix);
-                }}
-                className={cn('rounded-lg px-3 py-1.5 text-sm font-medium whitespace-nowrap transition',
-                  active
-                    ? 'bg-zinc-950 text-white shadow-sm'
-                    : 'text-zinc-600 hover:bg-white hover:text-zinc-950'
+          <TabsList
+            aria-label="Audit workspace"
+            className={cn(
+              'max-w-full flex-wrap rounded-xl bg-muted',
+              navigationDisabled && 'pointer-events-none opacity-50'
+            )}
+          >
+            {PRIMARY_TABS.map((tab) => (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                disabled={navigationDisabled}
+                indicatorClassName="bg-foreground"
+                className={cn(
+                  activeId === tab.id
+                    ? 'text-background'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 {tab.label}
-              </Link>
-            );
-          })}
-        </nav>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
 
         <div className="flex max-w-full flex-wrap items-center gap-2 lg:justify-end print:hidden">
-          <p className="text-xs font-medium whitespace-nowrap text-zinc-500">{lastAuditLabel}</p>
+          <p className="text-xs font-medium whitespace-nowrap text-muted-foreground">
+            {lastAuditLabel}
+          </p>
           {connection.googleConnected ? (
             <RerunFullAuditButton projectId={projectId} />
           ) : (

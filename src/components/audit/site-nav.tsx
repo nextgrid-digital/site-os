@@ -33,12 +33,12 @@ export function SiteNav({
   const menuInitials = (userInitials || 'SO').slice(0, 2).toUpperCase();
 
   return (
-    <header className="sticky top-0 z-40 /80 bg-[#F3F3F3]">
+    <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm">
       {/* 3 equal columns so center links stay optically centered despite asymmetric sides */}
       <div className={`${SITE_CONTENT_CLASS} grid h-14 grid-cols-[1fr_auto_1fr] items-center gap-4`}>
         <Link
           href="/"
-          className="justify-self-start flex shrink-0 items-center gap-2 font-semibold tracking-tight text-zinc-950"
+          className="justify-self-start flex shrink-0 items-center gap-2 font-semibold tracking-tight text-foreground"
           aria-label="Site-OS home"
         >
           <svg
@@ -66,7 +66,7 @@ export function SiteNav({
               <Link
                 key={link.href}
                 href={link.href}
-                className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950"
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
               >
                 {link.label}
               </Link>
@@ -81,7 +81,7 @@ export function SiteNav({
           {shouldShowSignIn ? (
             <Link
               href="/login?next=/app"
-              className="rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50"
+              className="rounded-lg bg-card px-3 py-1.5 text-sm font-medium text-card-foreground shadow-sm transition hover:bg-muted"
             >
               Sign in
             </Link>

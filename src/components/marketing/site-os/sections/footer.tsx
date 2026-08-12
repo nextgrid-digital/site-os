@@ -3,6 +3,7 @@ import Icon11 from "../svgs/svg-icon11";
 import Illustration6 from "../svgs/svg-illustration6";
 import ListRow11 from "../components/list-row11";
 import Icon12 from "../svgs/svg-icon12";
+import { ThemeModeToggle } from "@/components/theme-mode-toggle";
 import { ListRow11_cids, ListRow11_cids2, ListRow11_cids3, ListRow11_cids4, ListRow11_cids5, ListRow11_cids6, ListRow11_cids7, ListRow11_cids8, ListRow11_cids9, ListRow11_cids10, ListRow11_cids11 } from "../_cids";
 import { ListRow11_styles, ListRow11_styles2, ListRow11_styles3, ListRow11_styles4, ListRow11_styles5, ListRow11_styles6, ListRow11_styles7, ListRow11_styles8, ListRow11_styles9, ListRow11_styles10, ListRow11_styles11 } from "../_styles";
 import { listRow11Data as listRow11DataContent, listRow11Data2 as listRow11Data2Content, listRow11Data3 as listRow11Data3Content, listRow11Data4 as listRow11Data4Content, listRow11Data5 as listRow11Data5Content, listRow11Data6 as listRow11Data6Content, listRow11Data7 as listRow11Data7Content, listRow11Data8 as listRow11Data8Content, listRow11Data9 as listRow11Data9Content, listRow11Data10 as listRow11Data10Content, listRow11Data11 as listRow11Data11Content } from "../content";
@@ -207,9 +208,12 @@ export default function Footer({ listRow11Data = listRow11DataContent, listRow11
                 Made in the Åland Islands
               </span>
             </div>
-            <p className="block" data-cid="n2603">
-              © 2026 Site-OS. All rights reserved.
-            </p>
+            <div className="flex flex-wrap items-center gap-3 normal-case tracking-normal">
+              <ThemeModeToggle />
+              <p className="block uppercase tracking-wider" data-cid="n2603">
+                © 2026 Site-OS. All rights reserved.
+              </p>
+            </div>
           </div>
         </div>
       </div>

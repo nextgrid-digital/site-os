@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { SITE_CONTENT_CLASS, SiteNav } from '@/components/audit/site-nav';
+import { ThemeModeToggle } from '@/components/theme-mode-toggle';
 
 interface AppShellProps {
   children: ReactNode;
@@ -21,7 +22,7 @@ export function AppShell({
 }: AppShellProps) {
   return (
     <div
-      className="min-h-dvh bg-[#F3F3F3] text-zinc-950"
+      className="flex min-h-dvh flex-col bg-background text-foreground"
       {...(!fullBleed ? { 'data-audit-app': '' } : {})}
     >
       <SiteNav
@@ -34,7 +35,17 @@ export function AppShell({
       {fullBleed ? (
         children
       ) : (
-        <main className={`${SITE_CONTENT_CLASS} py-6`}>{children}</main>
+        <>
+          <main className={`${SITE_CONTENT_CLASS} flex-1 py-6`}>{children}</main>
+          <footer className="mt-auto border-t border-border py-4">
+            <div
+              className={`${SITE_CONTENT_CLASS} flex flex-wrap items-center justify-between gap-3`}
+            >
+              <p className="text-xs text-muted-foreground">Site-OS</p>
+              <ThemeModeToggle />
+            </div>
+          </footer>
+        </>
       )}
     </div>
   );
