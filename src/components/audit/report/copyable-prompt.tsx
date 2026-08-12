@@ -17,7 +17,7 @@ export function CopyablePrompt({ prompt }: { prompt: DisplayAgentPrompt }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
+    <div className="overflow-hidden rounded-xl bg-white">
       <div className="flex items-start justify-between gap-3 border-b border-zinc-100 px-4 py-3">
         <div className="min-w-0">
           <p className="truncate text-sm font-medium text-zinc-900">{prompt.title}</p>
@@ -28,7 +28,7 @@ export function CopyablePrompt({ prompt }: { prompt: DisplayAgentPrompt }) {
         <button
           type="button"
           onClick={handleCopy}
-          className="shrink-0 rounded-lg border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-xs font-medium text-zinc-700 transition hover:bg-zinc-100"
+          className="shrink-0 rounded-lg bg-zinc-50 px-2.5 py-1 text-xs font-medium text-zinc-700 transition hover:bg-zinc-100"
         >
           {copied ? 'Copied' : 'Copy'}
         </button>

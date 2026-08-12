@@ -12,16 +12,29 @@ import {
 } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
-export type AuditPrimaryTabSuffix = '' | '/journey' | '/connect' | '/intake';
+export type AuditPrimaryTabSuffix =
+  | '/workflow'
+  | '/brief'
+  | '/work'
+  | '/leads'
+  | '/monthly'
+  | '/connect';
 
-/** Heavy report trees — remount on revisit instead of retaining DOM. */
-const EPHEMERAL_TAB_SUFFIXES = new Set<AuditPrimaryTabSuffix>(['', '/journey']);
+/** Heavy trees — remount on revisit instead of retaining DOM. */
+const EPHEMERAL_TAB_SUFFIXES = new Set<AuditPrimaryTabSuffix>([
+  '/brief',
+  '/work',
+  '/leads',
+  '/monthly',
+]);
 
 export const AUDIT_PRIMARY_TAB_SUFFIXES: readonly AuditPrimaryTabSuffix[] = [
-  '',
-  '/journey',
+  '/workflow',
+  '/brief',
+  '/work',
+  '/leads',
+  '/monthly',
   '/connect',
-  '/intake',
 ];
 
 type AuditTabCacheContextValue = {
@@ -53,9 +66,9 @@ export function parseAuditPrimaryTabSuffix(
   pathname: string,
   base: string
 ): AuditPrimaryTabSuffix | null {
-  if (pathname === base || pathname === `${base}/`) return '';
+  // Root redirects to /workflow; treat as workflow while resolving.
+  if (pathname === base || pathname === `${base}/`) return '/workflow';
   for (const suffix of AUDIT_PRIMARY_TAB_SUFFIXES) {
-    if (suffix === '') continue;
     if (pathname === `${base}${suffix}` || pathname.startsWith(`${base}${suffix}/`)) {
       return suffix;
     }
@@ -188,7 +201,6 @@ export function AuditTabPanels({ children }: { children: ReactNode }) {
     }
   }
 
-  // Drop heavy Evidence/Journey trees when leaving so charts do not stay mounted.
   for (const suffix of EPHEMERAL_TAB_SUFFIXES) {
     if (suffix !== activeSuffix && store.cache.has(suffix)) {
       store.cache.delete(suffix);
@@ -210,7 +222,7 @@ export function AuditTabPanels({ children }: { children: ReactNode }) {
         const active = suffix === activeSuffix;
         return (
           <div
-            key={suffix || 'evidence'}
+            key={suffix}
             hidden={!active}
             {...(!active ? { inert: true } : {})}
           >

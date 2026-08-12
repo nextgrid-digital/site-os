@@ -30,9 +30,9 @@ export function DashboardCard({
 }: DashboardCardProps) {
   return (
     <section
-      className={`flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm ${className}`}
+      className={`flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ${className}`}
     >
-      <div className="flex flex-col gap-3 border-b border-zinc-100 px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-1">
           <h2 className="text-sm font-semibold text-zinc-900">{title}</h2>
           {description ? <p className="text-xs leading-5 text-zinc-500">{description}</p> : null}
@@ -40,7 +40,7 @@ export function DashboardCard({
         {actions}
       </div>
       {tabs && tabs.length > 0 ? (
-        <div className="flex gap-1 overflow-x-auto border-b border-zinc-100 px-3 pt-2">
+        <div className="flex gap-1 overflow-x-auto px-3 pt-2">
           {tabs.map((tab) => {
             const active = tab.id === activeTab;
             return (
@@ -53,7 +53,7 @@ export function DashboardCard({
                   active
                     ? 'bg-zinc-100 text-zinc-950'
                     : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800',
-                ].join(' ')}
+                ].join('')}
               >
                 {tab.label}
               </button>

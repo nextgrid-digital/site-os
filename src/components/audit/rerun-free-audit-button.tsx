@@ -52,7 +52,7 @@ export function RerunFreeAuditButton({ websiteUrl, disabled }: RerunFreeAuditBut
         type="button"
         onClick={handleRerun}
         disabled={loading || disabled}
-        className="inline-flex items-center justify-center rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-900 shadow-sm transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex items-center justify-center rounded-lg bg-white px-3 py-2 text-sm font-medium text-zinc-900 shadow-sm transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading ? 'Starting…' : 'Re-run audit'}
       </button>

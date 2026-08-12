@@ -47,7 +47,7 @@ export default async function AuditGraphPage({
           </p>
         </AuditWorkspaceCard>
       ) : (
-        <div className="typeset typeset-docs mx-auto max-w-[90ch] space-y-10 rounded-[14px] border border-zinc-200 bg-white p-6 shadow-sm">
+        <div className="typeset typeset-docs mx-auto max-w-[90ch] space-y-10 rounded-[14px] bg-white p-6 shadow-sm">
           <GraphExecutiveMemo memo={graph.executiveMemo} />
           <CommercialGraphSection graph={graph} />
           <BuyerPathMap paths={graph.topPaths} />

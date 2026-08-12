@@ -17,7 +17,7 @@ export function BuyerPathMap({ paths }: { paths: CommercialGraphBriefSlice['topP
             path.offerLabel ?? '—',
             path.proofLabel ?? '—',
             path.ctaLabel ?? '—',
-            path.missingSteps.length > 0 ? path.missingSteps.join(', ') : 'none',
+            path.missingSteps.length > 0 ? path.missingSteps.join(',') : 'none',
           ])}
         />
       </SectionFrame.Visual>

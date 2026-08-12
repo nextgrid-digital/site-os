@@ -81,6 +81,12 @@ export type FunnelAssessment = {
   verdict: string;
   emptyReason: string | null;
   connectHint: boolean;
+  /** Property-level Visit → Engaged → Convert (from ga4Overview / metrics). */
+  goalTotals: {
+    sessions: number;
+    engaged: number;
+    conversions: number;
+  };
   summaryCards: FunnelSummaryCard[];
   whatIsHappening: string;
   whereItLeaks: string;
@@ -531,6 +537,7 @@ function emptyAssessment(reason: string, connectHint: boolean): FunnelAssessment
     verdict: 'Not enough connected data yet to judge the funnel.',
     emptyReason: reason,
     connectHint,
+    goalTotals: { sessions: 0, engaged: 0, conversions: 0 },
     summaryCards: [],
     whatIsHappening: reason,
     whereItLeaks: 'Connect Google Analytics and Search Console, then re-run a full audit.',
@@ -723,6 +730,7 @@ export function buildFunnelAssessment(
     verdict,
     emptyReason: null,
     connectHint: false,
+    goalTotals: { sessions, engaged, conversions },
     summaryCards,
     whatIsHappening,
     whereItLeaks,

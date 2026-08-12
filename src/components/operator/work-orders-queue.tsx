@@ -138,8 +138,7 @@ export function WorkOrdersQueue({
                 <button
                   type="button"
                   onClick={() => setSelectedId(key)}
-                  className={cn(
-                    'flex w-full flex-col gap-1 px-3 py-3 text-left transition-colors',
+                  className={cn('flex w-full flex-col gap-1 px-3 py-3 text-left transition-colors',
                     active ? 'bg-white/10' : 'hover:bg-white/5'
                   )}
                 >

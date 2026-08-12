@@ -85,8 +85,8 @@ export function SiteCard({
         onMouseEnter={() => {
           router.prefetch(href);
         }}
-        className={`block rounded-2xl border bg-white p-4 shadow-sm transition hover:border-zinc-300 hover:shadow-md ${
-          highlighted ? 'border-zinc-900 ring-1 ring-zinc-900' : 'border-zinc-200'
+        className={`block rounded-2xl bg-white p-4 shadow-sm transition hover:shadow-md ${
+          highlighted ? 'ring-1 ring-zinc-900' : ''
         }`}
       >
         <div className="mb-4 flex items-start gap-3 pr-8">
@@ -117,7 +117,7 @@ export function SiteCard({
           setError(null);
           setConfirmOpen(true);
         }}
-        className="absolute top-3 right-3 inline-flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 shadow-sm transition hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900"
+        className="absolute top-3 right-3 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white text-zinc-500 shadow-sm transition hover:bg-zinc-50 hover:text-zinc-900"
       >
         <Trash2 className="size-3.5" />
       </button>

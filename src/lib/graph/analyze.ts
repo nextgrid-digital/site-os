@@ -14,6 +14,7 @@ import type {
   DraftGraphRelationship,
 } from '@/lib/graph/types';
 import { buildWorkOrders } from '@/lib/graph/work-orders';
+import { matchFindingIdForWorkOrder } from '@/lib/workflow/work-items';
 
 function pushMissingEdge(
   relationships: DraftGraphRelationship[],
@@ -79,10 +80,10 @@ function buildGaps(input: {
       pushMissingEdge(relationships, icp.localId, missingPage.localId, { rule: 'icp_needs_page' });
     }
     addGap({
-      gap: `ICP “${icp.label}” has no dedicated page`,
+      gap: `No page for: ${icp.label}`,
       gapType: 'icp_without_page',
-      impact: 'Buyers in this segment cannot self-select into a relevant path',
-      fix: `Create an ICP page for ${icp.label} linked from homepage and offer pages`,
+      impact: 'This audience has no clear place to land on the site',
+      fix: 'Add a page and link it from home and offers',
       confidence: icp.confidence,
       entityLocalIds: [icp.localId],
       revenueImpact: 80,
@@ -102,10 +103,10 @@ function buildGaps(input: {
     });
     if (!hasProof) {
       addGap({
-        gap: `Offer “${offer.label}” lacks supporting proof`,
+        gap: `Offer needs proof: ${offer.label}`,
         gapType: 'offer_without_proof',
-        impact: 'Trust gap slows conversion on the primary offer',
-        fix: `Attach case study, logo, or metric proof to ${offer.label}`,
+        impact: 'Harder to trust and convert without proof',
+        fix: 'Add a case study, logo, or result',
         confidence: 70,
         entityLocalIds: [offer.localId],
         revenueImpact: 85,
@@ -120,10 +121,10 @@ function buildGaps(input: {
     const hasUseCase = entities.some((e) => e.type === 'use_case' && e.status !== 'missing');
     if (!hasUseCase) {
       addGap({
-        gap: `Offer “${offer.label}” is not connected to a use case`,
+        gap: `Offer needs a use case: ${offer.label}`,
         gapType: 'offer_without_use_case',
-        impact: 'Offer lacks situational framing for buyers',
-        fix: `Define at least one use case that converts to ${offer.label}`,
+        impact: 'Buyers do not see when this offer applies',
+        fix: 'Write one clear use case for this offer',
         confidence: 65,
         entityLocalIds: [offer.localId],
         revenueImpact: 70,
@@ -137,10 +138,10 @@ function buildGaps(input: {
 
     if (!pageMentions(entities, offer.label)) {
       addGap({
-        gap: `Offer “${offer.label}” has no matching page`,
+        gap: `No page for offer: ${offer.label}`,
         gapType: 'offer_without_page',
-        impact: 'Search and sales cannot land on a clear offer URL',
-        fix: `Create or rename a page that names ${offer.label}`,
+        impact: 'No clear URL for this offer',
+        fix: 'Create a page that names this offer',
         confidence: 70,
         entityLocalIds: [offer.localId],
         revenueImpact: 78,
@@ -156,10 +157,10 @@ function buildGaps(input: {
   for (const useCase of entities.filter((e) => e.type === 'use_case' && e.status !== 'missing')) {
     if (pageMentions(entities, useCase.label)) continue;
     addGap({
-      gap: `Use case “${useCase.label}” has no page`,
+      gap: `No page for use case: ${useCase.label}`,
       gapType: 'use_case_without_page',
-      impact: 'Buyer moment is described but not routable',
-      fix: `Publish a use-case page for ${useCase.label}`,
+      impact: 'This buyer moment has no page to send people to',
+      fix: 'Publish a page for this use case',
       confidence: 60,
       entityLocalIds: [useCase.localId],
       revenueImpact: 72,
@@ -180,10 +181,10 @@ function buildGaps(input: {
     });
     if (proven) continue;
     addGap({
-      gap: `Claim “${claim.label.slice(0, 80)}” has no proof`,
+      gap: `Claim needs proof: ${claim.label.slice(0, 80)}`,
       gapType: 'unproven_claim',
-      impact: 'Unproven claims weaken trust and AEO clarity',
-      fix: 'Add proof adjacent to the claim or soften the claim',
+      impact: 'Unproven claims weaken trust',
+      fix: 'Add proof next to the claim, or soften the claim',
       confidence: 55,
       entityLocalIds: [claim.localId],
       revenueImpact: 60,
@@ -205,10 +206,10 @@ function buildGaps(input: {
       Number(page.metadata.gaSessions ?? 0) > 0;
     if (isKey && !hasCta) {
       addGap({
-        gap: `Page ${page.label} has no detected CTA`,
+        gap: `No clear next step on: ${page.label}`,
         gapType: 'missing_cta',
-        impact: 'Traffic arrives without a clear next step',
-        fix: `Add a primary CTA on ${page.label} aligned to buyer intent`,
+        impact: 'Visitors arrive but do not know what to do next',
+        fix: 'Add one clear call to action on this page',
         confidence: 60,
         entityLocalIds: [page.localId],
         revenueImpact: 75,
@@ -228,10 +229,10 @@ function buildGaps(input: {
     const impressions = Number(query.metadata.impressions ?? 0);
     if (answered || impressions < 50) continue;
     addGap({
-      gap: `Query “${query.label}” has no matching page`,
+      gap: `No page for search: ${query.label}`,
       gapType: 'query_without_page',
-      impact: `High-impression demand (${impressions}) without a clear answer URL`,
-      fix: `Create or map a page/FAQ that answers “${query.label}”`,
+      impact: `People search this (${impressions} impressions) but have no clear page`,
+      fix: 'Create a page that answers this search',
       confidence: 80,
       entityLocalIds: [query.localId],
       revenueImpact: Math.min(95, 50 + Math.log10(impressions + 1) * 12),
@@ -381,6 +382,7 @@ export function analyzeCommercialGraph(input: {
   siteOnly: SiteOnlyAnalysis | null;
   queries: Array<{ query: string; impressions: number; clicks: number; page_path: string | null }>;
   ga4Landings: Array<{ path: string; sessions: number }>;
+  findings?: Array<{ id: string; title: string; page_path: string | null }>;
 }): CommercialGraphArtifact {
   const extracted = extractCommercialGraph(input);
   const entities = extracted.entities;
@@ -427,7 +429,10 @@ export function analyzeCommercialGraph(input: {
     websiteUrl: input.websiteUrl,
     gaps,
     opportunities,
-  });
+  }).map((order) => ({
+    ...order,
+    findingId: matchFindingIdForWorkOrder(order.title, input.findings ?? []),
+  }));
 
   const relationshipHealth = buildRelationshipHealth(entities, relationships, gaps);
 

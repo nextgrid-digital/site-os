@@ -270,13 +270,18 @@ export function buildBrowsersBarRows(connected: ConnectedAuditMetrics | null) {
 
 export function buildEventsBarRows(connected: ConnectedAuditMetrics | null): AnalyticsBarRow[] {
   return (connected?.ga4Events ?? [])
-    .filter((e) => e.sessions > 0 || e.conversions > 0)
-    .toSorted((a, b) => b.conversions - a.conversions || b.sessions - a.sessions)
-    .slice(0, 5)
+    .filter((e) => e.eventCount > 0 || e.sessions > 0 || e.conversions > 0)
+    .toSorted(
+      (a, b) =>
+        Number(b.isKeyEvent) - Number(a.isKeyEvent) ||
+        b.eventCount - a.eventCount ||
+        b.conversions - a.conversions
+    )
+    .slice(0, 12)
     .map((e) => ({
-      label: e.label,
-      value: e.conversions > 0 ? e.conversions : e.sessions,
-      display: fmt(e.conversions > 0 ? e.conversions : e.sessions),
+      label: e.isKeyEvent ? `${e.eventName} · key` : e.eventName,
+      value: e.eventCount > 0 ? e.eventCount : e.conversions > 0 ? e.conversions : e.sessions,
+      display: fmt(e.eventCount > 0 ? e.eventCount : e.conversions > 0 ? e.conversions : e.sessions),
       kind: 'event' as const,
     }));
 }
@@ -334,8 +339,8 @@ export function buildDetailTables(connected: ConnectedAuditMetrics | null) {
     pages: toTableRows(pages, totalSessions, 'page'),
     events: toTableRows(
       (connected?.ga4Events ?? []).map((r) => ({
-        label: r.label,
-        sessions: r.sessions,
+        label: r.isKeyEvent ? `${r.eventName} · key` : r.eventName,
+        sessions: r.eventCount > 0 ? r.eventCount : r.sessions,
         conversions: r.conversions,
       })),
       totalSessions,

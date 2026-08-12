@@ -34,8 +34,7 @@ function TocGroup({
             <li key={item.id}>
               <a
                 href={`#${item.id}`}
-                className={cn(
-                  '-ml-px block border-l-2 py-1.5 pl-3 text-sm transition-colors',
+                className={cn('-ml-px block border-l-2 py-1.5 pl-3 text-sm transition-colors',
                   active
                     ? 'border-white text-white'
                     : locked

@@ -36,8 +36,7 @@ function SectionFrame({
 function Visual({ children, muted = false }: { children: ReactNode; muted?: boolean }) {
   return (
     <div
-      className={cn(
-        'not-typeset rounded-xl border border-white/8 bg-white/[0.03] p-4',
+      className={cn('not-typeset rounded-xl border border-white/8 bg-white/[0.03] p-4',
         muted && 'opacity-45'
       )}
     >

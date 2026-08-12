@@ -11,10 +11,14 @@ export function ga4SyncResult(
     connectorId: 'ga4',
     outcome: hasData ? 'ok' : 'partial',
     hasData,
-    message: hasData ? `GA4 sessions: ${sessions}` : 'GA4 connected but no sessions in window.',
+    message: hasData
+      ? `GA4: ${sessions} landing sessions · ${analytics.events.length} events · ${analytics.keyEvents.length} key events`
+      : 'GA4 connected but no sessions in window.',
     payload: {
       landingPageCount: landingPages.length,
       sessions,
+      eventCount: analytics.events.length,
+      keyEventCount: analytics.keyEvents.length,
       overview: analytics.overview,
     },
   };

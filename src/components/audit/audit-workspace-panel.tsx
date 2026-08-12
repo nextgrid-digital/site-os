@@ -37,7 +37,7 @@ export function AuditWorkspaceCard({
 }) {
   return (
     <div
-      className={`rounded-[14px] border border-zinc-200 bg-white p-5 shadow-sm ${className}`.trim()}
+      className={`rounded-[14px] bg-white p-5 shadow-sm ${className}`.trim()}
     >
       {children}
     </div>

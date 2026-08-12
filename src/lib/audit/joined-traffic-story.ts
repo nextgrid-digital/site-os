@@ -15,6 +15,18 @@ export type JoinedStatus = {
   emptyReason: string | null;
 };
 
+/** Short inferred problem on the query→click→landing→engagement→conversion chain. */
+export type JoinedProblemTag =
+  | 'visibility'
+  | 'click'
+  | 'landing'
+  | 'engagement'
+  | 'conversion'
+  | 'keep'
+  | 'discoverability'
+  | 'deprioritize'
+  | 'ok';
+
 export type JoinedPageStoryRow = {
   path: string;
   searchClicks: number;
@@ -22,8 +34,10 @@ export type JoinedPageStoryRow = {
   ctr: number;
   position: number;
   sessions: number;
+  engagedSessions: number;
   conversions: number;
   note: string;
+  problemTag: JoinedProblemTag;
   sources: JoinedSourceTag[];
 };
 
@@ -37,6 +51,7 @@ export type JoinedQueryBridge = {
   sessions: number | null;
   conversions: number | null;
   note: string;
+  problemTag: JoinedProblemTag;
   sources: JoinedSourceTag[];
 };
 
@@ -73,70 +88,78 @@ function normalizePath(path: string | null | undefined) {
   return trimmed.endsWith('/') ? trimmed.slice(0, -1) || '/' : trimmed;
 }
 
-function pageNote(p: {
+function pageProblem(p: {
   impressions: number;
   clicks: number;
   ctr: number;
   sessions: number;
+  engagedSessions: number;
   conversions: number;
-}): string {
+}): { note: string; problemTag: JoinedProblemTag } {
   const hasSearch = p.impressions > 0 || p.clicks > 0;
   const hasTraffic = p.sessions > 0;
   const hasOutcome = p.conversions > 0;
+  const engagementRate = p.sessions > 0 ? p.engagedSessions / p.sessions : 0;
 
   if (p.impressions >= 50 && p.ctr > 0 && p.ctr < 0.02) {
-    return 'Visible in search, few clicks';
+    return { note: 'Demand but weak clicks', problemTag: 'click' };
   }
   if (p.clicks >= 5 && p.sessions === 0) {
-    return 'Clicks don’t become visits (tracking or landing mismatch)';
+    return { note: 'Clicks not becoming visits', problemTag: 'landing' };
   }
   if (p.clicks >= 10 && p.sessions > 0 && p.sessions < p.clicks * 0.4) {
-    return 'Clicks don’t become visits (tracking or landing mismatch)';
+    return { note: 'Clicks not becoming visits', problemTag: 'landing' };
+  }
+  if (hasTraffic && p.sessions >= 10 && engagementRate < 0.35 && !hasOutcome) {
+    return { note: 'Clicks but weak engagement', problemTag: 'engagement' };
   }
   if (hasTraffic && !hasOutcome && p.sessions >= 10) {
-    return 'Traffic without measured outcome';
+    return { note: 'Traffic but no conversion', problemTag: 'conversion' };
   }
   if (hasOutcome && (!hasSearch || p.clicks < 3) && p.conversions >= 1) {
-    return 'Outcomes mostly not from organic search';
+    return { note: 'Works once arrived; weak search demand', problemTag: 'discoverability' };
   }
   if (hasSearch && p.ctr >= 0.03 && hasOutcome) {
-    return 'Search demand lands and converts';
+    return { note: 'Intent and page match', problemTag: 'keep' };
   }
   if (hasSearch && hasTraffic && hasOutcome) {
-    return 'Search demand lands and converts';
+    return { note: 'Intent and page match', problemTag: 'keep' };
   }
   if (hasSearch && hasTraffic) {
-    return 'Search traffic arrives; outcome not measured here';
+    return { note: 'Arrives; outcome not measured', problemTag: 'ok' };
   }
   if (hasTraffic && !hasSearch) {
-    return 'Visits without Search Console demand on this path';
+    return { note: 'Traffic without search impressions', problemTag: 'discoverability' };
   }
   if (hasSearch && !hasTraffic) {
-    return 'Search demand recorded; no GA4 sessions on this path';
+    return { note: 'Visible in search; no GA4 sessions', problemTag: 'landing' };
   }
-  return 'Limited joined signal on this path';
+  if (!hasSearch && !hasTraffic) {
+    return { note: 'Low demand / low value', problemTag: 'deprioritize' };
+  }
+  return { note: 'Limited joined signal', problemTag: 'ok' };
 }
 
-function queryNote(
+function queryProblem(
   q: QueryMetric,
   page: { sessions: number; conversions: number } | null
-): string {
+): { note: string; problemTag: JoinedProblemTag } {
   if (q.impressions >= 50 && q.ctr < 0.02) {
-    return 'Query is visible but rarely clicked';
+    return { note: 'Demand but weak clicks', problemTag: 'click' };
   }
   if (q.clicks >= 5 && page && page.sessions === 0) {
-    return 'Clicks this query, but no sessions on the landing path';
+    return { note: 'Clicks without landing sessions', problemTag: 'landing' };
   }
   if (q.clicks >= 3 && page && page.conversions > 0) {
-    return 'Query demand reaches a converting page';
+    return { note: 'Query answered well', problemTag: 'keep' };
   }
   if (q.clicks >= 3 && page && page.sessions > 0 && page.conversions === 0) {
-    return 'Query brings visits without measured conversions';
+    return { note: 'Needs better page or CTA', problemTag: 'conversion' };
   }
   if (!q.page_path) {
-    return 'Search demand without a joined landing page';
+    return { note: 'Needs a matching page', problemTag: 'visibility' };
   }
-  return 'Search demand linked to a landing path';
+  return { note: 'Linked to a landing path', problemTag: 'ok' };
 }
 
 function biggestBreak(input: {
@@ -263,6 +286,14 @@ export function buildJoinedTrafficStory(
       const sources: JoinedSourceTag[] = [];
       if (p.gsc_clicks > 0 || p.gsc_impressions > 0) sources.push('GSC');
       if (p.ga_sessions > 0 || p.ga_conversions > 0) sources.push('GA4');
+      const inferred = pageProblem({
+        impressions: p.gsc_impressions,
+        clicks: p.gsc_clicks,
+        ctr: p.gsc_ctr,
+        sessions: p.ga_sessions,
+        engagedSessions: p.ga_engaged_sessions,
+        conversions: p.ga_conversions,
+      });
       return {
         path: p.path || '/',
         searchClicks: p.gsc_clicks,
@@ -270,14 +301,10 @@ export function buildJoinedTrafficStory(
         ctr: p.gsc_ctr,
         position: p.gsc_position,
         sessions: p.ga_sessions,
+        engagedSessions: p.ga_engaged_sessions,
         conversions: p.ga_conversions,
-        note: pageNote({
-          impressions: p.gsc_impressions,
-          clicks: p.gsc_clicks,
-          ctr: p.gsc_ctr,
-          sessions: p.ga_sessions,
-          conversions: p.ga_conversions,
-        }),
+        note: inferred.note,
+        problemTag: inferred.problemTag,
         sources,
       };
     });
@@ -291,6 +318,10 @@ export function buildJoinedTrafficStory(
       const page = path ? pageByPath.get(path) ?? null : null;
       const sources: JoinedSourceTag[] = ['GSC'];
       if (page && (page.ga_sessions > 0 || page.ga_conversions > 0)) sources.push('GA4');
+      const inferred = queryProblem(
+        q,
+        page ? { sessions: page.ga_sessions, conversions: page.ga_conversions } : null
+      );
       return {
         query: q.query,
         impressions: q.impressions,
@@ -300,10 +331,8 @@ export function buildJoinedTrafficStory(
         pagePath: q.page_path,
         sessions: page ? page.ga_sessions : null,
         conversions: page ? page.ga_conversions : null,
-        note: queryNote(
-          q,
-          page ? { sessions: page.ga_sessions, conversions: page.ga_conversions } : null
-        ),
+        note: inferred.note,
+        problemTag: inferred.problemTag,
         sources,
       };
     });

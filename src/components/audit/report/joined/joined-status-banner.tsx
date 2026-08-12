@@ -9,7 +9,7 @@ export function JoinedStatusBanner({
 }) {
   if (status.emptyReason) {
     return (
-      <div className="rounded-[14px] border border-dashed border-surface bg-surface-5 p-5">
+      <div className="rounded-[14px] bg-surface-5 p-5">
         <p className="text-sm font-medium">Search → visit → outcome</p>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">{status.emptyReason}</p>
         {connectHref ? (
@@ -25,7 +25,7 @@ export function JoinedStatusBanner({
   }
 
   return (
-    <div className="rounded-[14px] border border-solid border-surface bg-surface-3 p-5">
+    <div className="rounded-[14px] bg-surface-3 p-5">
       <div className="flex flex-wrap gap-2">
         {status.hasGsc ? (
           <span className="rounded-full bg-sky-50 px-2.5 py-0.5 text-xs font-medium text-sky-800">

@@ -20,20 +20,20 @@ export function ProjectStatusStrip({
   const connectDone = hasWebsite && (googleConnected || readyToAudit);
   const stages = [
     {
-      label: 'Connect',
-      href: `/audit/${projectId}/settings`,
+      label: 'Setup',
+      href: `/audit/${projectId}/connect`,
       done: connectDone,
       active: !readyToAudit,
     },
     {
-      label: 'Run',
-      href: `/audit/${projectId}`,
+      label: 'Dashboard',
+      href: `/audit/${projectId}/workflow`,
       done: hasBrief,
       active: readyToAudit && !hasBrief,
     },
     {
-      label: 'Fix Queue',
-      href: `/audit/${projectId}/work-orders`,
+      label: 'Work',
+      href: `/audit/${projectId}/work`,
       done: hasOpenWorkOrders === false && hasBrief,
       active: hasBrief,
     },
@@ -41,7 +41,7 @@ export function ProjectStatusStrip({
 
   return (
     <nav
-      aria-label="Project progress"
+      aria-label="Project workflow progress"
       className="flex flex-wrap items-center gap-2 rounded-xl border border-border/80 bg-card/70 p-2"
     >
       {stages.map((stage, index) => (
@@ -49,8 +49,7 @@ export function ProjectStatusStrip({
           {index > 0 ? <span className="hidden h-px w-6 bg-border sm:block" aria-hidden /> : null}
           <Link
             href={stage.href}
-            className={cn(
-              'inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition-colors',
+            className={cn('inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition-colors',
               stage.active && 'bg-primary/10 font-medium text-primary',
               stage.done && !stage.active && 'text-success',
               !stage.done && !stage.active && 'text-muted-foreground hover:bg-muted/60'

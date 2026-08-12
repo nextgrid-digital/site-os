@@ -24,8 +24,10 @@ export function AuditStatusPoller({ sessionId }: { sessionId: string }) {
         if (data.ready || data.analyzing === false) {
           if (!refreshedRef.current) {
             refreshedRef.current = true;
-            invalidateTab('');
-            invalidateTab('/journey');
+            invalidateTab('/workflow');
+            invalidateTab('/brief');
+            invalidateTab('/work');
+            invalidateTab('/monthly');
             router.refresh();
           }
           return;

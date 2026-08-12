@@ -3,7 +3,15 @@
 import { useCallback, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
-export function ReportPdfButton() {
+export function ReportPdfButton({
+  targetSelector = '.typeset.typeset-docs',
+  filename = 'audit-report.pdf',
+  backgroundColor = '#0a0a0b',
+}: {
+  targetSelector?: string;
+  filename?: string;
+  backgroundColor?: string;
+} = {}) {
   const [generating, setGenerating] = useState(false);
 
   const handleDownload = useCallback(async () => {
@@ -12,13 +20,13 @@ export function ReportPdfButton() {
       const { default: html2canvas } = await import('html2canvas-pro');
       const { jsPDF } = await import('jspdf');
 
-      const reportEl = document.querySelector('.typeset.typeset-docs') as HTMLElement | null;
+      const reportEl = document.querySelector(targetSelector) as HTMLElement | null;
       if (!reportEl) return;
 
       const canvas = await html2canvas(reportEl, {
         scale: 2,
         useCORS: true,
-        backgroundColor: '#0a0a0b',
+        backgroundColor,
         scrollX: 0,
         scrollY: -window.scrollY,
         logging: false,
@@ -48,11 +56,11 @@ export function ReportPdfButton() {
         heightLeft -= pageHeight;
       }
 
-      pdf.save('audit-report.pdf');
+      pdf.save(filename);
     } finally {
       setGenerating(false);
     }
-  }, []);
+  }, [backgroundColor, filename, targetSelector]);
 
   return (
     <Button

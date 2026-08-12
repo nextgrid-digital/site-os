@@ -49,6 +49,19 @@ export type Ga4DimensionRow = {
   conversions: number;
 };
 
+/** Full event inventory row (Data API eventName + eventCount). */
+export type Ga4EventRow = {
+  eventName: string;
+  eventCount: number;
+  sessions: number;
+  conversions: number;
+  isKeyEvent: boolean;
+};
+
+export type Ga4KeyEventConfig = {
+  eventName: string;
+};
+
 export type Ga4ConversionPeakCell = {
   dayOfWeek: number;
   hour: number;
@@ -67,7 +80,16 @@ export type Ga4AnalyticsBundle = {
   countries: Ga4DimensionRow[];
   devices: Ga4DimensionRow[];
   browsers: Ga4DimensionRow[];
-  events: Ga4DimensionRow[];
+  /** All meaningful events with counts (not just conversion totals). */
+  events: Ga4EventRow[];
+  /** Key events configured in the GA4 property (Admin API). */
+  keyEvents: Ga4KeyEventConfig[];
+  /** sessionDefaultChannelGroup breakdown. */
+  channelGroups: Ga4DimensionRow[];
+  /** sessionCampaignName breakdown. */
+  campaigns: Ga4DimensionRow[];
+  /** Direct sessionSourceMedium rollup (not landing-truncated). */
+  sourceMedium: Ga4ChannelRow[];
   conversionPeak: Ga4ConversionPeakCell[];
   funnelSteps: Ga4FunnelStep[];
 };
@@ -87,9 +109,21 @@ export function normalizeTrafficChannel(sourceMedium: string) {
   const text = `${source} ${medium}`.trim();
 
   if (medium === '(none)' || medium === 'direct') return 'Direct';
-  if (medium.includes('organic') || source === 'google' || source === 'bing') return 'Organic Search';
-  if (medium.includes('cpc') || medium.includes('ppc') || medium.includes('paid') || medium.includes('display')) {
+
+  // Paid must win over source===google|bing, otherwise google/cpc becomes Organic.
+  if (
+    medium.includes('cpc') ||
+    medium.includes('ppc') ||
+    medium.includes('paid') ||
+    medium.includes('display') ||
+    medium.includes('cpv') ||
+    medium.includes('cpm')
+  ) {
     return 'Paid Search';
+  }
+
+  if (medium.includes('organic') || source === 'google' || source === 'bing') {
+    return 'Organic Search';
   }
   if (medium.includes('email')) return 'Email';
   if (
@@ -144,30 +178,44 @@ export async function fetchGa4LandingPages(
   endDate: string
 ): Promise<Ga4LandingPageRow[]> {
   const analyticsData = google.analyticsdata({ version: 'v1beta', auth });
-  const response = await analyticsData.properties.runReport({
-    property: `properties/${propertyId}`,
-    requestBody: {
-      dateRanges: [{ startDate, endDate }],
-      dimensions: [
-        { name: 'landingPage' },
-        { name: 'sessionSourceMedium' },
-      ],
-      metrics: [
-        { name: 'sessions' },
-        { name: 'engagedSessions' },
-        { name: 'conversions' },
-      ],
-      limit: '250',
-    },
-  });
+  const rows: Ga4LandingPageRow[] = [];
+  const pageSize = 250;
+  const maxRows = 2_000;
+  let offset = 0;
 
-  return (response.data.rows ?? []).map((row) => ({
-    landingPage: row.dimensionValues?.[0]?.value ?? '/',
-    sourceMedium: row.dimensionValues?.[1]?.value ?? '(not set)',
-    sessions: num(row.metricValues?.[0]?.value),
-    engagedSessions: num(row.metricValues?.[1]?.value),
-    conversions: num(row.metricValues?.[2]?.value),
-  }));
+  while (rows.length < maxRows) {
+    const response = await analyticsData.properties.runReport({
+      property: `properties/${propertyId}`,
+      requestBody: {
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [
+          { name: 'landingPage' },
+          { name: 'sessionSourceMedium' },
+        ],
+        metrics: [
+          { name: 'sessions' },
+          { name: 'engagedSessions' },
+          { name: 'conversions' },
+        ],
+        limit: String(pageSize),
+        offset: String(offset),
+      },
+    });
+
+    const batch = (response.data.rows ?? []).map((row) => ({
+      landingPage: row.dimensionValues?.[0]?.value ?? '/',
+      sourceMedium: row.dimensionValues?.[1]?.value ?? '(not set)',
+      sessions: num(row.metricValues?.[0]?.value),
+      engagedSessions: num(row.metricValues?.[1]?.value),
+      conversions: num(row.metricValues?.[2]?.value),
+    }));
+    if (batch.length === 0) break;
+    rows.push(...batch);
+    if (batch.length < pageSize) break;
+    offset += batch.length;
+  }
+
+  return rows;
 }
 
 export async function fetchGa4TrafficByChannel(
@@ -187,7 +235,7 @@ export async function fetchGa4TrafficByChannel(
         { name: 'engagedSessions' },
         { name: 'conversions' },
       ],
-      limit: '100',
+      limit: '250',
     },
   });
 
@@ -329,7 +377,8 @@ export async function fetchGa4ByDimension(
   propertyId: string,
   startDate: string,
   endDate: string,
-  dimension: 'country' | 'deviceCategory' | 'browser' | 'eventName'
+  dimension: 'country' | 'deviceCategory' | 'browser' | 'sessionDefaultChannelGroup' | 'sessionCampaignName',
+  limit = 100
 ): Promise<Ga4DimensionRow[]> {
   const analyticsData = google.analyticsdata({ version: 'v1beta', auth });
   const response = await analyticsData.properties.runReport({
@@ -339,7 +388,7 @@ export async function fetchGa4ByDimension(
       dimensions: [{ name: dimension }],
       metrics: [{ name: 'sessions' }, { name: 'conversions' }],
       orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
-      limit: '25',
+      limit: String(limit),
     },
   });
 
@@ -350,6 +399,115 @@ export async function fetchGa4ByDimension(
       conversions: num(row.metricValues?.[1]?.value),
     }))
     .filter((row) => row.label !== '(not set)' || row.sessions > 0);
+}
+
+/** Configured key events (Admin API). Falls back to [] if unavailable. */
+export async function listGa4KeyEvents(
+  auth: AuthClient,
+  propertyId: string
+): Promise<Ga4KeyEventConfig[]> {
+  try {
+    const analyticsAdmin = google.analyticsadmin({ version: 'v1beta', auth });
+    const response = await analyticsAdmin.properties.keyEvents.list({
+      parent: `properties/${propertyId}`,
+      pageSize: 200,
+    });
+    return (response.data.keyEvents ?? [])
+      .map((event) => {
+        const name = event.eventName?.trim();
+        return name ? { eventName: name } : null;
+      })
+      .filter((row): row is Ga4KeyEventConfig => Boolean(row));
+  } catch (error) {
+    // Older properties / scopes may still expose conversionEvents.
+    try {
+      const analyticsAdmin = google.analyticsadmin({ version: 'v1beta', auth });
+      const response = await analyticsAdmin.properties.conversionEvents.list({
+        parent: `properties/${propertyId}`,
+        pageSize: 200,
+      });
+      return (response.data.conversionEvents ?? [])
+        .map((event) => {
+          const name = event.eventName?.trim();
+          return name ? { eventName: name } : null;
+        })
+        .filter((row): row is Ga4KeyEventConfig => Boolean(row));
+    } catch (fallbackError) {
+      console.error('[ga4] keyEvents/conversionEvents list failed', error, fallbackError);
+      return [];
+    }
+  }
+}
+
+/**
+ * Event inventory with eventCount (not session-ranked only).
+ * Marks rows that match configured key events.
+ */
+export async function fetchGa4EventInventory(
+  auth: AuthClient,
+  propertyId: string,
+  startDate: string,
+  endDate: string,
+  keyEventNames: Set<string>
+): Promise<Ga4EventRow[]> {
+  const analyticsData = google.analyticsdata({ version: 'v1beta', auth });
+  const rows: Ga4EventRow[] = [];
+  const pageSize = 250;
+  const maxRows = 500;
+  let offset = 0;
+
+  while (rows.length < maxRows) {
+    const response = await analyticsData.properties.runReport({
+      property: `properties/${propertyId}`,
+      requestBody: {
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: 'eventName' }],
+        metrics: [
+          { name: 'eventCount' },
+          { name: 'sessions' },
+          { name: 'conversions' },
+        ],
+        orderBys: [{ metric: { metricName: 'eventCount' }, desc: true }],
+        limit: String(pageSize),
+        offset: String(offset),
+      },
+    });
+
+    const batch = (response.data.rows ?? []).map((row) => {
+      const eventName = row.dimensionValues?.[0]?.value || '(not set)';
+      return {
+        eventName,
+        eventCount: num(row.metricValues?.[0]?.value),
+        sessions: num(row.metricValues?.[1]?.value),
+        conversions: num(row.metricValues?.[2]?.value),
+        isKeyEvent: keyEventNames.has(eventName),
+      };
+    });
+    if (batch.length === 0) break;
+    rows.push(...batch);
+    if (batch.length < pageSize) break;
+    offset += batch.length;
+  }
+
+  // Ensure configured key events appear even if they had zero volume in-window.
+  for (const name of keyEventNames) {
+    if (!rows.some((row) => row.eventName === name)) {
+      rows.push({
+        eventName: name,
+        eventCount: 0,
+        sessions: 0,
+        conversions: 0,
+        isKeyEvent: true,
+      });
+    }
+  }
+
+  return rows.toSorted(
+    (a, b) =>
+      Number(b.isKeyEvent) - Number(a.isKeyEvent) ||
+      b.eventCount - a.eventCount ||
+      b.conversions - a.conversions
+  );
 }
 
 export async function fetchGa4ConversionPeak(
@@ -400,20 +558,13 @@ export async function fetchGa4PathFunnel(
     conversions: num(row.metricValues?.[1]?.value),
   }));
 
-  if (rows.length === 0) return [];
-
-  // Prefer a conversion-bearing path as the final step when available.
-  const topBySessions = rows.slice(0, 3);
-  const conversionPath = rows.find((r) => r.conversions > 0 && !topBySessions.some((t) => t.path === r.path));
-  const steps = [...topBySessions];
-  if (conversionPath && steps.length >= 2) {
-    steps[steps.length - 1] = conversionPath;
-  }
-  return steps.slice(0, 3);
+  // Top pages by sessions — not a sequential journey. Do not swap in a
+  // conversion path (that creates fake cliffs / negative drop-offs).
+  return rows.slice(0, 3);
 }
 
 /**
- * Fetch the extended analytics bundle used by the Evidence long-scroll.
+ * Fetch the extended analytics bundle used by Dashboard / Evidence.
  * Individual report failures degrade to empty arrays / null overview.
  */
 export async function fetchGa4AnalyticsBundle(
@@ -429,19 +580,32 @@ export async function fetchGa4AnalyticsBundle(
     devices: [],
     browsers: [],
     events: [],
+    keyEvents: [],
+    channelGroups: [],
+    campaigns: [],
+    sourceMedium: [],
     conversionPeak: [],
     funnelSteps: [],
   };
 
+  const keyEvents = await listGa4KeyEvents(auth, propertyId).catch((error) => {
+    console.error('[ga4] listGa4KeyEvents failed', error);
+    return [] as Ga4KeyEventConfig[];
+  });
+  const keyEventNames = new Set(keyEvents.map((e) => e.eventName));
+
   const settled = await Promise.allSettled([
     fetchGa4Overview(auth, propertyId, startDate, endDate),
     fetchGa4DailySeries(auth, propertyId, startDate, endDate),
-    fetchGa4ByDimension(auth, propertyId, startDate, endDate, 'country'),
-    fetchGa4ByDimension(auth, propertyId, startDate, endDate, 'deviceCategory'),
-    fetchGa4ByDimension(auth, propertyId, startDate, endDate, 'browser'),
-    fetchGa4ByDimension(auth, propertyId, startDate, endDate, 'eventName'),
+    fetchGa4ByDimension(auth, propertyId, startDate, endDate, 'country', 100),
+    fetchGa4ByDimension(auth, propertyId, startDate, endDate, 'deviceCategory', 20),
+    fetchGa4ByDimension(auth, propertyId, startDate, endDate, 'browser', 40),
+    fetchGa4EventInventory(auth, propertyId, startDate, endDate, keyEventNames),
     fetchGa4ConversionPeak(auth, propertyId, startDate, endDate),
     fetchGa4PathFunnel(auth, propertyId, startDate, endDate),
+    fetchGa4ByDimension(auth, propertyId, startDate, endDate, 'sessionDefaultChannelGroup', 50),
+    fetchGa4ByDimension(auth, propertyId, startDate, endDate, 'sessionCampaignName', 100),
+    fetchGa4TrafficByChannel(auth, propertyId, startDate, endDate),
   ]);
 
   const pick = <T,>(index: number, fallback: T): T => {
@@ -460,7 +624,11 @@ export async function fetchGa4AnalyticsBundle(
     devices: pick(3, empty.devices),
     browsers: pick(4, empty.browsers),
     events: pick(5, empty.events),
+    keyEvents,
     conversionPeak: pick(6, empty.conversionPeak),
     funnelSteps: pick(7, empty.funnelSteps),
+    channelGroups: pick(8, empty.channelGroups),
+    campaigns: pick(9, empty.campaigns),
+    sourceMedium: pick(10, empty.sourceMedium),
   };
 }

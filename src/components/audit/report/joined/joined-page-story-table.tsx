@@ -1,5 +1,5 @@
 import { AnalyticsRowIcon } from '@/components/audit/report/analytics/analytics-row-icon';
-import type { JoinedPageStoryRow } from '@/lib/audit/joined-traffic-story';
+import type { JoinedPageStoryRow, JoinedProblemTag } from '@/lib/audit/joined-traffic-story';
 
 function pct(rate: number) {
   if (!rate) return '—';
@@ -7,10 +7,33 @@ function pct(rate: number) {
   return `${value.toFixed(1)}%`;
 }
 
+function tagClass(tag: JoinedProblemTag) {
+  switch (tag) {
+    case 'keep':
+      return 'bg-emerald-50 text-emerald-800';
+    case 'ok':
+      return 'bg-zinc-100 text-zinc-600';
+    case 'deprioritize':
+      return 'bg-zinc-100 text-zinc-500';
+    case 'discoverability':
+      return 'bg-sky-50 text-sky-800';
+    case 'visibility':
+    case 'click':
+    case 'landing':
+    case 'engagement':
+    case 'conversion':
+      return 'bg-amber-50 text-amber-900';
+    default: {
+      const _exhaustive: never = tag;
+      return _exhaustive;
+    }
+  }
+}
+
 export function JoinedPageStoryTable({ rows }: { rows: JoinedPageStoryRow[] }) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-[14px] border border-dashed border-surface bg-surface-5 px-4 py-8 text-center">
+      <div className="rounded-[14px] bg-surface-5 px-4 py-8 text-center">
         <p className="text-sm text-muted-foreground">
           No joined page rows yet. Pages appear when Search Console and/or GA4 metrics are stored on
           a path.
@@ -20,18 +43,19 @@ export function JoinedPageStoryTable({ rows }: { rows: JoinedPageStoryRow[] }) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-[14px] border border-solid border-surface bg-surface-3">
-      <table className="w-full min-w-[56rem] border-collapse text-left text-sm">
+    <div className="overflow-x-auto rounded-[14px] bg-surface-3">
+      <table className="w-full min-w-[64rem] border-collapse text-left text-sm">
         <thead>
           <tr className="border-b border-surface-6 text-xs text-muted-foreground">
             <th className="px-4 py-3 font-medium">Path</th>
+            <th className="px-4 py-3 text-right font-medium">Impr.</th>
             <th className="px-4 py-3 text-right font-medium">Clicks</th>
-            <th className="px-4 py-3 text-right font-medium">Impressions</th>
             <th className="px-4 py-3 text-right font-medium">CTR</th>
-            <th className="px-4 py-3 text-right font-medium">Position</th>
+            <th className="px-4 py-3 text-right font-medium">Pos.</th>
             <th className="px-4 py-3 text-right font-medium">Sessions</th>
-            <th className="px-4 py-3 text-right font-medium">Conversions</th>
-            <th className="px-4 py-3 font-medium">Note</th>
+            <th className="px-4 py-3 text-right font-medium">Engaged</th>
+            <th className="px-4 py-3 text-right font-medium">Conv.</th>
+            <th className="px-4 py-3 font-medium">Tag</th>
           </tr>
         </thead>
         <tbody>
@@ -44,10 +68,10 @@ export function JoinedPageStoryTable({ rows }: { rows: JoinedPageStoryRow[] }) {
                 </span>
               </td>
               <td className="px-4 py-2.5 text-right tabular-nums">
-                {row.searchClicks.toLocaleString()}
+                {row.impressions.toLocaleString()}
               </td>
               <td className="px-4 py-2.5 text-right tabular-nums">
-                {row.impressions.toLocaleString()}
+                {row.searchClicks.toLocaleString()}
               </td>
               <td className="px-4 py-2.5 text-right tabular-nums">{pct(row.ctr)}</td>
               <td className="px-4 py-2.5 text-right tabular-nums">
@@ -57,9 +81,19 @@ export function JoinedPageStoryTable({ rows }: { rows: JoinedPageStoryRow[] }) {
                 {row.sessions.toLocaleString()}
               </td>
               <td className="px-4 py-2.5 text-right tabular-nums">
+                {row.engagedSessions.toLocaleString()}
+              </td>
+              <td className="px-4 py-2.5 text-right tabular-nums">
                 {row.conversions.toLocaleString()}
               </td>
-              <td className="max-w-xs truncate px-4 py-2.5 text-muted-foreground">{row.note}</td>
+              <td className="px-4 py-2.5">
+                <span
+                  className={`inline-flex max-w-[12rem] truncate rounded-md px-2 py-0.5 text-xs font-medium ${tagClass(row.problemTag)}`}
+                  title={row.note}
+                >
+                  {row.note}
+                </span>
+              </td>
             </tr>
           ))}
         </tbody>

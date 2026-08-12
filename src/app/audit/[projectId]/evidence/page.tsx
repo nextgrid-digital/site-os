@@ -43,7 +43,7 @@ function EvidenceBodyFallback() {
           <div className="h-4 w-1/2 max-w-sm rounded bg-zinc-200" />
         </div>
       </div>
-      <div className="h-48 rounded-2xl border border-zinc-200 bg-white" />
+      <div className="h-48 rounded-2xl bg-white" />
     </div>
   );
 }
@@ -230,7 +230,7 @@ export default async function ClientAuditPage({
         </p>
         <h1 className="text-2xl font-semibold text-zinc-950">{website.domain}</h1>
         <p className="text-sm text-zinc-600">
-          The audit did not finish.{' '}
+          The audit did not finish.{''}
           {errorMessage && errorMessage !== 'invalid_grant'
             ? errorMessage
             : 'Please try again — free audits only need the public website URL.'}

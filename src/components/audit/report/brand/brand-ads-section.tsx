@@ -28,7 +28,7 @@ export function BrandAdsSection({
           />
           <BrandEmptyState
             title="Google Ads not connected"
-            body="Connect Ads to see campaigns, keywords, landing-page spend, wasted spend, and mismatches between ad intent and the page."
+            body="Connect Ads in Setup, then re-run a full audit."
             connectHref={connectHref}
           />
         </div>
@@ -46,7 +46,7 @@ export function BrandAdsSection({
           />
           <BrandEmptyState
             title="No Ads data in this audit"
-            body="The Ads account is mapped. Re-run a full audit after GOOGLE_ADS_DEVELOPER_TOKEN is set and OAuth includes Ads access."
+            body="Account mapped — re-run a full audit to pull campaigns."
             connectHref={connectHref}
           />
         </div>
@@ -63,22 +63,22 @@ export function BrandAdsSection({
         />
 
         <div className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-[14px] border border-zinc-200 bg-white p-4">
+          <div className="rounded-[14px] bg-white p-4">
             <p className="text-[11px] tracking-wide text-zinc-400 uppercase">Spend</p>
             <p className="mt-1 text-2xl font-semibold tabular-nums">{money(ads.spend)}</p>
           </div>
-          <div className="rounded-[14px] border border-zinc-200 bg-white p-4">
+          <div className="rounded-[14px] bg-white p-4">
             <p className="text-[11px] tracking-wide text-zinc-400 uppercase">Conversions</p>
             <p className="mt-1 text-2xl font-semibold tabular-nums">{money(ads.conversions)}</p>
           </div>
-          <div className="rounded-[14px] border border-zinc-200 bg-white p-4">
+          <div className="rounded-[14px] bg-white p-4">
             <p className="text-[11px] tracking-wide text-zinc-400 uppercase">Waste signals</p>
             <p className="mt-1 text-2xl font-semibold tabular-nums">{ads.wasteSignals.length}</p>
           </div>
         </div>
 
         {ads.campaigns.length > 0 ? (
-          <div className="overflow-x-auto rounded-[14px] border border-zinc-200">
+          <div className="overflow-x-auto rounded-[14px]">
             <table className="min-w-full text-left text-sm">
               <thead className="bg-zinc-50 text-[11px] tracking-wide text-zinc-500 uppercase">
                 <tr>
@@ -126,7 +126,7 @@ export function BrandAdsSection({
               {ads.landingMismatches.slice(0, 6).map((m) => (
                 <li
                   key={m.landingPath + m.finalUrl}
-                  className="rounded-[12px] border border-zinc-200 bg-white px-3 py-2 text-sm"
+                  className="rounded-[12px] bg-white px-3 py-2 text-sm"
                 >
                   <p className="font-medium text-zinc-900">{m.landingPath}</p>
                   <p className="mt-0.5 text-zinc-500">{m.meaning}</p>

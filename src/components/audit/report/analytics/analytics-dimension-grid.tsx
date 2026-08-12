@@ -48,7 +48,7 @@ export function AnalyticsDimensionGrid({ cards }: { cards: Card[] }) {
       {cards.map((card) => (
         <div
           key={card.title}
-          className="rounded-[14px] border border-zinc-200 bg-white p-4 shadow-sm"
+          className="rounded-[14px] bg-white p-4 shadow-sm"
         >
           <p className="text-sm font-semibold text-zinc-950">{card.title}</p>
           <BarList rows={card.rows} emptyLabel={card.empty} kind={card.kind} />

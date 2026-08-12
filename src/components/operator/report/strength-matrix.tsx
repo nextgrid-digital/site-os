@@ -23,8 +23,7 @@ export function StrengthMatrix({
         >
           <span className="text-sm text-white/80">{row.label}</span>
           <span
-            className={cn(
-              'rounded-full px-2.5 py-0.5 text-xs font-semibold',
+            className={cn('rounded-full px-2.5 py-0.5 text-xs font-semibold',
               tone[row.strength]
             )}
           >

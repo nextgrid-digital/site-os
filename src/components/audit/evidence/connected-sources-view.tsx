@@ -16,16 +16,16 @@ function ConnectionChip({
 }) {
   return (
     <div
-      className={`inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${
-        connected
-          ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
-          : 'border-zinc-200 bg-zinc-50 text-zinc-600'
-      }`}
+      className={`inline-flex max-w-full items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium ${
+ connected
+ ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
+ : 'border-zinc-200 bg-zinc-50 text-zinc-600'
+ }`}
     >
       <span
         className={`h-1.5 w-1.5 shrink-0 rounded-full ${
-          connected ? 'bg-emerald-500' : 'bg-zinc-300'
-        }`}
+ connected ? 'bg-emerald-500' : 'bg-zinc-300'
+ }`}
         aria-hidden
       />
       <span className="shrink-0">{label}</span>

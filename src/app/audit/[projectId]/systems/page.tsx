@@ -50,7 +50,7 @@ export default async function AuditSystemsPage({
           </p>
         </AuditWorkspaceCard>
       ) : (
-        <div className="typeset typeset-docs mx-auto max-w-[90ch] space-y-8 rounded-[14px] border border-zinc-200 bg-white p-6 shadow-sm">
+        <div className="typeset typeset-docs mx-auto max-w-[90ch] space-y-8 rounded-[14px] bg-white p-6 shadow-sm">
           <ProgrammaticOpportunityCards opportunities={opportunities} />
           <div className="not-typeset">
             <Button render={<Link href={`${base}/work-orders?action=create_page_system`} />}>

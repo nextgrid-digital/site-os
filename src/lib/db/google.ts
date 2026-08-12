@@ -61,6 +61,25 @@ export async function syncPropertyOptions(projectId: string) {
     expiry_date: connection.token_expiry ? new Date(connection.token_expiry).getTime() : null,
   });
 
+  // Refresh so Ads REST calls (which use a bearer string) get a live token.
+  const tokenResponse = await auth.getAccessToken();
+  const accessToken =
+    typeof tokenResponse === 'string'
+      ? tokenResponse
+      : tokenResponse?.token ?? connection.access_token;
+  if (accessToken && accessToken !== connection.access_token) {
+    await supabase
+      .from('google_connections')
+      .update({
+        access_token: accessToken,
+        token_expiry: auth.credentials.expiry_date
+          ? new Date(auth.credentials.expiry_date).toISOString()
+          : connection.token_expiry,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', connection.id);
+  }
+
   const scopes: string[] = Array.isArray(connection.scopes) ? connection.scopes : [];
   const hasAdsScope = scopes.some((s) => s === GOOGLE_ADS_SCOPE || s.includes('adwords'));
 
@@ -68,7 +87,7 @@ export async function syncPropertyOptions(projectId: string) {
     listSearchConsoleSites(auth),
     listGa4Properties(auth),
     hasAdsScope && isGoogleAdsConfigured()
-      ? listAccessibleAdsCustomers(connection.access_token).catch((error) => {
+      ? listAccessibleAdsCustomers(accessToken).catch((error) => {
           console.error('[syncPropertyOptions] Ads list failed', error);
           return [];
         })

@@ -62,7 +62,7 @@ export function KobbeDeferredAnalytics({
             showPerformanceEmpty
           />
         ) : (
-          <div className="h-64 animate-pulse rounded-2xl border border-zinc-200 bg-zinc-100" aria-hidden />
+          <div className="h-64 animate-pulse rounded-2xl bg-zinc-100" aria-hidden />
         )}
       </div>
     </section>

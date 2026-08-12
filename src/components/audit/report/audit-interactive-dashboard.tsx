@@ -213,7 +213,7 @@ export function AuditInteractiveDashboard({
           {activeMode === 'traffic' ? 'Live traffic' : 'Audit health'}
         </p>
         {canTraffic && hasHealth && !trafficOnly ? (
-          <div className="inline-flex rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 text-xs font-medium">
+          <div className="inline-flex rounded-lg bg-zinc-50 p-0.5 text-xs font-medium">
             <ModeButton active={activeMode === 'health'} onClick={() => setMode('health')}>
               Audit health
             </ModeButton>
@@ -252,14 +252,14 @@ export function AuditInteractiveDashboard({
                     onClick={() => selectTile(tile.id)}
                     className={
                       selected
-                        ? 'flex min-h-[7rem] flex-col rounded-2xl border border-zinc-950 bg-zinc-950 p-4 text-left text-white shadow-sm'
-                        : 'flex min-h-[7rem] flex-col rounded-2xl border border-zinc-200 bg-white p-4 text-left text-zinc-950 shadow-sm transition hover:border-zinc-300'
+                        ? 'flex min-h-[7rem] flex-col rounded-2xl  bg-zinc-950 p-4 text-left text-white shadow-sm'
+                        : 'flex min-h-[7rem] flex-col rounded-2xl bg-white p-4 text-left text-zinc-950 shadow-sm transition'
                     }
                   >
                     <span
                       className={`text-[11px] font-medium tracking-[0.12em] uppercase ${
-                        selected ? 'text-zinc-400' : 'text-zinc-500'
-                      }`}
+ selected ? 'text-zinc-400' : 'text-zinc-500'
+ }`}
                     >
                       {tile.label}
                     </span>
@@ -269,8 +269,8 @@ export function AuditInteractiveDashboard({
                     {tile.hint ? (
                       <span
                         className={`mt-1 truncate text-[11px] ${
-                          selected ? 'text-zinc-500' : 'text-zinc-400'
-                        }`}
+ selected ? 'text-zinc-500' : 'text-zinc-400'
+ }`}
                       >
                         {tile.hint}
                       </span>
@@ -281,7 +281,7 @@ export function AuditInteractiveDashboard({
             </div>
           </section>
 
-          <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
             <div className="border-b border-zinc-100 px-4 py-4 sm:px-5">
               <p className="text-sm font-semibold text-zinc-950">{chartTitle}</p>
               <p className="mt-0.5 text-xs text-zinc-500">
@@ -352,7 +352,7 @@ export function AuditInteractiveDashboard({
               )}
 
               {detail ? (
-                <div className="mt-3 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3">
+                <div className="mt-3 rounded-xl bg-zinc-50 px-4 py-3">
                   <p className="text-[11px] font-medium tracking-[0.14em] text-zinc-400 uppercase">
                     Detail
                   </p>
@@ -418,7 +418,7 @@ function ModeButton({
 
 function BreakdownCard({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="flex min-h-[12rem] flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+    <div className="flex min-h-[12rem] flex-col overflow-hidden rounded-2xl bg-white shadow-sm">
       <div className="border-b border-zinc-100 px-4 py-3">
         <p className="text-sm font-semibold text-zinc-950">{title}</p>
       </div>
@@ -457,8 +457,8 @@ function BreakdownList({
               type="button"
               onClick={() => onSelect(row.id)}
               className={`relative w-full overflow-hidden rounded-lg text-left transition ${
-                selected ? 'ring-1 ring-zinc-950' : 'hover:bg-zinc-50'
-              }`}
+ selected ? 'ring-1 ring-zinc-950' : 'hover:bg-zinc-50'
+ }`}
             >
               <div
                 className="pointer-events-none absolute inset-y-1 left-0 rounded-md bg-zinc-100"

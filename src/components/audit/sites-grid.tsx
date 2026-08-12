@@ -15,7 +15,7 @@ export function SitesGrid({
 
   if (sites.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-zinc-300 bg-white px-6 py-14 text-center">
+      <div className="rounded-2xl bg-white px-6 py-14 text-center">
         <p className="text-sm font-medium text-zinc-900">No sites yet</p>
         <p className="mt-1 text-sm text-zinc-500">Add a site to start your first free audit.</p>
         <div className="mt-5 flex justify-center">

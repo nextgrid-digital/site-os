@@ -154,6 +154,7 @@ export interface DraftGraphWorkOrder {
   summary: string;
   gapIndex: number | null;
   opportunityIndex: number | null;
+  findingId?: string | null;
   fullPrompt: string;
   revenueImpact: number;
   buyerImportance: number;

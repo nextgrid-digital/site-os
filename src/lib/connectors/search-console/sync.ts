@@ -4,6 +4,8 @@ import type { GscPageRow, GscQueryRow } from '@/lib/google/search-console';
 export function searchConsoleSyncResult(data: {
   queryRows: GscQueryRow[];
   pageRows: GscPageRow[];
+  byCountry?: unknown[];
+  byDevice?: unknown[];
 }): ConnectorSyncResult {
   const impressions = data.pageRows.reduce((sum, row) => sum + row.impressions, 0);
   const hasData = impressions > 0 || data.queryRows.length > 0;
@@ -17,6 +19,8 @@ export function searchConsoleSyncResult(data: {
     payload: {
       queryCount: data.queryRows.length,
       pageCount: data.pageRows.length,
+      countryCount: data.byCountry?.length ?? 0,
+      deviceCount: data.byDevice?.length ?? 0,
       impressions,
     },
   };

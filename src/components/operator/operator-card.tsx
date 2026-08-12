@@ -9,8 +9,7 @@ export function OperatorCard({
 }) {
   return (
     <div
-      className={cn(
-        'rounded-3xl bg-white/[0.03] p-6 text-foreground shadow-none',
+      className={cn('rounded-3xl bg-white/[0.03] p-6 text-foreground shadow-none',
         className
       )}
     >

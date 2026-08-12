@@ -9,7 +9,7 @@ const AddSiteAuditDialog = dynamic(
   {
     ssr: false,
     loading: () => (
-      <span className="inline-flex h-9 items-center rounded-lg border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-400">
+      <span className="inline-flex h-9 items-center rounded-lg bg-white px-3 text-sm font-medium text-zinc-400">
         Add site
       </span>
     ),

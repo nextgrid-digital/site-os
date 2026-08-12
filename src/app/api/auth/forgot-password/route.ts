@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { getAppUrl } from '@/lib/app-url';
 import { createClient } from '@/utils/supabase/server';
 
 const SUCCESS_MESSAGE =
@@ -13,12 +14,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'A valid email is required' }, { status: 400 });
   }
 
-  const origin = new URL(request.url).origin;
+  const appUrl = getAppUrl(request);
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/auth/callback?next=${encodeURIComponent('/auth/update-password')}`,
+    redirectTo: `${appUrl}/auth/callback?next=${encodeURIComponent('/auth/update-password')}`,
   });
 
   if (error) {

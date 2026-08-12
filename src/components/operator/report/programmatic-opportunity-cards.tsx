@@ -91,7 +91,7 @@ export function ProgrammaticOpportunityCards({
           <StatCards
             items={[
               { label: 'Plays', value: rows.length },
-              { label: 'Top family', value: String(topFamily).replace('_', ' ') },
+              { label: 'Top family', value: String(topFamily).replace('_', '') },
               { label: 'Avg AI value', value: avgAi },
               { label: 'Thin-risk flags', value: thinWarnings },
             ]}
@@ -146,7 +146,7 @@ export function ProgrammaticOpportunityCards({
                 {opp.firstRecommendedPages.length > 0 ? (
                   <p>
                     <span className="text-white/40">First pages: </span>
-                    {opp.firstRecommendedPages.slice(0, 8).join('; ')}
+                    {opp.firstRecommendedPages.slice(0, 8).join(';')}
                   </p>
                 ) : null}
                 <div className="rounded border border-white/8 bg-black/30 p-2 text-xs leading-5">
@@ -168,7 +168,7 @@ export function ProgrammaticOpportunityCards({
                   </p>
                 </div>
                 <p className="text-xs text-white/50">
-                  AEO:{' '}
+                  AEO:{''}
                   {[
                     opp.aeoFlags.improvesAnswerability ? 'answerability' : null,
                     opp.aeoFlags.improvesEntityClarity ? 'entity clarity' : null,
@@ -176,7 +176,7 @@ export function ProgrammaticOpportunityCards({
                     opp.aeoFlags.improvesAiOverview ? 'AI overview' : null,
                   ]
                     .filter(Boolean)
-                    .join(' · ') || 'limited'}
+                    .join('·') || 'limited'}
                 </p>
                 {opp.risksIfBad ? (
                   <p>
@@ -192,7 +192,7 @@ export function ProgrammaticOpportunityCards({
                 ) : null}
                 {opp.linkedGapTypes.length > 0 ? (
                   <p className="text-xs text-white/45">
-                    Graph gaps: {opp.linkedGapTypes.join(', ')}
+                    Graph gaps: {opp.linkedGapTypes.join(',')}
                   </p>
                 ) : null}
                 {opp.agentPrompt ? (

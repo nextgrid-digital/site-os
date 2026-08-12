@@ -33,7 +33,7 @@ export function SiteNav({
   const menuInitials = (userInitials || 'SO').slice(0, 2).toUpperCase();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-zinc-200/80 bg-[#F3F3F3]">
+    <header className="sticky top-0 z-40 /80 bg-[#F3F3F3]">
       {/* 3 equal columns so center links stay optically centered despite asymmetric sides */}
       <div className={`${SITE_CONTENT_CLASS} grid h-14 grid-cols-[1fr_auto_1fr] items-center gap-4`}>
         <Link
@@ -81,7 +81,7 @@ export function SiteNav({
           {shouldShowSignIn ? (
             <Link
               href="/login?next=/app"
-              className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50"
+              className="rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50"
             >
               Sign in
             </Link>

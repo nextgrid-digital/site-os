@@ -20,23 +20,23 @@ export function AnalyticsKpiRow({ tiles }: { tiles: AnalyticsKpiTile[] }) {
           <div
             key={tile.id}
             className={`relative block h-full w-full min-w-0 rounded-[14px] border border-solid p-4 text-left ${
-              selected ? TILE_ACTIVE : TILE_IDLE
-            }`}
+ selected ? TILE_ACTIVE : TILE_IDLE
+ }`}
           >
             <div className="flex h-full w-full min-w-0 flex-col gap-1">
               <div className="flex w-full min-w-0 items-baseline justify-between gap-2">
                 <span
                   className={`block overflow-hidden text-xs font-medium leading-[0.9375rem] whitespace-nowrap ${
-                    selected ? 'text-color-004' : 'text-muted-foreground'
-                  }`}
+ selected ? 'text-color-004' : 'text-muted-foreground'
+ }`}
                 >
                   {tile.label}
                 </span>
                 {tile.hint ? (
                   <span
                     className={`relative flex shrink-0 text-xs font-medium leading-[0.9375rem] ${
-                      selected ? 'text-color-004' : 'text-muted-foreground'
-                    }`}
+ selected ? 'text-color-004' : 'text-muted-foreground'
+ }`}
                   >
                     {tile.hint}
                   </span>

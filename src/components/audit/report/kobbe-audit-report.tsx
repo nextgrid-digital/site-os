@@ -43,7 +43,7 @@ const HeroDemoDashboard = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-64 animate-pulse rounded-2xl border border-zinc-200 bg-zinc-100" aria-hidden />
+      <div className="h-64 animate-pulse rounded-2xl bg-zinc-100" aria-hidden />
     ),
   }
 );
@@ -85,7 +85,7 @@ function claimPayload(c: BrandClaim): EvidenceDrawerPayload {
     observedAt: c.observed_at,
     confidence: c.confidence,
     meta: [
-      { label: 'Verification', value: c.verification_status.replace(/_/g, ' ') },
+      { label: 'Verification', value: c.verification_status.replace(/_/g, '') },
       { label: 'Corroborations', value: String(c.corroboration_count) },
       { label: 'Contradictions', value: String(c.contradiction_count) },
     ],
@@ -106,7 +106,7 @@ function observationPayload(o: KeyObservation): EvidenceDrawerPayload {
 function associationPayload(a: BrandAssociation): EvidenceDrawerPayload {
   return {
     title: a.topic,
-    subtitle: a.classification.replace(/_/g, ' '),
+    subtitle: a.classification.replace(/_/g, ''),
     confidence: a.confidence,
     meta: [
       { label: 'Website mentions', value: String(a.first_party_count) },
@@ -119,8 +119,8 @@ function associationPayload(a: BrandAssociation): EvidenceDrawerPayload {
 
 function contradictionPayload(c: BrandContradiction): EvidenceDrawerPayload {
   return {
-    title: c.subject.replace(/_/g, ' '),
-    subtitle: c.status.replace(/_/g, ' '),
+    title: c.subject.replace(/_/g, ''),
+    subtitle: c.status.replace(/_/g, ''),
     body: `A: ${c.version_a}\n\nB: ${c.version_b}`,
     observedAt: c.observed_at,
     confidence: c.confidence,
@@ -256,13 +256,13 @@ export function KobbeAuditReport({
     const fromAssoc = view.associations.slice(0, 6).map((a) => ({
       title: a.topic,
       stat: String(a.first_party_count + a.third_party_count + a.ai_appearance_count),
-      description: a.classification.replace(/_/g, ' '),
+      description: a.classification.replace(/_/g, ''),
       onClick: () => open(associationPayload(a)),
     }));
     const fromCoverage = view.content_coverage.slice(0, 3).map((c) => ({
-      title: c.content_type.replace(/_/g, ' '),
+      title: c.content_type.replace(/_/g, ''),
       stat: String(c.page_count),
-      description: c.evidence_strength.replace(/_/g, ' '),
+      description: c.evidence_strength.replace(/_/g, ''),
       onClick: undefined as (() => void) | undefined,
     }));
     const cards = [...fromAssoc, ...fromCoverage].slice(0, 9);
@@ -308,14 +308,14 @@ export function KobbeAuditReport({
         c.verification_status === 'independently_corroborated' ||
         c.verification_status === 'directly_observed' ||
         c.verification_status === 'supported_by_customer_evidence',
-      meta: c.verification_status.replace(/_/g, ' '),
+      meta: c.verification_status.replace(/_/g, ''),
       onClick: () => open(claimPayload(c)),
     }));
     const contraRows = view.contradictions.slice(0, 4).map((c) => ({
       id: c.subject,
-      label: c.subject.replace(/_/g, ' '),
+      label: c.subject.replace(/_/g, ''),
       ok: c.status !== 'unresolved',
-      meta: c.status.replace(/_/g, ' '),
+      meta: c.status.replace(/_/g, ''),
       onClick: () => open(contradictionPayload(c)),
     }));
     return [...claimRows, ...contraRows];
@@ -336,7 +336,7 @@ export function KobbeAuditReport({
         <div className="mx-auto max-w-280 px-8 pb-12 pt-2">
           {connectedMetrics?.googleConnected && !hasGoogleRows ? (
             <p className="mx-auto mb-6 max-w-xl text-center text-xs text-muted-foreground">
-              Properties are selected, but this audit stored no Google rows. Reconnect Google on the{' '}
+              Properties are selected, but this audit stored no Google rows. Reconnect Google on the{''}
               <Link
                 href={`/audit/${projectId}/connect`}
                 className="underline underline-offset-2 hover:text-foreground"
@@ -363,7 +363,7 @@ export function KobbeAuditReport({
                     className={
                       secondaryTab === tab.id
                         ? 'rounded-lg bg-foreground px-3 py-1.5 text-xs font-medium text-surface-3'
-                        : 'rounded-lg border border-surface bg-surface-3 px-3 py-1.5 text-xs font-medium text-muted-foreground'
+                        : 'rounded-lg  bg-surface-3 px-3 py-1.5 text-xs font-medium text-muted-foreground'
                     }
                   >
                     {tab.label}
@@ -375,7 +375,7 @@ export function KobbeAuditReport({
               />
             </>
           ) : (
-            <div className="rounded-[14px] border border-dashed border-zinc-300 bg-white p-8 text-center">
+            <div className="rounded-[14px] bg-white p-8 text-center">
               <p className="text-sm font-semibold text-zinc-950">Traffic dashboard</p>
               <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">
                 Connect Google Search Console and Analytics to see live traffic and search evidence
@@ -409,7 +409,7 @@ export function KobbeAuditReport({
                 type="button"
                 disabled={!card.onClick}
                 onClick={card.onClick}
-                className="flex min-h-[11rem] flex-col rounded-[14px] border border-solid border-surface bg-surface-3 p-4 text-left transition hover:border-zinc-300 disabled:cursor-default disabled:opacity-80"
+                className="flex min-h-[11rem] flex-col rounded-[14px] bg-surface-3 p-4 text-left transition disabled:cursor-default disabled:opacity-80"
               >
                 <div className="flex h-24 items-center justify-center rounded-xl bg-surface-5 text-2xl font-semibold text-zinc-400">
                   {card.stat}
@@ -429,7 +429,7 @@ export function KobbeAuditReport({
             title="See where traffic and search land"
             lead="Pages from this audit run with Search Console and GA4 columns when available."
           />
-          <div className="mt-10 overflow-x-auto rounded-[14px] border border-solid border-surface bg-surface-3">
+          <div className="mt-10 overflow-x-auto rounded-[14px] bg-surface-3">
             <table className="w-full min-w-[40rem] text-left text-sm">
               <thead className="border-b border-surface-6 text-xs text-muted-foreground">
                 <tr>
@@ -477,7 +477,7 @@ export function KobbeAuditReport({
           />
           <ol className="mx-auto mt-10 max-w-2xl space-y-2">
             {view.key_observations.length === 0 ? (
-              <li className="rounded-[14px] border border-surface bg-surface-3 px-4 py-6 text-center text-sm text-muted-foreground">
+              <li className="rounded-[14px] bg-surface-3 px-4 py-6 text-center text-sm text-muted-foreground">
                 No key observations in this record yet.
               </li>
             ) : (
@@ -486,7 +486,7 @@ export function KobbeAuditReport({
                   <button
                     type="button"
                     onClick={() => open(observationPayload(o))}
-                    className="flex w-full items-start gap-3 rounded-[14px] border border-surface bg-surface-3 px-4 py-3 text-left transition hover:border-zinc-300"
+                    className="flex w-full items-start gap-3 rounded-[14px] bg-surface-3 px-4 py-3 text-left transition"
                   >
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground text-xs font-medium text-surface-3">
                       {i + 1}
@@ -514,7 +514,7 @@ export function KobbeAuditReport({
           />
           <ul className="mx-auto mt-10 max-w-2xl space-y-2">
             {checklist.length === 0 ? (
-              <li className="rounded-[14px] border border-surface bg-surface-3 px-4 py-6 text-center text-sm text-muted-foreground">
+              <li className="rounded-[14px] bg-surface-3 px-4 py-6 text-center text-sm text-muted-foreground">
                 No claims or contradictions recorded yet.
               </li>
             ) : (
@@ -523,14 +523,14 @@ export function KobbeAuditReport({
                   <button
                     type="button"
                     onClick={row.onClick}
-                    className="flex w-full items-center gap-3 rounded-[14px] border border-surface bg-surface-3 px-4 py-3 text-left transition hover:border-zinc-300"
+                    className="flex w-full items-center gap-3 rounded-[14px] bg-surface-3 px-4 py-3 text-left transition"
                   >
                     <span
                       className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border text-[10px] font-bold ${
-                        row.ok
-                          ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
-                          : 'border-zinc-300 bg-zinc-50 text-zinc-500'
-                      }`}
+ row.ok
+ ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
+ : 'border-zinc-300 bg-zinc-50 text-zinc-500'
+ }`}
                       aria-hidden
                     >
                       {row.ok ? '✓' : '·'}
@@ -552,7 +552,7 @@ export function KobbeAuditReport({
         <div className="mx-auto max-w-280 px-8 py-16">
           <SectionHeading title="Your site evidence summary" />
           <div className="mt-10 grid gap-6 lg:grid-cols-2">
-            <div className="rounded-[14px] border border-surface bg-surface-3 p-6">
+            <div className="rounded-[14px] bg-surface-3 p-6">
               <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
                 Record counts
               </p>
@@ -576,7 +576,7 @@ export function KobbeAuditReport({
               </dl>
               <p className="mt-4 text-xs leading-5 text-muted-foreground">{ex.major_data_limitation}</p>
             </div>
-            <div className="flex flex-col justify-center rounded-[14px] border border-dashed border-surface bg-surface-5 p-6">
+            <div className="flex flex-col justify-center rounded-[14px] bg-surface-5 p-6">
               <p className="text-sm font-medium">Strongest supported association</p>
               <p className="mt-2 text-lg [font-family:LTRemark,_Georgia,_serif]">
                 {ex.strongest_supported_association || 'Not identified in this run'}
@@ -594,7 +594,7 @@ export function KobbeAuditReport({
       <section className="block pt-8 pb-20">
         <div className="mx-auto max-w-280 px-8 py-16">
           <SectionHeading title="FAQ" lead="About this evidence report and connected sources." />
-          <div className="mx-auto mt-10 max-w-2xl divide-y divide-surface-6 rounded-[14px] border border-surface bg-surface-3">
+          <div className="mx-auto mt-10 max-w-2xl divide-y divide-surface-6 rounded-[14px] bg-surface-3">
             {REPORT_FAQ.map((item, i) => {
               const openFaq = faqOpen === i;
               return (

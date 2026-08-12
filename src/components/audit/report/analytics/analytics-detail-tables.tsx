@@ -11,7 +11,7 @@ function TableCard({
   secondaryLabel?: string;
 }) {
   return (
-    <div className="rounded-[14px] border border-zinc-200 bg-white p-4 shadow-sm">
+    <div className="rounded-[14px] bg-white p-4 shadow-sm">
       <p className="text-sm font-semibold text-zinc-950">{title}</p>
       {rows.length === 0 ? (
         <p className="mt-4 text-sm text-zinc-500">No data for this dimension yet.</p>
@@ -74,7 +74,7 @@ export function AnalyticsDetailTables({
       <TableCard title="Devices" rows={devices} />
       <TableCard title="Browsers" rows={browsers} />
       <TableCard title="Top pages" rows={pages} />
-      <TableCard title="Top converting events" rows={events} secondaryLabel="Conv." />
+      <TableCard title="Top events (by count)" rows={events} secondaryLabel="Conv." />
     </div>
   );
 }

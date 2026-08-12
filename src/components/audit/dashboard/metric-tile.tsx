@@ -12,10 +12,8 @@ interface MetricTileProps {
 export function MetricTile({ id, label, value, hint, active, onSelect }: MetricTileProps) {
   const interactive = Boolean(onSelect);
   const className = [
-    'flex min-w-0 flex-col gap-1 rounded-2xl border px-4 py-3 text-left transition',
-    active
-      ? 'border-zinc-950 bg-zinc-950 text-white shadow-sm'
-      : 'border-zinc-200 bg-white text-zinc-950 shadow-sm hover:border-zinc-300',
+    'flex min-w-0 flex-col gap-1 rounded-2xl px-4 py-3 text-left transition',
+    active ? 'bg-zinc-950 text-white shadow-sm' : 'bg-white text-zinc-950 shadow-sm',
     interactive ? 'cursor-pointer' : '',
   ]
     .filter(Boolean)

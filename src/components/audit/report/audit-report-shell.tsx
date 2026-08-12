@@ -18,13 +18,13 @@ const KobbeAuditReport = dynamic(
     ssr: false,
     loading: () => (
       <div className="animate-pulse space-y-6 py-4" aria-busy="true" aria-label="Loading report">
-        <div className="h-48 rounded-2xl border border-zinc-200 bg-zinc-100" />
+        <div className="h-48 rounded-2xl bg-zinc-100" />
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-24 rounded-2xl border border-zinc-200 bg-zinc-100" />
+            <div key={i} className="h-24 rounded-2xl bg-zinc-100" />
           ))}
         </div>
-        <div className="h-64 rounded-2xl border border-zinc-200 bg-zinc-100" />
+        <div className="h-64 rounded-2xl bg-zinc-100" />
       </div>
     ),
   }
@@ -50,7 +50,7 @@ function SiteFavicon({ src, domain }: { src: string; domain: string }) {
   const [failed, setFailed] = useState(false);
   if (failed) {
     return (
-      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-zinc-200 bg-zinc-100 text-sm font-semibold text-zinc-600">
+      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-zinc-100 text-sm font-semibold text-zinc-600">
         {domain.slice(0, 2).toUpperCase()}
       </span>
     );
@@ -62,7 +62,7 @@ function SiteFavicon({ src, domain }: { src: string; domain: string }) {
       alt=""
       width={48}
       height={48}
-      className="h-12 w-12 shrink-0 rounded-2xl border border-zinc-200 bg-white object-contain p-1.5"
+      className="h-12 w-12 shrink-0 rounded-2xl bg-white object-contain p-1.5"
       onError={() => setFailed(true)}
     />
   );
@@ -169,7 +169,7 @@ export function AuditReportShell({
             </div>
             {showRerun ? resolvedRerunSlot : null}
           </header>
-          <div className="rounded-2xl border border-dashed border-zinc-200 bg-zinc-50/80 px-5 py-8 text-center">
+          <div className="rounded-2xl bg-zinc-50/80 px-5 py-8 text-center">
             <p className="text-sm font-medium text-zinc-800">
               No Brand Evidence Record is available for this audit yet.
             </p>
@@ -181,7 +181,7 @@ export function AuditReportShell({
       )}
 
       {variant === 'free' && !signedIn && !analyzing ? (
-        <div className="rounded-2xl border border-zinc-200 bg-white px-5 py-5 print:hidden">
+        <div className="rounded-2xl bg-white px-5 py-5 print:hidden">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold text-zinc-900">Save this site</p>
@@ -191,7 +191,7 @@ export function AuditReportShell({
             </div>
             <Link
               href={saveHref}
-              className="inline-flex shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-900 transition hover:bg-zinc-50"
+              className="inline-flex shrink-0 items-center justify-center rounded-lg bg-white px-3 py-2 text-xs font-medium text-zinc-900 transition hover:bg-zinc-50"
             >
               Sign in to save
             </Link>
@@ -200,7 +200,7 @@ export function AuditReportShell({
       ) : null}
 
       {variant === 'free' ? (
-        <div className="rounded-2xl border border-zinc-200 bg-white px-5 py-5 print:hidden">
+        <div className="rounded-2xl bg-white px-5 py-5 print:hidden">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold text-zinc-900">Add connected sources</p>

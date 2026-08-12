@@ -222,9 +222,9 @@ export function GrowthMemoBody({
           <p>
             Weakest dimension: {weakest.label} at {Math.round(weakest.value)}/100.
             {!brief.includeSearchSection
-              ? ' Search visibility stays low until Search Console is connected.'
+              ? 'Search visibility stays low until Search Console is connected.'
               : !brief.dataAvailability.gscHasData
-                ? ' Search Console is connected; scores stay low until volume meets thresholds.'
+                ? 'Search Console is connected; scores stay low until volume meets thresholds.'
                 : null}
           </p>
         </SectionFrame.Interpretation>
@@ -334,8 +334,8 @@ export function GrowthMemoBody({
           </SectionFrame.Visual>
           <SectionFrame.Interpretation>
             <p>
-              Coverage score {brief.commercialGraph.scores.completenessScore}/100 ·{' '}
-              {brief.commercialGraph.topWorkOrders.length} top fixes ·{' '}
+              Coverage score {brief.commercialGraph.scores.completenessScore}/100 ·{''}
+              {brief.commercialGraph.topWorkOrders.length} top fixes ·{''}
               {brief.commercialGraph.topOpportunities.length} page plays.
             </p>
           </SectionFrame.Interpretation>

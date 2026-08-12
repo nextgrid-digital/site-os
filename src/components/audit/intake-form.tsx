@@ -269,8 +269,8 @@ function ChipGroup({
             onClick={() => onToggle(o.value)}
             className={
               isSelected
-                ? 'rounded-xl border border-zinc-950 bg-zinc-950 px-3.5 py-2 text-sm font-medium text-white transition'
-                : 'rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50'
+                ? 'rounded-xl  bg-zinc-950 px-3.5 py-2 text-sm font-medium text-white transition'
+                : 'rounded-xl bg-white px-3.5 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50'
             }
           >
             {o.label}

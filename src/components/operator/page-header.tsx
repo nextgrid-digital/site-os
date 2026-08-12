@@ -22,8 +22,7 @@ export function PageHeader({
       <div className="min-w-0 space-y-1">
         {eyebrow ? (
           <p
-            className={cn(
-              'text-xs font-medium tracking-wide uppercase',
+            className={cn('text-xs font-medium tracking-wide uppercase',
               isOperator ? 'text-white/45' : 'text-muted-foreground'
             )}
           >
@@ -31,8 +30,7 @@ export function PageHeader({
           </p>
         ) : null}
         <h1
-          className={cn(
-            'text-2xl font-semibold tracking-tight',
+          className={cn('text-2xl font-semibold tracking-tight',
             isOperator ? 'font-display text-white' : null
           )}
         >
@@ -40,8 +38,7 @@ export function PageHeader({
         </h1>
         {description ? (
           <p
-            className={cn(
-              'max-w-2xl text-sm',
+            className={cn('max-w-2xl text-sm',
               isOperator ? 'text-white/50' : 'text-muted-foreground'
             )}
           >

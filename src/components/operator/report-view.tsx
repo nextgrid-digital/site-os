@@ -115,7 +115,7 @@ function normalizeBrief(
             : 'Partial — one analytics source meets thresholds',
       basedOn:
         brief.whatWeCanSee?.basedOn ??
-        (dataAvailability.basedOn.join(', ') || 'site crawl'),
+        (dataAvailability.basedOn.join(',') || 'site crawl'),
     },
     siteOnlySummary: brief.siteOnlySummary ?? null,
     includeSearchSection: gscConnected,
@@ -250,7 +250,7 @@ function AeoPanel({ aeo }: { aeo: AeoAnalysisRow | null }) {
                 Clarity <span className="font-semibold text-white">{analysis.clarity_score}</span>
               </p>
               <p>
-                Answerability{' '}
+                Answerability{''}
                 <span className="font-semibold text-white">{analysis.answerability_score}</span>
               </p>
             </div>
@@ -473,11 +473,11 @@ export function ReportView({
               {brief ? (
                 <p className="not-typeset mt-1 text-xs text-white/45">
                   Data status: {brief.whatWeCanSee.basedOn}
-                  {' · '}
+                  {'·'}
                   GSC {brief.dataAvailability.gscConnected ? 'connected' : 'not connected'}
-                  {' · '}
+                  {'·'}
                   GA4 {brief.dataAvailability.ga4Connected ? 'connected' : 'not connected'}
-                  {' · '}
+                  {'·'}
                   Confidence {brief.confidenceScore}
                 </p>
               ) : null}

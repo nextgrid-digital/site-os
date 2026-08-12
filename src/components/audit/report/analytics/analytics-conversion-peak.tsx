@@ -15,7 +15,7 @@ export function AnalyticsConversionPeak({ cells }: { cells: AnalyticsPeakCell[] 
   const lookup = new Map(cells.map((c) => [`${c.dayOfWeek}-${c.hour}`, c]));
 
   return (
-    <div className="rounded-[14px] border border-zinc-200 bg-white p-5 shadow-sm">
+    <div className="rounded-[14px] bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-zinc-950">Conversion peak</p>
@@ -72,8 +72,8 @@ export function AnalyticsConversionPeak({ cells }: { cells: AnalyticsPeakCell[] 
                           : `${day} ${hour}:00 — none`
                       }
                       className={`aspect-square rounded-sm ${LEVEL_CLASS[level]} ${
-                        level === 0 ? 'border border-zinc-100' : ''
-                      }`}
+ level === 0 ? '' : ''
+ }`}
                     />
                   );
                 })}

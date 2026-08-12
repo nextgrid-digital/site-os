@@ -24,8 +24,7 @@ export function StatCard({
 }) {
   return (
     <Card
-      className={cn(
-        'rounded-2xl py-4 shadow-none ring-1 ring-white/8',
+      className={cn('rounded-2xl py-4 shadow-none ring-1 ring-white/8',
         toneStyles[tone],
         className
       )}

@@ -30,7 +30,7 @@ export default async function AuditLeadsPage({
   return (
     <AuditWorkspacePanel
       title="Leads"
-      description="Track channel attribution, funnel stage, and current status."
+      description="CRM pipeline only — add leads to track stage and status. Traffic and GA4 conversions are on Dashboard."
     >
       <AuditWorkspaceCard>
         <LeadFunnelSummary
@@ -38,6 +38,7 @@ export default async function AuditLeadsPage({
           reporting={reporting}
           title={`${project.name} lead funnel`}
           description="Cached audit traffic summary plus app-owned lead pipeline."
+          leadsHref={`/audit/${resolved.workspaceId}/leads`}
         />
       </AuditWorkspaceCard>
       <AuditWorkspaceCard>

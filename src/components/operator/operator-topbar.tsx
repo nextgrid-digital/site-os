@@ -13,10 +13,11 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
 const primaryPills = [
-  { title: 'Overview', suffix: '/overview', icon: Building2 },
-  { title: 'Evidence', suffix: '', icon: ScrollText },
-  { title: 'Intake', suffix: '/intake', icon: Settings2 },
-  { title: 'Connect', suffix: '/connect', icon: Link2 },
+  { title: 'Dashboard', suffix: '/workflow', icon: Building2 },
+  { title: 'Brief', suffix: '/brief', icon: ScrollText },
+  { title: 'Work', suffix: '/work', icon: Settings2 },
+  { title: 'Leads', suffix: '/leads', icon: ScrollText },
+  { title: 'Setup', suffix: '/connect', icon: Link2 },
 ] as const;
 
 function getProjectId(pathname: string) {
@@ -29,7 +30,6 @@ function getProjectId(pathname: string) {
 
 function isPillActive(pathname: string, projectId: string, suffix: string) {
   const href = `/audit/${projectId}${suffix}`;
-  if (suffix === '') return pathname === href || pathname === `${href}/`;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -60,8 +60,7 @@ export function OperatorTopbar() {
                   key={pill.title}
                   href={href}
                   prefetch
-                  className={cn(
-                    'inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-colors',
+                  className={cn('inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-colors',
                     active
                       ? 'bg-white text-black'
                       : 'text-white/70 hover:bg-white/8 hover:text-white'
@@ -69,7 +68,7 @@ export function OperatorTopbar() {
                 >
                   <pill.icon className="size-3.5 opacity-80" />
                   <span className="hidden md:inline">{pill.title}</span>
-                  <span className="md:hidden">{pill.title.split(' ')[0]}</span>
+                  <span className="md:hidden">{pill.title.split('')[0]}</span>
                 </Link>
               );
             })}

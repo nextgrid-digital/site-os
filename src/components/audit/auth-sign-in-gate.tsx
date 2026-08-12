@@ -184,8 +184,8 @@ export function AuthSignInGate({
           aria-selected={mode === 'signin'}
           onClick={() => switchMode('signin')}
           className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition ${
-            mode === 'signin' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900'
-          }`}
+ mode === 'signin' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900'
+ }`}
         >
           Sign in
         </button>
@@ -195,8 +195,8 @@ export function AuthSignInGate({
           aria-selected={mode === 'signup'}
           onClick={() => switchMode('signup')}
           className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition ${
-            mode === 'signup' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900'
-          }`}
+ mode === 'signup' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900'
+ }`}
         >
           Sign up
         </button>

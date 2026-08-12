@@ -47,8 +47,7 @@ import {
 import { getAuthorizedClient, refreshAccessToken } from '@/lib/google/oauth';
 import {
   fetchSearchConsolePerformance,
-  type GscPageRow,
-  type GscQueryRow,
+  type GscPerformanceBundle,
 } from '@/lib/google/search-console';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 import type {
@@ -205,9 +204,11 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
     const endDate = format(new Date(), 'yyyy-MM-dd');
     const startDate = format(subDays(new Date(), 28), 'yyyy-MM-dd');
 
-    let gscData: { queryRows: GscQueryRow[]; pageRows: GscPageRow[] } = {
+    let gscData: GscPerformanceBundle = {
       queryRows: [],
       pageRows: [],
+      byCountry: [],
+      byDevice: [],
     };
     let ga4Data: Ga4LandingPageRow[] = [];
     let ga4Analytics: Ga4AnalyticsBundle = {
@@ -217,6 +218,10 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
       devices: [],
       browsers: [],
       events: [],
+      keyEvents: [],
+      channelGroups: [],
+      campaigns: [],
+      sourceMedium: [],
       conversionPeak: [],
       funnelSteps: [],
     };
@@ -245,7 +250,12 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
         const settled = await Promise.allSettled([
           gscProperty
             ? fetchSearchConsolePerformance(auth, gscProperty.site_url, startDate, endDate)
-            : Promise.resolve({ queryRows: [], pageRows: [] }),
+            : Promise.resolve({
+                queryRows: [],
+                pageRows: [],
+                byCountry: [],
+                byDevice: [],
+              } satisfies GscPerformanceBundle),
           ga4Property
             ? fetchGa4LandingPages(auth, ga4Property.property_id, startDate, endDate)
             : Promise.resolve([] as Ga4LandingPageRow[]),
@@ -381,7 +391,7 @@ async function finalizeAuditRun(input: {
   gscConnected: boolean;
   ga4Connected: boolean;
   adsConnected: boolean;
-  gscData: { queryRows: GscQueryRow[]; pageRows: GscPageRow[] };
+  gscData: GscPerformanceBundle;
   ga4Data: Ga4LandingPageRow[];
   ga4Analytics: Ga4AnalyticsBundle;
   adsBundle: GoogleAdsBundle;
@@ -629,6 +639,7 @@ async function finalizeAuditRun(input: {
     aeo_value: finding.aeo_value,
     priority_score: finding.priority_score,
     status: 'open',
+    next_action: `Fix: ${finding.title}`,
   }));
 
   const { data: findings } =
@@ -736,6 +747,11 @@ async function finalizeAuditRun(input: {
       path,
       sessions: rows.reduce((sum, row) => sum + row.sessions, 0),
     })),
+    findings: (findings ?? []).map((f) => ({
+      id: f.id,
+      title: f.title,
+      page_path: f.page_path,
+    })),
   });
 
   try {
@@ -789,7 +805,16 @@ async function finalizeAuditRun(input: {
   const reportType = growthBrief.reportType;
   const reportTitle =
     reportType === 'teaser' ? `${projectName} Site audit` : `${projectName} Full audit`;
-  const trafficByChannel = buildTrafficByChannelSnapshot(ga4Data);
+  const trafficByChannel =
+    ga4Analytics.sourceMedium.length > 0
+      ? ga4Analytics.sourceMedium.map((row) => ({
+          sourceMedium: row.sourceMedium,
+          channel: row.channel,
+          sessions: row.sessions,
+          engagedSessions: row.engagedSessions,
+          conversions: row.conversions,
+        }))
+      : buildTrafficByChannelSnapshot(ga4Data);
 
   const reportSnapshot = {
     project: { id: projectId, name: projectName },
@@ -810,12 +835,18 @@ async function finalizeAuditRun(input: {
     siteOnlyAnalysis,
     confidenceScore,
     trafficByChannel,
+    gscByCountry: gscData.byCountry,
+    gscByDevice: gscData.byDevice,
     ga4Overview: ga4Analytics.overview,
     ga4Daily: ga4Analytics.daily,
     ga4Countries: ga4Analytics.countries,
     ga4Devices: ga4Analytics.devices,
     ga4Browsers: ga4Analytics.browsers,
     ga4Events: ga4Analytics.events,
+    ga4KeyEvents: ga4Analytics.keyEvents,
+    ga4ChannelGroups: ga4Analytics.channelGroups,
+    ga4Campaigns: ga4Analytics.campaigns,
+    ga4SourceMedium: ga4Analytics.sourceMedium,
     ga4ConversionPeak: ga4Analytics.conversionPeak,
     ga4FunnelSteps: ga4Analytics.funnelSteps,
     connectors: connectorsSnapshot,

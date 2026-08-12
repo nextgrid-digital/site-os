@@ -17,7 +17,7 @@ export function ReportTabs({ active, onChange }: ReportTabsProps) {
   ];
 
   return (
-    <div className="border-b border-zinc-200">
+    <div className="">
       <div className="flex gap-6" role="tablist" aria-label="Report audience">
         {tabs.map((tab) => {
           const isActive = tab.id === active;
@@ -32,7 +32,7 @@ export function ReportTabs({ active, onChange }: ReportTabsProps) {
               className={[
                 'relative -mb-px pb-3 text-left transition',
                 isActive ? 'text-zinc-950' : 'text-zinc-400 hover:text-zinc-700',
-              ].join(' ')}
+              ].join('')}
             >
               <span className="flex items-center gap-2">
                 <Icon

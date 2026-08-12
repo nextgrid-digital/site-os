@@ -1,10 +1,13 @@
 import { cache } from 'react';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 import type {
+  Ga4ChannelRow,
   Ga4ConversionPeakCell,
   Ga4DailyRow,
   Ga4DimensionRow,
+  Ga4EventRow,
   Ga4FunnelStep,
+  Ga4KeyEventConfig,
   Ga4Overview,
 } from '@/lib/google/ga4';
 import type {
@@ -14,6 +17,7 @@ import type {
   AdsLandingPageRow,
   AdsWasteSignal,
 } from '@/lib/google/ads';
+import type { GscDimensionRow } from '@/lib/google/search-console';
 import type {
   AuditMetrics,
   ChannelTrafficRow,
@@ -50,9 +54,15 @@ export type ConnectedAuditMetrics = {
   ga4Countries: Ga4DimensionRow[];
   ga4Devices: Ga4DimensionRow[];
   ga4Browsers: Ga4DimensionRow[];
-  ga4Events: Ga4DimensionRow[];
+  ga4Events: Ga4EventRow[];
+  ga4KeyEvents: Ga4KeyEventConfig[];
+  ga4ChannelGroups: Ga4DimensionRow[];
+  ga4Campaigns: Ga4DimensionRow[];
+  ga4SourceMedium: Ga4ChannelRow[];
   ga4ConversionPeak: Ga4ConversionPeakCell[];
   ga4FunnelSteps: Ga4FunnelStep[];
+  gscByCountry: GscDimensionRow[];
+  gscByDevice: GscDimensionRow[];
   googleAds: ConnectedAdsMetrics | null;
 };
 
@@ -62,9 +72,15 @@ const EMPTY_ANALYTICS = {
   ga4Countries: [] as Ga4DimensionRow[],
   ga4Devices: [] as Ga4DimensionRow[],
   ga4Browsers: [] as Ga4DimensionRow[],
-  ga4Events: [] as Ga4DimensionRow[],
+  ga4Events: [] as Ga4EventRow[],
+  ga4KeyEvents: [] as Ga4KeyEventConfig[],
+  ga4ChannelGroups: [] as Ga4DimensionRow[],
+  ga4Campaigns: [] as Ga4DimensionRow[],
+  ga4SourceMedium: [] as Ga4ChannelRow[],
   ga4ConversionPeak: [] as Ga4ConversionPeakCell[],
   ga4FunnelSteps: [] as Ga4FunnelStep[],
+  gscByCountry: [] as GscDimensionRow[],
+  gscByDevice: [] as GscDimensionRow[],
 };
 
 const PAGE_METRIC_COLUMNS =
@@ -78,7 +94,38 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function trafficFromSnapshot(snapshot: unknown): ChannelTrafficRow[] {
   if (!isRecord(snapshot) || !Array.isArray(snapshot.trafficByChannel)) return [];
-  return (snapshot.trafficByChannel as ChannelTrafficRow[]).slice(0, 40);
+  return (snapshot.trafficByChannel as ChannelTrafficRow[]).slice(0, 80);
+}
+
+function normalizeEventRows(raw: unknown): Ga4EventRow[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((item) => {
+      if (!isRecord(item)) return null;
+      // New shape
+      if (typeof item.eventName === 'string') {
+        return {
+          eventName: item.eventName,
+          eventCount: Number(item.eventCount ?? 0),
+          sessions: Number(item.sessions ?? 0),
+          conversions: Number(item.conversions ?? 0),
+          isKeyEvent: Boolean(item.isKeyEvent),
+        } satisfies Ga4EventRow;
+      }
+      // Legacy Ga4DimensionRow shape
+      if (typeof item.label === 'string') {
+        return {
+          eventName: item.label,
+          eventCount: Number(item.sessions ?? 0),
+          sessions: Number(item.sessions ?? 0),
+          conversions: Number(item.conversions ?? 0),
+          isKeyEvent: Number(item.conversions ?? 0) > 0,
+        } satisfies Ga4EventRow;
+      }
+      return null;
+    })
+    .filter((row): row is Ga4EventRow => Boolean(row))
+    .slice(0, 500);
 }
 
 function analyticsFromSnapshot(snapshot: unknown): typeof EMPTY_ANALYTICS {
@@ -94,22 +141,38 @@ function analyticsFromSnapshot(snapshot: unknown): typeof EMPTY_ANALYTICS {
       ? (snapshot.ga4Daily as Ga4DailyRow[]).slice(0, 90)
       : [],
     ga4Countries: Array.isArray(snapshot.ga4Countries)
-      ? (snapshot.ga4Countries as Ga4DimensionRow[]).slice(0, 40)
+      ? (snapshot.ga4Countries as Ga4DimensionRow[]).slice(0, 100)
       : [],
     ga4Devices: Array.isArray(snapshot.ga4Devices)
       ? (snapshot.ga4Devices as Ga4DimensionRow[]).slice(0, 20)
       : [],
     ga4Browsers: Array.isArray(snapshot.ga4Browsers)
-      ? (snapshot.ga4Browsers as Ga4DimensionRow[]).slice(0, 20)
+      ? (snapshot.ga4Browsers as Ga4DimensionRow[]).slice(0, 40)
       : [],
-    ga4Events: Array.isArray(snapshot.ga4Events)
-      ? (snapshot.ga4Events as Ga4DimensionRow[]).slice(0, 40)
+    ga4Events: normalizeEventRows(snapshot.ga4Events),
+    ga4KeyEvents: Array.isArray(snapshot.ga4KeyEvents)
+      ? (snapshot.ga4KeyEvents as Ga4KeyEventConfig[]).slice(0, 200)
+      : [],
+    ga4ChannelGroups: Array.isArray(snapshot.ga4ChannelGroups)
+      ? (snapshot.ga4ChannelGroups as Ga4DimensionRow[]).slice(0, 50)
+      : [],
+    ga4Campaigns: Array.isArray(snapshot.ga4Campaigns)
+      ? (snapshot.ga4Campaigns as Ga4DimensionRow[]).slice(0, 100)
+      : [],
+    ga4SourceMedium: Array.isArray(snapshot.ga4SourceMedium)
+      ? (snapshot.ga4SourceMedium as Ga4ChannelRow[]).slice(0, 250)
       : [],
     ga4ConversionPeak: Array.isArray(snapshot.ga4ConversionPeak)
       ? (snapshot.ga4ConversionPeak as Ga4ConversionPeakCell[])
       : [],
     ga4FunnelSteps: Array.isArray(snapshot.ga4FunnelSteps)
       ? (snapshot.ga4FunnelSteps as Ga4FunnelStep[]).slice(0, 12)
+      : [],
+    gscByCountry: Array.isArray(snapshot.gscByCountry)
+      ? (snapshot.gscByCountry as GscDimensionRow[]).slice(0, 250)
+      : [],
+    gscByDevice: Array.isArray(snapshot.gscByDevice)
+      ? (snapshot.gscByDevice as GscDimensionRow[]).slice(0, 20)
       : [],
   };
 }
@@ -120,62 +183,60 @@ function adsFromSnapshot(snapshot: unknown): ConnectedAdsMetrics | null {
     isRecord(snapshot.connectors) && isRecord(snapshot.connectors.google_ads)
       ? snapshot.connectors.google_ads
       : null;
-  const raw = isRecord(snapshot.googleAds)
-    ? snapshot.googleAds
-    : fromConnectors;
-  if (!raw || !isRecord(raw)) return null;
+  const raw = isRecord(snapshot.googleAds) ? snapshot.googleAds : fromConnectors;
+  if (!isRecord(raw)) return null;
 
   return {
-    campaigns: Array.isArray(raw.campaigns) ? (raw.campaigns as AdsCampaignRow[]).slice(0, 50) : [],
-    keywords: Array.isArray(raw.keywords) ? (raw.keywords as AdsKeywordRow[]).slice(0, 80) : [],
+    campaigns: Array.isArray(raw.campaigns) ? (raw.campaigns as AdsCampaignRow[]) : [],
+    keywords: Array.isArray(raw.keywords) ? (raw.keywords as AdsKeywordRow[]) : [],
     landingPages: Array.isArray(raw.landingPages)
-      ? (raw.landingPages as AdsLandingPageRow[]).slice(0, 50)
+      ? (raw.landingPages as AdsLandingPageRow[])
       : [],
     wasteSignals: Array.isArray(raw.wasteSignals)
-      ? (raw.wasteSignals as AdsWasteSignal[]).slice(0, 12)
+      ? (raw.wasteSignals as AdsWasteSignal[])
       : [],
     landingMismatches: Array.isArray(raw.landingMismatches)
-      ? (raw.landingMismatches as AdsLandingMismatch[]).slice(0, 12)
+      ? (raw.landingMismatches as AdsLandingMismatch[])
       : [],
-    spend: typeof raw.spend === 'number' ? raw.spend : 0,
-    conversions: typeof raw.conversions === 'number' ? raw.conversions : 0,
+    spend: Number(raw.spend ?? 0),
+    conversions: Number(raw.conversions ?? 0),
   };
 }
 
 async function loadConnectionStatus(projectId: string) {
   const supabase = getSupabaseAdmin();
-  const [{ data: gsc }, { data: ga4 }, { data: ads }] = await Promise.all([
+  const [{ data: google }, { data: gsc }, { data: ga4 }, { data: ads }] = await Promise.all([
+    supabase
+      .from('google_connections')
+      .select('id')
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
     supabase
       .from('search_console_properties')
-      .select('id, site_url')
+      .select('site_url, is_selected')
       .eq('project_id', projectId)
       .eq('is_selected', true)
-      .limit(1)
       .maybeSingle(),
     supabase
       .from('ga4_properties')
-      .select('id, property_id, property_name')
+      .select('property_id, property_name, is_selected')
       .eq('project_id', projectId)
       .eq('is_selected', true)
-      .limit(1)
       .maybeSingle(),
     supabase
       .from('google_ads_accounts')
-      .select('id, customer_id, descriptive_name')
+      .select('customer_id, descriptive_name, is_selected')
       .eq('project_id', projectId)
       .eq('is_selected', true)
-      .limit(1)
       .maybeSingle(),
   ]);
 
-  const gscConnected = Boolean(gsc);
-  const ga4Connected = Boolean(ga4);
-  const adsConnected = Boolean(ads);
   return {
-    gscConnected,
-    ga4Connected,
-    adsConnected,
-    googleConnected: gscConnected || ga4Connected || adsConnected,
+    googleConnected: Boolean(google),
+    gscConnected: Boolean(gsc),
+    ga4Connected: Boolean(ga4),
+    adsConnected: Boolean(ads),
     gscPropertyLabel: gsc?.site_url ?? null,
     ga4PropertyLabel: ga4?.property_name || ga4?.property_id || null,
     adsAccountLabel: ads?.descriptive_name || ads?.customer_id || null,
@@ -206,7 +267,7 @@ export async function loadConnectedMetricsForAuditRun(
 ): Promise<ConnectedAuditMetrics> {
   const supabase = getSupabaseAdmin();
   const pageLimit = options?.pageLimit ?? 80;
-  const queryLimit = options?.queryLimit ?? 150;
+  const queryLimit = options?.queryLimit ?? 500;
 
   const [
     { data: metrics },

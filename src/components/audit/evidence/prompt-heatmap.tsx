@@ -51,7 +51,7 @@ export function PromptHeatmap({
               className={
                 active === 'all'
                   ? 'rounded-lg bg-zinc-950 px-2.5 py-1 text-xs font-medium text-white'
-                  : 'rounded-lg border border-zinc-200 bg-white px-2.5 py-1 text-xs font-medium text-zinc-600'
+                  : 'rounded-lg bg-white px-2.5 py-1 text-xs font-medium text-zinc-600'
               }
             >
               All systems
@@ -64,7 +64,7 @@ export function PromptHeatmap({
                 className={
                   active === s
                     ? 'rounded-lg bg-zinc-950 px-2.5 py-1 text-xs font-medium text-white'
-                    : 'rounded-lg border border-zinc-200 bg-white px-2.5 py-1 text-xs font-medium text-zinc-600'
+                    : 'rounded-lg bg-white px-2.5 py-1 text-xs font-medium text-zinc-600'
                 }
               >
                 {s}
@@ -74,16 +74,16 @@ export function PromptHeatmap({
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {categories.map(([cat, n]) => (
-              <div key={cat} className="rounded-xl border border-zinc-200 bg-white px-3 py-3 shadow-sm">
+              <div key={cat} className="rounded-xl bg-white px-3 py-3 shadow-sm">
                 <p className="text-[10px] font-medium tracking-wide text-zinc-400 uppercase">
-                  {cat.replace(/_/g, ' ')}
+                  {cat.replace(/_/g, '')}
                 </p>
                 <p className="mt-1 text-lg font-semibold tabular-nums text-zinc-950">{n}</p>
               </div>
             ))}
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white shadow-sm">
+          <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
             <table className="w-full min-w-[36rem] text-left text-sm">
               <thead className="border-b border-zinc-100 bg-zinc-50 text-[11px] tracking-wide text-zinc-400 uppercase">
                 <tr>
@@ -115,7 +115,7 @@ export function PromptHeatmap({
                     </td>
                     <td className="px-3 py-2 text-xs text-zinc-600">
                       {r.competitors_mentioned.length
-                        ? r.competitors_mentioned.join(', ')
+                        ? r.competitors_mentioned.join(',')
                         : '—'}
                     </td>
                     <td className="px-3 py-2">

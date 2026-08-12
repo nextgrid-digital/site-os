@@ -2,14 +2,21 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { CheckCircle2, Link2 } from 'lucide-react';
+import { CheckCircle2, Link2, RefreshCw, Save } from 'lucide-react';
 import { useInvalidateAuditTab } from '@/components/audit/audit-tab-cache';
 import { ConnectorSourceCards } from '@/components/audit/connectors/connector-source-cards';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import type { ConnectorStatus } from '@/lib/connectors/types';
 import type { Ga4Property, GoogleAdsAccount, SearchConsoleProperty } from '@/lib/supabase/types';
+
+const fieldClass =
+  'h-9 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-950 outline-none transition focus:border-zinc-400';
+
+const primaryBtnClass =
+  'inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-zinc-950 px-3.5 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:pointer-events-none disabled:opacity-50';
+
+const outlineBtnClass =
+  'inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-white px-3.5 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50 disabled:pointer-events-none disabled:opacity-50';
 
 export function ConnectFlow({
   projectId,
@@ -48,7 +55,7 @@ export function ConnectFlow({
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [mappingSaved, setMappingSaved] = useState(false);
-  const reportHref = workspaceBase ? `${workspaceBase}/journey` : `/audit/${projectId}/journey`;
+  const reportHref = workspaceBase ? `${workspaceBase}/brief` : `/audit/${projectId}/brief`;
   const connectHref = workspaceBase ? `${workspaceBase}/connect` : `/audit/${projectId}/connect`;
 
   async function syncProperties() {
@@ -70,8 +77,10 @@ export function ConnectFlow({
     const ga4Count = data.properties?.ga4?.length ?? 0;
     const adsCount = data.properties?.ads?.length ?? 0;
     invalidateTab('/connect');
-    invalidateTab('');
-    invalidateTab('/journey');
+    invalidateTab('/workflow');
+    invalidateTab('/brief');
+    invalidateTab('/work');
+    invalidateTab('/monthly');
     router.refresh();
 
     if (gscCount === 0 && ga4Count === 0 && adsCount === 0) {
@@ -105,8 +114,10 @@ export function ConnectFlow({
       return;
     }
     invalidateTab('/connect');
-    invalidateTab('');
-    invalidateTab('/journey');
+    invalidateTab('/workflow');
+    invalidateTab('/brief');
+    invalidateTab('/work');
+    invalidateTab('/monthly');
     router.refresh();
     setMappingSaved(true);
     setMessage('Property mapping saved.');
@@ -116,15 +127,17 @@ export function ConnectFlow({
     <div className="space-y-6">
       {mappingSaved || googleConnected ? (
         <div className="flex flex-wrap gap-2">
-          <Button render={<a href={reportHref} />}>View Brand dashboard</Button>
-          <Button variant="outline" render={<a href="/app" />}>
+          <a href={reportHref} className={primaryBtnClass}>
+            View Brief
+          </a>
+          <a href="/app" className={outlineBtnClass}>
             Your sites
-          </Button>
+          </a>
         </div>
       ) : null}
 
       {connectorStatuses.length > 0 ? (
-        <div className="space-y-3">
+        <section className="space-y-3">
           <div>
             <h2 className="text-sm font-semibold text-zinc-950">Sources</h2>
             <p className="mt-1 text-sm text-zinc-500">
@@ -132,72 +145,85 @@ export function ConnectFlow({
             </p>
           </div>
           <ConnectorSourceCards statuses={connectorStatuses} connectHref={connectHref} />
-        </div>
+        </section>
       ) : null}
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card className="shadow-none">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Link2 className="size-4" />
-              Google account
-            </CardTitle>
-            <CardDescription>
-              Connect Search Console, GA4, and Ads readonly access for the operator account.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        <section className="rounded-[14px] bg-white p-5 shadow-sm">
+          <div className="flex items-start gap-3">
+            <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-700">
+              <Link2 className="size-4" strokeWidth={1.75} />
+            </span>
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold text-zinc-950">Google account</h3>
+              <p className="mt-1 text-sm leading-5 text-zinc-500">
+                Connect Search Console, GA4, and Ads readonly access for this workspace.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5">
             {googleConnected ? (
-              <div className="flex items-center gap-2 text-sm text-emerald-600">
-                <CheckCircle2 className="size-4" />
-                Connected{operatorEmail ? ` as ${operatorEmail}` : ' for this workspace'}
+              <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-900">
+                <CheckCircle2 className="size-4 shrink-0" strokeWidth={2} />
+                <span className="min-w-0 truncate">
+                  Connected{operatorEmail ? ` as ${operatorEmail}` : 'for this workspace'}
+                </span>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">
+              <p className="rounded-lg bg-zinc-50 px-3 py-2.5 text-sm text-zinc-500">
                 Google is not connected yet for this workspace.
               </p>
             )}
-          </CardContent>
-          <CardFooter>
+          </div>
+
+          <div className="mt-5">
             {googleConnected ? (
-              <Button
-                variant="outline"
-                render={<a href={`/api/google/oauth/start?projectId=${projectId}`} />}
+              <a
+                href={`/api/google/oauth/start?projectId=${projectId}`}
+                className={outlineBtnClass}
               >
                 Reconnect Google
-              </Button>
+              </a>
             ) : (
-              <Button render={<a href={`/api/google/oauth/start?projectId=${projectId}`} />}>
+              <a
+                href={`/api/google/oauth/start?projectId=${projectId}`}
+                className={primaryBtnClass}
+              >
                 Connect Google
-              </Button>
+              </a>
             )}
-          </CardFooter>
-        </Card>
+          </div>
+        </section>
 
-        <Card className="shadow-none">
-          <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
-            <div>
-              <CardTitle>Property mapping</CardTitle>
-              <CardDescription>
+        <section className="rounded-[14px] bg-white p-5 shadow-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold text-zinc-950">Property mapping</h3>
+              <p className="mt-1 text-sm leading-5 text-zinc-500">
                 Map one GSC property, one GA4 property, and one Ads account. Website is always the
                 base source.
-              </CardDescription>
+              </p>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
+            <button
+              type="button"
               onClick={syncProperties}
               disabled={!googleConnected || loading}
+              className={outlineBtnClass}
             >
+              <RefreshCw className="size-3.5" strokeWidth={2} />
               Sync
-            </Button>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="gsc">Search Console ({gscProperties.length})</Label>
+            </button>
+          </div>
+
+          <div className="mt-5 grid gap-4">
+            <div className="grid gap-1.5">
+              <Label htmlFor="gsc" className="text-xs font-medium text-zinc-600">
+                Search Console ({gscProperties.length})
+              </Label>
               <select
                 id="gsc"
-                className="h-9 rounded-lg border border-input bg-background px-3 text-sm"
+                className={fieldClass}
                 value={selectedGsc}
                 onChange={(event) => setSelectedGsc(event.target.value)}
               >
@@ -212,11 +238,13 @@ export function ConnectFlow({
               </select>
             </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="ga4">GA4 ({ga4Properties.length})</Label>
+            <div className="grid gap-1.5">
+              <Label htmlFor="ga4" className="text-xs font-medium text-zinc-600">
+                GA4 ({ga4Properties.length})
+              </Label>
               <select
                 id="ga4"
-                className="h-9 rounded-lg border border-input bg-background px-3 text-sm"
+                className={fieldClass}
                 value={selectedGa4}
                 onChange={(event) => setSelectedGa4(event.target.value)}
               >
@@ -231,11 +259,13 @@ export function ConnectFlow({
               </select>
             </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="ads">Google Ads ({adsAccounts.length})</Label>
+            <div className="grid gap-1.5">
+              <Label htmlFor="ads" className="text-xs font-medium text-zinc-600">
+                Google Ads ({adsAccounts.length})
+              </Label>
               <select
                 id="ads"
-                className="h-9 rounded-lg border border-input bg-background px-3 text-sm"
+                className={fieldClass}
                 value={selectedAds}
                 onChange={(event) => setSelectedAds(event.target.value)}
               >
@@ -249,17 +279,25 @@ export function ConnectFlow({
                 ))}
               </select>
             </div>
-            {message ? <p className="text-sm text-muted-foreground">{message}</p> : null}
-          </CardContent>
-          <CardFooter className="flex flex-col items-start gap-2">
-            <Button onClick={saveMapping} disabled={!googleConnected || loading}>
-              Save mapping
-            </Button>
-            <p className="text-xs text-muted-foreground">
+
+            {message ? <p className="text-sm text-zinc-500">{message}</p> : null}
+          </div>
+
+          <div className="mt-5 flex flex-col gap-2 border-t border-zinc-100 pt-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <p className="min-w-0 text-xs text-zinc-400 sm:pr-2">
               Leave any side blank for partial mapping, or clear all for site-only mode.
             </p>
-          </CardFooter>
-        </Card>
+            <button
+              type="button"
+              onClick={saveMapping}
+              disabled={!googleConnected || loading}
+              className={primaryBtnClass}
+            >
+              <Save className="size-3.5 shrink-0" strokeWidth={2} />
+              Save mapping
+            </button>
+          </div>
+        </section>
       </div>
     </div>
   );

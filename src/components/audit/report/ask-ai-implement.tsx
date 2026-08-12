@@ -29,7 +29,7 @@ export function AskAiImplement({ askAi }: AskAiImplementProps) {
   return (
     <div className="space-y-6">
       <p className="max-w-2xl text-sm leading-6 text-zinc-600">
-        Place this above your site footer so visitors can ask ChatGPT, Claude, or Perplexity about{' '}
+        Place this above your site footer so visitors can ask ChatGPT, Claude, or Perplexity about{''}
         {askAi.brand}. Use a question buyers already ask — the audit suggests one from your offer and
         AEO signals.
       </p>
@@ -50,8 +50,8 @@ export function AskAiImplement({ askAi }: AskAiImplementProps) {
                     'w-full rounded-xl border px-3.5 py-2.5 text-left text-sm leading-6 transition',
                     active
                       ? 'border-zinc-950 bg-zinc-950 text-white'
-                      : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300',
-                  ].join(' ')}
+                      : 'border-zinc-200 bg-white text-zinc-700',
+                  ].join('')}
                 >
                   {question}
                 </button>
@@ -63,13 +63,13 @@ export function AskAiImplement({ askAi }: AskAiImplementProps) {
 
       <AskAiPills askAi={askAi} question={selected} />
 
-      <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
+      <div className="overflow-hidden rounded-xl bg-white">
         <div className="flex items-center justify-between gap-3 border-b border-zinc-100 px-4 py-3">
           <p className="text-sm font-medium text-zinc-900">HTML for your site</p>
           <button
             type="button"
             onClick={handleCopy}
-            className="rounded-lg border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-xs font-medium text-zinc-700 transition hover:bg-zinc-100"
+            className="rounded-lg bg-zinc-50 px-2.5 py-1 text-xs font-medium text-zinc-700 transition hover:bg-zinc-100"
           >
             {copied ? 'Copied' : 'Copy HTML'}
           </button>

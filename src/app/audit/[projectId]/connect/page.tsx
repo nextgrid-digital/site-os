@@ -1,8 +1,5 @@
 import { notFound } from 'next/navigation';
-import {
-  AuditWorkspaceCard,
-  AuditWorkspacePanel,
-} from '@/components/audit/audit-workspace-panel';
+import { AuditWorkspacePanel } from '@/components/audit/audit-workspace-panel';
 import { ConnectFlow } from '@/components/operator/connect-flow';
 import { loadProjectConnectorStatuses } from '@/lib/connectors/project-status';
 import { getSessionPlan } from '@/lib/db/profiles';
@@ -40,11 +37,11 @@ export default async function AuditConnectPage({
 
   return (
     <AuditWorkspacePanel
-      title="Connect"
+      title="Setup"
       description={
         session.signedIn
-          ? 'Connect Google, sync properties, and map Search Console, GA4, and Ads to this project.'
-          : 'Sign in to connect Search Console, GA4, and Ads.'
+          ? 'Connect Google, sync properties, and map Search Console, GA4, and Ads — then run the audit from Workflow.'
+          : 'Sign in to connect Search Console, GA4, and Ads for this client workflow.'
       }
     >
       {!session.signedIn ? (
@@ -57,20 +54,18 @@ export default async function AuditConnectPage({
           Google account connected. Sync and select properties below.
         </div>
       ) : null}
-      <AuditWorkspaceCard>
-        <ConnectFlow
-          projectId={projectId}
-          googleConnected={Boolean(connection)}
-          gscProperties={properties.gsc}
-          ga4Properties={properties.ga4}
-          adsAccounts={properties.ads}
-          connectorStatuses={connectorState.statuses}
-          operatorEmail={connection?.operator_email ?? getOperatorEmail()}
-          fullBriefUnlocked
-          paidPlan
-          workspaceBase={`/audit/${workspace.workspaceId}`}
-        />
-      </AuditWorkspaceCard>
+      <ConnectFlow
+        projectId={projectId}
+        googleConnected={Boolean(connection)}
+        gscProperties={properties.gsc}
+        ga4Properties={properties.ga4}
+        adsAccounts={properties.ads}
+        connectorStatuses={connectorState.statuses}
+        operatorEmail={connection?.operator_email ?? getOperatorEmail()}
+        fullBriefUnlocked
+        paidPlan
+        workspaceBase={`/audit/${workspace.workspaceId}`}
+      />
     </AuditWorkspacePanel>
   );
 }

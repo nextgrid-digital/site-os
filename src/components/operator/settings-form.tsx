@@ -51,8 +51,8 @@ export function SettingsForm({
       body: JSON.stringify({ websiteUrl }),
     });
     setMessage(response.ok ? 'Website updated.' : 'Failed to update website.');
-    invalidateTab('/intake');
-    invalidateTab('');
+    invalidateTab('/workflow');
+    invalidateTab('/brief');
     router.refresh();
   }
 
@@ -79,8 +79,8 @@ export function SettingsForm({
       }),
     });
     setMessage(response.ok ? 'Architecture inputs saved.' : 'Failed to save architecture inputs.');
-    invalidateTab('/intake');
-    invalidateTab('');
+    invalidateTab('/workflow');
+    invalidateTab('/brief');
     router.refresh();
   }
 
@@ -92,7 +92,7 @@ export function SettingsForm({
     });
     setMessage(response.ok ? 'Note added.' : 'Failed to add note.');
     setNoteBody('');
-    invalidateTab('/intake');
+    invalidateTab('/workflow');
     router.refresh();
   }
 

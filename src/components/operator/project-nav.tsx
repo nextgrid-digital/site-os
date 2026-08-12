@@ -5,11 +5,12 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { label: 'Overview', suffix: '/overview' },
-  { label: 'Evidence', suffix: '' },
-  { label: 'Growth', suffix: '/growth' },
-  { label: 'Intake', suffix: '/intake' },
-  { label: 'Connect', suffix: '/connect' },
+  { label: 'Dashboard', suffix: '/workflow' },
+  { label: 'Brief', suffix: '/brief' },
+  { label: 'Work', suffix: '/work' },
+  { label: 'Leads', suffix: '/leads' },
+  { label: 'Monthly', suffix: '/monthly' },
+  { label: 'Setup', suffix: '/connect' },
 ];
 
 export function ProjectNav({ projectId }: { projectId: string; currentPath?: string }) {
@@ -18,19 +19,15 @@ export function ProjectNav({ projectId }: { projectId: string; currentPath?: str
 
   return (
     <div className="overflow-x-auto">
-      <nav className="inline-flex min-w-full gap-1 rounded-xl bg-white/4 p-1">
+      <nav className="inline-flex min-w-full gap-1 rounded-xl bg-white/4 p-1" aria-label="Project workspace">
         {navItems.map((item) => {
           const href = `${base}${item.suffix}`;
-          const active =
-            item.suffix === ''
-              ? pathname === href || pathname === `${href}/`
-              : pathname === href || pathname.startsWith(`${href}/`);
+          const active = pathname === href || pathname.startsWith(`${href}/`);
           return (
             <Link
               key={item.label}
               href={href}
-              className={cn(
-                'rounded-lg px-3 py-1.5 text-sm whitespace-nowrap transition-colors',
+              className={cn('rounded-lg px-3 py-1.5 text-sm whitespace-nowrap transition-colors',
                 active
                   ? 'bg-white text-black'
                   : 'text-muted-foreground hover:text-foreground'

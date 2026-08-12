@@ -36,14 +36,18 @@ const mainNav = [
 ];
 
 const primaryProjectNav = [
-  { title: 'Overview', suffix: '/overview', icon: Building2 },
-  { title: 'Evidence', suffix: '', icon: ScrollText },
-  { title: 'Growth', suffix: '/growth', icon: FileSearch },
-  { title: 'Connect', suffix: '/connect', icon: Link2 },
-  { title: 'Intake', suffix: '/intake', icon: Settings2 },
+  { title: 'Dashboard', suffix: '/workflow', icon: Building2 },
+  { title: 'Brief', suffix: '/brief', icon: ScrollText },
+  { title: 'Work', suffix: '/work', icon: FileSearch },
+  { title: 'Leads', suffix: '/leads', icon: Wallet },
+  { title: 'Monthly', suffix: '/monthly', icon: Activity },
+  { title: 'Setup', suffix: '/connect', icon: Link2 },
 ];
 
 const moreProjectNav = [
+  { title: 'Overview', suffix: '/overview', icon: LayoutDashboard },
+  { title: 'Evidence', suffix: '/evidence', icon: ScrollText },
+  { title: 'Intake', suffix: '/intake', icon: Settings2 },
   { title: 'Architecture', suffix: '/architecture', icon: Activity },
   { title: 'Pricing', suffix: '/pricing', icon: Wallet },
 ];

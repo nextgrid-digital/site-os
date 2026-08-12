@@ -37,15 +37,14 @@ function auditMeta(card: SiteCardData) {
   if (card.latestAudit.readiness) {
     parts.push(readinessLabel(card.latestAudit.readiness));
   }
-  return parts.join(' · ');
+  return parts.join('·');
 }
 
 export function SiteCard({ site }: { site: SiteCardData }) {
   return (
     <Link
       href={`/audit/${site.id}/overview`}
-      className={cn(
-        'group block rounded-2xl border border-white/8 bg-[#141416] p-5 transition-colors',
+      className={cn('group block rounded-2xl border border-white/8 bg-[#141416] p-5 transition-colors',
         'hover:border-white/16 hover:bg-[#18181b]'
       )}
     >

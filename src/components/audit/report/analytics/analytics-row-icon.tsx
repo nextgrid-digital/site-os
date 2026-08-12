@@ -127,8 +127,7 @@ function LucideMark({
 }) {
   return (
     <span
-      className={cn(
-        'inline-flex size-5 shrink-0 items-center justify-center rounded-md',
+      className={cn('inline-flex size-5 shrink-0 items-center justify-center rounded-md',
         bg,
         className
       )}
@@ -180,8 +179,7 @@ export function AnalyticsRowIcon({
       if (flag) {
         return (
           <span
-            className={cn(
-              'inline-flex size-5 shrink-0 items-center justify-center text-sm leading-none',
+            className={cn('inline-flex size-5 shrink-0 items-center justify-center text-sm leading-none',
               className
             )}
             aria-hidden
@@ -202,8 +200,7 @@ export function AnalyticsRowIcon({
       const b = browserStyle(label);
       return (
         <span
-          className={cn(
-            'inline-flex size-5 shrink-0 items-center justify-center rounded-md text-[10px] font-bold',
+          className={cn('inline-flex size-5 shrink-0 items-center justify-center rounded-md text-[10px] font-bold',
             b.bg,
             b.color,
             className

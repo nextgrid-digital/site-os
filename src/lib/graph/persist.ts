@@ -175,6 +175,7 @@ export async function persistCommercialGraph(input: {
       order.opportunityIndex != null && insertedOpps?.[order.opportunityIndex]
         ? insertedOpps[order.opportunityIndex].id
         : null,
+    finding_id: order.findingId ?? null,
     full_prompt: order.fullPrompt,
     revenue_impact: order.revenueImpact,
     buyer_importance: order.buyerImportance,
@@ -185,6 +186,7 @@ export async function persistCommercialGraph(input: {
     programmatic_potential: order.programmaticPotential,
     priority_score: order.priorityScore,
     status: 'open',
+    next_action: order.summary,
   }));
 
   if (workOrderRows.length > 0) {

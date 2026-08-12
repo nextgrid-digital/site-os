@@ -117,33 +117,33 @@ export default async function AuditOverviewPage({
       <AuditWorkspaceCard className="space-y-4">
         <div>
           <p className="text-xs font-medium tracking-wide text-zinc-400 uppercase">Primary actions</p>
-          <h2 className="mt-2 text-lg font-semibold text-zinc-950">Run the core flow</h2>
+          <h2 className="mt-2 text-lg font-semibold text-zinc-950">Run the client workflow</h2>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {readyToAudit ? (
             <RunAuditButton
               projectId={projectId}
               fullBriefUnlocked={fullBriefUnlocked}
-              reportHref={`${base}/growth`}
+              reportHref={`${base}/workflow`}
             />
           ) : (
             <Button render={<Link href={`${base}/intake`} />}>Add website URL</Button>
           )}
+          <Button variant="outline" render={<Link href={`${base}/workflow`} />}>
+            <ExternalLink />
+            Open workflow
+          </Button>
           {hasBrief ? (
-            <Button variant="outline" render={<Link href={`${base}/growth`} />}>
+            <Button variant="outline" render={<Link href={`${base}/brief`} />}>
               <ScrollText />
-              Open growth report
+              Open brief
             </Button>
           ) : null}
-          <Button variant="outline" render={<Link href={base} />}>
-            <ExternalLink />
-            Open evidence
-          </Button>
-          <Button variant="ghost" render={<Link href={`${base}/upgrade`} />}>
-            Share intake link
-          </Button>
           <Button variant="ghost" render={<Link href={`${base}/connect`} />}>
             Connect data
+          </Button>
+          <Button variant="ghost" render={<Link href={`${base}/work`} />}>
+            Work queue
           </Button>
         </div>
       </AuditWorkspaceCard>
@@ -157,7 +157,7 @@ export default async function AuditOverviewPage({
             <div>
               <span className="text-zinc-400">Goal</span>
               <p className="mt-1 font-medium text-zinc-950 capitalize">
-                {clientIntake.goal_category.replace('_', ' ')}
+                {clientIntake.goal_category.replace('_', '')}
               </p>
             </div>
             {clientIntake.primary_buyer ? (

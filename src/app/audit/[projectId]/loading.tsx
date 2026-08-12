@@ -1,7 +1,7 @@
 export default function AuditSegmentLoading() {
   return (
     <div className="animate-pulse space-y-6" aria-busy="true" aria-label="Loading audit">
-      <div className="flex gap-3 border-b border-zinc-200 pb-3">
+      <div className="flex gap-3 pb-3">
         <div className="h-8 w-20 rounded-lg bg-zinc-200" />
         <div className="h-8 w-20 rounded-lg bg-zinc-200" />
         <div className="h-8 w-20 rounded-lg bg-zinc-200" />
@@ -13,13 +13,13 @@ export default function AuditSegmentLoading() {
           <div className="h-4 w-1/2 max-w-sm rounded bg-zinc-200" />
         </div>
       </div>
-      <div className="h-48 rounded-2xl border border-zinc-200 bg-white" />
+      <div className="h-48 rounded-2xl bg-white" />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-24 rounded-2xl border border-zinc-200 bg-white" />
+          <div key={i} className="h-24 rounded-2xl bg-white" />
         ))}
       </div>
-      <div className="h-64 rounded-2xl border border-zinc-200 bg-white" />
+      <div className="h-64 rounded-2xl bg-white" />
     </div>
   );
 }

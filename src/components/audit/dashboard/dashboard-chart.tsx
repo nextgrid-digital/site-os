@@ -37,7 +37,7 @@ export function DashboardChart({
   if (data.length === 0) {
     return (
       <div
-        className="flex items-center justify-center rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 text-sm text-zinc-500"
+        className="flex items-center justify-center rounded-xl bg-zinc-50/50 text-sm text-zinc-500"
         style={{ height }}
       >
         {emptyLabel}

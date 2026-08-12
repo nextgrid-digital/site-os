@@ -175,7 +175,7 @@ export function LeadsTable({
                   </div>
                 </TableCell>
                 <TableCell>{lead.channel}</TableCell>
-                <TableCell>{[lead.source, lead.medium].filter(Boolean).join(' / ') || '—'}</TableCell>
+                <TableCell>{[lead.source, lead.medium].filter(Boolean).join('/') || '—'}</TableCell>
                 <TableCell>
                   <select
                     className="h-8 rounded-lg border border-input bg-background px-2 text-sm"
@@ -210,8 +210,9 @@ export function LeadsTable({
           </TableBody>
         </Table>
       ) : (
-        <div className="rounded-2xl border border-dashed border-white/10 px-6 py-8 text-sm text-muted-foreground">
-          No leads yet. Add the first lead to start tracking channel attribution and funnel status.
+        <div className="rounded-2xl bg-zinc-50 px-6 py-8 text-sm text-zinc-600">
+          No CRM leads yet — traffic and GA4 conversions live on Dashboard. Add a lead here to
+          track stage and status.
         </div>
       )}
     </div>

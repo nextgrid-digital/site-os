@@ -117,7 +117,7 @@ export function EvidenceExplorer({
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm lg:flex-row lg:items-center">
+      <div className="flex flex-col gap-3 rounded-2xl bg-white p-4 shadow-sm lg:flex-row lg:items-center">
         <input
           type="search"
           value={search}
@@ -129,7 +129,7 @@ export function EvidenceExplorer({
           <select
             value={sourceFilter}
             onChange={(e) => setSourceFilter(e.target.value)}
-            className="rounded-lg border border-zinc-200 bg-white px-2.5 py-2 text-xs text-zinc-700"
+            className="rounded-lg bg-white px-2.5 py-2 text-xs text-zinc-700"
           >
             <option value="all">All description sources</option>
             {sourceTypes.map((s) => (
@@ -141,7 +141,7 @@ export function EvidenceExplorer({
           <select
             value={contentFilter}
             onChange={(e) => setContentFilter(e.target.value)}
-            className="rounded-lg border border-zinc-200 bg-white px-2.5 py-2 text-xs text-zinc-700"
+            className="rounded-lg bg-white px-2.5 py-2 text-xs text-zinc-700"
           >
             <option value="all">All content types</option>
             <option value="identified">Identified only</option>
@@ -166,7 +166,7 @@ export function EvidenceExplorer({
           <a
             key={label}
             href={`#explorer-${label.toLowerCase().replace(/\s+/g, '-')}`}
-            className="shrink-0 rounded-lg border border-zinc-200 bg-white px-2.5 py-1 text-xs font-medium text-zinc-600 hover:text-zinc-950"
+            className="shrink-0 rounded-lg bg-white px-2.5 py-1 text-xs font-medium text-zinc-600 hover:text-zinc-950"
           >
             {label}
           </a>
@@ -178,7 +178,7 @@ export function EvidenceExplorer({
         {view.identity.length === 0 ? (
           <EmptyState title="No identity fields were identified during this audit." />
         ) : (
-          <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white shadow-sm">
+          <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
             <table className="w-full min-w-[28rem] text-left text-sm">
               <thead className="border-b border-zinc-100 bg-zinc-50 text-[11px] tracking-wide text-zinc-400 uppercase">
                 <tr>
@@ -191,7 +191,7 @@ export function EvidenceExplorer({
                 {view.identity.map((field) => (
                   <tr key={field.field_key}>
                     <td className="px-3 py-2 capitalize text-zinc-900">
-                      {field.field_key.replace(/_/g, ' ')}
+                      {field.field_key.replace(/_/g, '')}
                     </td>
                     <td className="px-3 py-2 text-zinc-700">
                       {field.field_value ?? 'Not identified'}
@@ -220,7 +220,7 @@ export function EvidenceExplorer({
         {claims.length === 0 ? (
           <EmptyState title="No claims match the current filters." />
         ) : (
-          <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white shadow-sm">
+          <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
             <table className="w-full min-w-[44rem] text-left text-sm">
               <thead className="border-b border-zinc-100 bg-zinc-50 text-[11px] tracking-wide text-zinc-400 uppercase">
                 <tr>
@@ -244,7 +244,7 @@ export function EvidenceExplorer({
                       </button>
                     </td>
                     <td className="px-3 py-2">
-                      <StatusChip>{c.verification_status.replace(/_/g, ' ')}</StatusChip>
+                      <StatusChip>{c.verification_status.replace(/_/g, '')}</StatusChip>
                     </td>
                     <td className="px-3 py-2 tabular-nums text-zinc-600">{c.corroboration_count}</td>
                     <td className="px-3 py-2 tabular-nums text-zinc-600">{c.contradiction_count}</td>
@@ -268,9 +268,9 @@ export function EvidenceExplorer({
                 key={`${d.source_type}-${i}`}
                 type="button"
                 onClick={() => onDescription(d)}
-                className="w-72 shrink-0 rounded-2xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition hover:border-zinc-300"
+                className="w-72 shrink-0 rounded-2xl bg-white p-4 text-left shadow-sm transition"
               >
-                <StatusChip>{d.source_type.replace(/_/g, ' ')}</StatusChip>
+                <StatusChip>{d.source_type.replace(/_/g, '')}</StatusChip>
                 <p className="mt-3 line-clamp-5 text-sm leading-6 text-zinc-800">{d.description_text}</p>
                 {d.category_terms.length > 0 ? (
                   <div className="mt-3 flex flex-wrap gap-1">
@@ -299,7 +299,7 @@ export function EvidenceExplorer({
             className={
               coverageGroup === 'all'
                 ? 'rounded-lg bg-zinc-950 px-2.5 py-1 text-xs text-white'
-                : 'rounded-lg border border-zinc-200 px-2.5 py-1 text-xs text-zinc-600'
+                : 'rounded-lg px-2.5 py-1 text-xs text-zinc-600'
             }
           >
             All
@@ -312,21 +312,21 @@ export function EvidenceExplorer({
               className={
                 coverageGroup === g
                   ? 'rounded-lg bg-zinc-950 px-2.5 py-1 text-xs text-white'
-                  : 'rounded-lg border border-zinc-200 px-2.5 py-1 text-xs text-zinc-600'
+                  : 'rounded-lg px-2.5 py-1 text-xs text-zinc-600'
               }
             >
-              {g.replace(/_/g, ' ')}
+              {g.replace(/_/g, '')}
             </button>
           ))}
         </div>
         <div className="mb-4 flex flex-wrap gap-2">
           {[...coverageCounts.entries()].map(([status, n]) => (
             <StatusChip key={status} tone={COVERAGE_TONES[status] ?? 'neutral'}>
-              {status.replace(/_/g, ' ')} · {n}
+              {status.replace(/_/g, '')} · {n}
             </StatusChip>
           ))}
         </div>
-        <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white shadow-sm">
+        <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
           <table className="w-full min-w-[36rem] text-left text-sm">
             <thead className="border-b border-zinc-100 bg-zinc-50 text-[11px] tracking-wide text-zinc-400 uppercase">
               <tr>
@@ -346,7 +346,7 @@ export function EvidenceExplorer({
                   </td>
                   <td className="px-3 py-2">
                     <StatusChip tone={COVERAGE_TONES[b.coverage_status] ?? 'neutral'}>
-                      {b.coverage_status.replace(/_/g, ' ')}
+                      {b.coverage_status.replace(/_/g, '')}
                     </StatusChip>
                   </td>
                   <td className="px-3 py-2 tabular-nums text-zinc-600">{b.source_count}</td>
@@ -368,7 +368,7 @@ export function EvidenceExplorer({
               ['Owned media', view.evidence_inventory.owned_media],
             ] as const
           ).map(([label, items]) => (
-            <div key={label} className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+            <div key={label} className="rounded-2xl bg-white p-4 shadow-sm">
               <p className="text-[11px] font-medium tracking-wide text-zinc-400 uppercase">{label}</p>
               <p className="mt-2 text-2xl font-semibold tabular-nums text-zinc-950">{items.length}</p>
               <ul className="mt-3 space-y-1">
@@ -392,23 +392,23 @@ export function EvidenceExplorer({
           {content.map((c) => (
             <div
               key={c.content_type}
-              className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm"
+              className="rounded-2xl bg-white p-4 shadow-sm"
             >
               <div className="flex items-center justify-between gap-2">
                 <p className="text-xs font-medium capitalize text-zinc-900">
-                  {c.content_type.replace(/_/g, ' ')}
+                  {c.content_type.replace(/_/g, '')}
                 </p>
                 <span
                   className={`h-2 w-2 rounded-full ${
-                    c.page_count > 0 ? 'bg-emerald-500' : 'bg-zinc-300'
-                  }`}
+ c.page_count > 0 ? 'bg-emerald-500' : 'bg-zinc-300'
+ }`}
                 />
               </div>
               <p className="mt-2 text-xl font-semibold tabular-nums text-zinc-950">{c.page_count}</p>
               <p className="mt-1 text-[11px] text-zinc-500">
                 {c.evidence_strength === 'not_identified'
                   ? 'Not identified during this audit.'
-                  : c.evidence_strength.replace(/_/g, ' ')}
+                  : c.evidence_strength.replace(/_/g, '')}
               </p>
             </div>
           ))}
@@ -417,7 +417,7 @@ export function EvidenceExplorer({
 
       <section id="explorer-sources" className="scroll-mt-28">
         <SectionTitle title="Source distribution" lead="Where information was observed." />
-        <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white shadow-sm">
+        <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
           <table className="w-full min-w-[28rem] text-left text-sm">
             <thead className="border-b border-zinc-100 bg-zinc-50 text-[11px] tracking-wide text-zinc-400 uppercase">
               <tr>
@@ -448,7 +448,7 @@ export function EvidenceExplorer({
                   key={a.topic}
                   type="button"
                   onClick={() => onAssociation(a)}
-                  className="rounded-lg border border-zinc-200 bg-white px-2.5 py-1 text-xs text-zinc-700 hover:border-zinc-400"
+                  className="rounded-lg bg-white px-2.5 py-1 text-xs text-zinc-700"
                 >
                   {a.topic}
                 </button>
@@ -460,7 +460,7 @@ export function EvidenceExplorer({
 
       <section id="explorer-technical" className="scroll-mt-28">
         <SectionTitle title="Technical accessibility" lead="Factual crawl and page signals." />
-        <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white shadow-sm">
+        <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
           <table className="w-full min-w-[32rem] text-left text-sm">
             <thead className="border-b border-zinc-100 bg-zinc-50 text-[11px] tracking-wide text-zinc-400 uppercase">
               <tr>
@@ -485,7 +485,7 @@ export function EvidenceExplorer({
                               : 'neutral'
                       }
                     >
-                      {t.status.replace(/_/g, ' ')}
+                      {t.status.replace(/_/g, '')}
                     </StatusChip>
                   </td>
                   <td className="px-3 py-2 text-xs text-zinc-600">{t.detail ?? '—'}</td>
@@ -506,7 +506,7 @@ export function EvidenceExplorer({
               <li key={`${h.event_type}-${i}`} className="relative">
                 <span className="absolute -left-[1.15rem] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-zinc-400" />
                 <p className="text-sm font-medium capitalize text-zinc-900">
-                  {h.event_type.replace(/_/g, ' ')}
+                  {h.event_type.replace(/_/g, '')}
                 </p>
                 <p className="mt-0.5 text-xs text-zinc-600">
                   {h.previous_value ?? '—'} → {h.current_value ?? '—'}
@@ -522,12 +522,12 @@ export function EvidenceExplorer({
 
       <section id="explorer-methodology" className="scroll-mt-28">
         <SectionTitle title="Methodology and limitations" />
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 text-sm leading-6 text-zinc-700 shadow-sm">
+        <div className="rounded-2xl bg-white p-5 text-sm leading-6 text-zinc-700 shadow-sm">
           <ul className="space-y-1">
             <li>Pages analyzed: {view.methodology.pages_analyzed}</li>
-            <li>Sources searched: {view.methodology.sources_searched.join(', ') || 'None'}</li>
+            <li>Sources searched: {view.methodology.sources_searched.join(',') || 'None'}</li>
             <li>Prompts tested: {view.methodology.prompts_tested}</li>
-            <li>Models used: {view.methodology.models_used.join(', ') || 'None in this audit'}</li>
+            <li>Models used: {view.methodology.models_used.join(',') || 'None in this audit'}</li>
           </ul>
           <p className="mt-4 text-xs text-zinc-500">{view.methodology.absence_disclaimer}</p>
         </div>
@@ -580,7 +580,7 @@ export function CompareView({
         title="Compare audits"
         lead={`${previous.executive.audit_date.slice(0, 10)} → ${current.executive.audit_date.slice(0, 10)}`}
       />
-      <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
         <table className="w-full min-w-[28rem] text-left text-sm">
           <thead className="border-b border-zinc-100 bg-zinc-50 text-[11px] tracking-wide text-zinc-400 uppercase">
             <tr>
@@ -611,13 +611,13 @@ export function CompareView({
             {current.historical_changes.slice(0, 20).map((h, i) => (
               <li
                 key={`${h.event_type}-${i}`}
-                className="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm"
+                className="rounded-xl bg-white px-4 py-3 text-sm"
               >
                 <span className="font-medium capitalize text-zinc-900">
-                  {h.event_type.replace(/_/g, ' ')}
+                  {h.event_type.replace(/_/g, '')}
                 </span>
                 <span className="text-zinc-600">
-                  {' '}
+                  {''}
                   · {h.previous_value ?? '—'} → {h.current_value ?? '—'}
                 </span>
               </li>

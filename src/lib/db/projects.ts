@@ -7,6 +7,7 @@ import type {
   AuditRun,
   ChannelTrafficRow,
   Finding,
+  FindingStatus,
   Ga4Property,
   GoogleAdsAccount,
   GoogleConnection,
@@ -258,18 +259,47 @@ export const getWorkOrdersForAudit = cache(async (auditRunId: string): Promise<G
 export async function updateWorkOrderStatus(
   projectId: string,
   workOrderId: string,
-  status: 'open' | 'done' | 'skipped'
+  status: 'open' | 'done' | 'skipped',
+  nextAction?: string | null
 ): Promise<GraphWorkOrder> {
   const supabase = getSupabaseAdmin();
+  const patch: Record<string, unknown> = {
+    status,
+    updated_at: new Date().toISOString(),
+  };
+  if (nextAction !== undefined) patch.next_action = nextAction;
   const { data, error } = await supabase
     .from('graph_work_orders')
-    .update({ status, updated_at: new Date().toISOString() })
+    .update(patch)
     .eq('id', workOrderId)
     .eq('project_id', projectId)
     .select('*')
     .single();
   if (error || !data) throw new Error(error?.message ?? 'Work order not found.');
   return data as GraphWorkOrder;
+}
+
+export async function updateFindingWorkflow(
+  projectId: string,
+  findingId: string,
+  input: { status?: FindingStatus; nextAction?: string | null }
+): Promise<Finding> {
+  const supabase = getSupabaseAdmin();
+  const patch: Record<string, unknown> = {};
+  if (input.status) patch.status = input.status;
+  if (input.nextAction !== undefined) patch.next_action = input.nextAction;
+  if (Object.keys(patch).length === 0) {
+    throw new Error('No finding updates provided.');
+  }
+  const { data, error } = await supabase
+    .from('findings')
+    .update(patch)
+    .eq('id', findingId)
+    .eq('project_id', projectId)
+    .select('*')
+    .single();
+  if (error || !data) throw new Error(error?.message ?? 'Finding not found.');
+  return data as Finding;
 }
 
 export type ProjectWorkspace = {

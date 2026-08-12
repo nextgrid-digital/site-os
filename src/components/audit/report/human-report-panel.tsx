@@ -51,7 +51,7 @@ function SeverityBadge({ severity }: { severity: string }) {
 }
 
 function kindLabel(kind: string) {
-  return kind.replace(/_/g, ' ');
+  return kind.replace(/_/g, '');
 }
 
 function EmptyLine({ children }: { children: string }) {
@@ -97,13 +97,13 @@ export function HumanReportPanel({
         <div className="space-y-4">
           <p className="max-w-3xl text-base leading-7 text-zinc-800">{view.humanVerdict.verdict}</p>
           <dl className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 px-4 py-3">
+            <div className="rounded-xl bg-zinc-50/80 px-4 py-3">
               <dt className="text-[11px] font-medium tracking-[0.12em] text-zinc-400 uppercase">
                 Main blocker
               </dt>
               <dd className="mt-1 text-sm leading-6 text-zinc-800">{view.humanVerdict.mainBlocker}</dd>
             </div>
-            <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 px-4 py-3">
+            <div className="rounded-xl bg-zinc-50/80 px-4 py-3">
               <dt className="text-[11px] font-medium tracking-[0.12em] text-zinc-400 uppercase">
                 First fix
               </dt>
@@ -151,7 +151,7 @@ export function HumanReportPanel({
         title="Story flow"
         lead="Problem → promise → solution → proof → action."
       >
-        <ol className="divide-y divide-zinc-100 overflow-hidden rounded-xl border border-zinc-200 bg-white">
+        <ol className="divide-y divide-zinc-100 overflow-hidden rounded-xl bg-white">
           {view.storyFlow.map((step) => (
             <li key={step.key} className="flex flex-col gap-2 px-4 py-3.5 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 space-y-1">
@@ -182,7 +182,7 @@ export function HumanReportPanel({
                   <li key={page.kind}>
                     <p className="text-sm font-medium capitalize text-zinc-900">{kindLabel(page.kind)}</p>
                     <p className="mt-0.5 font-mono text-[11px] text-zinc-400">
-                      {page.paths.slice(0, 3).join(' · ') || '—'}
+                      {page.paths.slice(0, 3).join('·') || '—'}
                     </p>
                   </li>
                 ))}
@@ -261,7 +261,7 @@ export function HumanReportPanel({
             {view.priorityFindings.map((finding, index) => (
               <li
                 key={finding.id}
-                className="flex gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3.5"
+                className="flex gap-3 rounded-xl bg-white px-4 py-3.5"
               >
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-500">
                   {index + 1}

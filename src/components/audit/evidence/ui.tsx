@@ -38,7 +38,7 @@ export function ConfidenceIndicator({ value }: { value: number }) {
 
 export function SourceBadge({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex rounded-md border border-zinc-200 bg-zinc-50 px-1.5 py-0.5 text-[10px] font-medium tracking-wide text-zinc-600 uppercase">
+    <span className="inline-flex rounded-md bg-zinc-50 px-1.5 py-0.5 text-[10px] font-medium tracking-wide text-zinc-600 uppercase">
       {children}
     </span>
   );
@@ -52,7 +52,7 @@ export function EmptyState({
   description?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-dashed border-zinc-200 bg-zinc-50/80 px-5 py-8 text-center">
+    <div className="rounded-2xl bg-zinc-50/80 px-5 py-8 text-center">
       <p className="text-sm font-medium text-zinc-800">{title}</p>
       {description ? <p className="mx-auto mt-1.5 max-w-md text-xs leading-5 text-zinc-500">{description}</p> : null}
     </div>
@@ -71,7 +71,7 @@ export function MetricCard({
   delta?: string | null;
 }) {
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl bg-white p-4 shadow-sm">
       <p className="text-[11px] font-medium tracking-[0.12em] text-zinc-400 uppercase">{label}</p>
       <p className="mt-2 text-2xl font-semibold tracking-tight text-zinc-950 tabular-nums">{value}</p>
       {caption ? <p className="mt-1 text-xs text-zinc-500">{caption}</p> : null}

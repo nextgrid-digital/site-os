@@ -43,11 +43,11 @@ export function JoinedRawGoogleDisclosure({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="rounded-[14px] border border-solid border-surface bg-surface-3">
+    <div className="rounded-[14px] bg-surface-3">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between px-5 py-4 text-left transition hover:border-zinc-300"
+        className="flex w-full items-center justify-between px-5 py-4 text-left transition"
         aria-expanded={open}
       >
         <div>

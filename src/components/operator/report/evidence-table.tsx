@@ -28,8 +28,7 @@ export function EvidenceTable({
               {row.map((cell, cellIndex) => (
                 <td
                   key={`${index}-${cellIndex}`}
-                  className={cn(
-                    'px-2 py-2.5 align-top text-white/75',
+                  className={cn('px-2 py-2.5 align-top text-white/75',
                     cellIndex === 0 && 'font-medium text-white/90'
                   )}
                 >

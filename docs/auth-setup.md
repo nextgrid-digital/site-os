@@ -28,6 +28,8 @@ Authentication → URL configuration:
   - `https://site-os-opal.vercel.app/auth/callback`
   - `https://*.vercel.app/auth/callback` (preview deploys)
 
+Query strings on `/auth/callback` (e.g. `?next=/auth/update-password`) are allowed once the base path is on the list.
+
 If the production callback is missing from the allow list, Supabase falls back to **Site URL**. When Site URL is localhost, Google sign-in on production sends users to localhost.
 
 ### 3. Email / password
@@ -36,6 +38,15 @@ Authentication → Providers → Email:
 
 - Enable email provider
 - **Disable “Confirm email”** so signup returns a session immediately (otherwise users get stuck on verify-email again)
+
+### 4. Google account + email/password (same user)
+
+Users who signed up with Google can also sign in with email/password on the **same** account after setting a password via `updateUser({ password })`:
+
+1. While signed in: Dashboard menu → **Set password** → `/auth/update-password?from=account`
+2. Or: Forgot password → email link → `/auth/callback?next=/auth/update-password` → set password
+
+Do **not** create a second signup with the same email — that does not merge into the Google user.
 
 ## Production checklist
 
@@ -57,5 +68,7 @@ Local `.env` may keep localhost values; production must not.
 |-------|---------|
 | `POST /api/auth/signup` | Email/password sign up + unlock session |
 | `POST /api/auth/login` | Email/password sign in + unlock session |
-| `GET /auth/callback` | Google OAuth code exchange + unlock session |
+| `POST /api/auth/forgot-password` | Send reset email (`redirectTo` → callback → update-password) |
+| `GET /auth/callback` | OAuth / recovery code exchange (sets session cookies on redirect) |
+| `/auth/update-password` | Set or reset password (`updateUser`) — enables email login on Google accounts |
 | `/audit/[sessionId]` | Sign-in gate until authenticated, then full free report |

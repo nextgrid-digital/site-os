@@ -17,10 +17,13 @@ export async function PATCH(
         { status: 400 }
       );
     }
+    const nextAction =
+      body.nextAction != null ? String(body.nextAction) : undefined;
     const workOrder = await updateWorkOrderStatus(
       projectId,
       workOrderId,
-      status as 'open' | 'done' | 'skipped'
+      status as 'open' | 'done' | 'skipped',
+      nextAction
     );
     return NextResponse.json({ workOrder });
   } catch (error) {

@@ -40,7 +40,7 @@ export function CompetitorSection({
               />
             ))}
           </div>
-          <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white shadow-sm">
+          <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
             <table className="w-full min-w-[40rem] text-left text-sm">
               <thead className="border-b border-zinc-100 bg-zinc-50 text-[11px] tracking-wide text-zinc-400 uppercase">
                 <tr>
@@ -63,7 +63,7 @@ export function CompetitorSection({
                     <td className="px-3 py-2 tabular-nums text-zinc-700">{c.prompt_appearances}</td>
                     <td className="px-3 py-2 tabular-nums text-zinc-700">{c.cited_sources.length}</td>
                     <td className="px-3 py-2 text-xs text-zinc-600">
-                      {c.associated_categories.join(', ') || '—'}
+                      {c.associated_categories.join(',') || '—'}
                     </td>
                   </tr>
                 ))}

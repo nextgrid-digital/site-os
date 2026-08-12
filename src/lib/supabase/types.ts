@@ -174,6 +174,7 @@ export interface Finding {
   confidence: number | null;
   aeo_value: number | null;
   priority_score: number | null;
+  next_action?: string | null;
   created_at: string;
 }
 
@@ -514,6 +515,7 @@ export interface GraphWorkOrder {
   programmatic_potential: number;
   priority_score: number;
   status: GraphWorkOrderStatus;
+  next_action?: string | null;
   created_at: string;
   updated_at: string;
 }

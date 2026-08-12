@@ -35,7 +35,7 @@ export function EvidenceDrawer({
         className="absolute inset-0 bg-zinc-950/30"
         onClick={onClose}
       />
-      <aside className="relative flex max-h-[88vh] w-full flex-col rounded-t-2xl border border-zinc-200 bg-white shadow-xl sm:h-full sm:max-h-none sm:max-w-md sm:rounded-none sm:border-l sm:border-t-0 sm:border-r-0 sm:border-b-0 lg:max-w-lg">
+      <aside className="relative flex max-h-[88vh] w-full flex-col rounded-t-2xl bg-white shadow-xl sm:h-full sm:max-h-none sm:max-w-md sm:rounded-none sm:border-l sm:border-t-0 sm:border-r-0 sm:border-b-0 lg:max-w-lg">
         <div className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-zinc-200 sm:hidden" />
         <div className="flex items-start justify-between gap-3 border-b border-zinc-100 px-5 py-4">
           <div className="min-w-0">
@@ -50,7 +50,7 @@ export function EvidenceDrawer({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-zinc-200 p-1.5 text-zinc-500 transition hover:bg-zinc-50 hover:text-zinc-900"
+            className="rounded-lg p-1.5 text-zinc-500 transition hover:bg-zinc-50 hover:text-zinc-900"
           >
             <X className="h-4 w-4" />
           </button>
@@ -82,7 +82,7 @@ export function EvidenceDrawer({
           {payload.meta?.length ? (
             <dl className="grid gap-2">
               {payload.meta.map((row) => (
-                <div key={row.label} className="rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2">
+                <div key={row.label} className="rounded-xl bg-zinc-50 px-3 py-2">
                   <dt className="text-[10px] font-medium tracking-wide text-zinc-400 uppercase">
                     {row.label}
                   </dt>

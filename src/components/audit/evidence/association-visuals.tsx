@@ -42,7 +42,7 @@ export function AssociationMatrix({
         title="Brand association matrix"
         lead="Topic × source type counts from this audit."
       />
-      <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
         <table className="w-full min-w-[32rem] text-left text-sm">
           <thead className="border-b border-zinc-100 bg-zinc-50 text-[11px] tracking-wide text-zinc-400 uppercase">
             <tr>
@@ -87,7 +87,7 @@ export function AssociationMatrix({
                             : 'neutral'
                     }
                   >
-                    {a.classification.replace(/_/g, ' ')}
+                    {a.classification.replace(/_/g, '')}
                   </StatusChip>
                 </td>
               </tr>
@@ -109,7 +109,7 @@ export function AssociationBarChart({ associations }: { associations: BrandAssoc
   }));
 
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl bg-white p-4 shadow-sm">
       <p className="text-sm font-semibold text-zinc-950">Association source counts</p>
       <p className="mt-0.5 text-xs text-zinc-500">First-party, third-party, and AI sample appearances</p>
       <div className="mt-3 h-56 w-full">
@@ -169,7 +169,7 @@ export function EvidenceBalanceBar({
   ].filter((s) => s.n > 0);
 
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl bg-white p-4 shadow-sm">
       <p className="text-sm font-semibold text-zinc-950">Evidence balance</p>
       <p className="mt-0.5 text-xs text-zinc-500">Share of evidence items by independence</p>
       <div className="mt-4 flex h-3 overflow-hidden rounded-full bg-zinc-100">
@@ -205,7 +205,7 @@ export function SourceDistributionChart({
   }
   const colors = ['#18181b', '#71717a', '#10b981', '#a1a1aa'];
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl bg-white p-4 shadow-sm">
       <p className="text-sm font-semibold text-zinc-950">Source distribution</p>
       <div className="mt-3 h-48 w-full">
         <ResponsiveContainer width="100%" height="100%">

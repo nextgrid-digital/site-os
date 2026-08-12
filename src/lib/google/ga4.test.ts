@@ -10,3 +10,12 @@ test('normalizeTrafficChannel maps common source / medium pairs', () => {
   assert.equal(normalizeTrafficChannel('(not set)'), 'Unassigned');
   assert.equal(normalizeTrafficChannel('partner-site / referral'), 'Referral');
 });
+
+test('normalizeTrafficChannel classifies paid before organic google/bing', () => {
+  assert.equal(normalizeTrafficChannel('google / cpc'), 'Paid Search');
+  assert.equal(normalizeTrafficChannel('google / ppc'), 'Paid Search');
+  assert.equal(normalizeTrafficChannel('bing / cpc'), 'Paid Search');
+  assert.equal(normalizeTrafficChannel('google / paid'), 'Paid Search');
+  assert.equal(normalizeTrafficChannel('google / display'), 'Paid Search');
+  assert.equal(normalizeTrafficChannel('bing / organic'), 'Organic Search');
+});

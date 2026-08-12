@@ -3,7 +3,7 @@
  * Requires GOOGLE_ADS_DEVELOPER_TOKEN and OAuth scope adwords.
  */
 
-const ADS_API_VERSION = 'v18';
+const ADS_API_VERSION = 'v25';
 const ADS_BASE = `https://googleads.googleapis.com/${ADS_API_VERSION}`;
 
 export type GoogleAdsAccountOption = {
@@ -131,20 +131,23 @@ export async function listAccessibleAdsCustomers(
     method: 'get',
   });
   const listJson = (await listRes.json()) as { resourceNames?: string[] };
-  const ids = (listJson.resourceNames ?? [])
+  const rootIds = (listJson.resourceNames ?? [])
     .map((name) => name.replace('customers/', '').replace(/-/g, ''))
     .filter(Boolean);
 
-  const accounts: GoogleAdsAccountOption[] = [];
+  const byId = new Map<string, GoogleAdsAccountOption>();
 
-  for (const customerId of ids.slice(0, 40)) {
+  for (const customerId of rootIds.slice(0, 40)) {
+    let isManager = false;
+    let managerLabel: GoogleAdsAccountOption | null = null;
     try {
       const rows = await searchGoogleAds(accessToken, customerId, `
         SELECT
           customer.id,
           customer.descriptive_name,
           customer.currency_code,
-          customer.time_zone
+          customer.time_zone,
+          customer.manager
         FROM customer
         LIMIT 1
       `);
@@ -154,26 +157,80 @@ export async function listAccessibleAdsCustomers(
             descriptiveName?: string;
             currencyCode?: string;
             timeZone?: string;
+            manager?: boolean;
           }
         | undefined;
-      accounts.push({
+      isManager = Boolean(customer?.manager);
+      const option: GoogleAdsAccountOption = {
         customerId,
-        descriptiveName: customer?.descriptiveName || `Account ${customerId}`,
+        descriptiveName: customer?.descriptiveName
+          ? isManager
+            ? `${customer.descriptiveName} (MCC)`
+            : customer.descriptiveName
+          : `Account ${customerId}`,
         currencyCode: customer?.currencyCode ?? null,
         timeZone: customer?.timeZone ?? null,
-      });
+      };
+      if (isManager) managerLabel = option;
+      else byId.set(customerId, option);
     } catch {
-      // Manager accounts or inaccessible customers — skip
-      accounts.push({
+      // Inaccessible root — skip (do not offer unusable accounts).
+      continue;
+    }
+
+    if (!isManager) continue;
+
+    let clientCount = 0;
+    try {
+      const clientRows = await searchGoogleAds(
+        accessToken,
         customerId,
-        descriptiveName: `Account ${customerId}`,
-        currencyCode: null,
-        timeZone: null,
-      });
+        `
+        SELECT
+          customer_client.client_customer,
+          customer_client.descriptive_name,
+          customer_client.currency_code,
+          customer_client.time_zone,
+          customer_client.manager,
+          customer_client.status
+        FROM customer_client
+        WHERE customer_client.status = 'ENABLED'
+          AND customer_client.manager = FALSE
+          AND customer_client.level > 0
+        LIMIT 100
+      `
+      );
+      for (const row of clientRows) {
+        const client = row.customerClient as
+          | {
+              clientCustomer?: string;
+              descriptiveName?: string;
+              currencyCode?: string;
+              timeZone?: string;
+              manager?: boolean;
+            }
+          | undefined;
+        const rawId = client?.clientCustomer?.replace('customers/', '').replace(/-/g, '');
+        if (!rawId || client?.manager) continue;
+        clientCount += 1;
+        byId.set(rawId, {
+          customerId: rawId,
+          descriptiveName: client?.descriptiveName || `Account ${rawId}`,
+          currencyCode: client?.currencyCode ?? null,
+          timeZone: client?.timeZone ?? null,
+        });
+      }
+    } catch (error) {
+      console.error('[listAccessibleAdsCustomers] customer_client expand failed', customerId, error);
+    }
+
+    // Keep MCC visible so Setup is not empty when no clients are linked yet.
+    if (clientCount === 0 && managerLabel) {
+      byId.set(customerId, managerLabel);
     }
   }
 
-  return accounts;
+  return [...byId.values()];
 }
 
 type AdsSearchRow = Record<string, unknown>;

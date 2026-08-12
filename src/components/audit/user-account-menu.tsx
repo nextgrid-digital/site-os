@@ -47,7 +47,7 @@ export function UserAccountMenu(_props: { initials?: string } = {}) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2.5 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50"
+        className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-white px-2.5 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50"
         aria-label="Dashboard menu"
         aria-expanded={open}
         aria-haspopup="menu"
@@ -61,7 +61,7 @@ export function UserAccountMenu(_props: { initials?: string } = {}) {
       {open ? (
         <div
           role="menu"
-          className="absolute right-0 z-50 mt-2 w-44 overflow-hidden rounded-xl border border-zinc-200 bg-white py-1 shadow-lg"
+          className="absolute right-0 z-50 mt-2 w-44 overflow-hidden rounded-xl bg-white py-1 shadow-lg"
         >
           <Link
             href="/app"
@@ -70,6 +70,14 @@ export function UserAccountMenu(_props: { initials?: string } = {}) {
             onClick={() => setOpen(false)}
           >
             Your sites
+          </Link>
+          <Link
+            href="/auth/update-password?from=account"
+            role="menuitem"
+            className="block px-3 py-2 text-sm text-zinc-800 transition hover:bg-zinc-50"
+            onClick={() => setOpen(false)}
+          >
+            Set password
           </Link>
           <button
             type="button"

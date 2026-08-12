@@ -28,7 +28,7 @@ import { ConnectedUpgradeBanner } from '@/components/audit/connected-upgrade-ban
 function associationPayload(a: BrandAssociation): EvidenceDrawerPayload {
   return {
     title: a.topic,
-    subtitle: a.classification.replace(/_/g, ' '),
+    subtitle: a.classification.replace(/_/g, ''),
     confidence: a.confidence,
     observedAt: a.last_observed_at ?? a.first_observed_at,
     meta: [
@@ -48,7 +48,7 @@ function claimPayload(c: BrandClaim): EvidenceDrawerPayload {
     observedAt: c.observed_at,
     confidence: c.confidence,
     meta: [
-      { label: 'Verification', value: c.verification_status.replace(/_/g, ' ') },
+      { label: 'Verification', value: c.verification_status.replace(/_/g, '') },
       { label: 'Corroborations', value: String(c.corroboration_count) },
       { label: 'Contradictions', value: String(c.contradiction_count) },
     ],
@@ -79,8 +79,8 @@ function observationPayload(o: KeyObservation): EvidenceDrawerPayload {
 
 function contradictionPayload(c: BrandContradiction): EvidenceDrawerPayload {
   return {
-    title: c.subject.replace(/_/g, ' '),
-    subtitle: c.status.replace(/_/g, ' '),
+    title: c.subject.replace(/_/g, ''),
+    subtitle: c.status.replace(/_/g, ''),
     body: `A: ${c.version_a}\n\nB: ${c.version_b}`,
     observedAt: c.observed_at,
     confidence: c.confidence,
@@ -100,7 +100,7 @@ function contradictionPayload(c: BrandContradiction): EvidenceDrawerPayload {
 function descriptionPayload(d: CompanyDescription): EvidenceDrawerPayload {
   return {
     title: d.source_title ?? 'Company description',
-    subtitle: d.source_type.replace(/_/g, ' '),
+    subtitle: d.source_type.replace(/_/g, ''),
     body: d.description_text,
     sourceType: d.source_type,
     sourceUrl: d.source_url,
@@ -117,7 +117,7 @@ function descriptionPayload(d: CompanyDescription): EvidenceDrawerPayload {
 function promptPayload(p: PromptRunObservation): EvidenceDrawerPayload {
   return {
     title: p.prompt,
-    subtitle: `${p.ai_system} · ${p.prompt_category.replace(/_/g, ' ')}`,
+    subtitle: `${p.ai_system} · ${p.prompt_category.replace(/_/g, '')}`,
     body: [p.answer_summary, p.brand_description, p.limitations].filter(Boolean).join('\n\n'),
     observedAt: p.run_at,
     confidence: p.confidence,
@@ -126,7 +126,7 @@ function promptPayload(p: PromptRunObservation): EvidenceDrawerPayload {
       { label: 'Company site cited', value: p.company_website_cited ? 'Yes' : 'No' },
       {
         label: 'Competitors mentioned',
-        value: p.competitors_mentioned.join(', ') || 'None',
+        value: p.competitors_mentioned.join(',') || 'None',
       },
     ],
     lists: [

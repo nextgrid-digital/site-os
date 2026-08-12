@@ -29,7 +29,7 @@ export function AuditTeaser({ teaser, analyzing, failed }: AuditTeaserProps) {
       ) : null}
 
       {failed ? (
-        <div className="rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-800">
+        <div className="rounded-3xl bg-red-50 px-5 py-4 text-sm text-red-800">
           Analysis failed for this URL. Try again from the homepage, or sign in and refresh.
         </div>
       ) : null}

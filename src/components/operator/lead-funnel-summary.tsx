@@ -125,7 +125,8 @@ export function LeadFunnelSummary({
             </Table>
           ) : (
             <p className="text-sm text-muted-foreground">
-              No leads yet. Add leads to start tracking channel-wise gain and funnel progression.
+              No CRM leads yet. Traffic and GA4 conversions live on Dashboard Channels / Funnels.
+              Add a lead to track channel-wise gain and funnel progression here.
             </p>
           )}
         </OperatorCard>

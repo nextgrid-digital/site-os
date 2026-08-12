@@ -7,7 +7,7 @@ export function AnalyticsPathFunnel({ steps }: { steps: AnalyticsFunnelStepView[
 
   return (
     <div className="space-y-4">
-      <div className="rounded-[14px] border border-zinc-200 bg-white p-5 shadow-sm">
+      <div className="rounded-[14px] bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-zinc-950">Lead conversion</p>
@@ -26,7 +26,7 @@ export function AnalyticsPathFunnel({ steps }: { steps: AnalyticsFunnelStepView[
         ) : (
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
             {steps.map((step) => (
-              <div key={step.step} className="rounded-xl border border-zinc-100 bg-zinc-50/80 p-4">
+              <div key={step.step} className="rounded-xl bg-zinc-50/80 p-4">
                 <div className="flex min-w-0 items-center gap-2">
                   <AnalyticsRowIcon kind="page" label={step.path} />
                   <p className="truncate font-mono text-xs text-zinc-500">{step.path}</p>
@@ -49,7 +49,7 @@ export function AnalyticsPathFunnel({ steps }: { steps: AnalyticsFunnelStepView[
       </div>
 
       {steps.length >= 2 ? (
-        <div className="rounded-[14px] border border-zinc-200 bg-white p-5 shadow-sm">
+        <div className="rounded-[14px] bg-white p-5 shadow-sm">
           <p className="text-sm font-semibold text-zinc-950">Step breakdown</p>
           <p className="mt-1 text-sm text-zinc-500">All time in this audit window</p>
           <table className="mt-4 w-full text-left text-sm">

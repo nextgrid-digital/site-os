@@ -84,7 +84,7 @@ export function CommercialGraphSection({ graph }: { graph: CommercialGraphBriefS
                       className="rounded-lg border border-white/8 bg-black/20 p-3"
                     >
                       <p className="mb-2 text-[10px] font-semibold tracking-wide text-white/40 uppercase">
-                        {type.replace('_', ' ')}
+                        {type.replace('_', '')}
                       </p>
                       <ul className="space-y-1.5">
                         {nodes.slice(0, 8).map((node) => (
