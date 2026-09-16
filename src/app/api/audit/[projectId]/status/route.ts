@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAuditSession, getLatestAuditSessionForProject } from '@/lib/db/audit-sessions';
+import { ProjectAccessError, requireProjectAccess } from '@/lib/db/projects';
 import { getSupabaseAdmin, hasSupabaseConfig } from '@/lib/supabase/server';
 
 /**
@@ -34,6 +35,15 @@ export async function GET(
 
   if (!session || !projectId) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
+  try {
+    await requireProjectAccess(projectId);
+  } catch (error) {
+    if (error instanceof ProjectAccessError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+    throw error;
   }
 
   const supabase = getSupabaseAdmin();

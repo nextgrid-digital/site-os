@@ -13,6 +13,8 @@ import {
   listAuditRuns,
   listLeads,
   listPropertyOptions,
+  ProjectAccessError,
+  requireProjectOwner,
 } from '@/lib/db/projects';
 import { loadProjectConnectorStatuses } from '@/lib/connectors/project-status';
 import { getOperatorEmail } from '@/lib/google/oauth';
@@ -40,6 +42,7 @@ export async function GET(request: Request, context: RouteContext) {
     }
 
     const { projectId } = await context.params;
+    await requireProjectOwner(projectId);
     const includeParam = new URL(request.url).searchParams.get('include');
     const includes = parseIncludes(includeParam);
     // Legacy: include=work
@@ -190,7 +193,7 @@ export async function GET(request: Request, context: RouteContext) {
     if (includes.has('connect')) {
       const [properties, connection, connectorState] = await Promise.all([
         listPropertyOptions(projectId),
-        getGoogleConnection(),
+        getGoogleConnection(projectId),
         loadProjectConnectorStatuses(projectId),
       ]);
       body.connect = {
@@ -205,6 +208,9 @@ export async function GET(request: Request, context: RouteContext) {
 
     return NextResponse.json(body);
   } catch (error) {
+    if (error instanceof ProjectAccessError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to load audit bundle.' },
       { status: 500 }

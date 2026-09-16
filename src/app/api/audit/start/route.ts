@@ -10,7 +10,7 @@ import {
   unlockAuditSession,
   updateAuditSessionTeaser,
 } from '@/lib/db/audit-sessions';
-import { createProject } from '@/lib/db/projects';
+import { claimProjectOwnership, createProject, findOwnedProjectByDomain } from '@/lib/db/projects';
 import { getSupabaseAdmin, hasSupabaseConfig } from '@/lib/supabase/server';
 import { extractDomain, normalizeWebsiteUrl } from '@/lib/utils/urls';
 import { createClient } from '@/utils/supabase/server';
@@ -44,16 +44,16 @@ export async function POST(request: Request) {
   } = await authClient.auth.getUser();
 
   const supabase = getSupabaseAdmin();
-  const { data: existingWebsite } = await supabase
-    .from('websites')
-    .select('project_id')
-    .eq('domain', domain)
-    .limit(1)
-    .maybeSingle();
 
   let projectId: string;
-  if (existingWebsite?.project_id) {
-    projectId = existingWebsite.project_id;
+  if (user?.id) {
+    const ownedProjectId = await findOwnedProjectByDomain(domain, user.id);
+    if (ownedProjectId) {
+      projectId = ownedProjectId;
+    } else {
+      const project = await createProject({ name: domain, websiteUrl, userId: user.id });
+      projectId = project.id;
+    }
   } else {
     const project = await createProject({ name: domain, websiteUrl });
     projectId = project.id;
@@ -68,6 +68,7 @@ export async function POST(request: Request) {
         userId: user.id,
         email: user.email,
       });
+      await claimProjectOwnership(projectId, user.id);
       authenticated = true;
     } catch (error) {
       console.error('[audit/start] unlock failed', error);

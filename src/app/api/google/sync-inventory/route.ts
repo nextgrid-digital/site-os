@@ -26,8 +26,8 @@ export async function GET() {
 
     const sessions = await listUnlockedAuditSessionsForUser(user.id);
     const existingDomains = sessions.map((s) => s.domain).filter(Boolean);
-    const stored = await getStoredGoogleInventory();
-    const candidates = await listGoogleInventoryCandidates(existingDomains);
+    const stored = await getStoredGoogleInventory(user.id);
+    const candidates = await listGoogleInventoryCandidates(user.id, existingDomains);
 
     return NextResponse.json({
       connected: stored?.connected ?? false,
@@ -59,14 +59,14 @@ export async function POST() {
       return NextResponse.json({ error: 'Sign in required.' }, { status: 401 });
     }
 
-    const result = await syncGoogleConnectionInventory();
+    const result = await syncGoogleConnectionInventory(user.id);
     const sessions = await listUnlockedAuditSessionsForUser(user.id);
     const existingDomains = sessions.map((s) => s.domain).filter(Boolean);
-    const candidates = await listGoogleInventoryCandidates(existingDomains);
+    const candidates = await listGoogleInventoryCandidates(user.id, existingDomains);
 
     return NextResponse.json({
       connected: true,
-      operatorEmail: (await getStoredGoogleInventory())?.operatorEmail ?? null,
+      operatorEmail: (await getStoredGoogleInventory(user.id))?.operatorEmail ?? null,
       syncedAt: result.syncedAt,
       inventory: result.inventory,
       candidates,

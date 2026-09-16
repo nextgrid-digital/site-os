@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { updateWorkOrderStatus } from '@/lib/db/projects';
+import { ProjectAccessError, requireProjectOwner, updateWorkOrderStatus } from '@/lib/db/projects';
 
 const STATUSES = new Set(['open', 'done', 'skipped']);
 
@@ -9,6 +9,7 @@ export async function PATCH(
 ) {
   try {
     const { projectId, workOrderId } = await context.params;
+    await requireProjectOwner(projectId);
     const body = await request.json();
     const status = String(body.status ?? '');
     if (!STATUSES.has(status)) {
@@ -27,6 +28,9 @@ export async function PATCH(
     );
     return NextResponse.json({ workOrder });
   } catch (error) {
+    if (error instanceof ProjectAccessError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to update work order.' },
       { status: 500 }

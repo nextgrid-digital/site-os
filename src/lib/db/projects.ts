@@ -1,6 +1,8 @@
 import { cache } from 'react';
+import { cookies } from 'next/headers';
 import { refreshAccessToken } from '@/lib/google/oauth';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
+import { createClient } from '@/utils/supabase/server';
 import type {
   AeoAnalysisRow,
   AgentPrompt,
@@ -39,14 +41,14 @@ export async function listProjects(): Promise<Project[]> {
   return data ?? [];
 }
 
-export async function createProject(input: { name: string; websiteUrl: string }) {
+export async function createProject(input: { name: string; websiteUrl: string; userId?: string | null }) {
   const supabase = getSupabaseAdmin();
   const url = normalizeWebsiteUrl(input.websiteUrl);
   const domain = extractDomain(url);
 
   const { data: project, error } = await supabase
     .from('projects')
-    .insert({ name: input.name.trim(), status: 'active' })
+    .insert({ name: input.name.trim(), status: 'active', user_id: input.userId ?? null })
     .select('*')
     .single();
   if (error || !project) throw new Error(error?.message ?? 'Failed to create project.');
@@ -60,6 +62,78 @@ export async function createProject(input: { name: string; websiteUrl: string })
 
   await supabase.from('architecture_inputs').insert({ project_id: project.id });
   return project as Project;
+}
+
+/** Find a project this user already owns for a domain, so re-auditing the same
+ *  site reuses their own history instead of colliding with another customer's. */
+export async function findOwnedProjectByDomain(domain: string, userId: string): Promise<string | null> {
+  const supabase = getSupabaseAdmin();
+  const { data: websites } = await supabase.from('websites').select('project_id').eq('domain', domain);
+  const projectIds = (websites ?? []).map((w) => w.project_id);
+  if (projectIds.length === 0) return null;
+
+  const { data: project } = await supabase
+    .from('projects')
+    .select('id')
+    .in('id', projectIds)
+    .eq('user_id', userId)
+    .limit(1)
+    .maybeSingle();
+  return project?.id ?? null;
+}
+
+/** Attach an anonymous (pre-signup) project to the user claiming it. No-op if already owned. */
+export async function claimProjectOwnership(projectId: string, userId: string) {
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from('projects')
+    .update({ user_id: userId, updated_at: new Date().toISOString() })
+    .eq('id', projectId)
+    .is('user_id', null);
+  if (error) throw new Error(error.message);
+}
+
+export class ProjectAccessError extends Error {
+  status: number;
+  constructor(message = 'Project not found or you do not have access.', status = 404) {
+    super(message);
+    this.name = 'ProjectAccessError';
+    this.status = status;
+  }
+}
+
+/** Throws unless the project is owned by this user. */
+export async function assertProjectOwnership(projectId: string, userId: string) {
+  const supabase = getSupabaseAdmin();
+  const { data: project } = await supabase.from('projects').select('user_id').eq('id', projectId).maybeSingle();
+  if (!project || project.user_id !== userId) {
+    throw new ProjectAccessError();
+  }
+}
+
+/** For API routes: resolves the signed-in user (if any) and rejects cross-owner
+ *  access. Unowned (pre-signup) projects stay visible to anonymous visitors,
+ *  matching the existing free-teaser flow. */
+export async function requireProjectAccess(projectId: string): Promise<string | null> {
+  const cookieStore = await cookies();
+  const auth = createClient(cookieStore);
+  const {
+    data: { user },
+  } = await auth.auth.getUser();
+
+  const supabase = getSupabaseAdmin();
+  const { data: project } = await supabase.from('projects').select('user_id').eq('id', projectId).maybeSingle();
+  if (!project) throw new ProjectAccessError();
+  if (project.user_id && project.user_id !== user?.id) throw new ProjectAccessError();
+  return user?.id ?? null;
+}
+
+/** Strict version of requireProjectAccess: the project must exist and be owned
+ *  by the signed-in caller. Use for anything that touches paid/connected data. */
+export async function requireProjectOwner(projectId: string): Promise<string> {
+  const userId = await requireProjectAccess(projectId);
+  if (!userId) throw new ProjectAccessError('Sign in required.', 401);
+  return userId;
 }
 
 export const getProjectOverview = cache(async (projectId: string): Promise<ProjectOverview | null> => {
@@ -96,7 +170,7 @@ export const getProjectOverview = cache(async (projectId: string): Promise<Proje
         .eq('project_id', projectId)
         .eq('is_selected', true)
         .maybeSingle(),
-      supabase.from('google_connections').select('id').limit(1).maybeSingle(),
+      supabase.from('google_connections').select('id').eq('project_id', projectId).limit(1).maybeSingle(),
     ]);
 
   return {
@@ -721,11 +795,12 @@ export const getLeadSummaryOnly = cache(async function getLeadSummaryOnly(
   return summarizeLeads(leads);
 });
 
-export const getGoogleConnection = cache(async (): Promise<GoogleConnection | null> => {
+export const getGoogleConnection = cache(async (projectId: string): Promise<GoogleConnection | null> => {
   const supabase = getSupabaseAdmin();
   const { data } = await supabase
     .from('google_connections')
     .select('*')
+    .eq('project_id', projectId)
     .order('updated_at', { ascending: false })
     .limit(1)
     .maybeSingle();

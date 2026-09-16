@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { unlockAuditSession } from '@/lib/db/audit-sessions';
+import { claimProjectOwnership } from '@/lib/db/projects';
 import { createClient } from '@/utils/supabase/server';
 
 export async function POST(request: Request) {
@@ -27,10 +28,11 @@ export async function POST(request: Request) {
 
   if (sessionId) {
     try {
-      await unlockAuditSession(sessionId, {
+      const unlocked = await unlockAuditSession(sessionId, {
         userId: data.user.id,
         email: data.user.email ?? email,
       });
+      await claimProjectOwnership(unlocked.project_id, data.user.id);
     } catch (unlockError) {
       return NextResponse.json(
         { error: unlockError instanceof Error ? unlockError.message : 'Failed to unlock session' },

@@ -3,6 +3,7 @@ import { getAppUrl } from '@/lib/app-url';
 import { upsertGoogleConnection } from '@/lib/db/google';
 import { syncGoogleConnectionInventory } from '@/lib/db/google-inventory';
 import { exchangeCodeForTokens } from '@/lib/google/oauth';
+import { getSupabaseAdmin } from '@/lib/supabase/server';
 
 function connectErrorRedirect(appUrl: string, projectId: string | null, returnTo: string, message: string) {
   if (projectId) {
@@ -52,11 +53,22 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Missing OAuth code or state.' }, { status: 400 });
   }
 
+  if (!projectId) {
+    return connectErrorRedirect(appUrl, null, returnTo, 'Missing project context for Google connection.');
+  }
+
   try {
     const tokens = await exchangeCodeForTokens(code, request);
-    await upsertGoogleConnection(tokens);
+    await upsertGoogleConnection(projectId, tokens);
     try {
-      await syncGoogleConnectionInventory();
+      const { data: project } = await getSupabaseAdmin()
+        .from('projects')
+        .select('user_id')
+        .eq('id', projectId)
+        .maybeSingle();
+      if (project?.user_id) {
+        await syncGoogleConnectionInventory(project.user_id);
+      }
     } catch (inventoryError) {
       console.error('[google/oauth/callback] inventory sync failed', inventoryError);
     }

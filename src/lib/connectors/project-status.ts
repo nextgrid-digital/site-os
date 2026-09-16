@@ -26,6 +26,7 @@ export async function loadProjectConnectorStatuses(projectId: string): Promise<{
     supabase
       .from('google_connections')
       .select('id, scopes')
+      .eq('project_id', projectId)
       .order('updated_at', { ascending: false })
       .limit(1)
       .maybeSingle(),

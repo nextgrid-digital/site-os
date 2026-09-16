@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { PaidPlanRequiredError, requirePaidSession } from '@/lib/db/profiles';
-import { unlockFullBrief } from '@/lib/db/projects';
+import { ProjectAccessError, requireProjectOwner, unlockFullBrief } from '@/lib/db/projects';
 import { hasSupabaseConfig } from '@/lib/supabase/server';
 
 export async function POST(
@@ -14,6 +14,7 @@ export async function POST(
     }
 
     await requirePaidSession();
+    await requireProjectOwner(projectId);
 
     const project = await unlockFullBrief(projectId);
     return NextResponse.json({
@@ -21,7 +22,7 @@ export async function POST(
       fullBriefUnlockedAt: project.full_brief_unlocked_at,
     });
   } catch (error) {
-    if (error instanceof PaidPlanRequiredError) {
+    if (error instanceof PaidPlanRequiredError || error instanceof ProjectAccessError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
     return NextResponse.json(
