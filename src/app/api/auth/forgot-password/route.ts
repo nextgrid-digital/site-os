@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getAppUrl } from '@/lib/app-url';
+import { getClientIp, rateLimit, rateLimitResponse } from '@/lib/security/rate-limit';
 import { createClient } from '@/utils/supabase/server';
 
 const SUCCESS_MESSAGE =
@@ -13,6 +14,12 @@ export async function POST(request: Request) {
   if (!email || !email.includes('@')) {
     return NextResponse.json({ error: 'A valid email is required' }, { status: 400 });
   }
+
+  const ip = getClientIp(request);
+  const ipLimit = rateLimit(`forgot:ip:${ip}`, 8, 60 * 60 * 1000);
+  if (!ipLimit.allowed) return rateLimitResponse(ipLimit.retryAfterMs);
+  const emailLimit = rateLimit(`forgot:email:${email}`, 4, 60 * 60 * 1000);
+  if (!emailLimit.allowed) return rateLimitResponse(emailLimit.retryAfterMs);
 
   const appUrl = getAppUrl(request);
   const cookieStore = await cookies();

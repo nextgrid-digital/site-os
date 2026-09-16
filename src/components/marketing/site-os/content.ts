@@ -196,10 +196,8 @@ export type ListRow11Data3Item = {
   label: string;
 };
 export const listRow11Data3: ListRow11Data3Item[] = [
-    { href: "/#faq", label: "FAQ" },
-    { href: "/audit", label: "Sign in" },
-    { href: "/#pricing", label: "Pricing" },
-    { href: "/#how-it-works", label: "How it works" }
+    { href: "/privacy", label: "Privacy Policy" },
+    { href: "/terms", label: "Terms of Service" }
 ];
 
 export type ListRow11Data4Item = {

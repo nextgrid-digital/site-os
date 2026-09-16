@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { unlockAuditSession } from '@/lib/db/audit-sessions';
 import { claimProjectOwnership } from '@/lib/db/projects';
+import { getClientIp, rateLimit, rateLimitResponse } from '@/lib/security/rate-limit';
 import { createClient } from '@/utils/supabase/server';
 
 export async function POST(request: Request) {
@@ -13,6 +14,12 @@ export async function POST(request: Request) {
   if (!email || !email.includes('@') || !password) {
     return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
   }
+
+  const ip = getClientIp(request);
+  const ipLimit = rateLimit(`login:ip:${ip}`, 15, 15 * 60 * 1000);
+  if (!ipLimit.allowed) return rateLimitResponse(ipLimit.retryAfterMs);
+  const emailLimit = rateLimit(`login:email:${email}`, 6, 15 * 60 * 1000);
+  if (!emailLimit.allowed) return rateLimitResponse(emailLimit.retryAfterMs);
 
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);

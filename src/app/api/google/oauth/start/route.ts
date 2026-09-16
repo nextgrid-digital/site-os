@@ -54,12 +54,22 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL(`/audit/${projectId}/connect`, request.url));
   }
 
+  const nonce = crypto.randomUUID();
   const state = Buffer.from(
     JSON.stringify({
       projectId: projectId ?? null,
       returnTo: safeReturnTo,
+      nonce,
     })
   ).toString('base64url');
   const url = getGoogleAuthUrl(state, request);
-  return NextResponse.redirect(url);
+  const response = NextResponse.redirect(url);
+  response.cookies.set('g_oauth_state', nonce, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 600,
+    path: '/',
+  });
+  return response;
 }
