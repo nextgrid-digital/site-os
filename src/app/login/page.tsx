@@ -25,7 +25,7 @@ export default async function LoginPage({
 
   return (
     <AppShell showSignIn={false}>
-      <div className="mx-auto flex min-h-[calc(100dvh-6.5rem)] max-w-lg flex-col justify-center gap-4">
+      <div className="absolute inset-0 flex items-center max-w-lg mx-auto flex-col justify-center gap-4">
         {showError ? (
           <p className="text-center text-sm text-red-600">Authentication failed. Please try again.</p>
         ) : null}

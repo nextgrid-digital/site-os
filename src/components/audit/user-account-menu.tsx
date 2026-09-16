@@ -64,18 +64,6 @@ export function UserAccountMenu(_props: { initials?: string } = {}) {
           className="absolute right-0 z-50 mt-2 w-44 overflow-hidden rounded-xl bg-white py-1 shadow-lg"
         >
           <Link
-            href="/app"
-            prefetch
-            role="menuitem"
-            className="block px-3 py-2 text-sm text-zinc-800 transition hover:bg-zinc-50"
-            onMouseEnter={() => {
-              router.prefetch('/app');
-            }}
-            onClick={() => setOpen(false)}
-          >
-            Your sites
-          </Link>
-          <Link
             href="/auth/update-password?from=account"
             role="menuitem"
             className="block px-3 py-2 text-sm text-zinc-800 transition hover:bg-zinc-50"
