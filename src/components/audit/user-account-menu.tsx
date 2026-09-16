@@ -64,6 +64,14 @@ export function UserAccountMenu(_props: { initials?: string } = {}) {
           className="absolute right-0 z-50 mt-2 w-44 overflow-hidden rounded-xl bg-white py-1 shadow-lg"
         >
           <Link
+            href="/app"
+            role="menuitem"
+            className="block px-3 py-2 text-sm text-zinc-800 transition hover:bg-zinc-50"
+            onClick={() => setOpen(false)}
+          >
+            Dashboard
+          </Link>
+          <Link
             href="/account"
             role="menuitem"
             className="block px-3 py-2 text-sm text-zinc-800 transition hover:bg-zinc-50"
