@@ -12,11 +12,14 @@ export default function ProductGridSection2({ logos = logosContent } = {}) {
         <div className="block mx-auto text-center max-w-2xl" data-cid="n2166">
           <div className="block text-balance" data-cid="n2167">
             <h2 className="block [font-family:LTRemark,_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15" data-cid="n2168" data-component="heading" id="pricing-heading">
-              Free crawl or paid connected
+              Free crawl or Full Audit
             </h2>
             <p className="block mt-1.5 text-muted-foreground 2xl:text-lg 2xl:leading-7" data-cid="n2169">
-              Start free with a URL. Sign in to save sites. Connect Search Console and GA4 when you are ready.
+              Start free. Upgrade to $700 for a professional audit with our expert team.
             </p>
+            <a href="/pricing" className="inline-block mt-4 text-sm font-medium text-foreground underline hover:no-underline">
+              View full pricing →
+            </a>
           </div>
         </div>
         <div className="h-[48.9375rem] block mt-10 max-md:h-[57.9375rem] md:max-lg:h-[40.9375rem] 2xl:h-[49.9375rem]" data-cid="n2170">
@@ -34,14 +37,14 @@ export default function ProductGridSection2({ logos = logosContent } = {}) {
                         <span className="w-3.5 h-3.5 block absolute top-2 min-w-0 rounded-full bg-foreground [translate:0px_-50%]" data-cid="n2180" aria-hidden="true" />
                       </button>
                       <span className="block text-muted-foreground text-sm font-medium leading-5" data-cid="n2181">
-                        Paid connected
+                        Full Audit
                       </span>
                       <span className="block text-muted-foreground text-sm font-medium leading-5" data-cid="n2182">
-                        GSC + GA4
+                        $700
                       </span>
                     </div>
                     <p className="block mt-12 text-muted-foreground text-sm font-medium leading-5 text-balance" data-cid="n2183">
-                      Free crawl covers findings, graph gaps, AEO, and prompts. Paid adds Search Console and GA4.
+                      Free: Self-serve audit with AI findings. Full Audit: $700 professional audit with expert review and enriched findings.
                     </p>
                     <div className="h-18 flex mt-8 flex-wrap justify-between items-start gap-4 max-md:h-16" data-cid="n2184">
                       <div className="block" data-cid="n2185">
@@ -119,7 +122,7 @@ export default function ProductGridSection2({ logos = logosContent } = {}) {
                       </div>
                     </div>
                     <div className="h-14 block mt-1" data-cid="n2226">
-                      <a className="border border-solid border-clr-0 inline-flex mt-2 px-4 rounded-[10px] justify-center items-center shrink-0 gap-2 text-color-007 font-medium whitespace-nowrap text-nowrap bg-color-002 [background-clip:padding-box] [-webkit-background-clip:padding-box] cursor-pointer h-12 w-full hover:bg-clr-24" data-cid="n2227" data-component="button" href="/#">
+                      <a className="border border-solid border-clr-0 inline-flex mt-2 px-4 rounded-[10px] justify-center items-center shrink-0 gap-2 text-color-007 font-medium whitespace-nowrap text-nowrap bg-color-002 [background-clip:padding-box] [-webkit-background-clip:padding-box] cursor-pointer h-12 w-full hover:bg-clr-24" data-cid="n2227" data-component="button" href="/login?next=/app">
                         Start free audit
                       </a>
                     </div>
@@ -127,7 +130,7 @@ export default function ProductGridSection2({ logos = logosContent } = {}) {
                       {logos.map((d, i) => <Logo3 key={i} d={d} cids={Logo3_cids[i]} styles={Logo3_styles[i]} />)}
                     </ul>
                     <p className="border-t border-solid border-t-surface-4 block mt-4 pt-4 text-muted-foreground text-xs font-medium leading-4 text-balance" data-cid="n2280">
-                      Free to start · sign in to save sites · connect GSC + GA4 anytime
+                      Free to start · upgrade to $700 for professional audit · view all <a href="/pricing" className="underline hover:no-underline">pricing details</a>
                     </p>
                   </div>
                   <div className="w-[27.975rem] h-[47.4375rem] min-h-full flex relative justify-center items-center overflow-hidden max-lg:hidden 2xl:h-[48.4375rem]" data-cid="n2281" aria-hidden="true">
