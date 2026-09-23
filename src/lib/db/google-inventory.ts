@@ -13,7 +13,7 @@ import {
 import { extractDomain, normalizeWebsiteUrl } from '@/lib/utils/urls';
 import type { GoogleConnection } from '@/lib/supabase/types';
 import { selectProperties, syncPropertyOptions } from '@/lib/db/google';
-import { createProject } from '@/lib/db/projects';
+import { claimProjectOwnership, createProject, findOwnedProjectByDomain } from '@/lib/db/projects';
 import {
   createAuditSession,
   unlockAuditSession,
@@ -101,28 +101,66 @@ function textMentionsDomain(text: string, domain: string): boolean {
   return bare.length >= 4 && hay.includes(bare);
 }
 
-export async function getLatestGoogleConnection(): Promise<GoogleConnection | null> {
+/** Most recently updated Google connection among projects this user owns. */
+export async function getLatestGoogleConnectionForUser(userId: string): Promise<GoogleConnection | null> {
   const supabase = getSupabaseAdmin();
+  const { data: ownedProjects } = await supabase.from('projects').select('id').eq('user_id', userId);
+  const projectIds = (ownedProjects ?? []).map((p) => p.id);
+  if (projectIds.length === 0) return null;
+
   const { data } = await supabase
     .from('google_connections')
     .select('*')
+    .in('project_id', projectIds)
     .order('updated_at', { ascending: false })
     .limit(1)
     .maybeSingle();
   return (data as GoogleConnection | null) ?? null;
 }
 
+/** Attach a copy of the user's own most recent connection to a project that
+ *  doesn't have one yet — used when adding a site from inventory, since that
+ *  project was never taken through its own OAuth round trip. */
+export async function attachUserConnectionToProject(projectId: string, userId: string): Promise<string> {
+  const supabase = getSupabaseAdmin();
+  const { data: existing } = await supabase
+    .from('google_connections')
+    .select('id')
+    .eq('project_id', projectId)
+    .limit(1)
+    .maybeSingle();
+  if (existing) return existing.id;
+
+  const source = await getLatestGoogleConnectionForUser(userId);
+  if (!source) throw new Error('Connect Google before adding a site from inventory.');
+
+  const { data: inserted, error } = await supabase
+    .from('google_connections')
+    .insert({
+      project_id: projectId,
+      operator_email: source.operator_email,
+      access_token: source.access_token,
+      refresh_token: source.refresh_token,
+      token_expiry: source.token_expiry,
+      scopes: source.scopes,
+    })
+    .select('id')
+    .single();
+  if (error) throw new Error(error.message);
+  return inserted.id;
+}
+
 /**
- * List every GSC / GA4 / Ads property the operator OAuth token can see
- * and store on the connection (not per-project).
+ * List every GSC / GA4 / Ads property visible to this user's own connected
+ * Google account and cache it on their connection row.
  */
-export async function syncGoogleConnectionInventory(): Promise<{
+export async function syncGoogleConnectionInventory(userId: string): Promise<{
   connectionId: string;
   inventory: GoogleConnectionInventory;
   syncedAt: string;
 }> {
   const supabase = getSupabaseAdmin();
-  const connection = await getLatestGoogleConnection();
+  const connection = await getLatestGoogleConnectionForUser(userId);
   if (!connection) {
     throw new Error('Connect Google before syncing inventory.');
   }
@@ -198,13 +236,13 @@ export async function syncGoogleConnectionInventory(): Promise<{
   return { connectionId: connection.id, inventory, syncedAt };
 }
 
-export async function getStoredGoogleInventory(): Promise<{
+export async function getStoredGoogleInventory(userId: string): Promise<{
   connected: boolean;
   operatorEmail: string;
   inventory: GoogleConnectionInventory;
   syncedAt: string | null;
 } | null> {
-  const connection = await getLatestGoogleConnection();
+  const connection = await getLatestGoogleConnectionForUser(userId);
   if (!connection) {
     return {
       connected: false,
@@ -223,10 +261,11 @@ export async function getStoredGoogleInventory(): Promise<{
 }
 
 export async function listGoogleInventoryCandidates(
+  userId: string,
   existingDomains: string[] = [],
   preloaded?: Awaited<ReturnType<typeof getStoredGoogleInventory>> | null
 ): Promise<GoogleInventoryCandidate[]> {
-  const stored = preloaded ?? (await getStoredGoogleInventory());
+  const stored = preloaded ?? (await getStoredGoogleInventory(userId));
   if (!stored?.connected) return [];
 
   const existing = new Set(
@@ -272,20 +311,17 @@ export async function addSiteFromGoogleInventory(input: {
   const domain = extractDomain(websiteUrl);
   const supabase = getSupabaseAdmin();
 
-  const { data: existingWebsite } = await supabase
-    .from('websites')
-    .select('project_id')
-    .eq('domain', domain)
-    .limit(1)
-    .maybeSingle();
+  const ownedProjectId = await findOwnedProjectByDomain(domain, input.userId);
 
   let projectId: string;
-  if (existingWebsite?.project_id) {
-    projectId = existingWebsite.project_id;
+  if (ownedProjectId) {
+    projectId = ownedProjectId;
   } else {
-    const project = await createProject({ name: domain, websiteUrl });
+    const project = await createProject({ name: domain, websiteUrl, userId: input.userId });
     projectId = project.id;
   }
+  await claimProjectOwnership(projectId, input.userId);
+  await attachUserConnectionToProject(projectId, input.userId);
 
   await syncPropertyOptions(projectId);
 
@@ -296,7 +332,7 @@ export async function addSiteFromGoogleInventory(input: {
       .eq('project_id', projectId),
     supabase.from('ga4_properties').select('id, property_id').eq('project_id', projectId),
     supabase.from('google_ads_accounts').select('id, customer_id').eq('project_id', projectId),
-    getStoredGoogleInventory(),
+    getStoredGoogleInventory(input.userId),
   ]);
 
   const gscMatch =

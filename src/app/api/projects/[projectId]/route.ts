@@ -3,6 +3,9 @@ import { NextResponse } from 'next/server';
 import {
   deleteProjectForUser,
   getProjectOverview,
+  ProjectAccessError,
+  requireProjectAccess,
+  requireProjectOwner,
   SiteDeleteError,
   updateProjectWebsite,
 } from '@/lib/db/projects';
@@ -18,10 +21,14 @@ export async function GET(
     if (!hasSupabaseConfig()) {
       return NextResponse.json({ error: 'Supabase is not configured.' }, { status: 500 });
     }
+    await requireProjectAccess(projectId);
     const project = await getProjectOverview(projectId);
     if (!project) return NextResponse.json({ error: 'Project not found.' }, { status: 404 });
     return NextResponse.json({ project });
   } catch (error) {
+    if (error instanceof ProjectAccessError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to load project.' },
       { status: 500 }
@@ -35,6 +42,7 @@ export async function PATCH(
 ) {
   try {
     const { projectId } = await context.params;
+    await requireProjectOwner(projectId);
     const body = await request.json();
     if (!body.websiteUrl) {
       return NextResponse.json({ error: 'websiteUrl is required.' }, { status: 400 });
@@ -43,6 +51,9 @@ export async function PATCH(
     const project = await getProjectOverview(projectId);
     return NextResponse.json({ project });
   } catch (error) {
+    if (error instanceof ProjectAccessError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to update project.' },
       { status: 500 }

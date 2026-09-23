@@ -2,7 +2,13 @@ import { after, NextResponse } from 'next/server';
 import { runAudit } from '@/lib/audit/run-audit';
 import { getClientIntake } from '@/lib/db/client-intake';
 import { PaidPlanRequiredError, requirePaidSession } from '@/lib/db/profiles';
-import { getProjectOverview, isFullBriefUnlocked } from '@/lib/db/projects';
+import {
+  getProjectOverview,
+  isFullBriefUnlocked,
+  ProjectAccessError,
+  requireProjectAccess,
+  requireProjectOwner,
+} from '@/lib/db/projects';
 import { hasSupabaseConfig } from '@/lib/supabase/server';
 
 export const maxDuration = 300;
@@ -21,6 +27,7 @@ export async function POST(
 
     if (runType === 'full') {
       await requirePaidSession();
+      await requireProjectOwner(projectId);
       const project = await getProjectOverview(projectId);
       if (!project) {
         return NextResponse.json({ error: 'Project not found.' }, { status: 404 });
@@ -31,6 +38,8 @@ export async function POST(
           { status: 403 }
         );
       }
+    } else {
+      await requireProjectAccess(projectId);
     }
 
     const intake = runType === 'full' ? await getClientIntake(projectId) : null;
@@ -46,7 +55,7 @@ export async function POST(
 
     return NextResponse.json({ status: 'started', projectId, runType });
   } catch (error) {
-    if (error instanceof PaidPlanRequiredError) {
+    if (error instanceof PaidPlanRequiredError || error instanceof ProjectAccessError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
     return NextResponse.json(

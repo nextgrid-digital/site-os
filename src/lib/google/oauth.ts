@@ -26,7 +26,16 @@ export function createOAuthClient(request?: Request) {
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
-    throw new Error('Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET.');
+
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(
+        'There is some problem with the Google configuration. Please contact support.'
+      );
+    } else {
+      throw new Error(
+        'Google OAuth client ID and secret are not set.'
+      );
+    }
   }
 
   return new google.auth.OAuth2(clientId, clientSecret, getGoogleRedirectUri(request));

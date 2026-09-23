@@ -65,23 +65,27 @@ export function UserAccountMenu(_props: { initials?: string } = {}) {
         >
           <Link
             href="/app"
-            prefetch
             role="menuitem"
             className="block px-3 py-2 text-sm text-zinc-800 transition hover:bg-zinc-50"
-            onMouseEnter={() => {
-              router.prefetch('/app');
-            }}
             onClick={() => setOpen(false)}
           >
-            Your sites
+            Dashboard
           </Link>
           <Link
-            href="/auth/update-password?from=account"
+            href="/account"
             role="menuitem"
             className="block px-3 py-2 text-sm text-zinc-800 transition hover:bg-zinc-50"
             onClick={() => setOpen(false)}
           >
-            Set password
+            Account
+          </Link>
+          <Link
+            href="/account/billing"
+            role="menuitem"
+            className="block px-3 py-2 text-sm text-zinc-800 transition hover:bg-zinc-50"
+            onClick={() => setOpen(false)}
+          >
+            Billing
           </Link>
           <button
             type="button"

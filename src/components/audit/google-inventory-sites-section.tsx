@@ -15,8 +15,10 @@ type InventoryState = {
 
 export function GoogleInventorySitesSection({
   initial,
+  projectId,
 }: {
   initial: InventoryState;
+  projectId: string | null;
 }) {
   const router = useRouter();
   const [state, setState] = useState(initial);
@@ -103,14 +105,22 @@ export function GoogleInventorySitesSection({
               <RefreshCw className={`size-3.5 ${loading ? 'animate-spin' : ''}`} strokeWidth={2} />
               Refresh Google access
             </button>
-          ) : (
+          ) : projectId ? (
             <a
-              href="/api/google/oauth/start?returnTo=/app"
+              href={`/api/google/oauth/start?returnTo=/app&projectId=${projectId}`}
               className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-zinc-950 px-3 text-sm font-medium text-white transition hover:bg-zinc-800"
             >
               <Link2 className="size-3.5" strokeWidth={2} />
               Connect Google
             </a>
+          ) : (
+            <button
+              disabled
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-zinc-200 px-3 text-sm font-medium text-zinc-500 opacity-50"
+            >
+              <Link2 className="size-3.5" strokeWidth={2} />
+              Add a site first
+            </button>
           )}
         </div>
       </div>

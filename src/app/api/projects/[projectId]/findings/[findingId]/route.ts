@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { updateFindingWorkflow } from '@/lib/db/projects';
+import { ProjectAccessError, requireProjectOwner, updateFindingWorkflow } from '@/lib/db/projects';
 import type { FindingStatus } from '@/lib/supabase/types';
 
 const STATUSES = new Set<FindingStatus>(['open', 'reviewed', 'resolved']);
@@ -10,6 +10,7 @@ export async function PATCH(
 ) {
   try {
     const { projectId, findingId } = await context.params;
+    await requireProjectOwner(projectId);
     const body = await request.json();
     const statusRaw = body.status != null ? String(body.status) : undefined;
     if (statusRaw && !STATUSES.has(statusRaw as FindingStatus)) {
@@ -24,6 +25,9 @@ export async function PATCH(
     });
     return NextResponse.json({ finding });
   } catch (error) {
+    if (error instanceof ProjectAccessError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to update finding.' },
       { status: 500 }

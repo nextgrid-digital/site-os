@@ -141,8 +141,8 @@ export default async function AppHomePage({
     },
   }));
 
-  const storedInventory = await getStoredGoogleInventory();
-  const candidates = await listGoogleInventoryCandidates(existingDomains, storedInventory);
+  const storedInventory = await getStoredGoogleInventory(user.id);
+  const candidates = await listGoogleInventoryCandidates(user.id, existingDomains, storedInventory);
 
   return (
     <SitesDashboard

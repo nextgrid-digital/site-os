@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { saveArchitectureInputs } from '@/lib/db/projects';
+import { ProjectAccessError, requireProjectOwner, saveArchitectureInputs } from '@/lib/db/projects';
 
 export async function POST(
   request: Request,
@@ -7,6 +7,7 @@ export async function POST(
 ) {
   try {
     const { projectId } = await context.params;
+    await requireProjectOwner(projectId);
     const body = await request.json();
     await saveArchitectureInputs(projectId, {
       icp_notes: body.icp_notes ?? null,
@@ -27,6 +28,9 @@ export async function POST(
     });
     return NextResponse.json({ ok: true });
   } catch (error) {
+    if (error instanceof ProjectAccessError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to save architecture inputs.' },
       { status: 500 }

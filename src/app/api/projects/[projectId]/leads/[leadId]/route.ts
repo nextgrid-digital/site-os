@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { updateLead } from '@/lib/db/projects';
+import { ProjectAccessError, requireProjectOwner, updateLead } from '@/lib/db/projects';
 import type { LeadStage, LeadStatus } from '@/lib/supabase/types';
 
 export async function PATCH(
@@ -8,6 +8,7 @@ export async function PATCH(
 ) {
   try {
     const { projectId, leadId } = await context.params;
+    await requireProjectOwner(projectId);
     const body = await request.json();
 
     const lead = await updateLead(projectId, leadId, {
@@ -26,6 +27,9 @@ export async function PATCH(
 
     return NextResponse.json({ lead });
   } catch (error) {
+    if (error instanceof ProjectAccessError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to update lead.' },
       { status: 500 }

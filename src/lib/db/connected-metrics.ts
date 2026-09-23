@@ -209,6 +209,7 @@ async function loadConnectionStatus(projectId: string) {
     supabase
       .from('google_connections')
       .select('id')
+      .eq('project_id', projectId)
       .order('updated_at', { ascending: false })
       .limit(1)
       .maybeSingle(),

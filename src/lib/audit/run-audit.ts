@@ -6,6 +6,7 @@ import {
   detectAuditReadiness,
 } from '@/lib/audit/audit-readiness';
 import { crawlWebsite } from '@/lib/crawl/site-crawler';
+import { logError } from '@/lib/monitoring/log-error';
 import {
   buildBrandEvidenceRecord,
   collectExternalSources,
@@ -368,6 +369,7 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
       goalCategory,
     });
   } catch (error) {
+    logError('audit.run-audit', error, { projectId, auditRunId: auditRun.id, runType });
     await supabase
       .from('audit_runs')
       .update({

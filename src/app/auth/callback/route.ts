@@ -3,6 +3,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { AUDIT_SESSION_COOKIE } from '@/lib/audit/session-cookie';
 import { unlockAuditSession } from '@/lib/db/audit-sessions';
+import { claimProjectOwnership } from '@/lib/db/projects';
 import { fetchWithSupabaseRetry } from '@/lib/supabase/fetch-retry';
 
 const UPDATE_PASSWORD_PATH = '/auth/update-password';
@@ -72,10 +73,11 @@ export async function GET(request: Request) {
 
   if (sessionId && data.user.email) {
     try {
-      await unlockAuditSession(sessionId, {
+      const unlocked = await unlockAuditSession(sessionId, {
         userId: data.user.id,
         email: data.user.email,
       });
+      await claimProjectOwnership(unlocked.project_id, data.user.id);
     } catch {
       // page will unlock if signed in
     }

@@ -1,9 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import { Loader2Icon } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
-
 import { AUDIT_SESSION_COOKIE } from '@/lib/audit/session-cookie';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 const SESSION_COOKIE = AUDIT_SESSION_COOKIE;
 
 interface AuthSignInGateProps {
@@ -103,8 +110,8 @@ export function AuthSignInGate({
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (mode === 'signup' && password.length < 8) {
+      setError('Password must be at least 8 characters');
       setLoading(false);
       return;
     }
@@ -131,163 +138,151 @@ export function AuthSignInGate({
 
   if (mode === 'forgot') {
     return (
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <div className="space-y-2">
-          <h2 className="text-xl font-semibold text-slate-950">Reset your password</h2>
-          <p className="text-sm leading-6 text-slate-600">
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>Reset your password</CardTitle>
+          <CardDescription>
             Enter your email and we&apos;ll send a link to choose a new password.
-          </p>
-        </div>
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <form onSubmit={handleForgotSubmit} className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="forgot-email">Email</Label>
+              <Input
+                id="forgot-email"
+                type="email"
+                placeholder="you@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
+            </div>
+            <Button type="submit" disabled={loading} className="w-full">
+              {loading ? <Loader2Icon className="size-4 animate-spin" /> : null}
+              {loading ? 'Sending…' : 'Send reset link'}
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => switchMode('signin')} className="w-full">
+              Back to sign in
+            </Button>
+          </form>
 
-        <form onSubmit={handleForgotSubmit} className="mt-6 space-y-3">
-          <input
-            type="email"
-            placeholder="you@company.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="email"
-            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-100"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:opacity-50"
-          >
-            {loading ? 'Sending…' : 'Send reset link'}
-          </button>
-          <button
-            type="button"
-            onClick={() => switchMode('signin')}
-            className="w-full py-2 text-sm font-medium text-slate-600 transition hover:text-slate-900"
-          >
-            Back to sign in
-          </button>
-        </form>
-
-        {message ? <p className="mt-4 text-xs text-emerald-700">{message}</p> : null}
-        {error ? <p className="mt-4 text-xs text-red-600">{error}</p> : null}
-      </div>
+          {message ? <p className="text-sm text-success">{message}</p> : null}
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div
-        role="tablist"
-        aria-label="Account"
-        className="flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm"
-      >
-        <button
-          type="button"
-          role="tab"
-          aria-selected={mode === 'signin'}
-          onClick={() => switchMode('signin')}
-          className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition ${
- mode === 'signin' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900'
- }`}
-        >
-          Sign in
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={mode === 'signup'}
-          onClick={() => switchMode('signup')}
-          className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition ${
- mode === 'signup' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900'
- }`}
-        >
-          Sign up
-        </button>
-      </div>
+    <Card className="w-full rounded-sm">
+      <CardHeader>
+        <CardTitle className="sr-only">{mode === 'signup' ? 'Create your account' : 'Sign in'}</CardTitle>
+        <CardDescription className="text-center">
+          {mode === 'signup' ? 'Set up your Site-OS account to continue.' : 'Sign in to continue to Site-OS.'}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Tabs  value={mode} onValueChange={(value) => switchMode(value as Mode)}>
+          <TabsList className="w-full">
+            <TabsTrigger className="rounded-sm h-8" value="signin">Sign in</TabsTrigger>
+            <TabsTrigger className="rounded-sm h-8" value="signup">Sign up</TabsTrigger>
+          </TabsList>
+        </Tabs>
 
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <div className="space-y-4">
-          <form onSubmit={handleEmailSubmit} className="space-y-3">
-            <input
+        <form onSubmit={handleEmailSubmit} className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="email">Email</Label>
+            <Input
+            className="rounded-sm h-9"
+              id="email"
               type="email"
               placeholder="you@company.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
-              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-100"
             />
-            <div className="space-y-1.5">
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-                autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-100"
-              />
+          </div>
+
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Password</Label>
               {mode === 'signin' ? (
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => switchMode('forgot')}
-                    className="text-xs font-medium text-slate-500 transition hover:text-slate-800"
-                  >
-                    Forgot password?
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => switchMode('forgot')}
+                  className="text-xs font-medium text-muted-foreground transition hover:text-foreground"
+                >
+                  Forgot password?
+                </button>
               ) : null}
             </div>
-            {mode === 'signup' ? (
-              <input
+            <Input
+              id="password"
+              type="password"
+              className="rounded-sm h-9"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={mode === 'signup' ? 8 : undefined}
+              autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+            />
+          </div>
+
+          {mode === 'signup' ? (
+            <div className="space-y-1.5">
+              <Label htmlFor="confirm-password">Confirm password</Label>
+              <Input
+                className="rounded-sm h-9"
+                id="confirm-password"
                 type="password"
-                placeholder="Confirm password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                minLength={6}
+                minLength={8}
                 autoComplete="new-password"
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-100"
               />
-            ) : null}
-            <button
-              type="submit"
-              disabled={loading || googleLoading}
-              className="w-full rounded-xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:opacity-50"
-            >
-              {loading
-                ? mode === 'signup'
-                  ? 'Creating account…'
-                  : 'Signing in…'
-                : mode === 'signup'
-                  ? 'Create account'
-                  : 'Sign in'}
-            </button>
-          </form>
+            </div>
+          ) : null}
 
-          {error ? <p className="text-xs text-red-600">{error}</p> : null}
-
-          <div className="flex items-center gap-3">
-            <div className="h-px flex-1 bg-slate-200" />
-            <span className="text-xs text-slate-400">or Google</span>
-            <div className="h-px flex-1 bg-slate-200" />
-          </div>
-
-          <button
-            type="button"
-            onClick={handleGoogle}
-            disabled={googleLoading || loading}
-            className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:opacity-50"
-          >
-            <GoogleIcon />
-            {googleLoading
-              ? 'Redirecting…'
+          <Button type="submit" disabled={loading || googleLoading} className="w-full rounded-sm cursor-pointer h-12">
+            {loading ? <Loader2Icon className="size-4 animate-spin" /> : null}
+            {loading
+              ? mode === 'signup'
+                ? 'Creating account…'
+                : 'Signing in…'
               : mode === 'signup'
-                ? 'Sign up with Google'
-                : 'Continue with Google'}
-          </button>
+                ? 'Create account'
+                : 'Sign in'}
+          </Button>
+        </form>
+
+        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+
+        <div className="flex items-center gap-3">
+          <Separator className="flex-1" />
+          <span className="text-xs text-muted-foreground">or Google</span>
+          <Separator className="flex-1" />
         </div>
-      </div>
-    </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleGoogle}
+          disabled={googleLoading || loading}
+          className="w-full gap-2 rounded-sm h-12 cursor-pointer hover:bg-white/90"
+        >
+          <GoogleIcon />
+          {googleLoading
+            ? 'Redirecting…'
+            : mode === 'signup'
+              ? 'Sign up with Google'
+              : 'Continue with Google'}
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 

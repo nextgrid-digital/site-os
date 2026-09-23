@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { getAppUrl } from '@/lib/app-url';
 import { upsertGoogleConnection } from '@/lib/db/google';
 import { syncGoogleConnectionInventory } from '@/lib/db/google-inventory';
 import { exchangeCodeForTokens } from '@/lib/google/oauth';
+import { getSupabaseAdmin } from '@/lib/supabase/server';
 
 function connectErrorRedirect(appUrl: string, projectId: string | null, returnTo: string, message: string) {
   if (projectId) {
@@ -23,15 +25,22 @@ export async function GET(request: Request) {
   const error = searchParams.get('error');
   const appUrl = getAppUrl(request);
 
+  const cookieStore = await cookies();
+  const expectedNonce = cookieStore.get('g_oauth_state')?.value ?? null;
+  cookieStore.delete('g_oauth_state');
+
   let projectId: string | null = null;
   let returnTo = '/app';
+  let nonce: string | null = null;
   if (state) {
     try {
       const parsed = JSON.parse(Buffer.from(state, 'base64url').toString('utf8')) as {
         projectId?: string | null;
         returnTo?: string;
+        nonce?: string;
       };
       projectId = typeof parsed.projectId === 'string' ? parsed.projectId : null;
+      nonce = typeof parsed.nonce === 'string' ? parsed.nonce : null;
       if (
         typeof parsed.returnTo === 'string' &&
         parsed.returnTo.startsWith('/') &&
@@ -52,11 +61,31 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Missing OAuth code or state.' }, { status: 400 });
   }
 
+  if (!nonce || !expectedNonce || nonce !== expectedNonce) {
+    return connectErrorRedirect(
+      appUrl,
+      projectId,
+      returnTo,
+      'Invalid or expired connection request. Please try connecting again.'
+    );
+  }
+
+  if (!projectId) {
+    return connectErrorRedirect(appUrl, null, returnTo, 'Missing project context for Google connection.');
+  }
+
   try {
     const tokens = await exchangeCodeForTokens(code, request);
-    await upsertGoogleConnection(tokens);
+    await upsertGoogleConnection(projectId, tokens);
     try {
-      await syncGoogleConnectionInventory();
+      const { data: project } = await getSupabaseAdmin()
+        .from('projects')
+        .select('user_id')
+        .eq('id', projectId)
+        .maybeSingle();
+      if (project?.user_id) {
+        await syncGoogleConnectionInventory(project.user_id);
+      }
     } catch (inventoryError) {
       console.error('[google/oauth/callback] inventory sync failed', inventoryError);
     }

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getLatestAuditSessionForProject, setAuditSessionUpgradeState } from '@/lib/db/audit-sessions';
 import { upsertClientIntake } from '@/lib/db/client-intake';
 import type { GoalCategory } from '@/lib/db/client-intake';
+import { ProjectAccessError, requireProjectAccess } from '@/lib/db/projects';
 
 const VALID_GOALS: GoalCategory[] = ['leads', 'signups', 'sales', 'traffic', 'funnel_clarity'];
 
@@ -10,6 +11,14 @@ export async function POST(
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   const { projectId } = await params;
+  try {
+    await requireProjectAccess(projectId);
+  } catch (error) {
+    if (error instanceof ProjectAccessError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+    throw error;
+  }
   const body = await request.json();
 
   const goalCandidates: string[] = Array.isArray(body.goal_categories)

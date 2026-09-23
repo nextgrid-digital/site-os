@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { selectProperties, syncPropertyOptions } from '@/lib/db/google';
 import { syncGoogleConnectionInventory } from '@/lib/db/google-inventory';
-import { listPropertyOptions } from '@/lib/db/projects';
+import { listPropertyOptions, ProjectAccessError, requireProjectOwner } from '@/lib/db/projects';
 
 export async function GET(
   _request: Request,
@@ -9,9 +9,13 @@ export async function GET(
 ) {
   try {
     const { projectId } = await context.params;
+    await requireProjectOwner(projectId);
     const properties = await listPropertyOptions(projectId);
     return NextResponse.json({ properties });
   } catch (error) {
+    if (error instanceof ProjectAccessError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to load properties.' },
       { status: 500 }
@@ -25,12 +29,13 @@ export async function POST(
 ) {
   try {
     const { projectId } = await context.params;
+    const userId = await requireProjectOwner(projectId);
     const body = await request.json();
 
     if (body.action === 'sync') {
       await syncPropertyOptions(projectId);
       try {
-        await syncGoogleConnectionInventory();
+        await syncGoogleConnectionInventory(userId);
       } catch (inventoryError) {
         console.error('[properties] inventory sync failed', inventoryError);
       }
@@ -55,6 +60,9 @@ export async function POST(
     const properties = await listPropertyOptions(projectId);
     return NextResponse.json({ properties });
   } catch (error) {
+    if (error instanceof ProjectAccessError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to update properties.' },
       { status: 500 }

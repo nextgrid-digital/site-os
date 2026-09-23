@@ -40,7 +40,7 @@ export function SitesDashboard({
 
       {googleInventory ? (
         <div className="mt-10">
-          <GoogleInventorySitesSection initial={googleInventory} />
+          <GoogleInventorySitesSection initial={googleInventory} projectId={sites[0]?.projectId ?? null} />
         </div>
       ) : null}
     </>

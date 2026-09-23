@@ -9,18 +9,27 @@ import {
 } from '@/lib/google/ads';
 import { GOOGLE_ADS_SCOPE } from '@/lib/google/oauth';
 
-export async function upsertGoogleConnection(tokens: {
-  access_token?: string | null;
-  refresh_token?: string | null;
-  expiry_date?: number | null;
-  scope?: string | null;
-}) {
+export async function upsertGoogleConnection(
+  projectId: string,
+  tokens: {
+    access_token?: string | null;
+    refresh_token?: string | null;
+    expiry_date?: number | null;
+    scope?: string | null;
+  }
+) {
   if (!tokens.access_token) throw new Error('Missing access token from Google.');
 
   const supabase = getSupabaseAdmin();
-  const existing = await supabase.from('google_connections').select('id').limit(1).maybeSingle();
+  const existing = await supabase
+    .from('google_connections')
+    .select('id')
+    .eq('project_id', projectId)
+    .limit(1)
+    .maybeSingle();
 
   const payload = {
+    project_id: projectId,
     operator_email: getOperatorEmail(),
     access_token: tokens.access_token,
     refresh_token: tokens.refresh_token ?? null,
@@ -50,6 +59,7 @@ export async function syncPropertyOptions(projectId: string) {
   const { data: connection } = await supabase
     .from('google_connections')
     .select('*')
+    .eq('project_id', projectId)
     .order('updated_at', { ascending: false })
     .limit(1)
     .maybeSingle();

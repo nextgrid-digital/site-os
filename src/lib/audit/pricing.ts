@@ -7,7 +7,7 @@ export interface PricingRecommendation {
   included_items: string[];
 }
 
-const TIERS = {
+export const TIERS = {
   teaser: {
     tier: 'Site audit',
     price: '$0',
@@ -46,6 +46,8 @@ const TIERS = {
     items: ['Monthly audit refresh', 'Opportunity tracking', 'Continuous prompt backlog'],
   },
 };
+
+export type ServiceTier = (typeof TIERS)[keyof typeof TIERS];
 
 export function recommendPricing(
   findings: Array<Pick<DraftFinding, 'severity' | 'category'> & { priority_score?: number }>,
