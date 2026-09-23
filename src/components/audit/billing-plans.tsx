@@ -13,7 +13,8 @@ interface BillingPlansProps {
 export function BillingPlans({ currentPlan }: BillingPlansProps) {
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const tiers = Object.values(TIERS) as ServiceTier[];
+  // Only 2 tiers: Free (Site audit) and Full Audit
+  const tiers = [TIERS.teaser, TIERS.brief] as ServiceTier[];
 
   async function handleUpgrade(planKey: string) {
     setError(null);
@@ -61,8 +62,6 @@ export function BillingPlans({ currentPlan }: BillingPlansProps) {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {tiers.map((tier) => {
           const isCurrent = currentPlan === 'free' && tier.tier === 'Site audit';
-          const isCustomQuote =
-            tier.price === 'Custom quote' || tier.price === 'Custom monthly';
           const planKey = tierPlanMap[tier.tier] || '';
           const isLoading = loading === planKey;
 
@@ -91,19 +90,13 @@ export function BillingPlans({ currentPlan }: BillingPlansProps) {
                     <Button disabled className="w-full" variant="outline">
                       Current plan
                     </Button>
-                  ) : isCustomQuote ? (
-                    <a href="mailto:support@site-os.app" className="block">
-                      <Button className="w-full" variant="outline">
-                        Contact sales
-                      </Button>
-                    </a>
                   ) : tier.tier === 'Full audit' ? (
                     <Button
                       className="w-full"
                       onClick={() => void handleUpgrade('full')}
                       disabled={isLoading}
                     >
-                      {isLoading ? 'Loading...' : 'Upgrade'}
+                      {isLoading ? 'Loading...' : 'Upgrade to $700'}
                     </Button>
                   ) : null}
                 </div>
