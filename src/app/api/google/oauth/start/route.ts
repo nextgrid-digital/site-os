@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import { PaidPlanRequiredError, requirePaidSession } from '@/lib/db/profiles';
-import { assertProjectOwnership, isFullBriefUnlocked, ProjectAccessError, getProjectOverview } from '@/lib/db/projects';
+import {
+  assertProjectOwnership,
+  claimProjectOwnership,
+  isFullBriefUnlocked,
+  ProjectAccessError,
+  getProjectOverview,
+} from '@/lib/db/projects';
 import { getGoogleAuthUrl } from '@/lib/google/oauth';
 import { hasSupabaseConfig } from '@/lib/supabase/server';
 
@@ -37,20 +43,28 @@ export async function GET(request: Request) {
     throw error;
   }
 
-  try {
-    await assertProjectOwnership(projectId, session.userId!);
-  } catch (error) {
-    if (error instanceof ProjectAccessError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
+  if (session.isAdmin) {
+    // Admins manage every client's Google connection, not just projects they
+    // personally own. Claim unowned (operator-added) projects on first
+    // connect instead of leaving them permanently unconnectable; leave
+    // customer-owned projects as-is.
+    await claimProjectOwnership(projectId, session.userId!);
+  } else {
+    try {
+      await assertProjectOwnership(projectId, session.userId!);
+    } catch (error) {
+      if (error instanceof ProjectAccessError) {
+        return NextResponse.json({ error: error.message }, { status: error.status });
+      }
+      throw error;
     }
-    throw error;
   }
 
   const project = await getProjectOverview(projectId);
   if (!project) {
     return NextResponse.json({ error: 'Project not found.' }, { status: 404 });
   }
-  if (!isFullBriefUnlocked(project)) {
+  if (!session.isAdmin && !isFullBriefUnlocked(project)) {
     return NextResponse.redirect(new URL(`/audit/${projectId}/connect`, request.url));
   }
 
