@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
 const items = [
@@ -13,14 +14,17 @@ const items = [
 export function AccountNav() {
   const pathname = usePathname();
   const router = useRouter();
+  const [signOutError, setSignOutError] = useState<string | null>(null);
 
   async function handleSignOut() {
+    setSignOutError(null);
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      const response = await fetch('/api/auth/logout', { method: 'POST' });
+      if (!response.ok) throw new Error('Sign out failed.');
       router.push('/');
       router.refresh();
     } catch {
-      // silently fail, user can retry
+      setSignOutError('Sign out failed — please try again.');
     }
   }
 
@@ -49,6 +53,7 @@ export function AccountNav() {
       >
         Sign out
       </button>
+      {signOutError ? <p className="px-3 text-xs text-red-600">{signOutError}</p> : null}
     </nav>
   );
 }

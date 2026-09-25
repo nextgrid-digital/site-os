@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { SITE_NAV_LINKS } from '@/components/audit/site-nav';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { OperatorSignOut } from '@/components/operator/operator-sign-out';
 import { cn } from '@/lib/utils';
 
 const primaryPills = [
@@ -102,6 +103,7 @@ export function OperatorTopbar() {
               NG
             </AvatarFallback>
           </Avatar>
+          <OperatorSignOut />
         </div>
       </div>
     </header>

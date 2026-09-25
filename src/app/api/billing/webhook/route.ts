@@ -1,6 +1,5 @@
-import { cookies } from 'next/headers';
 import crypto from 'crypto';
-import { createClient } from '@/utils/supabase/server';
+import { getSupabaseAdmin } from '@/lib/supabase/server';
 
 /**
  * Paddle webhook handler for payment events.
@@ -30,8 +29,10 @@ export async function POST(request: Request) {
         return Response.json({ ok: true }); // Don't fail, Paddle will retry
       }
 
-      const cookieStore = await cookies();
-      const supabase = createClient(cookieStore);
+      // Webhook requests carry no session cookies, and `profiles` RLS has no
+      // authenticated-write policy — this write must go through the service
+      // role, matching the "service role writes plans" design in migration 015.
+      const supabase = getSupabaseAdmin();
 
       // Update user plan to 'paid'
       const { error } = await supabase
