@@ -1,14 +1,14 @@
-import Link from 'next/link';
-import type { ReactNode } from 'react';
-import { UserAccountMenu } from '@/components/audit/user-account-menu';
+import Link from "next/link";
+import type { ReactNode } from "react";
+import { UserAccountMenu } from "@/components/audit/user-account-menu";
 
 /** Shared content width with marketing sections (`max-w-280 px-8`). */
-export const SITE_CONTENT_CLASS = 'mx-auto w-full max-w-280 px-8';
+export const SITE_CONTENT_CLASS = "mx-auto w-full max-w-280 px-8";
 
 export const SITE_NAV_LINKS = [
-  { href: '/#how-it-works', label: 'How it works' },
-  { href: '/#pricing', label: 'Pricing' },
-  { href: '/#faq', label: 'FAQ' },
+  { href: "/#how-it-works", label: "How it works" },
+  { href: "/#pricing", label: "Pricing" },
+  { href: "/#faq", label: "FAQ" },
 ] as const;
 
 interface SiteNavProps {
@@ -30,12 +30,14 @@ export function SiteNav({
 }: SiteNavProps) {
   const isSignedIn = Boolean(signedIn || userInitials);
   const shouldShowSignIn = Boolean(showSignIn) && !isSignedIn;
-  const menuInitials = (userInitials || 'SO').slice(0, 2).toUpperCase();
+  const menuInitials = (userInitials || "SO").slice(0, 2).toUpperCase();
 
   return (
     <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm">
       {/* 3 equal columns so center links stay optically centered despite asymmetric sides */}
-      <div className={`${SITE_CONTENT_CLASS} grid h-14 grid-cols-[1fr_auto_1fr] items-center gap-4`}>
+      <div
+        className={`${SITE_CONTENT_CLASS} grid h-14 grid-cols-[1fr_auto_1fr] items-center gap-4`}
+      >
         <Link
           href="/"
           className="justify-self-start flex shrink-0 items-center gap-2 font-semibold tracking-tight text-foreground"
@@ -61,7 +63,10 @@ export function SiteNav({
         </Link>
 
         {showMarketingNav ? (
-          <nav aria-label="Primary" className="hidden items-center justify-center gap-1 md:flex">
+          <nav
+            aria-label="Primary"
+            className="hidden items-center justify-center gap-1 md:flex"
+          >
             {SITE_NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
@@ -71,23 +76,6 @@ export function SiteNav({
                 {link.label}
               </Link>
             ))}
-            {isSignedIn ? (
-              <Link
-                href="/app"
-                className="rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
-              >
-                Dashboard
-              </Link>
-            ) : null}
-          </nav>
-        ) : isSignedIn ? (
-          <nav aria-label="Primary" className="hidden items-center justify-center gap-1 md:flex">
-            <Link
-              href="/"
-              className="rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
-            >
-              Marketing site
-            </Link>
           </nav>
         ) : (
           <div className="justify-self-center" aria-hidden="true" />

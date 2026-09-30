@@ -8,6 +8,8 @@ import { Logo3_styles } from "../_styles";
 import { logos4 as logosContent } from "../content";
 import { TIERS } from "@/lib/audit/pricing";
 import { cn } from "../lib/utils";
+import { Switch } from "@/components/ui/switch";
+
 const fullAuditLogos = TIERS.brief.items.map((description) => ({ description }));
 /** Product Grid section. */
 export default function ProductGridSection2({ logos = logosContent } = {}) {
@@ -40,10 +42,7 @@ export default function ProductGridSection2({ logos = logosContent } = {}) {
                       <button type="button" onClick={() => setTier("free")} className={cn("block text-sm font-medium leading-5 cursor-pointer", isFull && "text-muted-foreground")} data-cid="n2177">
                         Free audit
                       </button>
-                      <button type="button" onClick={() => setTier(isFull ? "free" : "full")} className="flex relative shrink-0 text-center cursor-pointer h-4 w-7" data-cid="n2178" data-component="button" aria-checked={isFull} aria-label="Switch between free crawl audit and full audit pricing." role="switch">
-                        <span className="w-7 block absolute top-2 left-0 min-w-0 rounded-full bg-clr-19 [translate:0px_-50%] h-3" data-cid="n2179" aria-hidden="true" />
-                        <span className={cn("w-3.5 h-3.5 block absolute top-2 min-w-0 rounded-full bg-foreground [translate:0px_-50%] transition-transform", isFull ? "translate-x-3.5" : "translate-x-0")} data-cid="n2180" aria-hidden="true" />
-                      </button>
+                      <Switch className="block shrink-0" data-cid="n2178" data-component="switch" data-state={isFull ? "on" : "off"} aria-checked={isFull} />
                       <button type="button" onClick={() => setTier("full")} className={cn("block text-sm font-medium leading-5 cursor-pointer", !isFull && "text-muted-foreground")} data-cid="n2181">
                         Full Audit <span data-cid="n2182">$700</span>
                       </button>
