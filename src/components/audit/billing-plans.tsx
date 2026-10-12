@@ -16,7 +16,9 @@ export function BillingPlans({ currentPlan }: BillingPlansProps) {
   // Only 2 tiers: Free (Site audit) and Full Audit
   const tiers = [TIERS.teaser, TIERS.brief] as ServiceTier[];
 
-  async function handleUpgrade(planKey: string) {
+  
+
+  const handleUpgrade = async (planKey: string) => {
     setError(null);
     setLoading(planKey);
 
@@ -48,9 +50,7 @@ export function BillingPlans({ currentPlan }: BillingPlansProps) {
   // Map tier names to plan keys for API
   const tierPlanMap: Record<string, string> = {
     'Site audit': 'free',
-    'Full audit': 'full',
-    'Implementation sprint': 'sprint',
-    'Monthly monitoring / retainer': 'retainer',
+    'Full audit': 'full'
   };
 
   return (
