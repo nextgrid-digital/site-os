@@ -2,11 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 const toneStyles = {
-  default: 'border-white/8 bg-[#141416]',
+  default: 'border-white/8 bg-[#141416] dark:bg-[#f5f5f7]',
   priority: 'border-priority/35 bg-priority/10',
-  success: 'border-success/35 bg-success/10',
+  success: 'border-success/35 bg-success/80',
   aeo: 'border-aeo/40 bg-aeo/10',
-  primary: 'border-white/12 bg-white/5',
+  primary: 'border-white/12 bg-zinc-600 dark:bg-zinc-900',
 } as const;
 
 export function StatCard({
@@ -30,13 +30,13 @@ export function StatCard({
       )}
     >
       <CardHeader className="pb-1.5">
-        <CardTitle className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+        <CardTitle className="text-xs font-medium tracking-wide text-muted uppercase">
           {label}
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-semibold tracking-tight text-foreground">{value}</div>
-        {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
+        <div className="text-2xl font-semibold tracking-tight text-white">{value}</div>
+        {hint ? <p className="mt-1 text-xs text-muted/80">{hint}</p> : null}
       </CardContent>
     </Card>
   );

@@ -24,6 +24,7 @@ import type {
   SearchConsoleProperty,
 } from '@/lib/supabase/types';
 import type { ConnectorStatus } from '@/lib/connectors/types';
+import type { ConnectionStatus } from '@/lib/google/connection-status';
 import type { Finding, AgentPrompt, GraphWorkOrder } from '@/lib/supabase/types';
 import { buildUnifiedWorkItems, type WorkItemView } from '@/lib/workflow/work-items';
 import type { MonthlyCompareSection } from '@/lib/workflow/monthly-compare';
@@ -264,6 +265,7 @@ export function SpaConnectPanel({
   const ctx = useWorkspaceAudit();
   const ensureSlice = ctx?.ensureSlice;
   const [message, setMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     void ensureSlice?.('connect');
@@ -275,6 +277,10 @@ export function SpaConnectPanel({
     if (params.get('connected')) {
       setMessage('Google account connected. Sync and select properties below.');
     }
+    const error = params.get('error');
+    if (error) {
+      setErrorMessage(error);
+    }
   }, []);
 
   const connect = ctx?.bundle?.connect as {
@@ -284,6 +290,13 @@ export function SpaConnectPanel({
     adsAccounts: GoogleAdsAccount[];
     connectorStatuses: ConnectorStatus[];
     operatorEmail: string;
+    tokenExpiry: string | null;
+    lastSyncedAt: string | null;
+    scopes: string[];
+    isAdmin: boolean;
+    plan: 'free' | 'paid';
+    connectionStatus: ConnectionStatus;
+    clientAccessConfirmedAt: string | null;
   } | null;
 
   if (!connect && ctx?.sliceLoading.connect) return <PanelPulse />;
@@ -293,6 +306,11 @@ export function SpaConnectPanel({
       title="Setup"
       description="Connect Google, sync properties, and map Search Console, GA4, and Ads — then run the audit from Dashboard."
     >
+      {errorMessage ? (
+        <div className="mb-4 rounded-[14px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
+          {errorMessage}
+        </div>
+      ) : null}
       {message ? (
         <div className="mb-4 rounded-[14px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
           {message}
@@ -306,8 +324,13 @@ export function SpaConnectPanel({
         adsAccounts={connect?.adsAccounts ?? []}
         connectorStatuses={connect?.connectorStatuses ?? []}
         operatorEmail={connect?.operatorEmail ?? null}
-        fullBriefUnlocked
-        paidPlan
+        tokenExpiry={connect?.tokenExpiry ?? null}
+        lastSyncedAt={connect?.lastSyncedAt ?? null}
+        scopes={connect?.scopes ?? []}
+        isAdminView={connect?.isAdmin ?? false}
+        plan={connect?.plan ?? 'free'}
+        connectionStatus={connect?.connectionStatus ?? 'not_granted'}
+        clientAccessConfirmedAt={connect?.clientAccessConfirmedAt ?? null}
         workspaceBase={workspaceBase}
       />
     </AuditWorkspacePanel>

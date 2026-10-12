@@ -9,6 +9,7 @@ export function UserAccountMenu(_props: { initials?: string } = {}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,11 +33,15 @@ export function UserAccountMenu(_props: { initials?: string } = {}) {
   async function handleSignOut() {
     if (signingOut) return;
     setSigningOut(true);
+    setSignOutError(null);
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      const response = await fetch('/api/auth/logout', { method: 'POST' });
+      if (!response.ok) throw new Error('Sign out failed.');
       setOpen(false);
       router.push('/');
       router.refresh();
+    } catch {
+      setSignOutError('Sign out failed — please try again.');
     } finally {
       setSigningOut(false);
     }
@@ -96,6 +101,9 @@ export function UserAccountMenu(_props: { initials?: string } = {}) {
           >
             {signingOut ? 'Signing out…' : 'Sign out'}
           </button>
+          {signOutError ? (
+            <p className="px-3 pb-2 text-xs text-red-600">{signOutError}</p>
+          ) : null}
         </div>
       ) : null}
     </div>

@@ -1,5 +1,8 @@
 import Link from 'next/link';
+import { CircleCheck } from 'lucide-react';
 import { readinessLabel, type AuditReadiness } from '@/lib/audit/audit-readiness';
+import { ADMIN_STATUS_COPY, type ConnectionStatus } from '@/lib/google/connection-status';
+import { PlanToggle } from '@/components/operator/plan-toggle';
 import { cn } from '@/lib/utils';
 
 export interface SiteCardData {
@@ -8,6 +11,11 @@ export interface SiteCardData {
   domain: string | null;
   url: string | null;
   updatedAt: string;
+  /** null when the project has no signed-in owner yet (pre-signup / admin-added). */
+  plan: 'free' | 'paid' | null;
+  connectionStatus: ConnectionStatus;
+  /** Client self-reported "I've granted access" — distinct from our verified sync state. */
+  clientConfirmedAt: string | null;
   latestAudit: {
     status: string;
     runType: string;
@@ -16,6 +24,13 @@ export interface SiteCardData {
     completedAt: string | null;
   } | null;
 }
+
+const CONNECTION_BADGE: Record<ConnectionStatus, string> = {
+  not_granted: 'bg-white/8 text-white/45',
+  granted_pending_sync: 'bg-amber-500/15 text-amber-300',
+  synced_mapped: 'bg-emerald-500/15 text-emerald-300',
+  needs_refresh: 'bg-red-500/15 text-red-300',
+};
 
 function initialFromName(name: string) {
   const trimmed = name.trim();
@@ -57,6 +72,23 @@ export function SiteCard({ site }: { site: SiteCardData }) {
             <p className="truncate text-[15px] font-medium text-white">{site.name}</p>
             {site.domain ? (
               <p className="truncate text-sm text-white/45">{site.domain}</p>
+            ) : null}
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            <PlanToggle projectId={site.id} plan={site.plan} />
+            <span
+              className={cn(
+                'rounded-full px-2 py-0.5 text-[11px] font-medium',
+                CONNECTION_BADGE[site.connectionStatus]
+              )}
+            >
+              {ADMIN_STATUS_COPY[site.connectionStatus]}
+            </span>
+            {site.clientConfirmedAt && site.connectionStatus !== 'synced_mapped' ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-sky-500/15 px-2 py-0.5 text-[11px] font-medium text-sky-300">
+                <CircleCheck className="size-3" strokeWidth={2} />
+                Client confirmed — ready to run
+              </span>
             ) : null}
           </div>
           <p className="mt-2 text-sm text-white/55">{auditMeta(site)}</p>

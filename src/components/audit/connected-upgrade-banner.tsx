@@ -17,11 +17,11 @@ export function ConnectedUpgradeBanner({
         </span>
         <div className="space-y-0.5 text-sm leading-5 text-zinc-800">
           <p className="font-semibold">
-            Free audits are unlocked. Connected insights need an upgrade.
+            Free audits are crawl-only. Want the full picture?
           </p>
           <p className="text-zinc-600">
-            Choose a plan to connect Search Console and GA4, or Site-OS stays on crawl-only findings.
-            Yearly billing includes 2 months free.
+            Pay once — $700 — and we run a full audit using your real Search Console, GA4, and
+            Ads data. No subscription, no recurring charge.
           </p>
         </div>
       </div>

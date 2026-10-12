@@ -10,7 +10,9 @@ export interface Project {
   id: string;
   name: string;
   status: ProjectStatus;
+  user_id: string | null;
   full_brief_unlocked_at: string | null;
+  client_access_confirmed_at: string | null;
   created_at: string;
   updated_at: string;
 }

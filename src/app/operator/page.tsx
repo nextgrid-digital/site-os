@@ -2,6 +2,7 @@ import { AddSiteDialog } from '@/components/operator/add-site-dialog';
 import { OperatorShell } from '@/components/operator/operator-shell';
 import { SiteCard, type SiteCardData } from '@/components/operator/site-card';
 import type { AuditReadiness } from '@/lib/audit/audit-readiness';
+import { deriveConnectionStatus } from '@/lib/google/connection-status';
 import { getSupabaseAdmin, hasSupabaseConfig } from '@/lib/supabase/server';
 import type { Project, Website } from '@/lib/supabase/types';
 
@@ -23,6 +24,8 @@ async function listSiteCards(): Promise<SiteCardData[]> {
       id: record.id,
       name: record.name,
       status: record.status,
+      user_id: record.user_id,
+      client_access_confirmed_at: record.client_access_confirmed_at,
       created_at: record.created_at,
       updated_at: record.updated_at,
       website,
@@ -76,14 +79,65 @@ async function listSiteCards(): Promise<SiteCardData[]> {
     }
   }
 
+  const ownerIds = Array.from(
+    new Set(projects.map((project) => project.user_id).filter((id): id is string => Boolean(id)))
+  );
+  const planByOwner = new Map<string, 'free' | 'paid'>();
+  if (ownerIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('user_id, plan')
+      .in('user_id', ownerIds);
+    for (const row of profiles ?? []) {
+      planByOwner.set(row.user_id, row.plan === 'paid' ? 'paid' : 'free');
+    }
+  }
+
+  const [{ data: connections }, { data: gscSelected }, { data: ga4Selected }, { data: adsSelected }] =
+    await Promise.all([
+      supabase
+        .from('google_connections')
+        .select('project_id, token_expiry, updated_at')
+        .in('project_id', projectIds),
+      supabase
+        .from('search_console_properties')
+        .select('project_id')
+        .in('project_id', projectIds)
+        .eq('is_selected', true),
+      supabase.from('ga4_properties').select('project_id').in('project_id', projectIds).eq('is_selected', true),
+      supabase
+        .from('google_ads_accounts')
+        .select('project_id')
+        .in('project_id', projectIds)
+        .eq('is_selected', true),
+    ]);
+
+  const connectionByProject = new Map<string, { token_expiry: string | null; updated_at: string }>();
+  for (const row of connections ?? []) {
+    connectionByProject.set(row.project_id, { token_expiry: row.token_expiry, updated_at: row.updated_at });
+  }
+  const mappedProjectIds = new Set([
+    ...(gscSelected ?? []).map((row) => row.project_id),
+    ...(ga4Selected ?? []).map((row) => row.project_id),
+    ...(adsSelected ?? []).map((row) => row.project_id),
+  ]);
+
   return projects.map((project) => {
     const latest = latestByProject.get(project.id) ?? null;
+    const ownerId = project.user_id;
+    const connectionStatus = deriveConnectionStatus(
+      connectionByProject.get(project.id) ?? null,
+      mappedProjectIds.has(project.id)
+    );
     return {
       id: project.id,
       name: project.name,
       domain: project.website?.domain ?? null,
       url: project.website?.url ?? null,
       updatedAt: project.updated_at,
+      plan: ownerId ? (planByOwner.get(ownerId) ?? 'free') : null,
+      connectionStatus: connectionStatus.status,
+      clientConfirmedAt: project.client_access_confirmed_at,
       latestAudit: latest
         ? {
             status: latest.status,

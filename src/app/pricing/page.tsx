@@ -11,7 +11,8 @@ export const metadata = {
 };
 
 export default function PricingPage() {
-  const tiers = Object.values(TIERS);
+  // Only 2 tiers: Free (Site audit) and Full Audit
+  const tiers = [TIERS.teaser, TIERS.brief];
 
   return (
     <div className={`${SITE_CONTENT_CLASS} py-16`}>
@@ -22,11 +23,11 @@ export default function PricingPage() {
       <div className="mt-6">
         <h1 className="text-3xl font-semibold">Pricing</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Choose the plan that fits your needs. Start free, upgrade when you need connected data.
+          Start free. Upgrade to get a professional audit from our expert team.
         </p>
       </div>
 
-      <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-2">
         {tiers.map((tier) => (
           <Card key={tier.tier} className="relative flex flex-col">
             <CardHeader>

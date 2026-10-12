@@ -821,9 +821,8 @@ export const listPropertyOptions = cache(async (projectId: string) => {
   };
 });
 
-/** Site-OS is fully free: full audit / connect access is always unlocked. */
-export function isFullBriefUnlocked(_project: Pick<Project, 'full_brief_unlocked_at'>) {
-  return true;
+export function isFullBriefUnlocked(project: Pick<Project, 'full_brief_unlocked_at'>) {
+  return Boolean(project.full_brief_unlocked_at);
 }
 
 export class SiteDeleteError extends Error {
@@ -885,6 +884,22 @@ export async function deleteProjectForUser(userId: string, projectId: string) {
   }
 
   return { deletedProject: false as const };
+}
+
+/** Client self-reports that they've granted our Google account access —
+ *  distinct from the admin's verified OAuth connection, this just tells
+ *  admins who's ready to have their full audit run. */
+export async function confirmClientAccess(projectId: string) {
+  const supabase = getSupabaseAdmin();
+  const confirmedAt = new Date().toISOString();
+  const { data, error } = await supabase
+    .from('projects')
+    .update({ client_access_confirmed_at: confirmedAt, updated_at: confirmedAt })
+    .eq('id', projectId)
+    .select('*')
+    .single();
+  if (error) throw new Error(error.message);
+  return data as Project;
 }
 
 export async function unlockFullBrief(projectId: string) {

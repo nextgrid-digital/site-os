@@ -2,10 +2,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { SitesDashboard, type SitesDashboardSite } from '@/components/audit/sites-dashboard';
 import { listUnlockedAuditSessionsForUser } from '@/lib/db/audit-sessions';
-import {
-  getStoredGoogleInventory,
-  listGoogleInventoryCandidates,
-} from '@/lib/db/google-inventory';
+import { getSessionPlan } from '@/lib/db/profiles';
 import { getSupabaseAdmin, hasSupabaseConfig } from '@/lib/supabase/server';
 import { createClient } from '@/utils/supabase/server';
 
@@ -40,7 +37,6 @@ export default async function AppHomePage({
   }
   const uniqueSessions = [...latestByProject.values()];
   const projectIds = uniqueSessions.map((s) => s.project_id);
-  const existingDomains = uniqueSessions.map((s) => s.domain).filter(Boolean);
 
   const findingsByProject = new Map<string, number>();
   const connectionsByProject = new Map<
@@ -141,20 +137,13 @@ export default async function AppHomePage({
     },
   }));
 
-  const storedInventory = await getStoredGoogleInventory(user.id);
-  const candidates = await listGoogleInventoryCandidates(user.id, existingDomains, storedInventory);
+  const session = await getSessionPlan();
 
   return (
     <SitesDashboard
       sites={sites}
       highlightSessionId={highlightSessionId ?? null}
-      showUpgradeBanner={false}
-      googleInventory={{
-        connected: storedInventory?.connected ?? false,
-        operatorEmail: storedInventory?.operatorEmail ?? null,
-        syncedAt: storedInventory?.syncedAt ?? null,
-        candidates,
-      }}
+      showUpgradeBanner={session.plan === 'free'}
     />
   );
 }

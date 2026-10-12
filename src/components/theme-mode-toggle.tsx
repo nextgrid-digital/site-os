@@ -26,7 +26,7 @@ export function ThemeModeToggle({ className }: { className?: string }) {
       role="group"
       aria-label="Color theme"
       className={cn(
-        'inline-flex items-center gap-0.5 rounded-lg bg-muted p-0.5',
+        'inline-flex items-center gap-0.5 rounded-lg bg-muted/10 p-0.5',
         className
       )}
     >

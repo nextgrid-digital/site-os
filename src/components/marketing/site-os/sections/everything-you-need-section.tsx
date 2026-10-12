@@ -1,18 +1,19 @@
 // @ts-nocheck
-import Icon7 from "../svgs/svg-icon7";
+"use client";
+import { Accordion } from "@base-ui/react/accordion";
 import FeatureCard2 from "../components/feature-card2";
 import MediaCard, { type MediaCardData } from "../components/media-card";
 import { FeatureCard2_cids, MediaCard_cids } from "../_cids";
 import { FeatureCard2_styles, MediaCard_styles } from "../_styles";
 import { featureCard2Data as featureCard2DataContent } from "../content";
 const MediaCard_data: MediaCardData[] = [
-    { id: "base-ui-_r17R_2H2_", title: "Breakdowns" },
-    { id: "base-ui-_r17R_3H2_", title: "Events" },
-    { id: "base-ui-_r17R_4H2_", title: "Tracking" },
-    { id: "base-ui-_r17R_5H2_", title: "Revenue" },
-    { id: "base-ui-_r17R_6H2_", title: "Privacy" },
-    { id: "base-ui-_r17R_7H2_", title: "Setup" },
-    { id: "base-ui-_r17R_8H2_", title: "Sharing" }
+    { id: "breakdowns", title: "Breakdowns", description: "Findings break down by severity, buyer moment, and category — so a page with ten small issues doesn't outrank one page with a broken checkout flow." },
+    { id: "events", title: "Events", description: "Connect GA4 to see which conversion events fire and where visitors drop off, right next to the crawl findings that explain why." },
+    { id: "tracking", title: "Tracking", description: "Once Search Console is connected, crawl findings sit beside real query and page performance data — not just guesses about what matters." },
+    { id: "revenue", title: "Revenue", description: "Each finding maps to a buyer moment, an estimated revenue impact, and a composite priority score, so fixes are ranked by what they're worth." },
+    { id: "privacy", title: "Privacy", description: "Search Console and GA4 connect with read-only OAuth scopes. Tokens are stored server-side and never exposed to your browser, and you can disconnect anytime." },
+    { id: "setup", title: "Setup", description: "Paste a URL to start — no install, no code, and no credit card. Connect Google in a couple of clicks later if you want deeper findings." },
+    { id: "sharing", title: "Sharing", description: "Export a client-ready growth brief and share a link, so stakeholders can see the findings and priorities without needing to sign in." },
 ];
 /** Everything You Need section. */
 export default function EverythingYouNeedSection({ featureCard2Data = featureCard2DataContent, mediaCardData = MediaCard_data } = {}) {
@@ -29,33 +30,27 @@ export default function EverythingYouNeedSection({ featureCard2Data = featureCar
             </p>
           </div>
         </div>
-        <div className="h-[50.5625rem] block mt-8 max-md:h-[63.0625rem]" data-cid="n1338">
-          <astro-island class="contents" data-cid="n1339">
-            <div className="h-[50.5625rem] block max-md:h-[63.0625rem]" data-cid="n1340">
-              <astro-slot class="contents" data-cid="n1341">
-                <astro-island class="contents" data-cid="n1342">
-                  <div className="border-t border-solid border-t-surface-4 border-b border-b-surface-4 block w-full" data-cid="n1343" dir="ltr">
-                    <div className="border-b border-solid border-b-surface-4 block" data-cid="n1344">
-                      <h3 className="flex" data-cid="n1345" data-component="heading">
-                        <button className="flex py-5 justify-between items-center flex-1 gap-4 text-sm font-semibold leading-5 text-left cursor-default hover:text-clr-28 hover:[text-decoration-color:var(--clr-28)] focus:text-foreground focus:[text-decoration-color:var(--foreground)]" data-cid="n1346" data-component="button" aria-controls="base-ui-_r17R_1H1_" aria-disabled="false" aria-expanded="true" id="base-ui-_r17R_1H2_" type="button">
-                          <span className="block text-lg font-medium leading-7" data-cid="n1347">
-                            Overview
-                          </span>
-                          <Icon7 cid={"n1348"} />
-                        </button>
-                      </h3>
-                      <div className="h-64 block overflow-hidden max-md:h-114" data-cid="n1349" aria-labelledby="base-ui-_r17R_1H2_" id="base-ui-_r17R_1H1_" role="region">
-                        <ul className="h-full grid pt-2 pb-10 items-start gap-y-8 gap-x-10 grid-rows-[88px_88px] [list-style-type:none] list-outside grid-cols-[repeat(auto-fit,_minmax(310px,_1fr))] max-md:grid-rows-[68px_88px_68px_88px]" data-cid="n1350">
-                          {featureCard2Data.map((d, i) => <FeatureCard2 key={i} d={d} cids={FeatureCard2_cids[i]} styles={FeatureCard2_styles[i]} />)}
-                        </ul>
-                      </div>
-                    </div>
-                    {mediaCardData.map((d, i) => <MediaCard key={i} d={d} cids={MediaCard_cids[i]} styles={MediaCard_styles[i]} />)}
-                  </div>
-                </astro-island>
-              </astro-slot>
-            </div>
-          </astro-island>
+        <div className="block mt-8" data-cid="n1338">
+          <Accordion.Root data-cid="n1339" className="border-t border-solid border-t-surface-4 border-b border-b-surface-4 block w-full" defaultValue={["overview"]}>
+            <Accordion.Item value="overview" data-cid="n1343" className="border-b border-solid border-b-surface-4 block">
+              <Accordion.Header className="flex" data-component="heading">
+                <Accordion.Trigger data-cid="n1346" className="flex py-5 justify-between items-center flex-1 gap-4 text-sm font-semibold leading-5 text-left cursor-pointer hover:text-clr-28 hover:[text-decoration-color:var(--clr-28)] focus:text-foreground focus:[text-decoration-color:var(--foreground)]">
+                  <span className="block text-lg font-medium leading-7" data-cid="n1347">
+                    Overview
+                  </span>
+                  <svg className="w-4 h-4 block shrink-0 overflow-hidden align-middle text-muted-foreground transition-transform data-panel-open:rotate-180" data-component="icon" aria-hidden="true" fill="none" height="24" stroke="currentColor" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" data-cid="n1348">
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Panel className="block overflow-hidden" data-cid="n1349">
+                <ul className="grid pt-2 pb-10 items-start gap-y-8 gap-x-10 grid-cols-[repeat(auto-fit,_minmax(310px,_1fr))] [list-style-type:none] list-outside" data-cid="n1350">
+                  {featureCard2Data.map((d, i) => <FeatureCard2 key={i} d={d} cids={FeatureCard2_cids[i]} styles={FeatureCard2_styles[i]} />)}
+                </ul>
+              </Accordion.Panel>
+            </Accordion.Item>
+            {mediaCardData.map((d, i) => <MediaCard key={d.id} d={d} cids={MediaCard_cids[i]} styles={MediaCard_styles[i]} />)}
+          </Accordion.Root>
         </div>
       </div>
     </section>

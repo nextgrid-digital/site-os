@@ -1,8 +1,23 @@
+import { redirect } from 'next/navigation';
 import { OperatorTopbar } from '@/components/operator/operator-topbar';
 import { ThemeModeToggle } from '@/components/theme-mode-toggle';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { getSessionPlan } from '@/lib/db/profiles';
+import { hasSupabaseConfig } from '@/lib/supabase/server';
 
-export default function OperatorLayout({ children }: { children: React.ReactNode }) {
+export const dynamic = 'force-dynamic';
+
+export default async function OperatorLayout({ children }: { children: React.ReactNode }) {
+  if (hasSupabaseConfig()) {
+    const session = await getSessionPlan();
+    if (!session.signedIn) {
+      redirect('/login?next=/operator');
+    }
+    if (!session.isAdmin) {
+      redirect('/app');
+    }
+  }
+
   return (
     <TooltipProvider>
       <div className="operator-shell dark flex min-h-svh flex-col bg-[#0a0a0b] text-white">

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { loadDashboardMetricsForProject } from '@/lib/db/connected-metrics';
+import { getSessionPlan } from '@/lib/db/profiles';
 import { loadBrandEvidenceForAuditRun } from '@/lib/evidence/persist';
 import {
   getAuditWorkBundle,
@@ -17,6 +18,7 @@ import {
   requireProjectOwner,
 } from '@/lib/db/projects';
 import { loadProjectConnectorStatuses } from '@/lib/connectors/project-status';
+import { deriveConnectionStatus } from '@/lib/google/connection-status';
 import { getOperatorEmail } from '@/lib/google/oauth';
 import { getSupabaseAdmin, hasSupabaseConfig } from '@/lib/supabase/server';
 import type { Finding } from '@/lib/supabase/types';
@@ -191,11 +193,17 @@ export async function GET(request: Request, context: RouteContext) {
     }
 
     if (includes.has('connect')) {
-      const [properties, connection, connectorState] = await Promise.all([
+      const [properties, connection, connectorState, session, connectProject] = await Promise.all([
         listPropertyOptions(projectId),
         getGoogleConnection(projectId),
         loadProjectConnectorStatuses(projectId),
+        getSessionPlan(),
+        getProjectOverview(projectId),
       ]);
+      const hasSelectedProperty =
+        properties.gsc.some((p) => p.is_selected) ||
+        properties.ga4.some((p) => p.is_selected) ||
+        properties.ads.some((p) => p.is_selected);
       body.connect = {
         googleConnected: Boolean(connection),
         gscProperties: properties.gsc,
@@ -203,6 +211,13 @@ export async function GET(request: Request, context: RouteContext) {
         adsAccounts: properties.ads,
         connectorStatuses: connectorState.statuses,
         operatorEmail: connection?.operator_email ?? getOperatorEmail(),
+        tokenExpiry: connection?.token_expiry ?? null,
+        lastSyncedAt: connection?.updated_at ?? null,
+        scopes: connection?.scopes ?? [],
+        isAdmin: session.isAdmin,
+        plan: session.plan,
+        connectionStatus: deriveConnectionStatus(connection, hasSelectedProperty).status,
+        clientAccessConfirmedAt: connectProject?.client_access_confirmed_at ?? null,
       };
     }
 
