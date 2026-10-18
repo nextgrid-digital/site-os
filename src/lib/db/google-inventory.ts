@@ -7,7 +7,7 @@ import {
 } from '@/lib/google/oauth';
 import { listGa4Properties } from '@/lib/google/ga4';
 import { listSearchConsoleSites } from '@/lib/google/search-console';
-import { listAccessibleAdsCustomers } from '@/lib/google/ads';
+import { listAgencyAdsAccounts } from '@/lib/google/ads';
 import {
   loadSource,
   type SourceOutcome,
@@ -152,9 +152,9 @@ export async function syncGoogleConnectionInventory(userId: string): Promise<{
     }),
     loadSource({
       label: 'Google Ads',
-      granted: granted(GOOGLE_ADS_SCOPE),
+      granted: true,
       load: async () =>
-        (await listAccessibleAdsCustomers(accessToken)).map((account) => ({
+        (await listAgencyAdsAccounts()).map((account) => ({
           customerId: account.customerId,
           descriptiveName: account.descriptiveName,
           currencyCode: account.currencyCode ?? null,

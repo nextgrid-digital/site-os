@@ -113,6 +113,12 @@ export function RerunFullAuditButton({ projectId, disabled }: RerunFullAuditButt
 
       auditRun?.stopRunning(null);
       tabCache?.invalidateAll();
+      // Land on the Dashboard tab so the fresh results are visible right away.
+      if (tabCache) {
+        tabCache.setTab('/workflow');
+      } else {
+        router.push(`/audit/${projectId}/workflow`);
+      }
       router.refresh();
       setPhase('idle');
     } catch (err) {

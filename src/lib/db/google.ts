@@ -7,7 +7,7 @@ import {
   getAuthorizedClient,
 } from '@/lib/google/oauth';
 import { listSearchConsoleSites } from '@/lib/google/search-console';
-import { listAccessibleAdsCustomers } from '@/lib/google/ads';
+import { listAgencyAdsAccounts } from '@/lib/google/ads';
 import { loadSource, type SourceSyncResult } from '@/lib/google/source-sync';
 
 export async function upsertGoogleConnection(
@@ -174,9 +174,9 @@ export async function syncPropertyOptions(projectId: string): Promise<PropertySy
     }),
     loadSource({
       label: 'Google Ads',
-      granted: granted(GOOGLE_ADS_SCOPE),
+      granted: true,
       load: async () =>
-        (await listAccessibleAdsCustomers(accessToken)).map((account) => ({
+        (await listAgencyAdsAccounts()).map((account) => ({
           key: account.customerId,
           values: {
             customer_id: account.customerId,

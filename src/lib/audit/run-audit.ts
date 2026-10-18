@@ -34,6 +34,8 @@ import { googleAdsSyncResult } from '@/lib/connectors/google-ads/sync';
 import type { ConnectorSyncResult } from '@/lib/connectors/types';
 import {
   fetchGoogleAdsBundle,
+  getAgencyAdsAccessToken,
+  getNextgridMccId,
   totalAdsSpend,
   type GoogleAdsBundle,
 } from '@/lib/google/ads';
@@ -261,11 +263,14 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
           gscProperty && grantedScopes.includes(GOOGLE_SEARCH_CONSOLE_SCOPE) ? gscProperty : null;
         const ga4Mapped =
           ga4Property && grantedScopes.includes(GOOGLE_ANALYTICS_SCOPE) ? ga4Property : null;
+        // Ads is read only through NextGrid's MCC, with the agency login. Any other account is skipped.
+        const mccId = getNextgridMccId();
         const adsMapped =
-          adsAccount && grantedScopes.includes(GOOGLE_ADS_SCOPE) ? adsAccount : null;
+          adsAccount && mccId && adsAccount.login_customer_id === mccId ? adsAccount : null;
+        const agencyAdsToken = adsMapped ? await getAgencyAdsAccessToken() : null;
         if (gscProperty && !gscMapped) console.warn('[runAudit] GSC skipped: access not granted');
         if (ga4Property && !ga4Mapped) console.warn('[runAudit] GA4 skipped: access not granted');
-        if (adsAccount && !adsMapped) console.warn('[runAudit] Ads skipped: access not granted');
+        if (adsAccount && !adsMapped) console.warn('[runAudit] Ads skipped: account is not linked under the NextGrid MCC');
 
         const settled = await Promise.allSettled([
           gscMapped
@@ -282,9 +287,9 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
           ga4Mapped
             ? fetchGa4AnalyticsBundle(auth, ga4Mapped.property_id, startDate, endDate)
             : Promise.resolve(ga4Analytics),
-          adsMapped
+          adsMapped && agencyAdsToken
             ? fetchGoogleAdsBundle(
-                accessToken,
+                agencyAdsToken,
                 adsMapped.customer_id,
                 adsMapped.login_customer_id,
                 startDate,

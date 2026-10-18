@@ -6,6 +6,7 @@ import { AlertTriangle, CheckCircle2, Link2, RefreshCw, Save } from 'lucide-reac
 import { useInvalidateAuditTab } from '@/components/audit/audit-tab-cache';
 import { ClientGoogleInviteCard } from '@/components/audit/client-google-invite-card';
 import { ConnectorSourceCards } from '@/components/audit/connectors/connector-source-cards';
+import { AdsInvitePanel } from '@/components/operator/ads-invite-panel';
 import { Label } from '@/components/ui/label';
 import {
   ADMIN_STATUS_COPY,
@@ -452,6 +453,8 @@ export function ConnectFlow({
                 </select>
               </div>
 
+              <AdsInvitePanel projectId={projectId} />
+
               <div className="grid gap-1.5">
                 <Label htmlFor="ads" className="text-xs font-medium text-zinc-600">
                   Google Ads ({adsAccounts.length})
@@ -495,12 +498,7 @@ export function ConnectFlow({
       ) : null}
 
       {isAdminView || connectionStatus === 'not_granted' || connectionStatus === 'needs_refresh' ? (
-        <ClientGoogleInviteCard
-          operatorEmail={operatorEmail}
-          audience={isAdminView ? 'admin' : 'client'}
-          projectId={projectId}
-          confirmedAt={clientAccessConfirmedAt}
-        />
+        <ClientGoogleInviteCard audience={isAdminView ? 'admin' : 'client'} />
       ) : null}
     </div>
   );

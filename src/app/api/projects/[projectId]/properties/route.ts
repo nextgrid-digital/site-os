@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { selectProperties, syncPropertyOptions } from '@/lib/db/google';
+import { refreshAdsInvite } from '@/lib/db/ads-invites';
 import { syncGoogleConnectionInventory } from '@/lib/db/google-inventory';
 import { listPropertyOptions, ProjectAccessError, requireProjectOwner } from '@/lib/db/projects';
 
@@ -40,6 +41,11 @@ export async function POST(
         await syncGoogleConnectionInventory(userId);
       } catch (inventoryError) {
         console.error('[properties] inventory sync failed', inventoryError);
+      }
+      try {
+        await refreshAdsInvite(projectId);
+      } catch (inviteError) {
+        console.error('[properties] Ads invite check failed', inviteError);
       }
       const properties = await listPropertyOptions(projectId);
       return NextResponse.json({ properties, sync });
