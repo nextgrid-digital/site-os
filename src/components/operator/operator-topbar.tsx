@@ -39,10 +39,10 @@ export function OperatorTopbar() {
   const projectId = getProjectId(pathname);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-white/8 bg-[#0a0a0b]/95 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-[1600px] items-center gap-3 px-4 md:px-6">
-        <Link href="/operator" prefetch className="flex shrink-0 items-center gap-2.5 text-white">
-          <span className="flex size-7 items-center justify-center rounded-full bg-white/10 text-[11px] font-semibold tracking-wide">
+        <Link href="/operator" prefetch className="flex shrink-0 items-center gap-2.5 text-foreground">
+          <span className="flex size-7 items-center justify-center rounded-full bg-foreground/10 text-[11px] font-semibold tracking-wide">
             SO
           </span>
           <span className="hidden text-sm font-semibold tracking-tight sm:inline">Site-OS</span>
@@ -63,8 +63,8 @@ export function OperatorTopbar() {
                   prefetch
                   className={cn('inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-colors',
                     active
-                      ? 'bg-white text-black'
-                      : 'text-white/70 hover:bg-white/8 hover:text-white'
+                      ? 'bg-foreground text-background'
+                      : 'text-foreground/70 hover:bg-foreground/10 hover:text-foreground'
                   )}
                 >
                   <pill.icon className="size-3.5 opacity-80" />
@@ -83,7 +83,7 @@ export function OperatorTopbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="rounded-lg px-3 py-1.5 text-sm font-medium text-white/70 transition hover:bg-white/8 hover:text-white"
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-foreground/70 transition hover:bg-foreground/10 hover:text-foreground"
               >
                 {link.label}
               </Link>
@@ -94,12 +94,12 @@ export function OperatorTopbar() {
         <div className="flex shrink-0 items-center gap-2">
           <Link
             href="/app"
-            className="hidden rounded-full border border-white/15 px-3 py-1.5 text-sm font-medium text-white/80 transition hover:bg-white/8 hover:text-white sm:inline-flex"
+            className="hidden rounded-full border border-border px-3 py-1.5 text-sm font-medium text-foreground/80 transition hover:bg-foreground/10 hover:text-foreground sm:inline-flex"
           >
             Your sites
           </Link>
-          <Avatar size="sm" className="shrink-0 bg-white/10 text-white after:border-white/15">
-            <AvatarFallback className="bg-transparent text-[10px] font-semibold text-white">
+          <Avatar size="sm" className="shrink-0 bg-foreground/10 text-foreground after:border-border">
+            <AvatarFallback className="bg-transparent text-[10px] font-semibold text-foreground">
               NG
             </AvatarFallback>
           </Avatar>

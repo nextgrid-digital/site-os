@@ -1,13 +1,16 @@
 import { getSupabaseAdmin } from '@/lib/supabase/server';
-import { getOperatorEmail } from '@/lib/google/oauth';
 import { listGa4Properties } from '@/lib/google/ga4';
-import { getAuthorizedClient } from '@/lib/google/oauth';
+import {
+  GOOGLE_ADS_SCOPE,
+  GOOGLE_ANALYTICS_SCOPE,
+  GOOGLE_SEARCH_CONSOLE_SCOPE,
+  getAuthorizedClient,
+} from '@/lib/google/oauth';
 import { listSearchConsoleSites } from '@/lib/google/search-console';
 import {
   isGoogleAdsConfigured,
   listAccessibleAdsCustomers,
 } from '@/lib/google/ads';
-import { GOOGLE_ADS_SCOPE } from '@/lib/google/oauth';
 
 export async function upsertGoogleConnection(
   projectId: string,
@@ -16,7 +19,9 @@ export async function upsertGoogleConnection(
     refresh_token?: string | null;
     expiry_date?: number | null;
     scope?: string | null;
-  }
+  },
+  /** Email of the Google account the client signed in with. Stored in `operator_email` (legacy column name). */
+  accountEmail: string | null = null
 ) {
   if (!tokens.access_token) throw new Error('Missing access token from Google.');
 
@@ -30,7 +35,7 @@ export async function upsertGoogleConnection(
 
   const payload = {
     project_id: projectId,
-    operator_email: getOperatorEmail(),
+    operator_email: accountEmail ?? '',
     access_token: tokens.access_token,
     refresh_token: tokens.refresh_token ?? null,
     token_expiry: tokens.expiry_date ? new Date(tokens.expiry_date).toISOString() : null,
@@ -54,7 +59,86 @@ export async function upsertGoogleConnection(
   return data;
 }
 
-export async function syncPropertyOptions(projectId: string) {
+export type SourceSyncResult =
+  | { status: 'synced'; count: number }
+  /** The client did not grant this feature on the consent screen. */
+  | { status: 'missing_scope' }
+  /** Access is granted but the app can't call this API yet (e.g. no Ads developer token). */
+  | { status: 'not_configured' }
+  /** The API call failed. Previously synced rows are kept. */
+  | { status: 'error'; message: string };
+
+export type PropertySyncResult = {
+  gsc: SourceSyncResult;
+  ga4: SourceSyncResult;
+  ads: SourceSyncResult;
+};
+
+type SourceRow = { key: string; values: Record<string, string | null> };
+type SourceTable = 'search_console_properties' | 'ga4_properties' | 'google_ads_accounts';
+
+async function loadSource(options: {
+  granted: boolean;
+  configured?: boolean;
+  load: () => Promise<SourceRow[]>;
+}): Promise<{ result: SourceSyncResult; rows: SourceRow[] | null }> {
+  if (!options.granted) return { result: { status: 'missing_scope' }, rows: null };
+  if (options.configured === false) return { result: { status: 'not_configured' }, rows: null };
+  try {
+    const rows = await options.load();
+    return { result: { status: 'synced', count: rows.length }, rows };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Google request failed.';
+    console.error('[syncPropertyOptions] source failed', message);
+    return { result: { status: 'error', message }, rows: null };
+  }
+}
+
+/**
+ * Replace one source's rows with what Google just returned, keeping the saved
+ * selection for properties that still exist. A missing scope clears the source
+ * (we can no longer read it); an error leaves the last good list in place.
+ */
+async function applySourceRows(
+  table: SourceTable,
+  keyColumn: string,
+  projectId: string,
+  connectionId: string,
+  outcome: { result: SourceSyncResult; rows: SourceRow[] | null }
+) {
+  const supabase = getSupabaseAdmin();
+
+  if (outcome.result.status === 'missing_scope') {
+    await supabase.from(table).delete().eq('project_id', projectId);
+    return;
+  }
+  if (!outcome.rows) return;
+
+  const { data: selectedRows } = await supabase
+    .from(table)
+    .select(keyColumn)
+    .eq('project_id', projectId)
+    .eq('is_selected', true);
+  const selectedKeys = new Set(
+    (selectedRows ?? []).map((row) => String((row as unknown as Record<string, unknown>)[keyColumn]))
+  );
+
+  await supabase.from(table).delete().eq('project_id', projectId);
+  if (outcome.rows.length === 0) return;
+
+  const { error } = await supabase.from(table).insert(
+    outcome.rows.map((row) => ({
+      project_id: projectId,
+      connection_id: connectionId,
+      [keyColumn]: row.key,
+      ...row.values,
+      is_selected: selectedKeys.has(row.key),
+    }))
+  );
+  if (error) throw new Error(error.message);
+}
+
+export async function syncPropertyOptions(projectId: string): Promise<PropertySyncResult> {
   const supabase = getSupabaseAdmin();
   const { data: connection } = await supabase
     .from('google_connections')
@@ -91,61 +175,50 @@ export async function syncPropertyOptions(projectId: string) {
   }
 
   const scopes: string[] = Array.isArray(connection.scopes) ? connection.scopes : [];
-  const hasAdsScope = scopes.some((s) => s === GOOGLE_ADS_SCOPE || s.includes('adwords'));
+  const granted = (scope: string) => scopes.includes(scope);
 
-  const [gscSites, ga4Properties, adsAccounts] = await Promise.all([
-    listSearchConsoleSites(auth),
-    listGa4Properties(auth),
-    hasAdsScope && isGoogleAdsConfigured()
-      ? listAccessibleAdsCustomers(accessToken).catch((error) => {
-          console.error('[syncPropertyOptions] Ads list failed', error);
-          return [];
-        })
-      : Promise.resolve([]),
+  // Each source is independent: one denied or failing source must not block the others.
+  const [gsc, ga4, ads] = await Promise.all([
+    loadSource({
+      granted: granted(GOOGLE_SEARCH_CONSOLE_SCOPE),
+      load: async () =>
+        (await listSearchConsoleSites(auth))
+          .filter((site) => site.siteUrl)
+          .map((site) => ({ key: site.siteUrl as string, values: { site_url: site.siteUrl ?? null } })),
+    }),
+    loadSource({
+      granted: granted(GOOGLE_ANALYTICS_SCOPE),
+      load: async () =>
+        (await listGa4Properties(auth)).map((property) => ({
+          key: property.propertyId,
+          values: {
+            property_id: property.propertyId,
+            property_name: property.propertyName ?? null,
+            account_name: property.accountName ?? null,
+          },
+        })),
+    }),
+    loadSource({
+      granted: granted(GOOGLE_ADS_SCOPE),
+      configured: isGoogleAdsConfigured(),
+      load: async () =>
+        (await listAccessibleAdsCustomers(accessToken)).map((account) => ({
+          key: account.customerId,
+          values: {
+            customer_id: account.customerId,
+            descriptive_name: account.descriptiveName ?? null,
+            currency_code: account.currencyCode ?? null,
+            time_zone: account.timeZone ?? null,
+          },
+        })),
+    }),
   ]);
 
-  await supabase.from('search_console_properties').delete().eq('project_id', projectId);
-  await supabase.from('ga4_properties').delete().eq('project_id', projectId);
-  await supabase.from('google_ads_accounts').delete().eq('project_id', projectId);
+  await applySourceRows('search_console_properties', 'property_url', projectId, connection.id, gsc);
+  await applySourceRows('ga4_properties', 'property_id', projectId, connection.id, ga4);
+  await applySourceRows('google_ads_accounts', 'customer_id', projectId, connection.id, ads);
 
-  if (gscSites.length > 0) {
-    await supabase.from('search_console_properties').insert(
-      gscSites.map((site) => ({
-        project_id: projectId,
-        connection_id: connection.id,
-        property_url: site.siteUrl,
-        site_url: site.siteUrl,
-        is_selected: false,
-      }))
-    );
-  }
-
-  if (ga4Properties.length > 0) {
-    await supabase.from('ga4_properties').insert(
-      ga4Properties.map((property) => ({
-        project_id: projectId,
-        connection_id: connection.id,
-        property_id: property.propertyId,
-        property_name: property.propertyName,
-        account_name: property.accountName,
-        is_selected: false,
-      }))
-    );
-  }
-
-  if (adsAccounts.length > 0) {
-    await supabase.from('google_ads_accounts').insert(
-      adsAccounts.map((account) => ({
-        project_id: projectId,
-        connection_id: connection.id,
-        customer_id: account.customerId,
-        descriptive_name: account.descriptiveName,
-        currency_code: account.currencyCode,
-        time_zone: account.timeZone,
-        is_selected: false,
-      }))
-    );
-  }
+  return { gsc: gsc.result, ga4: ga4.result, ads: ads.result };
 }
 
 export async function selectProperties(
@@ -156,31 +229,30 @@ export async function selectProperties(
 ) {
   const supabase = getSupabaseAdmin();
 
-  await supabase.from('search_console_properties').update({ is_selected: false }).eq('project_id', projectId);
-  await supabase.from('ga4_properties').update({ is_selected: false }).eq('project_id', projectId);
-  await supabase.from('google_ads_accounts').update({ is_selected: false }).eq('project_id', projectId);
+  // Select the new row first, then clear the rest, so a concurrent read never
+  // sees the project with no selected property in between.
+  const swap = async (
+    table: 'search_console_properties' | 'ga4_properties' | 'google_ads_accounts',
+    selectedId: string | null
+  ) => {
+    if (selectedId) {
+      const { error } = await supabase
+        .from(table)
+        .update({ is_selected: true })
+        .eq('id', selectedId);
+      if (error) throw new Error(error.message);
+    }
+    const clear = supabase
+      .from(table)
+      .update({ is_selected: false })
+      .eq('project_id', projectId);
+    const { error: clearError } = selectedId
+      ? await clear.neq('id', selectedId)
+      : await clear;
+    if (clearError) throw new Error(clearError.message);
+  };
 
-  if (gscPropertyId) {
-    const { error: gscError } = await supabase
-      .from('search_console_properties')
-      .update({ is_selected: true })
-      .eq('id', gscPropertyId);
-    if (gscError) throw new Error(gscError.message);
-  }
-
-  if (ga4PropertyId) {
-    const { error: ga4Error } = await supabase
-      .from('ga4_properties')
-      .update({ is_selected: true })
-      .eq('id', ga4PropertyId);
-    if (ga4Error) throw new Error(ga4Error.message);
-  }
-
-  if (adsAccountId) {
-    const { error: adsError } = await supabase
-      .from('google_ads_accounts')
-      .update({ is_selected: true })
-      .eq('id', adsAccountId);
-    if (adsError) throw new Error(adsError.message);
-  }
+  await swap('search_console_properties', gscPropertyId);
+  await swap('ga4_properties', ga4PropertyId);
+  await swap('google_ads_accounts', adsAccountId);
 }

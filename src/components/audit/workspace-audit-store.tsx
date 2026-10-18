@@ -205,21 +205,8 @@ export function WorkspaceAuditProvider({
     if (!tab) return;
     if (tab.dataEpoch === 0 || tab.dataEpoch === lastEpoch.current) return;
     lastEpoch.current = tab.dataEpoch;
-    setBundle((prev) =>
-      prev
-        ? {
-            ...prev,
-            work: null,
-            brief: null,
-            monthly: null,
-            leads: null,
-            connect: null,
-            connected: null,
-            growthBrief: null,
-            leadSummary: null,
-          }
-        : prev
-    );
+    // Keep the current slices on screen while the refetch runs. Clearing them here
+    // made the Setup panel flash "not connected" and drop its sources after a save.
     void refresh();
   }, [tab, refresh]);
 

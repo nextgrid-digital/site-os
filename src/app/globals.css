@@ -257,6 +257,10 @@
   }
   /* Operator routes cover the viewport with a solid shell — kill the light grid bleed */
   body:has(.operator-shell) {
+    background: oklch(0.99 0 0);
+    background-image: none;
+  }
+  html.dark body:has(.operator-shell) {
     background: #0a0a0b;
     background-image: none;
   }
@@ -295,34 +299,34 @@
   }
 }
 
-/* Operator chrome — Site-OS near-black shell, scoped to /operator */
+/* Operator chrome — scoped to /operator, reacts to the global light/dark theme */
 .operator-shell {
-  --background: #0a0a0b;
-  --foreground: #f4f4f5;
-  --card: rgb(255 255 255 / 0.03);
-  --card-foreground: #f4f4f5;
-  --popover: #18181b;
-  --popover-foreground: #f4f4f5;
-  --primary: #f4f4f5;
-  --primary-foreground: #0a0a0b;
-  --secondary: #1c1c1f;
-  --secondary-foreground: #f4f4f5;
-  --muted: #1c1c1f;
-  --muted-foreground: #a1a1aa;
-  --accent: #27272a;
-  --accent-foreground: #fafafa;
-  --destructive: #f87171;
-  --border: rgb(255 255 255 / 0.06);
-  --input: rgb(255 255 255 / 0.12);
-  --ring: #a1a1aa;
-  --priority: #fb7185;
-  --priority-foreground: #0a0a0b;
-  --aeo: #fbbf24;
-  --aeo-foreground: #0a0a0b;
-  --success: #34d399;
-  --success-foreground: #0a0a0b;
-  --warning: #fbbf24;
-  --warning-foreground: #0a0a0b;
+  --background: #fafafa;
+  --foreground: #0a0a0b;
+  --card: #ffffff;
+  --card-foreground: #0a0a0b;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0b;
+  --primary: #0a0a0b;
+  --primary-foreground: #fafafa;
+  --secondary: #f1f1f2;
+  --secondary-foreground: #0a0a0b;
+  --muted: #f1f1f2;
+  --muted-foreground: #71717a;
+  --accent: #e4e4e7;
+  --accent-foreground: #0a0a0b;
+  --destructive: #dc2626;
+  --border: rgb(0 0 0 / 0.08);
+  --input: rgb(0 0 0 / 0.12);
+  --ring: #71717a;
+  --priority: #e11d48;
+  --priority-foreground: #fafafa;
+  --aeo: #d97706;
+  --aeo-foreground: #fafafa;
+  --success: #059669;
+  --success-foreground: #fafafa;
+  --warning: #d97706;
+  --warning-foreground: #fafafa;
 
   /* Tailwind v4 theme aliases — required so utilities don't stick to :root light values */
   --color-background: var(--background);
@@ -353,6 +357,37 @@
   --color-warning-foreground: var(--warning-foreground);
 
   color: var(--foreground);
+  color-scheme: light;
+}
+
+.dark .operator-shell {
+  --background: #0a0a0b;
+  --foreground: #f4f4f5;
+  --card: rgb(255 255 255 / 0.03);
+  --card-foreground: #f4f4f5;
+  --popover: #18181b;
+  --popover-foreground: #f4f4f5;
+  --primary: #f4f4f5;
+  --primary-foreground: #0a0a0b;
+  --secondary: #1c1c1f;
+  --secondary-foreground: #f4f4f5;
+  --muted: #1c1c1f;
+  --muted-foreground: #a1a1aa;
+  --accent: #27272a;
+  --accent-foreground: #fafafa;
+  --destructive: #f87171;
+  --border: rgb(255 255 255 / 0.06);
+  --input: rgb(255 255 255 / 0.12);
+  --ring: #a1a1aa;
+  --priority: #fb7185;
+  --priority-foreground: #0a0a0b;
+  --aeo: #fbbf24;
+  --aeo-foreground: #0a0a0b;
+  --success: #34d399;
+  --success-foreground: #0a0a0b;
+  --warning: #fbbf24;
+  --warning-foreground: #0a0a0b;
+
   color-scheme: dark;
 }
 
@@ -417,13 +452,12 @@
   }
 }
 
-/* Growth Brief memo — same dark operator surface as Overview / Run cards */
+/* Growth Brief memo — same operator surface as Overview / Run cards */
 .operator-shell .report-sheet {
-  background: rgb(255 255 255 / 0.03);
+  background: var(--card);
   color: var(--foreground);
-  border-color: rgb(255 255 255 / 0.06);
+  border-color: var(--border);
   box-shadow: none;
-  color-scheme: dark;
 }
 
 @keyframes audit-progress-indeterminate {

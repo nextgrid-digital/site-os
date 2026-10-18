@@ -19,7 +19,8 @@ import {
 } from '@/lib/db/projects';
 import { loadProjectConnectorStatuses } from '@/lib/connectors/project-status';
 import { deriveConnectionStatus } from '@/lib/google/connection-status';
-import { getOperatorEmail } from '@/lib/google/oauth';
+import { getFreshGoogleConnection } from '@/lib/google/fresh-connection';
+import { getMissingGoogleFeatures, getOperatorEmail } from '@/lib/google/oauth';
 import { getSupabaseAdmin, hasSupabaseConfig } from '@/lib/supabase/server';
 import type { Finding } from '@/lib/supabase/types';
 import { buildMonthlyCompare } from '@/lib/workflow/monthly-compare';
@@ -193,13 +194,17 @@ export async function GET(request: Request, context: RouteContext) {
     }
 
     if (includes.has('connect')) {
-      const [properties, connection, connectorState, session, connectProject] = await Promise.all([
+      const [properties, storedConnection, connectorState, session, connectProject] = await Promise.all([
         listPropertyOptions(projectId),
         getGoogleConnection(projectId),
         loadProjectConnectorStatuses(projectId),
         getSessionPlan(),
         getProjectOverview(projectId),
       ]);
+      const freshConnection = storedConnection
+        ? await getFreshGoogleConnection(storedConnection)
+        : null;
+      const connection = freshConnection?.connection ?? null;
       const hasSelectedProperty =
         properties.gsc.some((p) => p.is_selected) ||
         properties.ga4.some((p) => p.is_selected) ||
@@ -210,13 +215,22 @@ export async function GET(request: Request, context: RouteContext) {
         ga4Properties: properties.ga4,
         adsAccounts: properties.ads,
         connectorStatuses: connectorState.statuses,
-        operatorEmail: connection?.operator_email ?? getOperatorEmail(),
+        operatorEmail: getOperatorEmail(),
+        connectedEmail: connection?.operator_email || null,
         tokenExpiry: connection?.token_expiry ?? null,
         lastSyncedAt: connection?.updated_at ?? null,
         scopes: connection?.scopes ?? [],
+        missingFeatures: connection
+          ? getMissingGoogleFeatures(connection.scopes ?? []).map((feature) => ({
+              key: feature.key,
+              label: feature.label,
+            }))
+          : [],
         isAdmin: session.isAdmin,
         plan: session.plan,
-        connectionStatus: deriveConnectionStatus(connection, hasSelectedProperty).status,
+        connectionStatus: freshConnection?.needsReconnect
+          ? 'needs_refresh'
+          : deriveConnectionStatus(connection, hasSelectedProperty).status,
         clientAccessConfirmedAt: connectProject?.client_access_confirmed_at ?? null,
       };
     }

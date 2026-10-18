@@ -155,11 +155,11 @@ export default async function OperatorHomePage() {
   if (!hasSupabaseConfig()) {
     return (
       <OperatorShell>
-        <div className="rounded-2xl border border-white/10 bg-[#141416] px-5 py-8 text-center">
-          <p className="text-sm font-medium text-white">Supabase configuration required</p>
-          <p className="mt-2 text-sm text-white/55">
-            Copy <code className="text-white/80">env.example.txt</code> to{' '}
-            <code className="text-white/80">.env.local</code> and set your credentials.
+        <div className="rounded-2xl border border-border bg-card px-5 py-8 text-center">
+          <p className="text-sm font-medium text-foreground">Supabase configuration required</p>
+          <p className="mt-2 text-sm text-foreground/55">
+            Copy <code className="text-foreground/80">env.example.txt</code> to{' '}
+            <code className="text-foreground/80">.env.local</code> and set your credentials.
           </p>
         </div>
       </OperatorShell>
@@ -176,12 +176,12 @@ export default async function OperatorHomePage() {
         </div>
 
         <section className="space-y-3">
-          <p className="text-xs font-medium tracking-wide text-white/40 uppercase">All</p>
+          <p className="text-xs font-medium tracking-wide text-foreground/40 uppercase">All</p>
 
           {sites.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-white/12 bg-[#141416]/60 px-5 py-14 text-center">
-              <p className="text-sm font-medium text-white">No websites yet</p>
-              <p className="mt-1 text-sm text-white/50">Add a site to start auditing.</p>
+            <div className="rounded-2xl border border-dashed border-border/50 bg-card/60 px-5 py-14 text-center">
+              <p className="text-sm font-medium text-foreground">No websites yet</p>
+              <p className="mt-1 text-sm text-foreground/50">Add a site to start auditing.</p>
               <div className="mt-5 flex justify-center">
                 <AddSiteDialog triggerLabel="Add site" />
               </div>

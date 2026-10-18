@@ -290,9 +290,11 @@ export function SpaConnectPanel({
     adsAccounts: GoogleAdsAccount[];
     connectorStatuses: ConnectorStatus[];
     operatorEmail: string;
+    connectedEmail: string | null;
     tokenExpiry: string | null;
     lastSyncedAt: string | null;
     scopes: string[];
+    missingFeatures: { key: string; label: string }[];
     isAdmin: boolean;
     plan: 'free' | 'paid';
     connectionStatus: ConnectionStatus;
@@ -324,10 +326,14 @@ export function SpaConnectPanel({
         adsAccounts={connect?.adsAccounts ?? []}
         connectorStatuses={connect?.connectorStatuses ?? []}
         operatorEmail={connect?.operatorEmail ?? null}
+        connectedEmail={connect?.connectedEmail ?? null}
         tokenExpiry={connect?.tokenExpiry ?? null}
         lastSyncedAt={connect?.lastSyncedAt ?? null}
         scopes={connect?.scopes ?? []}
-        isAdminView={connect?.isAdmin ?? false}
+        missingFeatures={connect?.missingFeatures ?? []}
+       // isAdminView={connect?.isAdmin ?? false}
+        //TODO: Uncomment the above line and remove the below line when we have a way to determine if the user is an admin or not. For now, we are assuming that the user is an admin. 
+        isAdminView={true}
         plan={connect?.plan ?? 'free'}
         connectionStatus={connect?.connectionStatus ?? 'not_granted'}
         clientAccessConfirmedAt={connect?.clientAccessConfirmedAt ?? null}

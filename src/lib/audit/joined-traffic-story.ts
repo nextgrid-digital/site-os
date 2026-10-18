@@ -213,7 +213,15 @@ export function buildJoinedTrafficStory(
 
   if (!connected) return empty;
 
-  const pages = connected.pageMetrics ?? [];
+  // Older runs can store the same path more than once (http/https, www, ?query
+  // variants), so keep one row per normalized path.
+  const seenPaths = new Set<string>();
+  const pages = (connected.pageMetrics ?? []).filter((p) => {
+    const path = normalizePath(p.path);
+    if (seenPaths.has(path)) return false;
+    seenPaths.add(path);
+    return true;
+  });
   const queries = connected.queryMetrics ?? [];
   const overview = connected.ga4Overview;
   const metrics = connected.metrics;

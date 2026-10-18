@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { format, formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
 import { AlertTriangle, CheckCircle2, Link2, RefreshCw, Save } from 'lucide-react';
 import { useInvalidateAuditTab } from '@/components/audit/audit-tab-cache';
@@ -12,8 +12,16 @@ import {
   CLIENT_STATUS_COPY,
   type ConnectionStatus,
 } from '@/lib/google/connection-status';
-import type { ConnectorStatus } from '@/lib/connectors/types';
+import type { ConnectorId, ConnectorStatus } from '@/lib/connectors/types';
+import type { SourceSyncResult } from '@/lib/db/google';
 import type { Ga4Property, GoogleAdsAccount, SearchConsoleProperty } from '@/lib/supabase/types';
+
+/** Which mapping <select> a connector card's "Manage" should focus. */
+const MANAGE_CONTROL_ID: Partial<Record<ConnectorId, string>> = {
+  search_console: 'gsc',
+  ga4: 'ga4',
+  google_ads: 'ads',
+};
 
 const fieldClass =
   'h-9 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-950 outline-none transition focus:border-zinc-400';
@@ -24,9 +32,46 @@ const primaryBtnClass =
 const outlineBtnClass =
   'inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-white px-3.5 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50 disabled:pointer-events-none disabled:opacity-50';
 
-function formatDate(value: string | null) {
-  if (!value) return 'Never';
-  return new Date(value).toLocaleString();
+/** "3 min ago" / "in 42 min", with the exact time available as a tooltip. */
+function RelativeTime({ value, emptyLabel = 'Never' }: { value: string | null; emptyLabel?: string }) {
+  if (!value) return <span>{emptyLabel}</span>;
+  const date = new Date(value);
+  return (
+    <time dateTime={value} title={format(date, 'd MMM yyyy, h:mm:ss a')}>
+      {formatDistanceToNow(date, { addSuffix: true })}
+    </time>
+  );
+}
+
+function describeSourceSync(label: string, result: SourceSyncResult | undefined) {
+  if (!result) return null;
+  switch (result.status) {
+    case 'synced':
+      return `${label}: ${result.count} found`;
+    case 'missing_scope':
+      return `${label}: access not granted, use "Grant missing access" below`;
+    case 'not_configured':
+      return `${label}: not available yet`;
+    case 'error':
+      return `${label}: ${result.message}`;
+    default: {
+      const _exhaustive: never = result;
+      return _exhaustive;
+    }
+  }
+}
+
+/** Google scope URLs → the product names the client recognises. */
+const SCOPE_LABELS: Record<string, string> = {
+  'webmasters.readonly': 'Search Console',
+  'analytics.readonly': 'GA4',
+  adwords: 'Google Ads',
+  'userinfo.email': 'Account email',
+};
+
+function scopeLabel(scope: string) {
+  const key = scope.split('/').pop() ?? scope;
+  return SCOPE_LABELS[key] ?? key;
 }
 
 export function ConnectFlow({
@@ -37,9 +82,11 @@ export function ConnectFlow({
   adsAccounts = [],
   connectorStatuses = [],
   operatorEmail,
+  connectedEmail = null,
   tokenExpiry = null,
   lastSyncedAt = null,
   scopes = [],
+  missingFeatures = [],
   isAdminView = false,
   plan = 'free',
   connectionStatus = 'not_granted',
@@ -52,10 +99,15 @@ export function ConnectFlow({
   ga4Properties: Ga4Property[];
   adsAccounts?: GoogleAdsAccount[];
   connectorStatuses?: ConnectorStatus[];
+  /** Agency account the client invites (hello@…). Not the account that connected. */
   operatorEmail?: string | null;
+  /** Google account that actually granted access. */
+  connectedEmail?: string | null;
   tokenExpiry?: string | null;
   lastSyncedAt?: string | null;
   scopes?: string[];
+  /** Features the client left unticked on the Google consent screen. */
+  missingFeatures?: { key: string; label: string }[];
   /** True when the viewer is an admin managing this client's connection, not the client themselves. */
   isAdminView?: boolean;
   plan?: 'free' | 'paid';
@@ -63,7 +115,6 @@ export function ConnectFlow({
   clientAccessConfirmedAt?: string | null;
   workspaceBase?: string;
 }) {
-  const router = useRouter();
   const invalidateTab = useInvalidateAuditTab();
   const [selectedGsc, setSelectedGsc] = useState(
     gscProperties.find((property) => property.is_selected)?.id ?? ''
@@ -78,7 +129,15 @@ export function ConnectFlow({
   const [loading, setLoading] = useState(false);
   const [mappingSaved, setMappingSaved] = useState(false);
   const reportHref = workspaceBase ? `${workspaceBase}/brief` : `/audit/${projectId}/brief`;
-  const connectHref = workspaceBase ? `${workspaceBase}/connect` : `/audit/${projectId}/connect`;
+
+  // "Manage" on a source card jumps to the control that fixes that source.
+  // Without a Google connection there is nothing to map, so go to the connect section.
+  function focusManageTarget(connectorId: ConnectorId) {
+    const controlId = googleConnected ? MANAGE_CONTROL_ID[connectorId] : undefined;
+    const target = document.getElementById(controlId ?? 'google-account');
+    target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (target instanceof HTMLSelectElement) target.focus();
+  }
 
   async function syncProperties() {
     setLoading(true);
@@ -95,26 +154,18 @@ export function ConnectFlow({
       return;
     }
 
-    const gscCount = data.properties?.gsc?.length ?? 0;
-    const ga4Count = data.properties?.ga4?.length ?? 0;
-    const adsCount = data.properties?.ads?.length ?? 0;
     invalidateTab('/connect');
     invalidateTab('/workflow');
     invalidateTab('/brief');
     invalidateTab('/work');
     invalidateTab('/monthly');
-    router.refresh();
 
-    if (gscCount === 0 && ga4Count === 0 && adsCount === 0) {
-      setMessage(
-        'Synced, but Google returned 0 Search Console sites, 0 GA4 properties, and 0 Ads accounts. Confirm access, then sync again.'
-      );
-      return;
-    }
-
-    setMessage(
-      `Synced ${gscCount} Search Console, ${ga4Count} GA4, and ${adsCount} Ads account(s).`
-    );
+    const summary = [
+      describeSourceSync('Search Console', data.sync?.gsc),
+      describeSourceSync('GA4', data.sync?.ga4),
+      describeSourceSync('Google Ads', data.sync?.ads),
+    ].filter(Boolean);
+    setMessage(summary.length > 0 ? summary.join(' · ') : 'Synced.');
   }
 
   async function saveMapping() {
@@ -140,7 +191,6 @@ export function ConnectFlow({
     invalidateTab('/brief');
     invalidateTab('/work');
     invalidateTab('/monthly');
-    router.refresh();
     setMappingSaved(true);
     setMessage('Property mapping saved.');
   }
@@ -169,6 +219,24 @@ export function ConnectFlow({
     );
   }
 
+  console.log('ConnectFlow props:', {
+    projectId,
+    googleConnected,
+    gscProperties,
+    ga4Properties,
+    adsAccounts,
+    connectorStatuses,
+    operatorEmail,
+    tokenExpiry,
+    lastSyncedAt,
+    scopes,
+    isAdminView,
+    plan,
+    connectionStatus,
+    clientAccessConfirmedAt,
+    workspaceBase,
+  });
+  
   return (
     <div className="space-y-6">
       {!isAdminView && plan === 'paid' ? (
@@ -206,6 +274,18 @@ export function ConnectFlow({
         </div>
       ) : null}
 
+      {googleConnected && missingFeatures.length > 0 ? (
+        <div className="flex flex-col gap-3 rounded-[14px] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 sm:flex-row sm:items-center sm:justify-between">
+          <p className="min-w-0 leading-5">
+            Access not granted for <span className="font-semibold">{missingFeatures.map((feature) => feature.label).join(', ')}</span>.
+            Those sources can&apos;t be read until Google access is granted with every box ticked.
+          </p>
+          <a href={`/api/google/oauth/start?projectId=${projectId}`} className={`${primaryBtnClass} shrink-0`}>
+            Grant missing access
+          </a>
+        </div>
+      ) : null}
+
       {isAdminView && connectorStatuses.length > 0 ? (
         <section className="space-y-3">
           <div>
@@ -214,13 +294,13 @@ export function ConnectFlow({
               Connection status for each channel. Phase 2–3 sources stay empty until they ship.
             </p>
           </div>
-          <ConnectorSourceCards statuses={connectorStatuses} connectHref={connectHref} />
+          <ConnectorSourceCards statuses={connectorStatuses} onManage={focusManageTarget} />
         </section>
       ) : null}
 
       {isAdminView ? (
         <div className="grid gap-4 lg:grid-cols-2">
-          <section className="rounded-[14px] bg-white p-5 shadow-sm">
+          <section id="google-account" className="rounded-[14px] bg-white p-5 shadow-sm">
             <div className="flex items-start gap-3">
               <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-700">
                 <Link2 className="size-4" strokeWidth={1.75} />
@@ -238,7 +318,7 @@ export function ConnectFlow({
                 <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-900">
                   <CheckCircle2 className="size-4 shrink-0" strokeWidth={2} />
                   <span className="min-w-0 truncate">
-                    Connected{operatorEmail ? ` as ${operatorEmail}` : 'for this workspace'}
+                    {connectedEmail ? `Connected as ${connectedEmail}` : 'Connected for this workspace'}
                   </span>
                 </div>
               ) : (
@@ -249,30 +329,43 @@ export function ConnectFlow({
             </div>
 
             {googleConnected ? (
-              <dl className="mt-4 space-y-1.5 border-t border-zinc-100 pt-4 text-xs text-zinc-500">
-                <div className="flex justify-between gap-2">
+              <dl className="mt-4 space-y-2.5 border-t border-zinc-100 pt-4 text-xs text-zinc-500">
+                <div className="flex items-center justify-between gap-2">
                   <dt>Status</dt>
                   <dd
                     className={
-                      connectionStatus === 'needs_refresh' ? 'font-medium text-red-600' : 'font-medium text-zinc-700'
+                      connectionStatus === 'needs_refresh'
+                        ? 'font-semibold text-red-600'
+                        : 'font-semibold text-zinc-950'
                     }
                   >
                     {ADMIN_STATUS_COPY[connectionStatus]}
                   </dd>
                 </div>
-                <div className="flex justify-between gap-2">
+                <div className="flex items-center justify-between gap-2">
                   <dt>Last synced</dt>
-                  <dd className="font-medium text-zinc-700">{formatDate(lastSyncedAt)}</dd>
+                  <dd className="font-medium text-zinc-700">
+                    <RelativeTime value={lastSyncedAt} />
+                  </dd>
                 </div>
-                <div className="flex justify-between gap-2">
+                <div className="flex items-center justify-between gap-2">
                   <dt>Token expires</dt>
-                  <dd className="font-medium text-zinc-700">{formatDate(tokenExpiry)}</dd>
+                  <dd className="font-medium text-zinc-700">
+                    <RelativeTime value={tokenExpiry} emptyLabel="Not set" />
+                  </dd>
                 </div>
                 {scopes.length > 0 ? (
-                  <div className="flex justify-between gap-2">
-                    <dt>Scopes</dt>
-                    <dd className="max-w-[60%] text-right font-medium text-zinc-700">
-                      {scopes.map((scope) => scope.split('/').pop()).join(', ')}
+                  <div className="flex items-start justify-between gap-2">
+                    <dt className="pt-0.5">Access</dt>
+                    <dd className="flex flex-wrap justify-end gap-1.5">
+                      {scopes.map((scope) => (
+                        <span
+                          key={scope}
+                          className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700"
+                        >
+                          {scopeLabel(scope)}
+                        </span>
+                      ))}
                     </dd>
                   </div>
                 ) : null}

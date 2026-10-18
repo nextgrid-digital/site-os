@@ -10,6 +10,7 @@ import {
   requireProjectOwner,
 } from '@/lib/db/projects';
 import { hasSupabaseConfig } from '@/lib/supabase/server';
+// import { console } from 'inspector';
 
 export const maxDuration = 300;
 
@@ -26,13 +27,16 @@ export async function POST(
     const runType = body.runType === 'mini' ? 'mini' : 'full';
 
     if (runType === 'full') {
-      await requirePaidSession();
+      const session = await requirePaidSession();
       await requireProjectOwner(projectId);
       const project = await getProjectOverview(projectId);
+
+      console.log('Project Overview:', project); // Log the project overview for debugging
+
       if (!project) {
         return NextResponse.json({ error: 'Project not found.' }, { status: 404 });
       }
-      if (!isFullBriefUnlocked(project)) {
+      if (!session.isAdmin && !isFullBriefUnlocked(project)) {
         return NextResponse.json(
           { error: 'Unlock full audit access before running a full audit.' },
           { status: 403 }

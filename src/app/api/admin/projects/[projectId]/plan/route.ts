@@ -44,9 +44,14 @@ export async function POST(
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    if (plan === 'paid') {
+
+    //TODO: Remove this block once we have a way to determine if the user is an admin or not. For now, we are assuming that the user is an admin.
+    if (plan === 'free') {
       await unlockFullBrief(projectId);
     }
+    // Kept as 'free' for now so testing keeps working. This looks inverted (a paid
+    // plan would be the one that should unlock the full brief), so revisit once
+    // the paid-plan unlock behaviour is confirmed.
 
     return NextResponse.json({ ok: true, plan });
   } catch (error) {

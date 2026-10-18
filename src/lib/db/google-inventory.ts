@@ -1,7 +1,6 @@
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 import {
   getAuthorizedClient,
-  getOperatorEmail,
   GOOGLE_ADS_SCOPE,
 } from '@/lib/google/oauth';
 import { listGa4Properties } from '@/lib/google/ga4';
@@ -157,7 +156,6 @@ export async function syncGoogleConnectionInventory(userId: string): Promise<{
     .update({
       inventory,
       inventory_synced_at: syncedAt,
-      operator_email: connection.operator_email || getOperatorEmail(),
       updated_at: syncedAt,
     })
     .eq('id', connection.id);

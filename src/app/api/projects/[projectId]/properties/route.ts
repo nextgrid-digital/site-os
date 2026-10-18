@@ -11,6 +11,8 @@ export async function GET(
     const { projectId } = await context.params;
     await requireProjectOwner(projectId);
     const properties = await listPropertyOptions(projectId);
+
+    console.log(properties); // Log the properties for debugging
     return NextResponse.json({ properties });
   } catch (error) {
     if (error instanceof ProjectAccessError) {
@@ -33,14 +35,14 @@ export async function POST(
     const body = await request.json();
 
     if (body.action === 'sync') {
-      await syncPropertyOptions(projectId);
+      const sync = await syncPropertyOptions(projectId);
       try {
         await syncGoogleConnectionInventory(userId);
       } catch (inventoryError) {
         console.error('[properties] inventory sync failed', inventoryError);
       }
       const properties = await listPropertyOptions(projectId);
-      return NextResponse.json({ properties });
+      return NextResponse.json({ properties, sync });
     }
 
     const gscPropertyId =

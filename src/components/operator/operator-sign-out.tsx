@@ -34,7 +34,7 @@ export function OperatorSignOut() {
         onClick={handleSignOut}
         disabled={signingOut}
         title="Sign out"
-        className="inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-white/15 text-white/70 transition hover:bg-white/8 hover:text-white disabled:opacity-50"
+        className="inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-border text-foreground/70 transition hover:bg-foreground/10 hover:text-foreground disabled:opacity-50"
       >
         <LogOut className="size-3.5" strokeWidth={2} />
       </button>
