@@ -1,6 +1,5 @@
 import {
   buildConnectorStatuses,
-  isAdsDeveloperTokenConfigured,
   type ConnectorStatus,
 } from '@/lib/connectors';
 import type { ConnectorId } from '@/lib/connectors/types';
@@ -86,7 +85,6 @@ export async function loadProjectConnectorStatuses(projectId: string): Promise<{
     ga4Label: ga4?.property_name || ga4?.property_id || null,
     adsSelected: Boolean(ads),
     adsLabel: ads?.descriptive_name || ads?.customer_id || null,
-    adsDeveloperTokenConfigured: isAdsDeveloperTokenConfigured(),
     lastAuditAt: latestRun?.completed_at ?? null,
     usedInLatestAudit,
     dataFlags: {

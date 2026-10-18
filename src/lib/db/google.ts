@@ -7,10 +7,8 @@ import {
   getAuthorizedClient,
 } from '@/lib/google/oauth';
 import { listSearchConsoleSites } from '@/lib/google/search-console';
-import {
-  isGoogleAdsConfigured,
-  listAccessibleAdsCustomers,
-} from '@/lib/google/ads';
+import { listAccessibleAdsCustomers } from '@/lib/google/ads';
+import { loadSource, type SourceSyncResult } from '@/lib/google/source-sync';
 
 export async function upsertGoogleConnection(
   projectId: string,
@@ -59,15 +57,6 @@ export async function upsertGoogleConnection(
   return data;
 }
 
-export type SourceSyncResult =
-  | { status: 'synced'; count: number }
-  /** The client did not grant this feature on the consent screen. */
-  | { status: 'missing_scope' }
-  /** Access is granted but the app can't call this API yet (e.g. no Ads developer token). */
-  | { status: 'not_configured' }
-  /** The API call failed. Previously synced rows are kept. */
-  | { status: 'error'; message: string };
-
 export type PropertySyncResult = {
   gsc: SourceSyncResult;
   ga4: SourceSyncResult;
@@ -76,23 +65,6 @@ export type PropertySyncResult = {
 
 type SourceRow = { key: string; values: Record<string, string | null> };
 type SourceTable = 'search_console_properties' | 'ga4_properties' | 'google_ads_accounts';
-
-async function loadSource(options: {
-  granted: boolean;
-  configured?: boolean;
-  load: () => Promise<SourceRow[]>;
-}): Promise<{ result: SourceSyncResult; rows: SourceRow[] | null }> {
-  if (!options.granted) return { result: { status: 'missing_scope' }, rows: null };
-  if (options.configured === false) return { result: { status: 'not_configured' }, rows: null };
-  try {
-    const rows = await options.load();
-    return { result: { status: 'synced', count: rows.length }, rows };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Google request failed.';
-    console.error('[syncPropertyOptions] source failed', message);
-    return { result: { status: 'error', message }, rows: null };
-  }
-}
 
 /**
  * Replace one source's rows with what Google just returned, keeping the saved
@@ -180,6 +152,7 @@ export async function syncPropertyOptions(projectId: string): Promise<PropertySy
   // Each source is independent: one denied or failing source must not block the others.
   const [gsc, ga4, ads] = await Promise.all([
     loadSource({
+      label: 'Search Console',
       granted: granted(GOOGLE_SEARCH_CONSOLE_SCOPE),
       load: async () =>
         (await listSearchConsoleSites(auth))
@@ -187,6 +160,7 @@ export async function syncPropertyOptions(projectId: string): Promise<PropertySy
           .map((site) => ({ key: site.siteUrl as string, values: { site_url: site.siteUrl ?? null } })),
     }),
     loadSource({
+      label: 'GA4',
       granted: granted(GOOGLE_ANALYTICS_SCOPE),
       load: async () =>
         (await listGa4Properties(auth)).map((property) => ({
@@ -199,8 +173,8 @@ export async function syncPropertyOptions(projectId: string): Promise<PropertySy
         })),
     }),
     loadSource({
+      label: 'Google Ads',
       granted: granted(GOOGLE_ADS_SCOPE),
-      configured: isGoogleAdsConfigured(),
       load: async () =>
         (await listAccessibleAdsCustomers(accessToken)).map((account) => ({
           key: account.customerId,
@@ -209,6 +183,7 @@ export async function syncPropertyOptions(projectId: string): Promise<PropertySy
             descriptive_name: account.descriptiveName ?? null,
             currency_code: account.currencyCode ?? null,
             time_zone: account.timeZone ?? null,
+            login_customer_id: account.loginCustomerId,
           },
         })),
     }),

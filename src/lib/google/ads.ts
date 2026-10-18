@@ -1,6 +1,9 @@
 /**
  * Google Ads API helpers (REST + GAQL).
- * Requires GOOGLE_ADS_DEVELOPER_TOKEN and OAuth scope adwords.
+ *
+ * Access comes from the OAuth token of the client who connected (scope `adwords`)
+ * and from the Google Cloud project that owns our OAuth client, which must have
+ * the Google Ads API enabled. No developer token is used.
  */
 
 const ADS_API_VERSION = 'v25';
@@ -11,6 +14,11 @@ export type GoogleAdsAccountOption = {
   descriptiveName: string;
   currencyCode: string | null;
   timeZone: string | null;
+  /**
+   * Manager (MCC) account the client account is reached through. Requests for that
+   * account must send it as `login-customer-id`. Null when the account is reached directly.
+   */
+  loginCustomerId: string | null;
 };
 
 export type AdsCampaignRow = {
@@ -67,26 +75,12 @@ export type AdsLandingMismatch = {
   meaning: string;
 };
 
-function developerToken() {
-  const token = process.env.GOOGLE_ADS_DEVELOPER_TOKEN?.trim();
-  if (!token) throw new Error('Missing GOOGLE_ADS_DEVELOPER_TOKEN.');
-  return token;
-}
-
-function loginCustomerId() {
-  const raw = process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID?.trim();
-  if (!raw) return null;
-  return raw.replace(/-/g, '');
-}
-
-function adsHeaders(accessToken: string): HeadersInit {
+function adsHeaders(accessToken: string, loginCustomerId: string | null): HeadersInit {
   const headers: Record<string, string> = {
     Authorization: `Bearer ${accessToken}`,
-    'developer-token': developerToken(),
     'Content-Type': 'application/json',
   };
-  const loginId = loginCustomerId();
-  if (loginId) headers['login-customer-id'] = loginId;
+  if (loginCustomerId) headers['login-customer-id'] = loginCustomerId;
   return headers;
 }
 
@@ -103,11 +97,20 @@ function microsToCurrency(micros: number) {
   return micros / 1_000_000;
 }
 
-async function adsFetch(path: string, accessToken: string, init?: RequestInit) {
+function cleanCustomerId(customerId: string) {
+  return customerId.replace(/-/g, '');
+}
+
+async function adsFetch(
+  path: string,
+  accessToken: string,
+  loginCustomerId: string | null,
+  init?: RequestInit
+) {
   const response = await fetch(`${ADS_BASE}${path}`, {
     ...init,
     headers: {
-      ...adsHeaders(accessToken),
+      ...adsHeaders(accessToken, loginCustomerId),
       ...(init?.headers ?? {}),
     },
   });
@@ -118,21 +121,15 @@ async function adsFetch(path: string, accessToken: string, init?: RequestInit) {
   return response;
 }
 
-export function isGoogleAdsConfigured() {
-  return Boolean(process.env.GOOGLE_ADS_DEVELOPER_TOKEN?.trim());
-}
-
 export async function listAccessibleAdsCustomers(
   accessToken: string
 ): Promise<GoogleAdsAccountOption[]> {
-  if (!isGoogleAdsConfigured()) return [];
-
-  const listRes = await adsFetch('/customers:listAccessibleCustomers', accessToken, {
+  const listRes = await adsFetch('/customers:listAccessibleCustomers', accessToken, null, {
     method: 'get',
   });
   const listJson = (await listRes.json()) as { resourceNames?: string[] };
   const rootIds = (listJson.resourceNames ?? [])
-    .map((name) => name.replace('customers/', '').replace(/-/g, ''))
+    .map((name) => cleanCustomerId(name.replace('customers/', '')))
     .filter(Boolean);
 
   const byId = new Map<string, GoogleAdsAccountOption>();
@@ -141,6 +138,7 @@ export async function listAccessibleAdsCustomers(
     let isManager = false;
     let managerLabel: GoogleAdsAccountOption | null = null;
     try {
+      // Roots are reached directly, so no login-customer-id.
       const rows = await searchGoogleAds(accessToken, customerId, `
         SELECT
           customer.id,
@@ -170,6 +168,7 @@ export async function listAccessibleAdsCustomers(
           : `Account ${customerId}`,
         currencyCode: customer?.currencyCode ?? null,
         timeZone: customer?.timeZone ?? null,
+        loginCustomerId: null,
       };
       if (isManager) managerLabel = option;
       else byId.set(customerId, option);
@@ -182,6 +181,7 @@ export async function listAccessibleAdsCustomers(
 
     let clientCount = 0;
     try {
+      // Clients under this manager are reached through it, so the manager is the login.
       const clientRows = await searchGoogleAds(
         accessToken,
         customerId,
@@ -210,7 +210,9 @@ export async function listAccessibleAdsCustomers(
               manager?: boolean;
             }
           | undefined;
-        const rawId = client?.clientCustomer?.replace('customers/', '').replace(/-/g, '');
+        const rawId = client?.clientCustomer
+          ? cleanCustomerId(client.clientCustomer.replace('customers/', ''))
+          : '';
         if (!rawId || client?.manager) continue;
         clientCount += 1;
         byId.set(rawId, {
@@ -218,6 +220,7 @@ export async function listAccessibleAdsCustomers(
           descriptiveName: client?.descriptiveName || `Account ${rawId}`,
           currencyCode: client?.currencyCode ?? null,
           timeZone: client?.timeZone ?? null,
+          loginCustomerId: customerId,
         });
       }
     } catch (error) {
@@ -238,13 +241,18 @@ type AdsSearchRow = Record<string, unknown>;
 async function searchGoogleAds(
   accessToken: string,
   customerId: string,
-  query: string
+  query: string,
+  loginCustomerId: string | null = null
 ): Promise<AdsSearchRow[]> {
-  const cleanId = customerId.replace(/-/g, '');
-  const response = await adsFetch(`/customers/${cleanId}/googleAds:search`, accessToken, {
-    method: 'POST',
-    body: JSON.stringify({ query: query.trim() }),
-  });
+  const response = await adsFetch(
+    `/customers/${cleanCustomerId(customerId)}/googleAds:search`,
+    accessToken,
+    loginCustomerId,
+    {
+      method: 'POST',
+      body: JSON.stringify({ query: query.trim() }),
+    }
+  );
   const json = (await response.json()) as { results?: AdsSearchRow[] };
   return json.results ?? [];
 }
@@ -258,12 +266,13 @@ function dateDaysAgo(days: number) {
 export async function fetchGoogleAdsBundle(
   accessToken: string,
   customerId: string,
+  loginCustomerId: string | null = null,
   startDate?: string,
   endDate?: string
 ): Promise<GoogleAdsBundle> {
   const start = startDate ?? dateDaysAgo(28);
   const end = endDate ?? dateDaysAgo(0);
-  const cleanId = customerId.replace(/-/g, '');
+  const cleanId = cleanCustomerId(customerId);
 
   const [campaignRows, keywordRows, landingRows] = await Promise.all([
     searchGoogleAds(
@@ -284,7 +293,8 @@ export async function fetchGoogleAdsBundle(
         AND campaign.status != 'REMOVED'
       ORDER BY metrics.cost_micros DESC
       LIMIT 50
-    `
+    `,
+      loginCustomerId
     ),
     searchGoogleAds(
       accessToken,
@@ -303,7 +313,8 @@ export async function fetchGoogleAdsBundle(
         AND ad_group_criterion.status != 'REMOVED'
       ORDER BY metrics.cost_micros DESC
       LIMIT 80
-    `
+    `,
+      loginCustomerId
     ),
     searchGoogleAds(
       accessToken,
@@ -319,7 +330,8 @@ export async function fetchGoogleAdsBundle(
       WHERE segments.date BETWEEN '${start}' AND '${end}'
       ORDER BY metrics.cost_micros DESC
       LIMIT 50
-    `
+    `,
+      loginCustomerId
     ),
   ]);
 

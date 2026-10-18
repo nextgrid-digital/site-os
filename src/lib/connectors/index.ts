@@ -6,7 +6,6 @@ export {
 } from '@/lib/connectors/registry';
 export {
   buildConnectorStatuses,
-  isAdsDeveloperTokenConfigured,
   type ProjectConnectorSnapshotInput,
 } from '@/lib/connectors/status';
 export type {

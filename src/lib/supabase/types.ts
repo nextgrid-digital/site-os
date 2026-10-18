@@ -78,6 +78,8 @@ export interface GoogleAdsAccount {
   descriptive_name: string;
   currency_code: string | null;
   time_zone: string | null;
+  /** Manager (MCC) the account is reached through, or null when reached directly. */
+  login_customer_id: string | null;
   is_selected: boolean;
   created_at: string;
 }

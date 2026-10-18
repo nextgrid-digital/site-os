@@ -13,7 +13,7 @@ import {
   type ConnectionStatus,
 } from '@/lib/google/connection-status';
 import type { ConnectorId, ConnectorStatus } from '@/lib/connectors/types';
-import type { SourceSyncResult } from '@/lib/db/google';
+import type { SourceSyncResult } from '@/lib/google/source-sync';
 import type { Ga4Property, GoogleAdsAccount, SearchConsoleProperty } from '@/lib/supabase/types';
 
 /** Which mapping <select> a connector card's "Manage" should focus. */
@@ -50,8 +50,6 @@ function describeSourceSync(label: string, result: SourceSyncResult | undefined)
       return `${label}: ${result.count} found`;
     case 'missing_scope':
       return `${label}: access not granted, use "Grant missing access" below`;
-    case 'not_configured':
-      return `${label}: not available yet`;
     case 'error':
       return `${label}: ${result.message}`;
     default: {

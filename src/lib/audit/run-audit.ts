@@ -34,7 +34,6 @@ import { googleAdsSyncResult } from '@/lib/connectors/google-ads/sync';
 import type { ConnectorSyncResult } from '@/lib/connectors/types';
 import {
   fetchGoogleAdsBundle,
-  isGoogleAdsConfigured,
   totalAdsSpend,
   type GoogleAdsBundle,
 } from '@/lib/google/ads';
@@ -45,7 +44,13 @@ import {
   type Ga4AnalyticsBundle,
   type Ga4LandingPageRow,
 } from '@/lib/google/ga4';
-import { getAuthorizedClient, refreshAccessToken } from '@/lib/google/oauth';
+import {
+  getAuthorizedClient,
+  GOOGLE_ADS_SCOPE,
+  GOOGLE_ANALYTICS_SCOPE,
+  GOOGLE_SEARCH_CONSOLE_SCOPE,
+  refreshAccessToken,
+} from '@/lib/google/oauth';
 import {
   fetchSearchConsolePerformance,
   type GscPerformanceBundle,
@@ -165,6 +170,7 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
     access_token: string;
     refresh_token: string | null;
     token_expiry: string | null;
+    scopes: string[] | null;
   } | null = null;
 
   if (needsGoogle) {
@@ -248,23 +254,42 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
           expiry_date: connection.token_expiry ? new Date(connection.token_expiry).getTime() : null,
         });
 
+        // A mapped source the client un-ticked on the consent screen is treated as
+        // unmapped for this run, instead of spending an API call that will be refused.
+        const grantedScopes = connection.scopes ?? [];
+        const gscMapped =
+          gscProperty && grantedScopes.includes(GOOGLE_SEARCH_CONSOLE_SCOPE) ? gscProperty : null;
+        const ga4Mapped =
+          ga4Property && grantedScopes.includes(GOOGLE_ANALYTICS_SCOPE) ? ga4Property : null;
+        const adsMapped =
+          adsAccount && grantedScopes.includes(GOOGLE_ADS_SCOPE) ? adsAccount : null;
+        if (gscProperty && !gscMapped) console.warn('[runAudit] GSC skipped: access not granted');
+        if (ga4Property && !ga4Mapped) console.warn('[runAudit] GA4 skipped: access not granted');
+        if (adsAccount && !adsMapped) console.warn('[runAudit] Ads skipped: access not granted');
+
         const settled = await Promise.allSettled([
-          gscProperty
-            ? fetchSearchConsolePerformance(auth, gscProperty.site_url, startDate, endDate)
+          gscMapped
+            ? fetchSearchConsolePerformance(auth, gscMapped.site_url, startDate, endDate)
             : Promise.resolve({
                 queryRows: [],
                 pageRows: [],
                 byCountry: [],
                 byDevice: [],
               } satisfies GscPerformanceBundle),
-          ga4Property
-            ? fetchGa4LandingPages(auth, ga4Property.property_id, startDate, endDate)
+          ga4Mapped
+            ? fetchGa4LandingPages(auth, ga4Mapped.property_id, startDate, endDate)
             : Promise.resolve([] as Ga4LandingPageRow[]),
-          ga4Property
-            ? fetchGa4AnalyticsBundle(auth, ga4Property.property_id, startDate, endDate)
+          ga4Mapped
+            ? fetchGa4AnalyticsBundle(auth, ga4Mapped.property_id, startDate, endDate)
             : Promise.resolve(ga4Analytics),
-          adsAccount && isGoogleAdsConfigured()
-            ? fetchGoogleAdsBundle(accessToken, adsAccount.customer_id, startDate, endDate)
+          adsMapped
+            ? fetchGoogleAdsBundle(
+                accessToken,
+                adsMapped.customer_id,
+                adsMapped.login_customer_id,
+                startDate,
+                endDate
+              )
             : Promise.resolve(emptyAds()),
           crawlPromise,
         ]);
@@ -281,28 +306,28 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
 
         if (gscSettled.status === 'fulfilled') {
           gscData = gscSettled.value;
-          gscConnected = Boolean(gscProperty);
+          gscConnected = Boolean(gscMapped);
         } else {
           console.error('[runAudit] GSC fetch failed', gscSettled.reason);
         }
 
         if (ga4Settled.status === 'fulfilled') {
           ga4Data = ga4Settled.value;
-          ga4Connected = Boolean(ga4Property);
+          ga4Connected = Boolean(ga4Mapped);
         } else {
           console.error('[runAudit] GA4 landing fetch failed', ga4Settled.reason);
         }
 
         if (ga4AnalyticsSettled.status === 'fulfilled') {
           ga4Analytics = ga4AnalyticsSettled.value;
-          if (ga4Property) ga4Connected = true;
+          if (ga4Mapped) ga4Connected = true;
         } else {
           console.error('[runAudit] GA4 analytics fetch failed', ga4AnalyticsSettled.reason);
         }
 
         if (adsSettled.status === 'fulfilled') {
           adsBundle = adsSettled.value;
-          adsConnected = Boolean(adsAccount) && isGoogleAdsConfigured();
+          adsConnected = Boolean(adsMapped);
         } else {
           console.error('[runAudit] Ads fetch failed', adsSettled.reason);
         }
