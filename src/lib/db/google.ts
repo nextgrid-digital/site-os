@@ -18,7 +18,7 @@ export async function upsertGoogleConnection(
     expiry_date?: number | null;
     scope?: string | null;
   },
-  /** Email of the Google account the client signed in with. Stored in `operator_email` (legacy column name). */
+  /** Email of the Google account the client signed in with. */
   accountEmail: string | null = null
 ) {
   if (!tokens.access_token) throw new Error('Missing access token from Google.');
@@ -33,7 +33,7 @@ export async function upsertGoogleConnection(
 
   const payload = {
     project_id: projectId,
-    operator_email: accountEmail ?? '',
+    connected_email: accountEmail ?? '',
     access_token: tokens.access_token,
     refresh_token: tokens.refresh_token ?? null,
     token_expiry: tokens.expiry_date ? new Date(tokens.expiry_date).toISOString() : null,

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { RefreshCw } from 'lucide-react';
 import { useAuditTabCache } from '@/components/audit/audit-tab-cache';
 import { useOptionalAuditRun } from '@/components/audit/audit-run-context';
 
@@ -142,8 +143,9 @@ export function RerunFullAuditButton({ projectId, disabled }: RerunFullAuditButt
           void handleRerun();
         }}
         disabled={busy || disabled}
-        className="inline-flex items-center justify-center rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-zinc-950 px-3 text-[13px] font-medium text-white shadow-sm transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
       >
+        <RefreshCw className={`size-3 ${busy ? 'animate-spin' : ''}`} strokeWidth={2} />
         {label}
       </button>
       {error && !auditRun?.running ? (

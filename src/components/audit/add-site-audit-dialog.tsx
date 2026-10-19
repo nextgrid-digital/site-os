@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { GuestAuditWarningBody } from '@/components/audit/guest-audit-warning';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -21,18 +22,38 @@ const DEFAULT_TRIGGER_CLASS =
 export function AddSiteAuditDialog({
   triggerClassName,
   triggerLabel = 'Add site',
+  title = 'Add a site',
+  description = 'Paste any public URL to start a free audit.',
+  submitLabel = 'Analyze website',
+  isGuest = false,
+  loginHref = '/login',
 }: {
   triggerClassName?: string;
   triggerLabel?: string;
+  title?: string;
+  description?: string;
+  submitLabel?: string;
+  /** Guests are warned their current audit may be lost before a new one starts. */
+  isGuest?: boolean;
+  loginHref?: string;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [confirmingGuest, setConfirmingGuest] = useState(false);
 
-  async function handleSubmit(event: React.FormEvent) {
+  function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+    if (isGuest) {
+      setConfirmingGuest(true);
+      return;
+    }
+    void startAudit();
+  }
+
+  async function startAudit() {
     setLoading(true);
     setError(null);
 
@@ -56,6 +77,7 @@ export function AddSiteAuditDialog({
       }
 
       setOpen(false);
+      setConfirmingGuest(false);
       setUrl('');
       router.push(`/audit/${sessionId}`);
     } catch {
@@ -73,24 +95,31 @@ export function AddSiteAuditDialog({
         if (!nextOpen) {
           setError(null);
           setUrl('');
+          setConfirmingGuest(false);
         }
       }}
     >
       <DialogTrigger
         render={
-          <button type="button" className={triggerClassName ?? DEFAULT_TRIGGER_CLASS} />
+          <button type="button"  className={triggerClassName ?? DEFAULT_TRIGGER_CLASS} />
         }
       >
         <span className="text-base leading-none">+</span>
         {triggerLabel}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
+        {confirmingGuest ? (
+          <GuestAuditWarningBody
+            loginHref={loginHref}
+            loading={loading}
+            onCancel={() => setConfirmingGuest(false)}
+            onContinue={() => void startAudit()}
+          />
+        ) : (
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Add a site</DialogTitle>
-            <DialogDescription>
-              Paste any public URL to start a free audit.
-            </DialogDescription>
+            <DialogTitle>{title}</DialogTitle>
+            <DialogDescription>{description}</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
@@ -112,10 +141,11 @@ export function AddSiteAuditDialog({
           </div>
           <DialogFooter>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Starting analysis…' : 'Analyze website'}
+              {loading ? 'Starting analysis…' : submitLabel}
             </Button>
           </DialogFooter>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   );

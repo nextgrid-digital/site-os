@@ -18,7 +18,7 @@ import { useInvalidateAuditTab } from '@/components/audit/audit-tab-cache';
 import { SoftAuditTabLink } from '@/components/audit/soft-audit-tab-link';
 import { ClientGoogleInviteCard } from '@/components/audit/client-google-invite-card';
 import { ConnectorSourceCards } from '@/components/audit/connectors/connector-source-cards';
-import { AdsInvitePanel } from '@/components/operator/ads-invite-panel';
+import { AdsInvitePanel } from '@/components/workspace/ads-invite-panel';
 import { Label } from '@/components/ui/label';
 import {
   ADMIN_STATUS_COPY,
@@ -169,6 +169,7 @@ export function ConnectFlow({
   missingFeatures = [],
   connectionStatus = 'not_granted',
   clientAccessConfirmedAt = null,
+  viewerSignedIn = false,
   workspaceBase,
 }: {
   projectId: string;
@@ -189,6 +190,8 @@ export function ConnectFlow({
   /** True when the viewer is an admin managing this client's connection, not the client themselves. */
   connectionStatus?: ConnectionStatus;
   clientAccessConfirmedAt?: string | null;
+  /** Guests get no Google data, and the Ads invite API requires a signed-in user. */
+  viewerSignedIn?: boolean;
   workspaceBase?: string;
 }) {
   const invalidateTab = useInvalidateAuditTab();
@@ -624,14 +627,16 @@ export function ConnectFlow({
                   </option>
                 ))}
               </select>
-              <details className="group">
-                <summary className="cursor-pointer list-none text-xs font-medium text-zinc-600 underline-offset-2 hover:underline [&::-webkit-details-marker]:hidden">
-                  Don&apos;t see the Ads account? Send an invite
-                </summary>
-                <div className="mt-2">
-                  <AdsInvitePanel projectId={projectId} />
-                </div>
-              </details>
+              {viewerSignedIn ? (
+                <details className="group">
+                  <summary className="cursor-pointer list-none text-xs font-medium text-zinc-600 underline-offset-2 hover:underline [&::-webkit-details-marker]:hidden">
+                    Don&apos;t see the Ads account? Send an invite
+                  </summary>
+                  <div className="mt-2">
+                    <AdsInvitePanel projectId={projectId} />
+                  </div>
+                </details>
+              ) : null}
             </SourceField>
 
             {message ? (

@@ -38,6 +38,7 @@ export function AuditTabKeepAlive({
   connection,
   lastAuditAt = null,
   initial,
+  signedIn = false,
 }: {
   workspaceId: string;
   projectId: string;
@@ -46,6 +47,7 @@ export function AuditTabKeepAlive({
   connection: WorkspaceConnectionStatus;
   lastAuditAt?: string | null;
   initial?: AuditShellInitial | null;
+  signedIn?: boolean;
   /** Ignored — shell owns panels; child RSC pages are empty placeholders. */
   children?: ReactNode;
 }) {
@@ -69,6 +71,7 @@ export function AuditTabKeepAlive({
             websiteUrl={websiteUrl}
             connection={connection}
             lastAuditAt={lastAuditAt}
+            signedIn={signedIn}
           />
         </AuditRunProvider>
       </WorkspaceAuditProvider>
@@ -83,6 +86,7 @@ function AuditWorkspaceShell({
   websiteUrl,
   connection,
   lastAuditAt,
+  signedIn,
 }: {
   workspaceId: string;
   projectId: string;
@@ -90,6 +94,7 @@ function AuditWorkspaceShell({
   websiteUrl: string;
   connection: WorkspaceConnectionStatus;
   lastAuditAt: string | null;
+  signedIn: boolean;
 }) {
   const { running, error } = useAuditRun();
   const showRunningUi = running || Boolean(error);
@@ -118,8 +123,8 @@ function AuditWorkspaceShell({
         domain={domain}
         websiteUrl={websiteUrl}
         connection={connection}
-        lastAuditAt={lastAuditAt}
         navigationDisabled={showRunningUi}
+        signedIn={signedIn}
       />
       {showRunningUi ? (
         <AuditRunningPanel />
@@ -134,6 +139,7 @@ function AuditWorkspaceShell({
                 workspaceId={workspaceId}
                 domain={domain ?? ''}
                 websiteUrl={websiteUrl}
+                lastAuditAt={lastAuditAt}
               />
             </div>
           ) : null}

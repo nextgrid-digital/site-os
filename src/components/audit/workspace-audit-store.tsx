@@ -23,10 +23,19 @@ export type WorkspaceAuditBundle = {
   connect: unknown | null;
 };
 
+/**
+ * 'analyzing' while the first free audit is still crawling, 'ready' once it finished,
+ * 'failed' if it errored, 'none' when this project has no audit session at all.
+ */
+export type FreeAuditStatus = 'analyzing' | 'ready' | 'failed' | 'none';
+
+const AUDIT_STATUS_POLL_MS = 3000;
+
 type WorkspaceAuditContextValue = {
   bundle: WorkspaceAuditBundle | null;
   loading: boolean;
   error: string | null;
+  auditStatus: FreeAuditStatus | null;
   refresh: () => Promise<void>;
   invalidate: () => void;
   seed: (bundle: Partial<WorkspaceAuditBundle> & { projectId: string }) => void;
@@ -88,6 +97,7 @@ export function WorkspaceAuditProvider({
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [auditStatus, setAuditStatus] = useState<FreeAuditStatus | null>(null);
   const [sliceLoading, setSliceLoading] = useState<Record<string, boolean>>({});
   const inFlight = useRef<Set<string>>(new Set());
   const bundleRef = useRef(bundle);
@@ -188,18 +198,67 @@ export function WorkspaceAuditProvider({
     void refresh();
   }, [tab, refresh]);
 
+  // Until the first audit run exists, poll the audit status. When it finishes, reload
+  // the bundle so the brief and tasks appear without a manual refresh.
+  const bundleLoaded = bundle !== null;
+  const hasAuditRun = Boolean(bundle?.auditRunId);
+  useEffect(() => {
+    if (!bundleLoaded || hasAuditRun) return;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/audit/${projectId}/status`, { cache: 'no-store' });
+        if (cancelled) return;
+        if (res.status === 404) {
+          setAuditStatus('none');
+          return;
+        }
+        if (!res.ok) {
+          // Server error: keep polling rather than claim there is no audit.
+          if (!cancelled) timer = setTimeout(poll, AUDIT_STATUS_POLL_MS);
+          return;
+        }
+        const data = (await res.json()) as { status: string; ready: boolean };
+        if (cancelled) return;
+        if (data.status === 'failed') {
+          setAuditStatus('failed');
+          return;
+        }
+        if (data.ready) {
+          setAuditStatus('ready');
+          // Keep polling until the bundle actually reports the run (hasAuditRun flips).
+          void refresh();
+        } else {
+          setAuditStatus('analyzing');
+        }
+      } catch {
+        // Transient network error: keep polling.
+      }
+      if (!cancelled) timer = setTimeout(poll, AUDIT_STATUS_POLL_MS);
+    };
+
+    void poll();
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [bundleLoaded, hasAuditRun, projectId, refresh]);
+
   const value = useMemo(
     () => ({
       bundle,
       loading,
       error,
+      auditStatus,
       refresh,
       invalidate,
       seed,
       ensureSlice,
       sliceLoading,
     }),
-    [bundle, loading, error, refresh, invalidate, seed, ensureSlice, sliceLoading]
+    [bundle, loading, error, auditStatus, refresh, invalidate, seed, ensureSlice, sliceLoading]
   );
 
   return (

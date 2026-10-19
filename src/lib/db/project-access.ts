@@ -9,7 +9,6 @@ import { getSupabaseAdmin } from '@/lib/supabase/server';
  * Who may read or change a project.
  *
  * - The owner (`projects.user_id`) may.
- * - An admin (`profiles.is_admin`) may, including on behalf of a client.
  * - A project with no owner is an anonymous free audit. Only the browser that
  *   started it may use it: one of the audit session ids in its cookies must
  *   belong to that project.
@@ -22,7 +21,6 @@ export async function canAccessProject(
   anonSessionIds: string[]
 ): Promise<boolean> {
   if (userId && project.user_id === userId) return true;
-  if (userId && (await isAdmin(userId))) return true;
   if (project.user_id) return false;
   if (anonSessionIds.length === 0) return false;
 
@@ -43,14 +41,4 @@ export function anonSessionIdsFromCookies(
   const current = cookieStore.get(AUDIT_SESSION_COOKIE)?.value;
   const history = parseAuditSessionHistory(cookieStore.get(AUDIT_SESSION_HISTORY_COOKIE)?.value);
   return [...new Set([...(current ? parseAuditSessionHistory(current) : []), ...history])];
-}
-
-async function isAdmin(userId: string): Promise<boolean> {
-  const supabase = getSupabaseAdmin();
-  const { data } = await supabase
-    .from('profiles')
-    .select('is_admin')
-    .eq('user_id', userId)
-    .maybeSingle();
-  return data?.is_admin === true;
 }

@@ -37,6 +37,7 @@ export default async function AuditProjectLayout({
         domain={workspace.domain}
         websiteUrl={workspace.website.url}
         lastAuditAt={lastAuditAt}
+        signedIn={workspace.signedIn}
         connection={{
           websiteConnected: Boolean(workspace.website.url),
           gscConnected: connected.gscConnected,

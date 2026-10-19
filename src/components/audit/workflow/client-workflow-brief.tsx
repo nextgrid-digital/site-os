@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { SoftAuditTabLink } from '@/components/audit/soft-audit-tab-link';
 import { PageChip, PriorityBadge } from '@/components/audit/workflow/workflow-badges';
-import { ReportPdfButton } from '@/components/operator/report-pdf-button';
+import { ReportPdfButton } from '@/components/workspace/report-pdf-button';
 import type { GrowthBrief } from '@/lib/reports/build-growth-brief';
 import type { MonthlyCompareSection, MonthlyLine } from '@/lib/workflow/monthly-compare';
 import type { WorkItemView } from '@/lib/workflow/work-items';

@@ -3,7 +3,7 @@ import {
   AuditWorkspaceCard,
   AuditWorkspacePanel,
 } from '@/components/audit/audit-workspace-panel';
-import { SettingsForm } from '@/components/operator/settings-form';
+import { SettingsForm } from '@/components/workspace/settings-form';
 import { resolveAuditWorkspace } from '@/lib/db/resolve-audit-workspace';
 import { getProjectWorkspace, listNotes } from '@/lib/db/projects';
 import { hasSupabaseConfig } from '@/lib/supabase/server';

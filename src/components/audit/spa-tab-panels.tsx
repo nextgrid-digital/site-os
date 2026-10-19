@@ -2,11 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { AuditWorkspacePanel } from '@/components/audit/audit-workspace-panel';
+import { LastAuditLabel } from '@/components/audit/last-audit-label';
 import { JoinedTrafficReport } from '@/components/audit/report/joined/joined-traffic-report';
-import { useWorkspaceAudit } from '@/components/audit/workspace-audit-store';
+import {
+  useWorkspaceAudit,
+  type FreeAuditStatus,
+} from '@/components/audit/workspace-audit-store';
 import { ClientWorkflowBrief } from '@/components/audit/workflow/client-workflow-brief';
 import { MonthlyReviewPanel } from '@/components/audit/workflow/monthly-review-panel';
-import { ConnectFlow } from '@/components/operator/connect-flow';
+import { ConnectFlow } from '@/components/workspace/connect-flow';
 import type { ConnectedAuditMetrics } from '@/lib/db/connected-metrics';
 import type { GrowthBrief } from '@/lib/reports/build-growth-brief';
 import type {
@@ -18,6 +22,44 @@ import type { ConnectorStatus } from '@/lib/connectors/types';
 import type { ConnectionStatus } from '@/lib/google/connection-status';
 import type { WorkItemView } from '@/lib/workflow/work-items';
 import type { MonthlyCompareSection } from '@/lib/workflow/monthly-compare';
+
+function FreeAuditProgress({
+  domain,
+  status,
+}: {
+  domain: string;
+  status: FreeAuditStatus | null;
+}) {
+  if (status === 'failed') {
+    return (
+      <div className="rounded-[14px] bg-white px-6 py-12 text-center shadow-sm">
+        <p className="text-base font-semibold text-zinc-950">The audit didn&apos;t finish</p>
+        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">
+          We couldn&apos;t complete the audit for {domain}. Run it again from the home page.
+        </p>
+      </div>
+    );
+  }
+  if (status === 'none') {
+    return (
+      <div className="rounded-[14px] bg-white px-6 py-12 text-center shadow-sm">
+        <p className="text-base font-semibold text-zinc-950">No audit yet</p>
+        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">
+          Run a free audit for {domain} to get your brief and task list.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="rounded-[14px] bg-white px-6 py-12 text-center shadow-sm" role="status">
+      <p className="text-base font-semibold text-zinc-950">Auditing {domain}…</p>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">
+        We&apos;re crawling the site and writing your brief. This usually takes a minute or two.
+        This page updates by itself when it&apos;s ready.
+      </p>
+    </div>
+  );
+}
 
 function PanelPulse() {
   return (
@@ -32,10 +74,12 @@ export function SpaDashboardPanel({
   workspaceId,
   domain,
   websiteUrl,
+  lastAuditAt = null,
 }: {
   workspaceId: string;
   domain: string;
   websiteUrl: string;
+  lastAuditAt?: string | null;
 }) {
   const ctx = useWorkspaceAudit();
   const ensureSlice = ctx?.ensureSlice;
@@ -48,13 +92,16 @@ export function SpaDashboardPanel({
   if (!connected && ctx?.sliceLoading.dashboard) return <PanelPulse />;
 
   return (
-    <JoinedTrafficReport
-      projectId={workspaceId}
-      connectedMetrics={connected}
-      domain={domain || undefined}
-      websiteConnected={Boolean(websiteUrl)}
-      websiteLabel={domain || null}
-    />
+    <div className="space-y-3">
+      <LastAuditLabel lastAuditAt={lastAuditAt} />
+      <JoinedTrafficReport
+        projectId={workspaceId}
+        connectedMetrics={connected}
+        domain={domain || undefined}
+        websiteConnected={Boolean(websiteUrl)}
+        websiteLabel={domain || null}
+      />
+    </div>
   );
 }
 
@@ -72,6 +119,18 @@ export function SpaBriefPanel({
   }, [ensureSlice]);
 
   if (!ctx?.bundle?.brief && ctx?.sliceLoading.brief) return <PanelPulse />;
+
+  // No audit run yet: say so, instead of an empty brief that reads as "all caught up".
+  if (ctx?.bundle && !ctx.bundle.auditRunId) {
+    return (
+      <AuditWorkspacePanel
+        title="Brief"
+        description="Client-ready action memo — plain English, ready to send or discuss."
+      >
+        <FreeAuditProgress domain={domain} status={ctx.auditStatus} />
+      </AuditWorkspacePanel>
+    );
+  }
 
   const briefPayload = ctx?.bundle?.brief as {
     growthBrief: GrowthBrief | null;
@@ -224,6 +283,7 @@ export function SpaConnectPanel({
         missingFeatures={connect?.missingFeatures ?? []}
         connectionStatus={connect?.connectionStatus ?? 'not_granted'}
         clientAccessConfirmedAt={connect?.clientAccessConfirmedAt ?? null}
+        viewerSignedIn={Boolean(connect)}
         workspaceBase={workspaceBase}
       />
     </AuditWorkspacePanel>

@@ -171,7 +171,7 @@ export async function GET(request: Request, context: RouteContext) {
         adsAccounts: properties.ads,
         connectorStatuses: connectorState.statuses,
         operatorEmail: getOperatorEmail(),
-        connectedEmail: connection?.operator_email || null,
+        connectedEmail: connection?.connected_email || null,
         tokenExpiry: connection?.token_expiry ?? null,
         lastSyncedAt: connection?.updated_at ?? null,
         scopes: connection?.scopes ?? [],

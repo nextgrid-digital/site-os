@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { requireSignedInSession, SessionRequiredError } from '@/lib/db/profiles';
 import {
   assertProjectOwnership,
-  claimProjectOwnership,
   ProjectAccessError,
   getProjectOverview,
 } from '@/lib/db/projects';
@@ -37,21 +36,13 @@ export async function GET(request: Request) {
     throw error;
   }
 
-  if (session.isAdmin) {
-    // Admins manage every client's Google connection, not just projects they
-    // personally own. Claim unowned (operator-added) projects on first
-    // connect instead of leaving them permanently unconnectable; leave
-    // customer-owned projects as-is.
-    await claimProjectOwnership(projectId, session.userId!);
-  } else {
-    try {
-      await assertProjectOwnership(projectId, session.userId!);
-    } catch (error) {
-      if (error instanceof ProjectAccessError) {
-        return NextResponse.json({ error: error.message }, { status: error.status });
-      }
-      throw error;
+  try {
+    await assertProjectOwnership(projectId, session.userId!);
+  } catch (error) {
+    if (error instanceof ProjectAccessError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
     }
+    throw error;
   }
 
   const project = await getProjectOverview(projectId);

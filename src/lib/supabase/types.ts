@@ -28,7 +28,7 @@ export interface Website {
 
 export interface GoogleConnection {
   id: string;
-  operator_email: string;
+  connected_email: string;
   access_token: string;
   refresh_token: string | null;
   token_expiry: string | null;

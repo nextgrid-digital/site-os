@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import {
   useAuditTabCache,
   type AuditPrimaryTabSuffix,
 } from '@/components/audit/audit-tab-cache';
+import { AddSiteAuditDialog } from '@/components/audit/add-site-audit-dialog';
 import { RerunFreeAuditButton } from '@/components/audit/rerun-free-audit-button';
 import { RerunFullAuditButton } from '@/components/audit/rerun-full-audit-button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/motion/tabs';
@@ -41,57 +41,27 @@ export type WorkspaceConnectionStatus = {
   googleConnected: boolean;
 };
 
-function formatRelativeAuditAge(iso: string) {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return null;
-  const seconds = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
-  if (seconds < 60) return `${seconds} sec ago`;
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes} min ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} hr ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days} day${days === 1 ? '' : 's'} ago`;
-  const months = Math.floor(days / 30);
-  return `${months} mo ago`;
-}
-
-function formatLastAuditLabel(iso: string | null | undefined) {
-  if (!iso) return 'Last Audit: not run yet';
-  const relative = formatRelativeAuditAge(iso);
-  if (!relative) return 'Last Audit: not run yet';
-  return `Last Audit: ${relative}`;
-}
-
 export function AuditWorkspaceTabs({
-  workspaceId: _workspaceId,
+  workspaceId,
   projectId,
   domain,
   websiteUrl,
   connection,
-  lastAuditAt = null,
   navigationDisabled = false,
+  signedIn = false,
 }: {
   workspaceId: string;
   projectId: string;
   domain?: string;
   websiteUrl: string;
   connection: WorkspaceConnectionStatus;
-  lastAuditAt?: string | null;
   navigationDisabled?: boolean;
+  signedIn?: boolean;
 }) {
   const tabCache = useAuditTabCache();
-  const [lastAuditLabel, setLastAuditLabel] = useState(() => formatLastAuditLabel(lastAuditAt));
+  const isGuest = !signedIn;
+  const loginHref = `/login?next=${encodeURIComponent(`/audit/${workspaceId}`)}`;
   const activeId = suffixToId(tabCache?.activeSuffix ?? '/workflow');
-
-  useEffect(() => {
-    setLastAuditLabel(formatLastAuditLabel(lastAuditAt));
-    if (!lastAuditAt) return;
-    const timer = window.setInterval(() => {
-      setLastAuditLabel(formatLastAuditLabel(lastAuditAt));
-    }, 30_000);
-    return () => window.clearInterval(timer);
-  }, [lastAuditAt]);
 
   return (
     <div className="mb-6 flex flex-col gap-3 pb-4">
@@ -137,14 +107,25 @@ export function AuditWorkspaceTabs({
         </Tabs>
 
         <div className="flex max-w-full flex-wrap items-center gap-2 lg:justify-end print:hidden">
-          <p className="text-xs font-medium whitespace-nowrap text-muted-foreground">
-            {lastAuditLabel}
-          </p>
           {connection.googleConnected ? (
             <RerunFullAuditButton projectId={projectId} />
           ) : (
-            <RerunFreeAuditButton websiteUrl={websiteUrl} disabled={navigationDisabled} />
+            <RerunFreeAuditButton
+              websiteUrl={websiteUrl}
+              disabled={navigationDisabled}
+              isGuest={isGuest}
+              loginHref={loginHref}
+            />
           )}
+          <AddSiteAuditDialog
+            triggerLabel="Audit another site"
+            triggerClassName="inline-flex h-8 items-center gap-1 rounded-lg border border-zinc-300 bg-white px-2.5 text-[13px] font-medium text-zinc-800 transition hover:bg-zinc-50"
+            title="Run a new audit"
+            description="Paste any public URL to start a fresh free audit."
+            submitLabel="Run audit"
+            isGuest={isGuest}
+            loginHref={loginHref}
+          />
         </div>
       </div>
     </div>
