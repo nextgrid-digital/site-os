@@ -71,13 +71,13 @@ export function GoogleDataInventory({
               Ordered by event count · key events highlighted
             </p>
           </div>
-          <p className="text-xs text-zinc-400">{events.length} events in window</p>
+          <p className="text-xs text-zinc-500">{events.length} events in window</p>
         </div>
         {events.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="text-xs text-zinc-400">
+                <tr className="text-xs text-zinc-500">
                   <th className="pb-2 font-medium">Event</th>
                   <th className="pb-2 text-right font-medium">Count</th>
                   <th className="pb-2 text-right font-medium">Sessions</th>
@@ -180,7 +180,7 @@ function InventoryTable({
         <div className="mt-3 overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="text-xs text-zinc-400">
+              <tr className="text-xs text-zinc-500">
                 <th className="pb-2 font-medium">{nameLabel}</th>
                 {columns.map((col) => (
                   <th key={col} className="pb-2 text-right font-medium">

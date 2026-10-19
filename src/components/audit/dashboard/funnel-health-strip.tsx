@@ -37,7 +37,7 @@ export function FunnelHealthStrip({ health }: { health: FunnelHealthReport }) {
 function Metric({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-lg bg-zinc-50 px-3 py-2">
-      <p className="text-[11px] tracking-wide text-zinc-400 uppercase">{label}</p>
+      <p className="text-[11px] tracking-wide text-zinc-500 uppercase">{label}</p>
       <p className="mt-0.5 text-lg font-semibold tabular-nums text-zinc-950">
         {value > 0 ? value.toLocaleString() : '—'}
       </p>
