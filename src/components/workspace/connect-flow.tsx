@@ -146,7 +146,7 @@ function SourceField({
             Selected
           </span>
         ) : (
-          <span className="shrink-0 text-[11px] text-zinc-400">{count} found</span>
+          <span className="shrink-0 text-[11px] text-zinc-500">{count} found</span>
         )}
       </div>
       {children}
@@ -366,7 +366,7 @@ export function ConnectFlow({
       <section className="rounded-[14px] bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <p className="text-[11px] font-medium tracking-wide text-zinc-400 uppercase">
+            <p className="text-[11px] font-medium tracking-wide text-zinc-500 uppercase">
               {setupComplete ? 'Setup complete' : `Step ${Math.min(doneCount + 1, 4)} of 4`}
             </p>
             <h2 className="mt-1.5 text-lg font-semibold tracking-tight text-zinc-950">
@@ -408,7 +408,7 @@ export function ConnectFlow({
               <div className="min-w-0">
                 <p
                   className={`text-sm font-medium ${
-                    step.state === 'upcoming' ? 'text-zinc-400' : 'text-zinc-900'
+                    step.state === 'upcoming' ? 'text-zinc-500' : 'text-zinc-900'
                   }`}
                 >
                   {step.title}
@@ -654,7 +654,7 @@ export function ConnectFlow({
           </div>
 
           <div className="mt-5 flex flex-col gap-2 border-t border-zinc-100 pt-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <p className="min-w-0 text-xs text-zinc-400 sm:pr-2">
+            <p className="min-w-0 text-xs text-zinc-500 sm:pr-2">
               Skipping one is fine — the audit uses whatever you pick.
             </p>
             <button
@@ -680,7 +680,7 @@ export function ConnectFlow({
           </div>
           <ConnectorSourceCards statuses={activeSources} onManage={focusManageTarget} />
           {comingSoon.length > 0 ? (
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-zinc-500">
               Coming soon:{' '}
               {comingSoon.map((status) => status.label).join(', ')}
             </p>

@@ -39,7 +39,7 @@ export function DashboardSourceStrip({
               {source.detail}
             </span>
           ) : (
-            <span className="text-zinc-400">{source.connected ? 'On' : 'Off'}</span>
+            <span className="text-zinc-500">{source.connected ? 'On' : 'Off'}</span>
           )}
         </div>
       ))}
