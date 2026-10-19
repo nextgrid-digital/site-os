@@ -56,7 +56,7 @@ export function ConnectorSourceCards({
               status.state === 'coming_soon' && 'opacity-80'
             )}
           >
-            <div className="flex items-start gap-3">
+            <div className="flex items-center gap-3">
               <span
                 className={cn('inline-flex size-9 shrink-0 items-center justify-center rounded-full',
                   iconShellClass(status.state)
@@ -66,12 +66,9 @@ export function ConnectorSourceCards({
               </span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-zinc-950">{def.label}</p>
-                    <p className="mt-0.5 text-[11px] tracking-wide text-zinc-400 uppercase">
-                      Phase {def.phase}
-                    </p>
-                  </div>
+                  <p className="min-w-0 truncate text-sm font-semibold text-zinc-950">
+                    {def.label}
+                  </p>
                   <span
                     className={cn('shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase',
                       stateClass(status.state)

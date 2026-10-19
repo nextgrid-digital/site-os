@@ -107,6 +107,8 @@ export function SpaMonthlyPanel({ projectId }: { projectId: string }) {
     hasPrevious: boolean;
     currentLabel: string | null;
     previousLabel: string | null;
+    currentAt?: string | null;
+    previousAt?: string | null;
   } | null;
 
   if (!monthly && ctx?.sliceLoading.monthly) return <PanelPulse />;
@@ -114,11 +116,15 @@ export function SpaMonthlyPanel({ projectId }: { projectId: string }) {
   if (!monthly?.currentLabel) {
     return (
       <AuditWorkspacePanel
-        title="Monthly"
-        description="Compare audits over time for retainers and follow-up."
+        title="Monthly check-in"
+        description="Your site's progress, month over month — in plain English."
       >
-        <div className="rounded-[14px] bg-white px-4 py-10 text-center text-sm text-zinc-500">
-          Complete an audit first, then run again next month to compare.
+        <div className="rounded-[14px] bg-white px-6 py-12 text-center shadow-sm">
+          <p className="text-base font-semibold text-zinc-950">No audits yet</p>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">
+            Run your first audit to set a baseline. From then on, each monthly re-run shows what
+            got better, what slipped, and what to fix next.
+          </p>
         </div>
       </AuditWorkspacePanel>
     );
@@ -126,8 +132,8 @@ export function SpaMonthlyPanel({ projectId }: { projectId: string }) {
 
   return (
     <AuditWorkspacePanel
-      title="Monthly"
-      description="See what got better, what got worse, and what is still open."
+      title="Monthly check-in"
+      description="What got better, what slipped, and what to fix next — compared to your last audit."
     >
       <MonthlyReviewPanel
         projectId={projectId}
@@ -135,6 +141,8 @@ export function SpaMonthlyPanel({ projectId }: { projectId: string }) {
         hasPrevious={monthly.hasPrevious}
         currentLabel={monthly.currentLabel}
         previousLabel={monthly.previousLabel}
+        currentAt={monthly.currentAt ?? null}
+        previousAt={monthly.previousAt ?? null}
       />
     </AuditWorkspacePanel>
   );
@@ -160,7 +168,7 @@ export function SpaConnectPanel({
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     if (params.get('connected')) {
-      setMessage('Google account connected. Sync and select properties below.');
+      setMessage('Google connected. Next, pick which site and accounts to track below.');
     }
     const error = params.get('error');
     if (error) {
@@ -189,7 +197,7 @@ export function SpaConnectPanel({
   return (
     <AuditWorkspacePanel
       title="Setup"
-      description="Connect Google, sync properties, and map Search Console, GA4, and Ads — then run the audit from Dashboard."
+      description="Connect your Google data in a few minutes so your audit uses real search and visitor numbers."
     >
       {errorMessage ? (
         <div className="mb-4 rounded-[14px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">

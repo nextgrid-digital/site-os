@@ -114,4 +114,31 @@ test('buildMonthlyCompare reports pending and finding deltas', () => {
   assert.equal(compare.stillPending[0]?.detail, 'Rewrite homepage CTA');
   assert.equal(compare.needsFollowUp.length, 1);
   assert.equal(compare.needsFollowUp[0]?.detail, 'Fix soon');
+  assert.deepEqual(compare.scorecard.issues, { previous: 6, current: 4 });
+  assert.deepEqual(compare.scorecard.openTasks, { previous: 3, current: 1 });
+});
+
+test('buildMonthlyCompare keeps neutral changes out of the improved bucket', () => {
+  const compare = buildMonthlyCompare({
+    historicalChanges: [
+      {
+        event_type: 'positioning_shift',
+        previous_value: 'budget',
+        current_value: 'premium',
+        first_observed_at: new Date().toISOString(),
+        change_observed_at: new Date().toISOString(),
+        source: 'brand_associations',
+        confidence: 0.7,
+        previous_audit_run_id: 'prev',
+      },
+    ],
+    openWorkItems: [],
+    currentFindingCount: 2,
+    previousFindingCount: 2,
+    currentOpenWorkCount: 0,
+    previousOpenWorkCount: 0,
+  });
+
+  assert.equal(compare.improved.length, 0);
+  assert.equal(compare.changed[0]?.detail, 'Budget → Premium');
 });

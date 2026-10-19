@@ -1,16 +1,31 @@
 import type { HistoricalChangeEvent } from '@/lib/evidence/types';
-import type { WorkItemView } from '@/lib/workflow/work-items';
+import type { WorkItemPriority, WorkItemView } from '@/lib/workflow/work-items';
 
 export type MonthlyLine = {
   title: string;
   detail?: string;
+  /** Count-based summary line (also shown as a scorecard tile in the Monthly tab). */
+  metric?: boolean;
+  priority?: WorkItemPriority;
+  pagePath?: string | null;
+};
+
+export type MonthlyMetric = {
+  previous: number | null;
+  current: number;
 };
 
 export type MonthlyCompareSection = {
   improved: MonthlyLine[];
   regressed: MonthlyLine[];
+  /** Neutral site changes — not clearly better or worse. */
+  changed: MonthlyLine[];
   stillPending: MonthlyLine[];
   needsFollowUp: MonthlyLine[];
+  scorecard: {
+    issues: MonthlyMetric;
+    openTasks: MonthlyMetric;
+  };
 };
 
 function humanizeLabel(raw: string) {
@@ -20,7 +35,7 @@ function humanizeLabel(raw: string) {
 }
 
 function lineFromChange(change: HistoricalChangeEvent): {
-  bucket: 'improved' | 'regressed';
+  bucket: 'improved' | 'regressed' | 'changed';
   line: MonthlyLine;
 } {
   const raw =
@@ -56,7 +71,11 @@ function lineFromChange(change: HistoricalChangeEvent): {
     return { bucket: 'improved', line: { title: `New on the site: ${label}` } };
   }
 
-  return { bucket: 'improved', line: { title: `${label} changed` } };
+  const detail =
+    change.previous_value && change.current_value
+      ? `${humanizeLabel(change.previous_value)} → ${humanizeLabel(change.current_value)}`
+      : undefined;
+  return { bucket: 'changed', line: { title: `${label} changed`, detail } };
 }
 
 function uniqueLines(items: MonthlyLine[]) {
@@ -81,11 +100,12 @@ export function buildMonthlyCompare(input: {
 }): MonthlyCompareSection {
   const improved: MonthlyLine[] = [];
   const regressed: MonthlyLine[] = [];
+  const changed: MonthlyLine[] = [];
+  const buckets = { improved, regressed, changed };
 
   for (const change of input.historicalChanges) {
     const mapped = lineFromChange(change);
-    if (mapped.bucket === 'improved') improved.push(mapped.line);
-    else regressed.push(mapped.line);
+    buckets[mapped.bucket].push(mapped.line);
   }
 
   if (
@@ -94,6 +114,7 @@ export function buildMonthlyCompare(input: {
   ) {
     improved.push({
       title: `Fewer issues found (was ${input.previousFindingCount}, now ${input.currentFindingCount})`,
+      metric: true,
     });
   } else if (
     input.previousFindingCount != null &&
@@ -101,6 +122,7 @@ export function buildMonthlyCompare(input: {
   ) {
     regressed.push({
       title: `More issues found (was ${input.previousFindingCount}, now ${input.currentFindingCount})`,
+      metric: true,
     });
   }
 
@@ -110,6 +132,7 @@ export function buildMonthlyCompare(input: {
   ) {
     improved.push({
       title: `Fewer open tasks (was ${input.previousOpenWorkCount}, now ${input.currentOpenWorkCount})`,
+      metric: true,
     });
   } else if (
     input.previousOpenWorkCount != null &&
@@ -117,6 +140,7 @@ export function buildMonthlyCompare(input: {
   ) {
     regressed.push({
       title: `More open tasks (was ${input.previousOpenWorkCount}, now ${input.currentOpenWorkCount})`,
+      metric: true,
     });
   }
 
@@ -128,7 +152,7 @@ export function buildMonthlyCompare(input: {
         i.nextAction && i.nextAction.trim() && i.nextAction.trim() !== i.issue.trim()
           ? i.nextAction.trim()
           : undefined;
-      return { title: i.issue, detail };
+      return { title: i.issue, detail, priority: i.priority, pagePath: i.pagePath };
     });
 
   const needsFollowUp = input.openWorkItems
@@ -137,12 +161,19 @@ export function buildMonthlyCompare(input: {
     .map((i) => ({
       title: i.issue,
       detail: 'Fix soon',
+      priority: i.priority,
+      pagePath: i.pagePath,
     }));
 
   return {
     improved: uniqueLines(improved).slice(0, 12),
     regressed: uniqueLines(regressed).slice(0, 12),
+    changed: uniqueLines(changed).slice(0, 12),
     stillPending,
     needsFollowUp,
+    scorecard: {
+      issues: { previous: input.previousFindingCount, current: input.currentFindingCount },
+      openTasks: { previous: input.previousOpenWorkCount, current: input.currentOpenWorkCount },
+    },
   };
 }

@@ -9,6 +9,7 @@ import {
   Search,
   Video,
 } from 'lucide-react';
+import { GoogleAdsIcon, GoogleAnalyticsIcon, GoogleSearchIcon } from '@/components/icons';
 import type { ConnectorId, } from '@/lib/connectors/types';
 
 export const CONNECTOR_ICONS: Record<
@@ -16,9 +17,9 @@ export const CONNECTOR_ICONS: Record<
   ComponentType<{ className?: string; strokeWidth?: number }>
 > = {
   website: Globe2,
-  search_console: Search,
-  ga4: BarChart3,
-  google_ads: Megaphone,
+  search_console: GoogleSearchIcon,
+  ga4: GoogleAnalyticsIcon,
+  google_ads: GoogleAdsIcon,
   instagram: AtSign,
   x: AtSign,
   youtube: Video,

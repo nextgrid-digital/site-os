@@ -7,7 +7,7 @@ import {
   getLatestAuditSessionForProject,
   type AuditSession,
 } from '@/lib/db/audit-sessions';
-import { anonSessionIdFromCookies, canAccessProject } from '@/lib/db/project-access';
+import { anonSessionIdsFromCookies, canAccessProject } from '@/lib/db/project-access';
 import { getSupabaseAdmin, hasSupabaseConfig } from '@/lib/supabase/server';
 import type { Website } from '@/lib/supabase/types';
 import { createClient } from '@/utils/supabase/server';
@@ -60,7 +60,7 @@ export const resolveAuditWorkspace = cache(async function resolveAuditWorkspace(
   if (!session) {
     const { data: project } = await supabase.from('projects').select('id, user_id').eq('id', id).maybeSingle();
     if (!project) notFound();
-    if (!(await canAccessProject(project, user?.id ?? null, anonSessionIdFromCookies(cookieStore)))) notFound();
+    if (!(await canAccessProject(project, user?.id ?? null, anonSessionIdsFromCookies(cookieStore)))) notFound();
     projectId = project.id;
     session = await getLatestAuditSessionForProject(project.id);
   } else {
@@ -70,7 +70,7 @@ export const resolveAuditWorkspace = cache(async function resolveAuditWorkspace(
       .eq('id', projectId)
       .maybeSingle();
     if (!project) notFound();
-    if (!(await canAccessProject(project, user?.id ?? null, anonSessionIdFromCookies(cookieStore)))) notFound();
+    if (!(await canAccessProject(project, user?.id ?? null, anonSessionIdsFromCookies(cookieStore)))) notFound();
   }
 
   if (!projectId) notFound();

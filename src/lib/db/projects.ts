@@ -1,7 +1,7 @@
 import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
-import { anonSessionIdFromCookies, canAccessProject } from '@/lib/db/project-access';
+import { anonSessionIdsFromCookies, canAccessProject } from '@/lib/db/project-access';
 import { createClient } from '@/utils/supabase/server';
 import type {
   AeoAnalysisRow,
@@ -113,7 +113,7 @@ export async function requireProjectAccess(projectId: string): Promise<string | 
   const allowed = await canAccessProject(
     project,
     user?.id ?? null,
-    anonSessionIdFromCookies(cookieStore)
+    anonSessionIdsFromCookies(cookieStore)
   );
   if (!allowed) throw new ProjectAccessError();
   return user?.id ?? null;

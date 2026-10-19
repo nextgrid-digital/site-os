@@ -48,7 +48,7 @@
     ) {
     /* Paragraphs. */
     &:where(p) {
-      margin-block-start: var(--typeset-flow);
+      margin-block-start: 0;
       margin-block-end: 0;
     }
 
