@@ -25,9 +25,9 @@ export default async function LoginPage({
 
   return (
     <AppShell showSignIn={false}>
-      <div className="absolute inset-0 flex items-center max-w-lg mx-auto flex-col justify-center gap-4">
+      <div className="mx-auto flex min-h-[calc(100dvh-14rem)] w-full max-w-md flex-col justify-center gap-4 py-8">
         {showError ? (
-          <p className="text-center text-sm text-red-600">Authentication failed. Please try again.</p>
+          <p className="text-center text-sm text-rose-700">Authentication failed. Please try again.</p>
         ) : null}
         <AuditSignInPanel sessionId={sessionId} next={next} />
       </div>

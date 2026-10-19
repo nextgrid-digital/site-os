@@ -138,14 +138,16 @@ export function AuthSignInGate({
 
   if (mode === 'forgot') {
     return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Reset your password</CardTitle>
-          <CardDescription>
+      <Card className="w-full gap-5 rounded-[14px] bg-white p-6 shadow-sm ring-1 ring-zinc-100 sm:p-8">
+        <CardHeader className="gap-1 px-0">
+          <CardTitle className="font-sans text-2xl font-semibold tracking-tight text-zinc-950">
+            Reset your password
+          </CardTitle>
+          <CardDescription className="text-sm text-zinc-500">
             Enter your email and we&apos;ll send a link to choose a new password.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 px-0">
           <form onSubmit={handleForgotSubmit} className="space-y-3">
             <div className="space-y-1.5">
               <Label htmlFor="forgot-email">Email</Label>
@@ -169,33 +171,35 @@ export function AuthSignInGate({
           </form>
 
           {message ? <p className="text-sm text-success">{message}</p> : null}
-          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+          {error ? <p className="text-sm text-rose-700">{error}</p> : null}
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="w-full rounded-sm">
-      <CardHeader>
-        <CardTitle className="sr-only">{mode === 'signup' ? 'Create your account' : 'Sign in'}</CardTitle>
-        <CardDescription className="text-center">
+    <Card className="w-full gap-5 rounded-[14px] bg-white p-6 shadow-sm ring-1 ring-zinc-100 sm:p-8">
+      <CardHeader className="gap-1 px-0">
+        <CardTitle className="font-sans text-2xl font-semibold tracking-tight text-zinc-950">
+          {mode === 'signup' ? 'Create your account' : 'Sign in'}
+        </CardTitle>
+        <CardDescription className="text-sm text-zinc-500">
           {mode === 'signup' ? 'Set up your Site-OS account to continue.' : 'Sign in to continue to Site-OS.'}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <Tabs  value={mode} onValueChange={(value) => switchMode(value as Mode)}>
-          <TabsList className="w-full">
-            <TabsTrigger className="rounded-sm h-8" value="signin">Sign in</TabsTrigger>
-            <TabsTrigger className="rounded-sm h-8" value="signup">Sign up</TabsTrigger>
+      <CardContent className="space-y-4 px-0">
+        <Tabs value={mode} onValueChange={(value) => switchMode(value as Mode)}>
+          <TabsList className="w-full rounded-xl bg-zinc-100 group-data-horizontal/tabs:h-10">
+            <TabsTrigger className="rounded-lg" value="signin">Sign in</TabsTrigger>
+            <TabsTrigger className="rounded-lg" value="signup">Sign up</TabsTrigger>
           </TabsList>
         </Tabs>
 
-        <form onSubmit={handleEmailSubmit} className="space-y-3">
+        <form onSubmit={handleEmailSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="email">Email</Label>
             <Input
-            className="rounded-sm h-9"
+              className="h-10 rounded-xl"
               id="email"
               type="email"
               placeholder="you@company.com"
@@ -222,7 +226,7 @@ export function AuthSignInGate({
             <Input
               id="password"
               type="password"
-              className="rounded-sm h-9"
+              className="h-10 rounded-xl"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -235,7 +239,7 @@ export function AuthSignInGate({
             <div className="space-y-1.5">
               <Label htmlFor="confirm-password">Confirm password</Label>
               <Input
-                className="rounded-sm h-9"
+                className="h-10 rounded-xl"
                 id="confirm-password"
                 type="password"
                 value={confirmPassword}
@@ -247,7 +251,7 @@ export function AuthSignInGate({
             </div>
           ) : null}
 
-          <Button type="submit" disabled={loading || googleLoading} className="w-full rounded-sm cursor-pointer h-12">
+          <Button type="submit" disabled={loading || googleLoading} className="mt-2 h-11 w-full cursor-pointer rounded-xl">
             {loading ? <Loader2Icon className="size-4 animate-spin" /> : null}
             {loading
               ? mode === 'signup'
@@ -259,7 +263,7 @@ export function AuthSignInGate({
           </Button>
         </form>
 
-        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        {error ? <p className="text-sm text-rose-700">{error}</p> : null}
 
         <div className="flex items-center gap-3">
           <Separator className="flex-1" />
@@ -272,7 +276,7 @@ export function AuthSignInGate({
           variant="outline"
           onClick={handleGoogle}
           disabled={googleLoading || loading}
-          className="w-full gap-2 rounded-sm h-12 cursor-pointer hover:bg-white/90"
+          className="h-11 w-full cursor-pointer gap-2 rounded-xl hover:bg-zinc-100"
         >
           <GoogleIcon />
           {googleLoading
