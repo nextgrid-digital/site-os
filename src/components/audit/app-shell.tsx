@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { SITE_CONTENT_CLASS, SiteNav } from '@/components/audit/site-nav';
+import { AutoHideFooter } from '@/components/audit/auto-hide-footer';
 import { ThemeModeToggle } from '@/components/theme-mode-toggle';
 
 interface AppShellProps {
@@ -37,14 +38,14 @@ export function AppShell({
       ) : (
         <>
           <main className={`${SITE_CONTENT_CLASS} flex-1 py-6`}>{children}</main>
-          <footer className="mt-auto border-t border-border py-4">
+          <AutoHideFooter>
             <div
               className={`${SITE_CONTENT_CLASS} flex flex-wrap items-center justify-between gap-3`}
             >
               <p className="text-xs text-muted-foreground">Site-OS</p>
               <ThemeModeToggle />
             </div>
-          </footer>
+          </AutoHideFooter>
         </>
       )}
     </div>
