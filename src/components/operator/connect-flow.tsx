@@ -86,7 +86,6 @@ export function ConnectFlow({
   lastSyncedAt = null,
   scopes = [],
   missingFeatures = [],
-  isAdminView = false,
   connectionStatus = 'not_granted',
   clientAccessConfirmedAt = null,
   workspaceBase,
@@ -107,7 +106,6 @@ export function ConnectFlow({
   /** Features the client left unticked on the Google consent screen. */
   missingFeatures?: { key: string; label: string }[];
   /** True when the viewer is an admin managing this client's connection, not the client themselves. */
-  isAdminView?: boolean;
   connectionStatus?: ConnectionStatus;
   clientAccessConfirmedAt?: string | null;
   workspaceBase?: string;
@@ -190,48 +188,9 @@ export function ConnectFlow({
     setMessage('Property mapping saved.');
   }
 
-  console.log('ConnectFlow props:', {
-    projectId,
-    googleConnected,
-    gscProperties,
-    ga4Properties,
-    adsAccounts,
-    connectorStatuses,
-    operatorEmail,
-    tokenExpiry,
-    lastSyncedAt,
-    scopes,
-    isAdminView,
-    connectionStatus,
-    clientAccessConfirmedAt,
-    workspaceBase,
-  });
   
   return (
     <div className="space-y-6">
-      {!isAdminView ? (
-        <section className="rounded-[14px] bg-white p-5 shadow-sm">
-          <div className="flex items-start gap-3">
-            <span
-              className={`inline-flex size-9 shrink-0 items-center justify-center rounded-full ${
-                connectionStatus === 'needs_refresh' ? 'bg-red-100 text-red-700' : 'bg-zinc-100 text-zinc-700'
-              }`}
-            >
-              {connectionStatus === 'needs_refresh' ? (
-                <AlertTriangle className="size-4" strokeWidth={1.75} />
-              ) : (
-                <CheckCircle2 className="size-4" strokeWidth={1.75} />
-              )}
-            </span>
-            <div className="min-w-0">
-              <h3 className="text-sm font-semibold text-zinc-950">{CLIENT_STATUS_COPY[connectionStatus]}</h3>
-              <p className="mt-1 text-sm leading-5 text-zinc-500">
-                We&apos;ll email you as soon as your full audit is ready.
-              </p>
-            </div>
-          </div>
-        </section>
-      ) : null}
 
       {mappingSaved || googleConnected ? (
         <div className="flex flex-wrap gap-2">
@@ -256,7 +215,7 @@ export function ConnectFlow({
         </div>
       ) : null}
 
-      {isAdminView && connectorStatuses.length > 0 ? (
+      {connectorStatuses.length > 0 ? (
         <section className="space-y-3">
           <div>
             <h2 className="text-sm font-semibold text-zinc-950">Sources</h2>
@@ -268,8 +227,7 @@ export function ConnectFlow({
         </section>
       ) : null}
 
-      {isAdminView ? (
-        <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
           <section id="google-account" className="rounded-[14px] bg-white p-5 shadow-sm">
             <div className="flex items-start gap-3">
               <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-700">
@@ -465,11 +423,10 @@ export function ConnectFlow({
               </button>
             </div>
           </section>
-        </div>
-      ) : null}
+      </div>
 
-      {isAdminView || connectionStatus === 'not_granted' || connectionStatus === 'needs_refresh' ? (
-        <ClientGoogleInviteCard audience={isAdminView ? 'admin' : 'client'} />
+      {connectionStatus === 'not_granted' || connectionStatus === 'needs_refresh' ? (
+        <ClientGoogleInviteCard audience="client" />
       ) : null}
     </div>
   );

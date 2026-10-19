@@ -180,7 +180,6 @@ export function SpaConnectPanel({
     lastSyncedAt: string | null;
     scopes: string[];
     missingFeatures: { key: string; label: string }[];
-    isAdmin: boolean;
     connectionStatus: ConnectionStatus;
     clientAccessConfirmedAt: string | null;
   } | null;
@@ -215,7 +214,6 @@ export function SpaConnectPanel({
         lastSyncedAt={connect?.lastSyncedAt ?? null}
         scopes={connect?.scopes ?? []}
         missingFeatures={connect?.missingFeatures ?? []}
-        isAdminView={connect?.isAdmin ?? false}
         connectionStatus={connect?.connectionStatus ?? 'not_granted'}
         clientAccessConfirmedAt={connect?.clientAccessConfirmedAt ?? null}
         workspaceBase={workspaceBase}

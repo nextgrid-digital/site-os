@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { loadDashboardMetricsForProject } from '@/lib/db/connected-metrics';
-import { getSessionUser } from '@/lib/db/profiles';
 import { loadBrandEvidenceForAuditRun } from '@/lib/evidence/persist';
 import {
   getAuditWorkBundle,
@@ -155,11 +154,10 @@ export async function GET(request: Request, context: RouteContext) {
     }
 
     if (includes.has('connect')) {
-      const [properties, storedConnection, connectorState, session, connectProject] = await Promise.all([
+      const [properties, storedConnection, connectorState, connectProject] = await Promise.all([
         listPropertyOptions(projectId),
         getGoogleConnection(projectId),
         loadProjectConnectorStatuses(projectId),
-        getSessionUser(),
         getProjectOverview(projectId),
       ]);
       const freshConnection = storedConnection
@@ -187,7 +185,6 @@ export async function GET(request: Request, context: RouteContext) {
               label: feature.label,
             }))
           : [],
-        isAdmin: session.isAdmin,
         connectionStatus: freshConnection?.needsReconnect
           ? 'needs_refresh'
           : deriveConnectionStatus(connection, hasSelectedProperty).status,

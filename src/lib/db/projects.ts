@@ -1,6 +1,7 @@
 import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
+import { anonSessionIdFromCookies, canAccessProject } from '@/lib/db/project-access';
 import { createClient } from '@/utils/supabase/server';
 import type {
   AeoAnalysisRow,
@@ -21,16 +22,6 @@ import type {
   Website,
 } from '@/lib/supabase/types';
 import { extractDomain, normalizeWebsiteUrl } from '@/lib/utils/urls';
-
-export async function listProjects(): Promise<Project[]> {
-  const supabase = getSupabaseAdmin();
-  const { data, error } = await supabase
-    .from('projects')
-    .select('*')
-    .order('updated_at', { ascending: false });
-  if (error) throw new Error(error.message);
-  return data ?? [];
-}
 
 export async function createProject(input: { name: string; websiteUrl: string; userId?: string | null }) {
   const supabase = getSupabaseAdmin();
@@ -113,9 +104,18 @@ export async function requireProjectAccess(projectId: string): Promise<string | 
   } = await auth.auth.getUser();
 
   const supabase = getSupabaseAdmin();
-  const { data: project } = await supabase.from('projects').select('user_id').eq('id', projectId).maybeSingle();
+  const { data: project } = await supabase
+    .from('projects')
+    .select('id, user_id')
+    .eq('id', projectId)
+    .maybeSingle();
   if (!project) throw new ProjectAccessError();
-  if (project.user_id && project.user_id !== user?.id) throw new ProjectAccessError();
+  const allowed = await canAccessProject(
+    project,
+    user?.id ?? null,
+    anonSessionIdFromCookies(cookieStore)
+  );
+  if (!allowed) throw new ProjectAccessError();
   return user?.id ?? null;
 }
 

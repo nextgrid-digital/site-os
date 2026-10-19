@@ -93,9 +93,8 @@ The four primary tabs are one client shell (`audit-tab-keep-alive.tsx`). Tab swi
 | `POST /api/audit/start` | Create a project from a URL and start the free audit |
 | `GET /api/audit/[projectId]/status` | Poll audit progress |
 | `POST /api/audit/[projectId]/intake` | Save intake answers |
-| `POST /api/audit/verify` | Verify an audit access code |
 | `GET /api/google/oauth/start`, `GET /api/google/oauth/callback` | Google connection flow |
-| `GET,POST /api/projects`, `GET,PATCH,DELETE /api/projects/[projectId]` | Project CRUD |
+| `POST /api/projects` (admin only), `GET,PATCH,DELETE /api/projects/[projectId]` | Operator project creation; project read, update, delete |
 | `GET /api/projects/[projectId]/audit-bundle?include=…` | Slices for the workspace shell (dashboard, brief, monthly, connect) |
 | `POST /api/projects/[projectId]/run-audit` | Run a free or connected audit |
 | `POST /api/projects/[projectId]/confirm-access` | Client confirms the agency has access to their Google properties |
@@ -144,6 +143,7 @@ Tables are created by `supabase/migrations/001…023` and the dated migration. T
 - **Project ownership.** `projects.user_id` (migration 018). `requireProjectOwner` and `requireProjectAccess` in `lib/db/projects.ts` gate reads and writes for a project.
 - **Admin.** `profiles.is_admin` (migration 020). `requireAdminSession` gates the operator area. The Setup panel shows operator-only controls only to admins (`connect.isAdmin`).
 - **Plans.** None. Any signed-in owner can connect Google and run connected audits.
+- **One rule for project access.** `canAccessProject` in `lib/db/project-access.ts` decides every project read and write, in both API routes (`requireProjectAccess`) and audit pages (`resolveAuditWorkspace`). The owner may. An admin may. A project with no owner (an anonymous free audit) may only be used by the browser that started it, identified by the `audit_session_id` cookie matching an audit session for that project.
 - **Writes from the server.** Use the service-role client (`getSupabaseAdmin`). It is never sent to the browser. Only `NEXT_PUBLIC_*` values are exposed.
 
 ## 8. Google integration
@@ -188,4 +188,5 @@ Brand and contact values live in one place where possible:
 - `.env.local` still holds `PADDLE_*` values. They are unused and can be deleted.
 - Many exported helpers and types have no callers. A full unused-export pass is still to do.
 - Marketing SVG and motion files still carry `@ts-nocheck`.
+- Migration 024 closes the open `siteos_operator_all` policies. It is written but not applied. Run it in Supabase.
 - Dropping the retired tables and columns needs a migration. Plan that after the owner confirms no data is needed.
