@@ -20,7 +20,6 @@ export type ProjectConnectorSnapshotInput = {
   ga4Label: string | null;
   adsSelected: boolean;
   adsLabel: string | null;
-  adsDeveloperTokenConfigured: boolean;
   /** Latest completed audit timestamp (ISO). */
   lastAuditAt: string | null;
   /** Sources that contributed data in the latest audit. */
@@ -168,19 +167,6 @@ export function buildConnectorStatuses(input: ProjectConnectorSnapshotInput): Co
 
   const ads: ConnectorStatus = (() => {
     const def = getConnectorDefinition('google_ads');
-    if (!input.adsDeveloperTokenConfigured) {
-      return {
-        connectorId: 'google_ads',
-        state: 'disconnected',
-        label: def.label,
-        resourceLabel: null,
-        availableSignals: [],
-        lastSyncAt: null,
-        usedInAudit: false,
-        message: 'Set GOOGLE_ADS_DEVELOPER_TOKEN to enable Ads sync.',
-        partialReason: null,
-      };
-    }
     if (!input.googleConnected) {
       return {
         connectorId: 'google_ads',
@@ -246,6 +232,3 @@ export function buildConnectorStatuses(input: ProjectConnectorSnapshotInput): Co
   ];
 }
 
-export function isAdsDeveloperTokenConfigured() {
-  return Boolean(process.env.GOOGLE_ADS_DEVELOPER_TOKEN?.trim());
-}

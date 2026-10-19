@@ -1,3 +1,4 @@
+import { SITE_CONFIG } from "@/lib/site-config";
 // Semantic page content extracted from recognized recipe sections.
 
 export type ListRowDataItem = {
@@ -7,10 +8,9 @@ export type ListRowDataItem = {
   target?: string;
 };
 export const listRowData: ListRowDataItem[] = [
-    { href: "/#how-it-works", label: "How it works" },
-    { href: "/#pricing", label: "Pricing" },
+    { href: "/", label: "How it works" },
     { href: "/#faq", label: "FAQ" },
-    { href: "/audit", label: "Sign in" }
+    { href: "/login", label: "Sign in" }
 ];
 
 export type ProductsItem = {
@@ -27,12 +27,12 @@ export const products: ProductsItem[] = [
     { variant: "traffic-overview", eyebrow: "82", title: "Crawl findings", label: "Scored SEO and commercial issues from a live site crawl—titles, metas, H1s, links, and schema.", stat: "47", imgSrc: "/assets/cloned/images/2db9318bbc2f.png", description: "Crawl findings", description2: "Scored SEO and commercial issues from a live site crawl—titles, metas, H1s, links, and schema." },
     { variant: "conversions", eyebrow: "Priority", title: "Revenue impact", label: "Severity", stat: "A1", imgSrc: "/assets/cloned/images/914b33ffec33.png", description: "Revenue impact", description2: "Each finding maps to buyer moments, revenue impact, and a composite priority score." },
     { variant: "pin-notes-to-specific-days-on-your-traffic", eyebrow: "Graph gaps", title: "Commercial knowledge graph with ICP, offers, proof, and CTA chains so gaps stay tied to revenue.", stat: "12", imgSrc: "/assets/cloned/images/3aed687c1b1f.png", description: "Knowledge graph", description2: "Commercial knowledge graph with ICP, offers, proof, and CTA chains so gaps stay tied to revenue." },
-    { variant: "connect-search-console-to-see-which-querie", eyebrow: "Search Console", title: "Connect Search Console on a paid audit to tie queries and page performance to crawl findings.", stat: "GSC", imgSrc: "/assets/cloned/images/af9128c8772f.png", description: "Search Console", description2: "Connect Search Console on a paid audit to tie queries and page performance to crawl findings." },
+    { variant: "connect-search-console-to-see-which-querie", eyebrow: "Search Console", title: "Connect Search Console in the full audit to tie queries and page performance to crawl findings.", stat: "GSC", imgSrc: "/assets/cloned/images/af9128c8772f.png", description: "Search Console", description2: "Connect Search Console in the full audit to tie queries and page performance to crawl findings." },
     { variant: "see-when-conversions-peak-by-day-and-hour-", eyebrow: "AEO", title: "Answer-engine citability and entity clarity scored beside classic SEO findings.", imgSrc: "/assets/cloned/images/1a229c4e3deb.png", description: "AEO analysis", description2: "Answer-engine citability and entity clarity scored beside classic SEO findings." },
     { variant: "measure-the-actions-that-matter-from-sign-", eyebrow: "Work orders", title: "Actionable tasks from graph gaps—rewrite, add proof, fix links—tracked open to done.", stat: "18", imgSrc: "/assets/cloned/images/3aed687c1b1f.png", description: "Work orders", description2: "Actionable tasks from graph gaps—rewrite, add proof, fix links—tracked open to done." },
-    { variant: "see-who-is-on-your-site-right-now-where-th", eyebrow: "GA4", title: "Connect GA4 on upgrade to read sessions and conversion gaps next to the free crawl report.", imgSrc: "/assets/cloned/images/3aa13c971186.png", description: "GA4 connect", description2: "Connect GA4 on upgrade to read sessions and conversion gaps next to the free crawl report." },
+    { variant: "see-who-is-on-your-site-right-now-where-th", eyebrow: "GA4", title: "Connect GA4 to read sessions and conversion gaps next to the free crawl report.", imgSrc: "/assets/cloned/images/3aa13c971186.png", description: "GA4 connect", description2: "Connect GA4 to read sessions and conversion gaps next to the free crawl report." },
     { variant: "flag-your-not-found-page-once-then-see-bro", eyebrow: "Fix prompts", title: "Every finding ships with an AI-ready prompt you can paste into Cursor or Claude.", stat: "AI", imgSrc: "/assets/cloned/images/7a0f73293c73.png", description: "Fix prompts", description2: "Every finding ships with an AI-ready prompt you can paste into Cursor or Claude." },
-    { variant: "connect-cursor-claude-code-or-codex-to-pul", eyebrow: "Growth brief", title: "Client-ready growth brief with findings, graph gaps, and pricing guidance in one shareable report.", stat: "PDF", imgSrc: "/assets/cloned/images/ddc11a1b5498.png", description: "Growth brief", description2: "Client-ready growth brief with findings, graph gaps, and pricing guidance in one shareable report." }
+    { variant: "connect-cursor-claude-code-or-codex-to-pul", eyebrow: "Growth brief", title: "Client-ready growth brief with findings, graph gaps, and next steps in one shareable report.", stat: "PDF", imgSrc: "/assets/cloned/images/ddc11a1b5498.png", description: "Growth brief", description2: "Client-ready growth brief with findings, graph gaps, and next steps in one shareable report." }
 ];
 
 export type CardsItem = {
@@ -67,10 +67,10 @@ export type FeatureCard2DataItem = {
   description: string;
 };
 export const featureCard2Data: FeatureCard2DataItem[] = [
-    { href: "/#how-it-works", title: "Free crawl audit", description: "Paste a URL, crawl the site, and get scored findings without Google connect." },
+    { href: "/", title: "Free crawl audit", description: "Paste a URL, crawl the site, and get scored findings without Google connect." },
     { href: "/login?next=/app", title: "Save your sites", description: "Sign in to keep audits on Your sites and reopen them anytime." },
     { href: "/#audit", title: "Connect Google", description: "Add Search Console and GA4 for query, session, and conversion depth." },
-    { href: "/#faq", title: "Growth brief", description: "Share a client-ready brief with findings, priorities, and pricing guidance." }
+    { href: "/#faq", title: "Growth brief", description: "Share a client-ready brief with findings, priorities, and next steps." }
 ];
 
 export type LogosItem = {
@@ -159,15 +159,14 @@ export const logos4: Logos4Item[] = [
     { description: "AEO / answer-engine scoring" },
     { description: "AI fix prompts per finding" },
     { description: "Work orders from graph gaps" },
-    { description: "Search Console on upgrade" },
-    { description: "GA4 on upgrade" },
+    { description: "Search Console when connected" },
+    { description: "GA4 when connected" },
     { description: "Growth brief export" },
-    { description: "Pricing guidance" },
     { description: "Operator project workflow" },
     { description: "Client-ready report share" },
     { description: "Goal-shaped connected audits" },
     { description: "No credit card to start free" },
-    { description: "Upgrade anytime after free audit" }
+    { description: "Connect Google anytime after free audit" }
 ];
 
 export type ListRow11DataItem = {
@@ -175,10 +174,9 @@ export type ListRow11DataItem = {
   label: string;
 };
 export const listRow11Data: ListRow11DataItem[] = [
-    { href: "/#how-it-works", label: "How it works" },
-    { href: "/#pricing", label: "Pricing" },
+    { href: "/", label: "How it works" },
     { href: "/#faq", label: "FAQ" },
-    { href: "/audit", label: "Sign in" }
+    { href: "/login", label: "Sign in" }
 ];
 
 export type ListRow11Data2Item = {
@@ -186,9 +184,9 @@ export type ListRow11Data2Item = {
   label: string;
 };
 export const listRow11Data2: ListRow11Data2Item[] = [
-    { href: "/audit", label: "Sign in" },
+    { href: "/login", label: "Sign in" },
     { href: "/#faq", label: "FAQ" },
-    { href: "/#", label: "Start free audit" }
+    { href: "/", label: "Start free audit" }
 ];
 
 export type ListRow11Data3Item = {
@@ -206,9 +204,9 @@ export type ListRow11Data4Item = {
   label: string;
 };
 export const listRow11Data4: ListRow11Data4Item[] = [
-    { href: "/#how-it-works", label: "Free crawl audit" },
-    { href: "/#how-it-works", label: "Full free report" },
-    { href: "/#pricing", label: "Connected upgrade" }
+    { href: "/", label: "Free crawl audit" },
+    { href: "/", label: "Full free report" },
+    { href: "/#faq", label: "Connected audit" }
 ];
 
 export type ListRow11Data5Item = {
@@ -216,11 +214,11 @@ export type ListRow11Data5Item = {
   label: string;
 };
 export const listRow11Data5: ListRow11Data5Item[] = [
-    { href: "/#how-it-works", label: "Crawl findings" },
-    { href: "/#how-it-works", label: "Severity and priority" },
-    { href: "/#how-it-works", label: "Buyer-moment mapping" },
-    { href: "/#pricing", label: "Search Console insights" },
-    { href: "/#pricing", label: "GA4 sessions" }
+    { href: "/", label: "Crawl findings" },
+    { href: "/", label: "Severity and priority" },
+    { href: "/", label: "Buyer-moment mapping" },
+    { href: "/#faq", label: "Search Console insights" },
+    { href: "/#faq", label: "GA4 sessions" }
 ];
 
 export type ListRow11Data6Item = {
@@ -228,10 +226,10 @@ export type ListRow11Data6Item = {
   label: string;
 };
 export const listRow11Data6: ListRow11Data6Item[] = [
-    { href: "/#how-it-works", label: "Knowledge graph" },
-    { href: "/#how-it-works", label: "Work orders" },
-    { href: "/#how-it-works", label: "AEO scoring" },
-    { href: "/#how-it-works", label: "Fix prompts" }
+    { href: "/", label: "Knowledge graph" },
+    { href: "/", label: "Work orders" },
+    { href: "/", label: "AEO scoring" },
+    { href: "/", label: "Fix prompts" }
 ];
 
 export type ListRow11Data7Item = {
@@ -239,10 +237,10 @@ export type ListRow11Data7Item = {
   label: string;
 };
 export const listRow11Data7: ListRow11Data7Item[] = [
-    { href: "/#", label: "Start free audit" },
-    { href: "/audit", label: "Sign in" },
+    { href: "/", label: "Start free audit" },
+    { href: "/login", label: "Sign in" },
     { href: "/#faq", label: "Why sign in" },
-    { href: "/#pricing", label: "Upgrade path" }
+    { href: "/#faq", label: "Connect Google" }
 ];
 
 export type ListRow11Data8Item = {
@@ -250,9 +248,9 @@ export type ListRow11Data8Item = {
   label: string;
 };
 export const listRow11Data8: ListRow11Data8Item[] = [
-    { href: "/#pricing", label: "Free vs paid" },
-    { href: "/#pricing", label: "GSC + GA4 connect" },
-    { href: "/#faq", label: "What paid adds" }
+    { href: "/#faq", label: "Free vs connected" },
+    { href: "/#faq", label: "GSC + GA4 connect" },
+    { href: "/#faq", label: "What connected adds" }
 ];
 
 export type ListRow11Data9Item = {
@@ -266,7 +264,7 @@ export const listRow11Data9: ListRow11Data9Item[] = [
     { href: "/#faq", label: "Credentials" },
     { href: "/#faq", label: "Share with clients" },
     { href: "/#faq", label: "Sponsor Site-OS" },
-    { href: "/audit", label: "Get help" }
+    { href: `mailto:${SITE_CONFIG.supportEmail}`, label: "Get help" }
 ];
 
 export type ListRow11Data10Item = {
@@ -274,14 +272,14 @@ export type ListRow11Data10Item = {
   label: string;
 };
 export const listRow11Data10: ListRow11Data10Item[] = [
-    { href: "/#", label: "Paste a URL" },
-    { href: "/audit", label: "Sign in for full report" },
-    { href: "/#pricing", label: "Upgrade connected" },
-    { href: "/#how-it-works", label: "Crawl pipeline" },
-    { href: "/#how-it-works", label: "Growth brief" },
-    { href: "/#how-it-works", label: "Fix prompts" },
+    { href: "/", label: "Paste a URL" },
+    { href: "/login", label: "Sign in for full report" },
+    { href: "/#faq", label: "Connected audit" },
+    { href: "/", label: "Crawl pipeline" },
+    { href: "/", label: "Growth brief" },
+    { href: "/", label: "Fix prompts" },
     { href: "/#faq", label: "Operator workflow" },
-    { href: "/#how-it-works", label: "AEO scoring" }
+    { href: "/", label: "AEO scoring" }
 ];
 
 export type ListRow11Data11Item = {
@@ -289,10 +287,10 @@ export type ListRow11Data11Item = {
   label: string;
 };
 export const listRow11Data11: ListRow11Data11Item[] = [
-    { href: "/audit", label: "Sign in" },
-    { href: "/#", label: "Start free audit" },
+    { href: "/login", label: "Sign in" },
+    { href: "/", label: "Start free audit" },
     { href: "/#faq", label: "Share report" },
-    { href: "/#pricing", label: "Paid connected" },
-    { href: "/#how-it-works", label: "Work orders" }
+    { href: "/#faq", label: "Connected audit" },
+    { href: "/", label: "Work orders" }
 ];
 

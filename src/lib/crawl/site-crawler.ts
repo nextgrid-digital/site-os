@@ -171,6 +171,9 @@ function prioritizeQueue(links: string[], baseUrl: string) {
 export async function crawlWebsite(baseUrl: string, maxPages = 50): Promise<CrawlResult> {
   const origin = new URL(baseUrl).origin;
   const visited = new Set<string>();
+  // Dedupe by path: http/https, www/apex and ?query variants of one page all
+  // normalize to the same path and would otherwise produce duplicate rows.
+  const seenPaths = new Set<string>();
   const pages: CrawledPage[] = [];
   const errors: string[] = [];
 
@@ -187,6 +190,10 @@ export async function crawlWebsite(baseUrl: string, maxPages = 50): Promise<Craw
     const current = queue.shift()!;
     if (visited.has(current)) continue;
     visited.add(current);
+
+    const path = normalizePath(current);
+    if (seenPaths.has(path)) continue;
+    seenPaths.add(path);
 
     const fetched = await fetchPage(current);
     if (!fetched) {

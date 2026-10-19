@@ -1,7 +1,12 @@
 /**
  * Google Ads API helpers (REST + GAQL).
- * Requires GOOGLE_ADS_DEVELOPER_TOKEN and OAuth scope adwords.
+ *
+ * Ads is read through one agency login (the Google account in OPERATOR_EMAIL) and NextGrid's manager
+ * account (GOOGLE_ADS_MCC_ID). Every client account is linked under that MCC by an invite
+ * the client accepts. Requests send `login-customer-id`. No developer token (sunset 2026-09-09).
  */
+
+import { refreshAccessToken } from '@/lib/google/oauth';
 
 const ADS_API_VERSION = 'v25';
 const ADS_BASE = `https://googleads.googleapis.com/${ADS_API_VERSION}`;
@@ -11,6 +16,11 @@ export type GoogleAdsAccountOption = {
   descriptiveName: string;
   currencyCode: string | null;
   timeZone: string | null;
+  /**
+   * Manager (MCC) account the client account is reached through. Requests for that
+   * account must send it as `login-customer-id`. Null when the account is reached directly.
+   */
+  loginCustomerId: string | null;
 };
 
 export type AdsCampaignRow = {
@@ -67,26 +77,12 @@ export type AdsLandingMismatch = {
   meaning: string;
 };
 
-function developerToken() {
-  const token = process.env.GOOGLE_ADS_DEVELOPER_TOKEN?.trim();
-  if (!token) throw new Error('Missing GOOGLE_ADS_DEVELOPER_TOKEN.');
-  return token;
-}
-
-function loginCustomerId() {
-  const raw = process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID?.trim();
-  if (!raw) return null;
-  return raw.replace(/-/g, '');
-}
-
-function adsHeaders(accessToken: string): HeadersInit {
+function adsHeaders(accessToken: string, loginCustomerId: string | null): HeadersInit {
   const headers: Record<string, string> = {
     Authorization: `Bearer ${accessToken}`,
-    'developer-token': developerToken(),
     'Content-Type': 'application/json',
   };
-  const loginId = loginCustomerId();
-  if (loginId) headers['login-customer-id'] = loginId;
+  if (loginCustomerId) headers['login-customer-id'] = loginCustomerId;
   return headers;
 }
 
@@ -103,11 +99,20 @@ function microsToCurrency(micros: number) {
   return micros / 1_000_000;
 }
 
-async function adsFetch(path: string, accessToken: string, init?: RequestInit) {
+function cleanCustomerId(customerId: string) {
+  return customerId.replace(/-/g, '');
+}
+
+async function adsFetch(
+  path: string,
+  accessToken: string,
+  loginCustomerId: string | null,
+  init?: RequestInit
+) {
   const response = await fetch(`${ADS_BASE}${path}`, {
     ...init,
     headers: {
-      ...adsHeaders(accessToken),
+      ...adsHeaders(accessToken, loginCustomerId),
       ...(init?.headers ?? {}),
     },
   });
@@ -118,119 +123,136 @@ async function adsFetch(path: string, accessToken: string, init?: RequestInit) {
   return response;
 }
 
-export function isGoogleAdsConfigured() {
-  return Boolean(process.env.GOOGLE_ADS_DEVELOPER_TOKEN?.trim());
+/**
+ * NextGrid's Google Ads manager (MCC) account ID, digits only. Every account we read
+ * is linked under this MCC. Null when unset, which disables Ads.
+ */
+export function getNextgridMccId(): string | null {
+  const raw = process.env.GOOGLE_ADS_MCC_ID?.trim();
+  if (!raw) return null;
+  const cleaned = cleanCustomerId(raw);
+  return /^\d{10}$/.test(cleaned) ? cleaned : null;
 }
 
+/**
+ * Access token for the agency login (OPERATOR_EMAIL), from the stored refresh
+ * token. Null when GOOGLE_ADS_REFRESH_TOKEN is unset, which disables Ads.
+ */
+export async function getAgencyAdsAccessToken(): Promise<string | null> {
+  const refreshToken = process.env.GOOGLE_ADS_REFRESH_TOKEN?.trim();
+  if (!refreshToken) return null;
+  const credentials = await refreshAccessToken(refreshToken);
+  if (!credentials.access_token) throw new Error('Google returned no access token for the agency login.');
+  return credentials.access_token;
+}
+
+/**
+ * Client accounts linked under NextGrid's MCC. Direct accounts and other agencies'
+ * MCCs are never returned.
+ */
 export async function listAccessibleAdsCustomers(
   accessToken: string
 ): Promise<GoogleAdsAccountOption[]> {
-  if (!isGoogleAdsConfigured()) return [];
+  const mccId = getNextgridMccId();
+  if (!mccId) return [];
 
-  const listRes = await adsFetch('/customers:listAccessibleCustomers', accessToken, {
-    method: 'get',
-  });
-  const listJson = (await listRes.json()) as { resourceNames?: string[] };
-  const rootIds = (listJson.resourceNames ?? [])
-    .map((name) => name.replace('customers/', '').replace(/-/g, ''))
-    .filter(Boolean);
+  const clientRows = await searchGoogleAds(
+    accessToken,
+    mccId,
+    `
+    SELECT
+      customer_client.client_customer,
+      customer_client.descriptive_name,
+      customer_client.currency_code,
+      customer_client.time_zone,
+      customer_client.manager,
+      customer_client.status
+    FROM customer_client
+    WHERE customer_client.status = 'ENABLED'
+      AND customer_client.manager = FALSE
+      AND customer_client.level > 0
+    LIMIT 500
+    `,
+    mccId
+  );
 
   const byId = new Map<string, GoogleAdsAccountOption>();
-
-  for (const customerId of rootIds.slice(0, 40)) {
-    let isManager = false;
-    let managerLabel: GoogleAdsAccountOption | null = null;
-    try {
-      const rows = await searchGoogleAds(accessToken, customerId, `
-        SELECT
-          customer.id,
-          customer.descriptive_name,
-          customer.currency_code,
-          customer.time_zone,
-          customer.manager
-        FROM customer
-        LIMIT 1
-      `);
-      const customer = rows[0]?.customer as
-        | {
-            id?: string | number;
-            descriptiveName?: string;
-            currencyCode?: string;
-            timeZone?: string;
-            manager?: boolean;
-          }
-        | undefined;
-      isManager = Boolean(customer?.manager);
-      const option: GoogleAdsAccountOption = {
-        customerId,
-        descriptiveName: customer?.descriptiveName
-          ? isManager
-            ? `${customer.descriptiveName} (MCC)`
-            : customer.descriptiveName
-          : `Account ${customerId}`,
-        currencyCode: customer?.currencyCode ?? null,
-        timeZone: customer?.timeZone ?? null,
-      };
-      if (isManager) managerLabel = option;
-      else byId.set(customerId, option);
-    } catch {
-      // Inaccessible root — skip (do not offer unusable accounts).
-      continue;
-    }
-
-    if (!isManager) continue;
-
-    let clientCount = 0;
-    try {
-      const clientRows = await searchGoogleAds(
-        accessToken,
-        customerId,
-        `
-        SELECT
-          customer_client.client_customer,
-          customer_client.descriptive_name,
-          customer_client.currency_code,
-          customer_client.time_zone,
-          customer_client.manager,
-          customer_client.status
-        FROM customer_client
-        WHERE customer_client.status = 'ENABLED'
-          AND customer_client.manager = FALSE
-          AND customer_client.level > 0
-        LIMIT 100
-      `
-      );
-      for (const row of clientRows) {
-        const client = row.customerClient as
-          | {
-              clientCustomer?: string;
-              descriptiveName?: string;
-              currencyCode?: string;
-              timeZone?: string;
-              manager?: boolean;
-            }
-          | undefined;
-        const rawId = client?.clientCustomer?.replace('customers/', '').replace(/-/g, '');
-        if (!rawId || client?.manager) continue;
-        clientCount += 1;
-        byId.set(rawId, {
-          customerId: rawId,
-          descriptiveName: client?.descriptiveName || `Account ${rawId}`,
-          currencyCode: client?.currencyCode ?? null,
-          timeZone: client?.timeZone ?? null,
-        });
-      }
-    } catch (error) {
-      console.error('[listAccessibleAdsCustomers] customer_client expand failed', customerId, error);
-    }
-
-    // Keep MCC visible so Setup is not empty when no clients are linked yet.
-    if (clientCount === 0 && managerLabel) {
-      byId.set(customerId, managerLabel);
-    }
+  for (const row of clientRows) {
+    const client = row.customerClient as
+      | {
+          clientCustomer?: string;
+          descriptiveName?: string;
+          currencyCode?: string;
+          timeZone?: string;
+          manager?: boolean;
+        }
+      | undefined;
+    const rawId = client?.clientCustomer
+      ? cleanCustomerId(client.clientCustomer.replace('customers/', ''))
+      : '';
+    if (!rawId || client?.manager) continue;
+    byId.set(rawId, {
+      customerId: rawId,
+      descriptiveName: client?.descriptiveName || `Account ${rawId}`,
+      currencyCode: client?.currencyCode ?? null,
+      timeZone: client?.timeZone ?? null,
+      loginCustomerId: mccId,
+    });
   }
-
   return [...byId.values()];
+}
+
+/** Client accounts under our MCC, read with the agency login. Empty when Ads is not configured. */
+export async function listAgencyAdsAccounts(): Promise<GoogleAdsAccountOption[]> {
+  const token = await getAgencyAdsAccessToken();
+  if (!token) return [];
+  return listAccessibleAdsCustomers(token);
+}
+
+export type AdsInviteStatus = 'PENDING' | 'ACTIVE' | 'REFUSED' | 'INACTIVE' | 'NOT_FOUND';
+
+function requireMccId() {
+  const mccId = getNextgridMccId();
+  if (!mccId) throw new Error('Google Ads is not configured: GOOGLE_ADS_MCC_ID is missing.');
+  return mccId;
+}
+
+/**
+ * Invites a client account to our MCC. The manager creates the link as PENDING, and
+ * the client accepts it once in Google Ads → Access and security → Managers.
+ */
+export async function sendAdsInvite(accessToken: string, customerId: string) {
+  const mccId = requireMccId();
+  await adsFetch(`/customers/${mccId}/customerClientLinks:mutate`, accessToken, mccId, {
+    method: 'POST',
+    body: JSON.stringify({
+      operations: [
+        { create: { clientCustomer: `customers/${cleanCustomerId(customerId)}`, status: 'PENDING' } },
+      ],
+    }),
+  });
+}
+
+/** Current link status for a client account under our MCC. NOT_FOUND when no link exists. */
+export async function getAdsInviteStatus(accessToken: string, customerId: string): Promise<AdsInviteStatus> {
+  const mccId = requireMccId();
+  const target = `customers/${cleanCustomerId(customerId)}`;
+  const rows = await searchGoogleAds(
+    accessToken,
+    mccId,
+    `
+    SELECT
+      customer_client_link.client_customer,
+      customer_client_link.status
+    FROM customer_client_link
+    `,
+    mccId
+  );
+  for (const row of rows) {
+    const link = row.customerClientLink as { clientCustomer?: string; status?: string } | undefined;
+    if (link?.clientCustomer === target && link.status) return link.status as AdsInviteStatus;
+  }
+  return 'NOT_FOUND';
 }
 
 type AdsSearchRow = Record<string, unknown>;
@@ -238,13 +260,18 @@ type AdsSearchRow = Record<string, unknown>;
 async function searchGoogleAds(
   accessToken: string,
   customerId: string,
-  query: string
+  query: string,
+  loginCustomerId: string | null = null
 ): Promise<AdsSearchRow[]> {
-  const cleanId = customerId.replace(/-/g, '');
-  const response = await adsFetch(`/customers/${cleanId}/googleAds:search`, accessToken, {
-    method: 'POST',
-    body: JSON.stringify({ query: query.trim() }),
-  });
+  const response = await adsFetch(
+    `/customers/${cleanCustomerId(customerId)}/googleAds:search`,
+    accessToken,
+    loginCustomerId,
+    {
+      method: 'POST',
+      body: JSON.stringify({ query: query.trim() }),
+    }
+  );
   const json = (await response.json()) as { results?: AdsSearchRow[] };
   return json.results ?? [];
 }
@@ -258,12 +285,13 @@ function dateDaysAgo(days: number) {
 export async function fetchGoogleAdsBundle(
   accessToken: string,
   customerId: string,
+  loginCustomerId: string | null = null,
   startDate?: string,
   endDate?: string
 ): Promise<GoogleAdsBundle> {
   const start = startDate ?? dateDaysAgo(28);
   const end = endDate ?? dateDaysAgo(0);
-  const cleanId = customerId.replace(/-/g, '');
+  const cleanId = cleanCustomerId(customerId);
 
   const [campaignRows, keywordRows, landingRows] = await Promise.all([
     searchGoogleAds(
@@ -284,7 +312,8 @@ export async function fetchGoogleAdsBundle(
         AND campaign.status != 'REMOVED'
       ORDER BY metrics.cost_micros DESC
       LIMIT 50
-    `
+    `,
+      loginCustomerId
     ),
     searchGoogleAds(
       accessToken,
@@ -303,7 +332,8 @@ export async function fetchGoogleAdsBundle(
         AND ad_group_criterion.status != 'REMOVED'
       ORDER BY metrics.cost_micros DESC
       LIMIT 80
-    `
+    `,
+      loginCustomerId
     ),
     searchGoogleAds(
       accessToken,
@@ -319,7 +349,8 @@ export async function fetchGoogleAdsBundle(
       WHERE segments.date BETWEEN '${start}' AND '${end}'
       ORDER BY metrics.cost_micros DESC
       LIMIT 50
-    `
+    `,
+      loginCustomerId
     ),
   ]);
 

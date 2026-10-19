@@ -18,22 +18,24 @@ export type WorkspaceAuditBundle = {
   auditRunId: string | null;
   connected: ConnectedAuditMetrics | null;
   growthBrief: unknown | null;
-  leadSummary: unknown | null;
-  work: {
-    findings: unknown[];
-    workOrders: unknown[];
-    prompts: unknown[];
-  } | null;
   brief: unknown | null;
   monthly: unknown | null;
-  leads: unknown | null;
   connect: unknown | null;
 };
+
+/**
+ * 'analyzing' while the first free audit is still crawling, 'ready' once it finished,
+ * 'failed' if it errored, 'none' when this project has no audit session at all.
+ */
+export type FreeAuditStatus = 'analyzing' | 'ready' | 'failed' | 'none';
+
+const AUDIT_STATUS_POLL_MS = 3000;
 
 type WorkspaceAuditContextValue = {
   bundle: WorkspaceAuditBundle | null;
   loading: boolean;
   error: string | null;
+  auditStatus: FreeAuditStatus | null;
   refresh: () => Promise<void>;
   invalidate: () => void;
   seed: (bundle: Partial<WorkspaceAuditBundle> & { projectId: string }) => void;
@@ -56,14 +58,10 @@ function sliceLoaded(prev: WorkspaceAuditBundle | null, slice: string) {
   switch (slice) {
     case 'dashboard':
       return Boolean(prev.connected);
-    case 'work':
-      return Boolean(prev.work);
     case 'brief':
       return Boolean(prev.brief);
     case 'monthly':
       return Boolean(prev.monthly);
-    case 'leads':
-      return Boolean(prev.leads);
     case 'connect':
       return Boolean(prev.connect);
     default:
@@ -91,17 +89,15 @@ export function WorkspaceAuditProvider({
           auditRunId: initial.auditRunId ?? null,
           connected: initial.connected ?? null,
           growthBrief: initial.growthBrief ?? null,
-          leadSummary: initial.leadSummary ?? null,
-          work: initial.work ?? null,
           brief: initial.brief ?? null,
           monthly: initial.monthly ?? null,
-          leads: initial.leads ?? null,
           connect: initial.connect ?? null,
         }
       : null
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [auditStatus, setAuditStatus] = useState<FreeAuditStatus | null>(null);
   const [sliceLoading, setSliceLoading] = useState<Record<string, boolean>>({});
   const inFlight = useRef<Set<string>>(new Set());
   const bundleRef = useRef(bundle);
@@ -114,11 +110,8 @@ export function WorkspaceAuditProvider({
       auditRunId: next.auditRunId ?? prev?.auditRunId ?? null,
       connected: next.connected ?? prev?.connected ?? null,
       growthBrief: next.growthBrief ?? prev?.growthBrief ?? null,
-      leadSummary: next.leadSummary ?? prev?.leadSummary ?? null,
-      work: next.work ?? prev?.work ?? null,
       brief: next.brief ?? prev?.brief ?? null,
       monthly: next.monthly ?? prev?.monthly ?? null,
-      leads: next.leads ?? prev?.leads ?? null,
       connect: next.connect ?? prev?.connect ?? null,
     }));
     setLoading(false);
@@ -132,18 +125,13 @@ export function WorkspaceAuditProvider({
         auditRunId: (data.auditRunId as string | null) ?? prev?.auditRunId ?? null,
         connected:
           (data.connected as ConnectedAuditMetrics | null) ?? prev?.connected ?? null,
-        growthBrief:
-          data.growthBrief !== undefined ? data.growthBrief : (prev?.growthBrief ?? null),
-        leadSummary:
-          data.leadSummary !== undefined ? data.leadSummary : (prev?.leadSummary ?? null),
-        work:
-          data.work !== undefined
-            ? (data.work as WorkspaceAuditBundle['work'])
-            : (prev?.work ?? null),
-        brief: data.brief !== undefined ? data.brief : (prev?.brief ?? null),
-        monthly: data.monthly !== undefined ? data.monthly : (prev?.monthly ?? null),
-        leads: data.leads !== undefined ? data.leads : (prev?.leads ?? null),
-        connect: data.connect !== undefined ? data.connect : (prev?.connect ?? null),
+        // The bundle route sends every slice key (null when not requested), so a
+        // null here means "not in this response" — keep what we already loaded.
+        // Otherwise a Brief/Work fetch wipes the Setup slice and Google looks disconnected.
+        growthBrief: (data.growthBrief as unknown) ?? prev?.growthBrief ?? null,
+        brief: (data.brief as unknown) ?? prev?.brief ?? null,
+        monthly: (data.monthly as unknown) ?? prev?.monthly ?? null,
+        connect: (data.connect as unknown) ?? prev?.connect ?? null,
       }));
     },
     [projectId]
@@ -181,7 +169,7 @@ export function WorkspaceAuditProvider({
     setError(null);
     try {
       const res = await fetch(
-        `/api/projects/${projectId}/audit-bundle?include=dashboard,work,brief,monthly,leads,connect`,
+        `/api/projects/${projectId}/audit-bundle?include=dashboard,brief,monthly,connect`,
         { cache: 'no-store' }
       );
       if (!res.ok) {
@@ -205,36 +193,72 @@ export function WorkspaceAuditProvider({
     if (!tab) return;
     if (tab.dataEpoch === 0 || tab.dataEpoch === lastEpoch.current) return;
     lastEpoch.current = tab.dataEpoch;
-    setBundle((prev) =>
-      prev
-        ? {
-            ...prev,
-            work: null,
-            brief: null,
-            monthly: null,
-            leads: null,
-            connect: null,
-            connected: null,
-            growthBrief: null,
-            leadSummary: null,
-          }
-        : prev
-    );
+    // Keep the current slices on screen while the refetch runs. Clearing them here
+    // made the Setup panel flash "not connected" and drop its sources after a save.
     void refresh();
   }, [tab, refresh]);
+
+  // Until the first audit run exists, poll the audit status. When it finishes, reload
+  // the bundle so the brief and tasks appear without a manual refresh.
+  const bundleLoaded = bundle !== null;
+  const hasAuditRun = Boolean(bundle?.auditRunId);
+  useEffect(() => {
+    if (!bundleLoaded || hasAuditRun) return;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/audit/${projectId}/status`, { cache: 'no-store' });
+        if (cancelled) return;
+        if (res.status === 404) {
+          setAuditStatus('none');
+          return;
+        }
+        if (!res.ok) {
+          // Server error: keep polling rather than claim there is no audit.
+          if (!cancelled) timer = setTimeout(poll, AUDIT_STATUS_POLL_MS);
+          return;
+        }
+        const data = (await res.json()) as { status: string; ready: boolean };
+        if (cancelled) return;
+        if (data.status === 'failed') {
+          setAuditStatus('failed');
+          return;
+        }
+        if (data.ready) {
+          setAuditStatus('ready');
+          // Keep polling until the bundle actually reports the run (hasAuditRun flips).
+          void refresh();
+        } else {
+          setAuditStatus('analyzing');
+        }
+      } catch {
+        // Transient network error: keep polling.
+      }
+      if (!cancelled) timer = setTimeout(poll, AUDIT_STATUS_POLL_MS);
+    };
+
+    void poll();
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [bundleLoaded, hasAuditRun, projectId, refresh]);
 
   const value = useMemo(
     () => ({
       bundle,
       loading,
       error,
+      auditStatus,
       refresh,
       invalidate,
       seed,
       ensureSlice,
       sliceLoading,
     }),
-    [bundle, loading, error, refresh, invalidate, seed, ensureSlice, sliceLoading]
+    [bundle, loading, error, auditStatus, refresh, invalidate, seed, ensureSlice, sliceLoading]
   );
 
   return (

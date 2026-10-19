@@ -14,16 +14,12 @@ import { usePathname } from 'next/navigation';
 export type AuditPrimaryTabSuffix =
   | '/workflow'
   | '/brief'
-  | '/work'
-  | '/leads'
   | '/monthly'
   | '/connect';
 
 export const AUDIT_PRIMARY_TAB_SUFFIXES: readonly AuditPrimaryTabSuffix[] = [
   '/workflow',
   '/brief',
-  '/work',
-  '/leads',
   '/monthly',
   '/connect',
 ];
@@ -142,6 +138,3 @@ export function AuditSpaTabProvider({
 
   return <SpaTabContext.Provider value={value}>{children}</SpaTabContext.Provider>;
 }
-
-/** @deprecated Alias kept for imports during cutover. */
-export const AuditTabCacheProvider = AuditSpaTabProvider;

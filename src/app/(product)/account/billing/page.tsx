@@ -1,7 +1,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { getSessionPlan } from '@/lib/db/profiles';
-import { BillingPlans } from '@/components/audit/billing-plans';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createClient } from '@/utils/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -17,16 +16,22 @@ export default async function BillingPage() {
     redirect('/login?next=/account/billing');
   }
 
-  const session = await getSessionPlan();
-
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-sm text-muted-foreground">
-          Current plan: <span className="font-medium text-foreground">{session.plan === 'paid' ? 'Paid' : 'Free'}</span>
-        </p>
-      </div>
-      <BillingPlans currentPlan={session.plan} />
+      <Card>
+        <CardHeader>
+          <CardTitle>Free for every account</CardTitle>
+          <CardDescription>There are no paid plans, so there is nothing to pay.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm text-muted-foreground">
+          <p>
+            Google Analytics 4, Google Search Console and the Dashboard are free for every user.
+            Connecting your Google account and running the connected audit on your projects is
+            free too.
+          </p>
+          <p>There is no upgrade step.</p>
+        </CardContent>
+      </Card>
     </div>
   );
 }

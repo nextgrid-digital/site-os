@@ -20,7 +20,6 @@ import {
   generateFindings,
 } from '@/lib/audit/finding-generators';
 import { generatePromptForFinding } from '@/lib/audit/prompt-generator';
-import { recommendPricing } from '@/lib/audit/pricing';
 import { applyGoalWeights } from '@/lib/audit/goal-scoring';
 import { scoreAndSortFindings, type ScoredFinding } from '@/lib/audit/score-findings';
 import { buildSiteOnlyAnalysis } from '@/lib/audit/site-only-analysis';
@@ -34,7 +33,8 @@ import { googleAdsSyncResult } from '@/lib/connectors/google-ads/sync';
 import type { ConnectorSyncResult } from '@/lib/connectors/types';
 import {
   fetchGoogleAdsBundle,
-  isGoogleAdsConfigured,
+  getAgencyAdsAccessToken,
+  getNextgridMccId,
   totalAdsSpend,
   type GoogleAdsBundle,
 } from '@/lib/google/ads';
@@ -45,7 +45,13 @@ import {
   type Ga4AnalyticsBundle,
   type Ga4LandingPageRow,
 } from '@/lib/google/ga4';
-import { getAuthorizedClient, refreshAccessToken } from '@/lib/google/oauth';
+import {
+  getAuthorizedClient,
+  GOOGLE_ADS_SCOPE,
+  GOOGLE_ANALYTICS_SCOPE,
+  GOOGLE_SEARCH_CONSOLE_SCOPE,
+  refreshAccessToken,
+} from '@/lib/google/oauth';
 import {
   fetchSearchConsolePerformance,
   type GscPerformanceBundle,
@@ -59,7 +65,6 @@ import type {
   ChannelTrafficRow,
   Finding,
   PageMetric,
-  PricingPlan,
   QueryMetric,
 } from '@/lib/supabase/types';
 import { normalizePath } from '@/lib/utils/urls';
@@ -69,7 +74,6 @@ export interface AuditRunResult {
   metrics: AuditMetrics;
   findings: Finding[];
   prompts: AgentPrompt[];
-  pricing: PricingPlan | null;
   architecture: ArchitectureRecommendation[];
   pageMetrics: PageMetric[];
   queryMetrics: QueryMetric[];
@@ -165,6 +169,7 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
     access_token: string;
     refresh_token: string | null;
     token_expiry: string | null;
+    scopes: string[] | null;
   } | null = null;
 
   if (needsGoogle) {
@@ -248,23 +253,45 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
           expiry_date: connection.token_expiry ? new Date(connection.token_expiry).getTime() : null,
         });
 
+        // A mapped source the client un-ticked on the consent screen is treated as
+        // unmapped for this run, instead of spending an API call that will be refused.
+        const grantedScopes = connection.scopes ?? [];
+        const gscMapped =
+          gscProperty && grantedScopes.includes(GOOGLE_SEARCH_CONSOLE_SCOPE) ? gscProperty : null;
+        const ga4Mapped =
+          ga4Property && grantedScopes.includes(GOOGLE_ANALYTICS_SCOPE) ? ga4Property : null;
+        // Ads is read only through NextGrid's MCC, with the agency login. Any other account is skipped.
+        const mccId = getNextgridMccId();
+        const adsMapped =
+          adsAccount && mccId && adsAccount.login_customer_id === mccId ? adsAccount : null;
+        const agencyAdsToken = adsMapped ? await getAgencyAdsAccessToken() : null;
+        if (gscProperty && !gscMapped) console.warn('[runAudit] GSC skipped: access not granted');
+        if (ga4Property && !ga4Mapped) console.warn('[runAudit] GA4 skipped: access not granted');
+        if (adsAccount && !adsMapped) console.warn('[runAudit] Ads skipped: account is not linked under the NextGrid MCC');
+
         const settled = await Promise.allSettled([
-          gscProperty
-            ? fetchSearchConsolePerformance(auth, gscProperty.site_url, startDate, endDate)
+          gscMapped
+            ? fetchSearchConsolePerformance(auth, gscMapped.site_url, startDate, endDate)
             : Promise.resolve({
                 queryRows: [],
                 pageRows: [],
                 byCountry: [],
                 byDevice: [],
               } satisfies GscPerformanceBundle),
-          ga4Property
-            ? fetchGa4LandingPages(auth, ga4Property.property_id, startDate, endDate)
+          ga4Mapped
+            ? fetchGa4LandingPages(auth, ga4Mapped.property_id, startDate, endDate)
             : Promise.resolve([] as Ga4LandingPageRow[]),
-          ga4Property
-            ? fetchGa4AnalyticsBundle(auth, ga4Property.property_id, startDate, endDate)
+          ga4Mapped
+            ? fetchGa4AnalyticsBundle(auth, ga4Mapped.property_id, startDate, endDate)
             : Promise.resolve(ga4Analytics),
-          adsAccount && isGoogleAdsConfigured()
-            ? fetchGoogleAdsBundle(accessToken, adsAccount.customer_id, startDate, endDate)
+          adsMapped && agencyAdsToken
+            ? fetchGoogleAdsBundle(
+                agencyAdsToken,
+                adsMapped.customer_id,
+                adsMapped.login_customer_id,
+                startDate,
+                endDate
+              )
             : Promise.resolve(emptyAds()),
           crawlPromise,
         ]);
@@ -281,28 +308,28 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
 
         if (gscSettled.status === 'fulfilled') {
           gscData = gscSettled.value;
-          gscConnected = Boolean(gscProperty);
+          gscConnected = Boolean(gscMapped);
         } else {
           console.error('[runAudit] GSC fetch failed', gscSettled.reason);
         }
 
         if (ga4Settled.status === 'fulfilled') {
           ga4Data = ga4Settled.value;
-          ga4Connected = Boolean(ga4Property);
+          ga4Connected = Boolean(ga4Mapped);
         } else {
           console.error('[runAudit] GA4 landing fetch failed', ga4Settled.reason);
         }
 
         if (ga4AnalyticsSettled.status === 'fulfilled') {
           ga4Analytics = ga4AnalyticsSettled.value;
-          if (ga4Property) ga4Connected = true;
+          if (ga4Mapped) ga4Connected = true;
         } else {
           console.error('[runAudit] GA4 analytics fetch failed', ga4AnalyticsSettled.reason);
         }
 
         if (adsSettled.status === 'fulfilled') {
           adsBundle = adsSettled.value;
-          adsConnected = Boolean(adsAccount) && isGoogleAdsConfigured();
+          adsConnected = Boolean(adsMapped);
         } else {
           console.error('[runAudit] Ads fetch failed', adsSettled.reason);
         }
@@ -481,7 +508,6 @@ async function finalizeAuditRun(input: {
   const scoredFindings = applyGoalWeights(baseScoredFindings, goalCategory as Parameters<typeof applyGoalWeights>[1]);
   const limitedFindings =
     runType === 'mini' ? selectTeaserFindings(scoredFindings) : scoredFindings;
-  const pricing = recommendPricing(limitedFindings, runType);
   const architecture = generateArchitectureRecommendations(limitedFindings);
 
   const gscPageMap = new Map(gscData.pageRows.map((row) => [normalizePath(row.page), row]));
@@ -652,7 +678,6 @@ async function finalizeAuditRun(input: {
   const skipPrescriptions = runType === 'free';
 
   let prompts: AgentPrompt[] = [];
-  let pricingPlan: PricingPlan | null = null;
   let architectureRows: ArchitectureRecommendation[] = [];
 
   if (!skipPrescriptions) {
@@ -684,20 +709,6 @@ async function finalizeAuditRun(input: {
         ? await supabase.from('agent_prompts').insert(promptsPayload).select('*')
         : { data: [] as AgentPrompt[] };
     prompts = promptsRes.data ?? [];
-
-    const { data: pricingRow } = await supabase
-      .from('pricing_plans')
-      .insert({
-        audit_run_id: auditRunId,
-        project_id: projectId,
-        recommended_tier: pricing.recommended_tier,
-        price_range: pricing.price_range,
-        rationale: pricing.rationale,
-        included_items: pricing.included_items,
-      })
-      .select('*')
-      .single();
-    pricingPlan = pricingRow;
 
     const architectureRes =
       architecture.length > 0
@@ -796,7 +807,6 @@ async function finalizeAuditRun(input: {
       opportunity_score: row.opportunity_score,
     })),
     aeoResult,
-    pricing,
     readiness,
     dataAvailability,
     siteOnlyAnalysis,
@@ -824,7 +834,6 @@ async function finalizeAuditRun(input: {
     metrics,
     findings,
     prompts,
-    pricing: pricingPlan,
     architecture: architectureRows,
     pageMetrics,
     queryMetrics,
@@ -945,7 +954,6 @@ async function finalizeAuditRun(input: {
     metrics: metrics!,
     findings: findings ?? [],
     prompts: prompts ?? [],
-    pricing: pricingPlan,
     architecture: architectureRows ?? [],
     pageMetrics: pageMetrics ?? [],
     queryMetrics: queryMetrics ?? [],

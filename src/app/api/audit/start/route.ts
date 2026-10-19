@@ -1,7 +1,11 @@
 import { after, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { buildTeaserSnapshot } from '@/lib/audit/teaser-snapshot';
-import { AUDIT_SESSION_COOKIE } from '@/lib/audit/session-cookie';
+import {
+  appendAuditSessionHistory,
+  AUDIT_SESSION_COOKIE,
+  AUDIT_SESSION_HISTORY_COOKIE,
+} from '@/lib/audit/session-cookie';
 import { runAudit } from '@/lib/audit/run-audit';
 import {
   createAuditSession,
@@ -127,11 +131,17 @@ export async function POST(request: Request) {
     domain,
     authenticated,
   });
-  response.cookies.set(AUDIT_SESSION_COOKIE, session.id, {
+  const cookieOptions = {
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: 'lax' as const,
     path: '/',
     maxAge: 60 * 60 * 24 * 7,
-  });
+  };
+  response.cookies.set(AUDIT_SESSION_COOKIE, session.id, cookieOptions);
+  response.cookies.set(
+    AUDIT_SESSION_HISTORY_COOKIE,
+    appendAuditSessionHistory(cookieStore.get(AUDIT_SESSION_HISTORY_COOKIE)?.value, session.id),
+    cookieOptions
+  );
   return response;
 }

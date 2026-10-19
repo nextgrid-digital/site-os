@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { SITE_CONFIG } from '@/lib/site-config';
 
 export const metadata = {
   title: 'Terms of Service | Site-OS',
@@ -124,8 +125,8 @@ export default function TermsOfServicePage() {
           <h2 className="text-lg font-semibold">11. Contact</h2>
           <p className="mt-2">
             Questions about these Terms? Contact us at{' '}
-            <a href="mailto:support@site-os.app" className="underline">
-              support@site-os.app
+            <a href={`mailto:${SITE_CONFIG.supportEmail}`} className="underline">
+              {SITE_CONFIG.supportEmail}
             </a>
             .
           </p>

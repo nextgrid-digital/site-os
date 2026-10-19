@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { getAppUrl } from '@/lib/app-url';
 import { upsertGoogleConnection } from '@/lib/db/google';
 import { syncGoogleConnectionInventory } from '@/lib/db/google-inventory';
-import { exchangeCodeForTokens } from '@/lib/google/oauth';
+import { exchangeCodeForTokens, fetchGoogleAccountEmail } from '@/lib/google/oauth';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 
 function connectErrorRedirect(appUrl: string, projectId: string | null, returnTo: string, message: string) {
@@ -76,7 +76,10 @@ export async function GET(request: Request) {
 
   try {
     const tokens = await exchangeCodeForTokens(code, request);
-    await upsertGoogleConnection(projectId, tokens);
+    const accountEmail = tokens.access_token
+      ? await fetchGoogleAccountEmail(tokens.access_token)
+      : null;
+    await upsertGoogleConnection(projectId, tokens, accountEmail);
     try {
       const { data: project } = await getSupabaseAdmin()
         .from('projects')

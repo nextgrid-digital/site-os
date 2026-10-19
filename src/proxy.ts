@@ -7,7 +7,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/operator/:path*',
     '/api/google/:path*',
     '/audit/:path*',
     '/app',

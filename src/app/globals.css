@@ -232,6 +232,20 @@
   --color-zinc-800: oklch(0.9 0 0);
   --color-zinc-900: oklch(0.94 0 0);
   --color-zinc-950: var(--foreground);
+  /* Tinted status surfaces: dark fills with light text (WCAG AA on card) */
+  --color-emerald-50: oklch(0.27 0.05 160);
+  --color-emerald-200: oklch(0.42 0.08 160);
+  --color-emerald-700: oklch(0.82 0.13 160);
+  --color-emerald-800: oklch(0.86 0.1 160);
+  --color-emerald-900: oklch(0.9 0.07 160);
+  --color-emerald-950: oklch(0.94 0.04 160);
+  --color-rose-50: oklch(0.28 0.06 17);
+  --color-rose-600: oklch(0.78 0.14 17);
+  --color-rose-700: oklch(0.82 0.12 17);
+  --color-amber-50: oklch(0.29 0.05 80);
+  --color-amber-700: oklch(0.84 0.13 80);
+  --color-sky-50: oklch(0.27 0.05 235);
+  --color-sky-700: oklch(0.83 0.1 235);
   color-scheme: dark;
 }
 
@@ -241,6 +255,11 @@
 }
 .dark [data-audit-app] :is(.text-zinc-950, .text-zinc-900) {
   color: var(--foreground);
+}
+
+/* Inverted chips: remapped bg-zinc-950 becomes light, so flip white text */
+.dark [data-audit-app] .bg-zinc-950.text-white {
+  color: var(--card);
 }
 
 @layer base {
@@ -254,11 +273,6 @@
   }
   html {
     @apply font-sans;
-  }
-  /* Operator routes cover the viewport with a solid shell — kill the light grid bleed */
-  body:has(.operator-shell) {
-    background: #0a0a0b;
-    background-image: none;
   }
   /* Site-OS marketing homepage only — not nested audit report embeds */
   body:has(.site-os-home):not(:has([data-audit-app])) {
@@ -295,73 +309,6 @@
   }
 }
 
-/* Operator chrome — Site-OS near-black shell, scoped to /operator */
-.operator-shell {
-  --background: #0a0a0b;
-  --foreground: #f4f4f5;
-  --card: rgb(255 255 255 / 0.03);
-  --card-foreground: #f4f4f5;
-  --popover: #18181b;
-  --popover-foreground: #f4f4f5;
-  --primary: #f4f4f5;
-  --primary-foreground: #0a0a0b;
-  --secondary: #1c1c1f;
-  --secondary-foreground: #f4f4f5;
-  --muted: #1c1c1f;
-  --muted-foreground: #a1a1aa;
-  --accent: #27272a;
-  --accent-foreground: #fafafa;
-  --destructive: #f87171;
-  --border: rgb(255 255 255 / 0.06);
-  --input: rgb(255 255 255 / 0.12);
-  --ring: #a1a1aa;
-  --priority: #fb7185;
-  --priority-foreground: #0a0a0b;
-  --aeo: #fbbf24;
-  --aeo-foreground: #0a0a0b;
-  --success: #34d399;
-  --success-foreground: #0a0a0b;
-  --warning: #fbbf24;
-  --warning-foreground: #0a0a0b;
-
-  /* Tailwind v4 theme aliases — required so utilities don't stick to :root light values */
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-priority: var(--priority);
-  --color-priority-foreground: var(--priority-foreground);
-  --color-aeo: var(--aeo);
-  --color-aeo-foreground: var(--aeo-foreground);
-  --color-success: var(--success);
-  --color-success-foreground: var(--success-foreground);
-  --color-warning: var(--warning);
-  --color-warning-foreground: var(--warning-foreground);
-
-  color: var(--foreground);
-  color-scheme: dark;
-}
-
-.operator-shell [data-slot='card'] {
-  background: var(--card);
-  color: var(--card-foreground);
-  border-color: var(--border);
-}
-
 /* ─── PDF / Print styles (dark mode) ─── */
 @media print {
   @page {
@@ -384,10 +331,6 @@
   header button,
   footer {
     display: none !important;
-  }
-
-  .operator-shell {
-    padding: 0 !important;
   }
 
   .xl\:grid-cols-\[180px_minmax\(0\,1fr\)_280px\] {
@@ -415,15 +358,6 @@
   * {
     box-shadow: none !important;
   }
-}
-
-/* Growth Brief memo — same dark operator surface as Overview / Run cards */
-.operator-shell .report-sheet {
-  background: rgb(255 255 255 / 0.03);
-  color: var(--foreground);
-  border-color: rgb(255 255 255 / 0.06);
-  box-shadow: none;
-  color-scheme: dark;
 }
 
 @keyframes audit-progress-indeterminate {

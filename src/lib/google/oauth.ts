@@ -7,12 +7,28 @@ export const GOOGLE_SEARCH_CONSOLE_SCOPE =
 export const GOOGLE_ANALYTICS_SCOPE =
   'https://www.googleapis.com/auth/analytics.readonly';
 export const GOOGLE_ADS_SCOPE = 'https://www.googleapis.com/auth/adwords';
+/** Lets us show which Google account the client connected (not the agency's). */
+export const GOOGLE_EMAIL_SCOPE = 'https://www.googleapis.com/auth/userinfo.email';
 
 export const GOOGLE_SCOPES = [
   GOOGLE_SEARCH_CONSOLE_SCOPE,
   GOOGLE_ANALYTICS_SCOPE,
   GOOGLE_ADS_SCOPE,
+  GOOGLE_EMAIL_SCOPE,
 ];
+
+/** The three features an audit reads from. Clients can untick any of them on the consent screen. */
+export const GOOGLE_FEATURES = [
+  { key: 'search_console', label: 'Search Console', scope: GOOGLE_SEARCH_CONSOLE_SCOPE },
+  { key: 'ga4', label: 'GA4', scope: GOOGLE_ANALYTICS_SCOPE },
+  { key: 'google_ads', label: 'Google Ads', scope: GOOGLE_ADS_SCOPE },
+] as const;
+
+export type GoogleFeatureKey = (typeof GOOGLE_FEATURES)[number]['key'];
+
+export function getMissingGoogleFeatures(grantedScopes: string[]) {
+  return GOOGLE_FEATURES.filter((feature) => !grantedScopes.includes(feature.scope));
+}
 
 export function getGoogleRedirectUri(request?: Request) {
   if (process.env.GOOGLE_REDIRECT_URI?.trim()) {
@@ -55,6 +71,17 @@ export async function exchangeCodeForTokens(code: string, request?: Request) {
   const client = createOAuthClient(request);
   const { tokens } = await client.getToken(code);
   return tokens;
+}
+
+/** Email of the Google account that granted access, or null if it can't be read. */
+export async function fetchGoogleAccountEmail(accessToken: string): Promise<string | null> {
+  const response = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    cache: 'no-store',
+  });
+  if (!response.ok) return null;
+  const body = (await response.json()) as { email?: string };
+  return body.email ?? null;
 }
 
 export function getAuthorizedClient(tokens: {

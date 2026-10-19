@@ -28,7 +28,7 @@ export interface Website {
 
 export interface GoogleConnection {
   id: string;
-  operator_email: string;
+  connected_email: string;
   access_token: string;
   refresh_token: string | null;
   token_expiry: string | null;
@@ -78,6 +78,8 @@ export interface GoogleAdsAccount {
   descriptive_name: string;
   currency_code: string | null;
   time_zone: string | null;
+  /** Manager (MCC) the account is reached through, or null when reached directly. */
+  login_customer_id: string | null;
   is_selected: boolean;
   created_at: string;
 }

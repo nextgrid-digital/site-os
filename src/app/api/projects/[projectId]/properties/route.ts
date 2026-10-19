@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { selectProperties, syncPropertyOptions } from '@/lib/db/google';
+import { refreshAdsInvite } from '@/lib/db/ads-invites';
 import { syncGoogleConnectionInventory } from '@/lib/db/google-inventory';
 import { listPropertyOptions, ProjectAccessError, requireProjectOwner } from '@/lib/db/projects';
 
@@ -11,6 +12,8 @@ export async function GET(
     const { projectId } = await context.params;
     await requireProjectOwner(projectId);
     const properties = await listPropertyOptions(projectId);
+
+    console.log(properties); // Log the properties for debugging
     return NextResponse.json({ properties });
   } catch (error) {
     if (error instanceof ProjectAccessError) {
@@ -33,14 +36,19 @@ export async function POST(
     const body = await request.json();
 
     if (body.action === 'sync') {
-      await syncPropertyOptions(projectId);
+      const sync = await syncPropertyOptions(projectId);
       try {
         await syncGoogleConnectionInventory(userId);
       } catch (inventoryError) {
         console.error('[properties] inventory sync failed', inventoryError);
       }
+      try {
+        await refreshAdsInvite(projectId);
+      } catch (inviteError) {
+        console.error('[properties] Ads invite check failed', inviteError);
+      }
       const properties = await listPropertyOptions(projectId);
-      return NextResponse.json({ properties });
+      return NextResponse.json({ properties, sync });
     }
 
     const gscPropertyId =

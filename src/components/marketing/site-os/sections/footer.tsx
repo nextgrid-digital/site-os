@@ -29,10 +29,10 @@ export default function Footer({ listRow11Data = listRow11DataContent, listRow11
                     .
                   </h2>
                   <p className="block text-muted-foreground font-medium" data-cid="n2428">
-                    Free crawl first. Sign in for the full report. Upgrade to connect GSC and GA4.
+                    Free crawl first. Sign in for the full report. Connect GSC and GA4 for the full report.
                   </p>
                 </div>
-                <a className="border border-solid border-clr-0 inline-flex mt-48 px-4 rounded-[10px] justify-center items-center shrink-0 gap-2 text-color-007 text-sm font-medium leading-5 whitespace-nowrap [text-wrap:nowrap_balance] bg-color-002 [background-clip:padding-box] [-webkit-background-clip:padding-box] cursor-pointer h-10 max-lg:mt-8 hover:bg-clr-24" data-cid="n2429" data-component="button" href="/#">
+                <a className="border border-solid border-clr-0 inline-flex mt-48 px-4 rounded-[10px] justify-center items-center shrink-0 gap-2 text-color-007 text-sm font-medium leading-5 whitespace-nowrap [text-wrap:nowrap_balance] bg-color-002 [background-clip:padding-box] [-webkit-background-clip:padding-box] cursor-pointer h-10 max-lg:mt-8 hover:bg-clr-24" data-cid="n2429" data-component="button" href="/">
                   Start free audit
                 </a>
               </div>

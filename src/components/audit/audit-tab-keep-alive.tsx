@@ -16,9 +16,7 @@ import {
   SpaBriefPanel,
   SpaConnectPanel,
   SpaDashboardPanel,
-  SpaLeadsPanel,
   SpaMonthlyPanel,
-  SpaWorkPanel,
 } from '@/components/audit/spa-tab-panels';
 import type { ConnectedAuditMetrics } from '@/lib/db/connected-metrics';
 import type { AuditPrimaryTabSuffix } from '@/components/audit/audit-tab-cache';
@@ -27,7 +25,6 @@ export type AuditShellInitial = {
   auditRunId: string | null;
   connected: ConnectedAuditMetrics;
   growthBrief: unknown | null;
-  leadSummary: unknown | null;
 };
 
 /**
@@ -41,6 +38,7 @@ export function AuditTabKeepAlive({
   connection,
   lastAuditAt = null,
   initial,
+  signedIn = false,
 }: {
   workspaceId: string;
   projectId: string;
@@ -49,6 +47,7 @@ export function AuditTabKeepAlive({
   connection: WorkspaceConnectionStatus;
   lastAuditAt?: string | null;
   initial?: AuditShellInitial | null;
+  signedIn?: boolean;
   /** Ignored — shell owns panels; child RSC pages are empty placeholders. */
   children?: ReactNode;
 }) {
@@ -58,7 +57,6 @@ export function AuditTabKeepAlive({
         auditRunId: initial.auditRunId,
         connected: initial.connected,
         growthBrief: initial.growthBrief,
-        leadSummary: initial.leadSummary,
       }
     : null;
 
@@ -73,6 +71,7 @@ export function AuditTabKeepAlive({
             websiteUrl={websiteUrl}
             connection={connection}
             lastAuditAt={lastAuditAt}
+            signedIn={signedIn}
           />
         </AuditRunProvider>
       </WorkspaceAuditProvider>
@@ -87,6 +86,7 @@ function AuditWorkspaceShell({
   websiteUrl,
   connection,
   lastAuditAt,
+  signedIn,
 }: {
   workspaceId: string;
   projectId: string;
@@ -94,6 +94,7 @@ function AuditWorkspaceShell({
   websiteUrl: string;
   connection: WorkspaceConnectionStatus;
   lastAuditAt: string | null;
+  signedIn: boolean;
 }) {
   const { running, error } = useAuditRun();
   const showRunningUi = running || Boolean(error);
@@ -122,8 +123,8 @@ function AuditWorkspaceShell({
         domain={domain}
         websiteUrl={websiteUrl}
         connection={connection}
-        lastAuditAt={lastAuditAt}
         navigationDisabled={showRunningUi}
+        signedIn={signedIn}
       />
       {showRunningUi ? (
         <AuditRunningPanel />
@@ -138,6 +139,7 @@ function AuditWorkspaceShell({
                 workspaceId={workspaceId}
                 domain={domain ?? ''}
                 websiteUrl={websiteUrl}
+                lastAuditAt={lastAuditAt}
               />
             </div>
           ) : null}
@@ -146,22 +148,12 @@ function AuditWorkspaceShell({
               <SpaBriefPanel domain={domain ?? ''} workspaceBase={base} />
             </div>
           ) : null}
-          {mounted.has('/work') ? (
-            <div hidden={active !== '/work'} {...(active !== '/work' ? { inert: true } : {})}>
-              <SpaWorkPanel projectId={projectId} />
-            </div>
-          ) : null}
-          {mounted.has('/leads') ? (
-            <div hidden={active !== '/leads'} {...(active !== '/leads' ? { inert: true } : {})}>
-              <SpaLeadsPanel projectId={projectId} workspaceId={workspaceId} />
-            </div>
-          ) : null}
           {mounted.has('/monthly') ? (
             <div
               hidden={active !== '/monthly'}
               {...(active !== '/monthly' ? { inert: true } : {})}
             >
-              <SpaMonthlyPanel projectId={projectId} workspaceBase={base} />
+              <SpaMonthlyPanel projectId={projectId} />
             </div>
           ) : null}
           {mounted.has('/connect') ? (

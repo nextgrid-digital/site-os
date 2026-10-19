@@ -1,33 +1,65 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import {
-  AuditWorkspaceCard,
-  AuditWorkspacePanel,
-} from '@/components/audit/audit-workspace-panel';
+import { useEffect, useState } from 'react';
+import { AuditWorkspacePanel } from '@/components/audit/audit-workspace-panel';
+import { LastAuditLabel } from '@/components/audit/last-audit-label';
 import { JoinedTrafficReport } from '@/components/audit/report/joined/joined-traffic-report';
-import { useWorkspaceAudit } from '@/components/audit/workspace-audit-store';
-import { WorkItemsQueue } from '@/components/audit/workflow/work-items-queue';
+import {
+  useWorkspaceAudit,
+  type FreeAuditStatus,
+} from '@/components/audit/workspace-audit-store';
 import { ClientWorkflowBrief } from '@/components/audit/workflow/client-workflow-brief';
 import { MonthlyReviewPanel } from '@/components/audit/workflow/monthly-review-panel';
-import { ConnectFlow } from '@/components/operator/connect-flow';
-import { LeadFunnelSummary } from '@/components/operator/lead-funnel-summary';
-import { LeadsTable } from '@/components/operator/leads-table';
+import { ConnectFlow } from '@/components/workspace/connect-flow';
 import type { ConnectedAuditMetrics } from '@/lib/db/connected-metrics';
 import type { GrowthBrief } from '@/lib/reports/build-growth-brief';
 import type {
   Ga4Property,
   GoogleAdsAccount,
-  Lead,
-  LeadFunnelSummary as LeadFunnelSummaryType,
-  ProjectLeadReportingSummary,
   SearchConsoleProperty,
 } from '@/lib/supabase/types';
 import type { ConnectorStatus } from '@/lib/connectors/types';
 import type { ConnectionStatus } from '@/lib/google/connection-status';
-import type { Finding, AgentPrompt, GraphWorkOrder } from '@/lib/supabase/types';
-import { buildUnifiedWorkItems, type WorkItemView } from '@/lib/workflow/work-items';
+import type { WorkItemView } from '@/lib/workflow/work-items';
 import type { MonthlyCompareSection } from '@/lib/workflow/monthly-compare';
+
+function FreeAuditProgress({
+  domain,
+  status,
+}: {
+  domain: string;
+  status: FreeAuditStatus | null;
+}) {
+  if (status === 'failed') {
+    return (
+      <div className="rounded-[14px] bg-white px-6 py-12 text-center shadow-sm">
+        <p className="text-base font-semibold text-zinc-950">The audit didn&apos;t finish</p>
+        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">
+          We couldn&apos;t complete the audit for {domain}. Run it again from the home page.
+        </p>
+      </div>
+    );
+  }
+  if (status === 'none') {
+    return (
+      <div className="rounded-[14px] bg-white px-6 py-12 text-center shadow-sm">
+        <p className="text-base font-semibold text-zinc-950">No audit yet</p>
+        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">
+          Run a free audit for {domain} to get your brief and task list.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="rounded-[14px] bg-white px-6 py-12 text-center shadow-sm" role="status">
+      <p className="text-base font-semibold text-zinc-950">Auditing {domain}…</p>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">
+        We&apos;re crawling the site and writing your brief. This usually takes a minute or two.
+        This page updates by itself when it&apos;s ready.
+      </p>
+    </div>
+  );
+}
 
 function PanelPulse() {
   return (
@@ -42,10 +74,12 @@ export function SpaDashboardPanel({
   workspaceId,
   domain,
   websiteUrl,
+  lastAuditAt = null,
 }: {
   workspaceId: string;
   domain: string;
   websiteUrl: string;
+  lastAuditAt?: string | null;
 }) {
   const ctx = useWorkspaceAudit();
   const ensureSlice = ctx?.ensureSlice;
@@ -54,19 +88,20 @@ export function SpaDashboardPanel({
   }, [ensureSlice]);
 
   const connected = ctx?.bundle?.connected ?? null;
-  const leadSummary = (ctx?.bundle?.leadSummary as LeadFunnelSummaryType | null) ?? null;
 
   if (!connected && ctx?.sliceLoading.dashboard) return <PanelPulse />;
 
   return (
-    <JoinedTrafficReport
-      projectId={workspaceId}
-      connectedMetrics={connected}
-      leadSummary={leadSummary}
-      domain={domain || undefined}
-      websiteConnected={Boolean(websiteUrl)}
-      websiteLabel={domain || null}
-    />
+    <div className="space-y-3">
+      <LastAuditLabel lastAuditAt={lastAuditAt} />
+      <JoinedTrafficReport
+        projectId={workspaceId}
+        connectedMetrics={connected}
+        domain={domain || undefined}
+        websiteConnected={Boolean(websiteUrl)}
+        websiteLabel={domain || null}
+      />
+    </div>
   );
 }
 
@@ -84,6 +119,18 @@ export function SpaBriefPanel({
   }, [ensureSlice]);
 
   if (!ctx?.bundle?.brief && ctx?.sliceLoading.brief) return <PanelPulse />;
+
+  // No audit run yet: say so, instead of an empty brief that reads as "all caught up".
+  if (ctx?.bundle && !ctx.bundle.auditRunId) {
+    return (
+      <AuditWorkspacePanel
+        title="Brief"
+        description="Client-ready action memo — plain English, ready to send or discuss."
+      >
+        <FreeAuditProgress domain={domain} status={ctx.auditStatus} />
+      </AuditWorkspacePanel>
+    );
+  }
 
   const briefPayload = ctx?.bundle?.brief as {
     growthBrief: GrowthBrief | null;
@@ -107,54 +154,7 @@ export function SpaBriefPanel({
   );
 }
 
-export function SpaWorkPanel({ projectId }: { projectId: string }) {
-  const ctx = useWorkspaceAudit();
-  const ensureSlice = ctx?.ensureSlice;
-  useEffect(() => {
-    void ensureSlice?.('work');
-  }, [ensureSlice]);
-
-  const work = ctx?.bundle?.work as {
-    findings: Finding[];
-    workOrders: GraphWorkOrder[];
-    prompts: AgentPrompt[];
-  } | null;
-
-  const items = useMemo(() => {
-    if (!work) return [];
-    const promptsByFindingId = new Map(work.prompts.map((p) => [p.finding_id, p]));
-    return buildUnifiedWorkItems({
-      findings: work.findings,
-      workOrders: work.workOrders,
-      promptsByFindingId,
-    });
-  }, [work]);
-
-  if (!work && ctx?.sliceLoading.work) return <PanelPulse />;
-
-  return (
-    <AuditWorkspacePanel
-      title="Work"
-      description="Each issue becomes a work item: why it matters, recommendation, priority, status, next action."
-    >
-      {!work ? (
-        <div className="rounded-[14px] bg-white px-4 py-10 text-center text-sm text-zinc-500">
-          Run an audit first to generate work items.
-        </div>
-      ) : (
-        <WorkItemsQueue projectId={projectId} items={items} filter="all" />
-      )}
-    </AuditWorkspacePanel>
-  );
-}
-
-export function SpaMonthlyPanel({
-  projectId,
-  workspaceBase,
-}: {
-  projectId: string;
-  workspaceBase: string;
-}) {
+export function SpaMonthlyPanel({ projectId }: { projectId: string }) {
   const ctx = useWorkspaceAudit();
   const ensureSlice = ctx?.ensureSlice;
   useEffect(() => {
@@ -166,6 +166,8 @@ export function SpaMonthlyPanel({
     hasPrevious: boolean;
     currentLabel: string | null;
     previousLabel: string | null;
+    currentAt?: string | null;
+    previousAt?: string | null;
   } | null;
 
   if (!monthly && ctx?.sliceLoading.monthly) return <PanelPulse />;
@@ -173,11 +175,15 @@ export function SpaMonthlyPanel({
   if (!monthly?.currentLabel) {
     return (
       <AuditWorkspacePanel
-        title="Monthly"
-        description="Compare audits over time for retainers and follow-up."
+        title="Monthly check-in"
+        description="Your site's progress, month over month — in plain English."
       >
-        <div className="rounded-[14px] bg-white px-4 py-10 text-center text-sm text-zinc-500">
-          Complete an audit first, then run again next month to compare.
+        <div className="rounded-[14px] bg-white px-6 py-12 text-center shadow-sm">
+          <p className="text-base font-semibold text-zinc-950">No audits yet</p>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">
+            Run your first audit to set a baseline. From then on, each monthly re-run shows what
+            got better, what slipped, and what to fix next.
+          </p>
         </div>
       </AuditWorkspacePanel>
     );
@@ -185,72 +191,18 @@ export function SpaMonthlyPanel({
 
   return (
     <AuditWorkspacePanel
-      title="Monthly"
-      description="See what got better, what got worse, and what is still open."
+      title="Monthly check-in"
+      description="What got better, what slipped, and what to fix next — compared to your last audit."
     >
       <MonthlyReviewPanel
-        workspaceBase={workspaceBase}
         projectId={projectId}
         compare={monthly.compare}
         hasPrevious={monthly.hasPrevious}
         currentLabel={monthly.currentLabel}
         previousLabel={monthly.previousLabel}
+        currentAt={monthly.currentAt ?? null}
+        previousAt={monthly.previousAt ?? null}
       />
-    </AuditWorkspacePanel>
-  );
-}
-
-export function SpaLeadsPanel({
-  projectId,
-  workspaceId,
-}: {
-  projectId: string;
-  workspaceId: string;
-}) {
-  const ctx = useWorkspaceAudit();
-  const ensureSlice = ctx?.ensureSlice;
-  useEffect(() => {
-    void ensureSlice?.('leads');
-  }, [ensureSlice]);
-
-  const leadsPayload = ctx?.bundle?.leads as {
-    projectName: string;
-    leads: Lead[];
-    reporting: ProjectLeadReportingSummary;
-  } | null;
-
-  if (!leadsPayload && ctx?.sliceLoading.leads) return <PanelPulse />;
-
-  return (
-    <AuditWorkspacePanel
-      title="Leads"
-      description="CRM pipeline only — add leads to track stage and status. Traffic and GA4 conversions are on Dashboard."
-    >
-      <AuditWorkspaceCard>
-        <LeadFunnelSummary
-          projectId={projectId}
-          reporting={
-            leadsPayload?.reporting ?? {
-              trafficByChannel: [],
-              leadSummary: {
-                byChannel: [],
-                byStage: [],
-                byStatus: [],
-                openLeads: 0,
-                closedLeads: 0,
-                totalLeads: 0,
-                totalValue: 0,
-              },
-            }
-          }
-          title={`${leadsPayload?.projectName ?? 'Project'} lead funnel`}
-          description="Cached audit traffic summary plus app-owned lead pipeline."
-          leadsHref={`/audit/${workspaceId}/leads`}
-        />
-      </AuditWorkspaceCard>
-      <AuditWorkspaceCard>
-        <LeadsTable projectId={projectId} initialLeads={leadsPayload?.leads ?? []} />
-      </AuditWorkspaceCard>
     </AuditWorkspacePanel>
   );
 }
@@ -275,7 +227,7 @@ export function SpaConnectPanel({
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     if (params.get('connected')) {
-      setMessage('Google account connected. Sync and select properties below.');
+      setMessage('Google connected. Next, pick which site and accounts to track below.');
     }
     const error = params.get('error');
     if (error) {
@@ -289,12 +241,12 @@ export function SpaConnectPanel({
     ga4Properties: Ga4Property[];
     adsAccounts: GoogleAdsAccount[];
     connectorStatuses: ConnectorStatus[];
-    operatorEmail: string;
+    operatorEmail: string | null;
+    connectedEmail: string | null;
     tokenExpiry: string | null;
     lastSyncedAt: string | null;
     scopes: string[];
-    isAdmin: boolean;
-    plan: 'free' | 'paid';
+    missingFeatures: { key: string; label: string }[];
     connectionStatus: ConnectionStatus;
     clientAccessConfirmedAt: string | null;
   } | null;
@@ -304,7 +256,7 @@ export function SpaConnectPanel({
   return (
     <AuditWorkspacePanel
       title="Setup"
-      description="Connect Google, sync properties, and map Search Console, GA4, and Ads — then run the audit from Dashboard."
+      description="Connect your Google data in a few minutes so your audit uses real search and visitor numbers."
     >
       {errorMessage ? (
         <div className="mb-4 rounded-[14px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
@@ -324,13 +276,14 @@ export function SpaConnectPanel({
         adsAccounts={connect?.adsAccounts ?? []}
         connectorStatuses={connect?.connectorStatuses ?? []}
         operatorEmail={connect?.operatorEmail ?? null}
+        connectedEmail={connect?.connectedEmail ?? null}
         tokenExpiry={connect?.tokenExpiry ?? null}
         lastSyncedAt={connect?.lastSyncedAt ?? null}
         scopes={connect?.scopes ?? []}
-        isAdminView={connect?.isAdmin ?? false}
-        plan={connect?.plan ?? 'free'}
+        missingFeatures={connect?.missingFeatures ?? []}
         connectionStatus={connect?.connectionStatus ?? 'not_granted'}
         clientAccessConfirmedAt={connect?.clientAccessConfirmedAt ?? null}
+        viewerSignedIn={Boolean(connect)}
         workspaceBase={workspaceBase}
       />
     </AuditWorkspacePanel>

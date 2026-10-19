@@ -1,15 +1,18 @@
 import { getSupabaseAdmin } from '@/lib/supabase/server';
 import {
   getAuthorizedClient,
-  getOperatorEmail,
   GOOGLE_ADS_SCOPE,
+  GOOGLE_ANALYTICS_SCOPE,
+  GOOGLE_SEARCH_CONSOLE_SCOPE,
 } from '@/lib/google/oauth';
 import { listGa4Properties } from '@/lib/google/ga4';
 import { listSearchConsoleSites } from '@/lib/google/search-console';
+import { listAgencyAdsAccounts } from '@/lib/google/ads';
 import {
-  isGoogleAdsConfigured,
-  listAccessibleAdsCustomers,
-} from '@/lib/google/ads';
+  loadSource,
+  type SourceOutcome,
+  type SourceSyncResult,
+} from '@/lib/google/source-sync';
 import { extractDomain, normalizeWebsiteUrl } from '@/lib/utils/urls';
 import type { GoogleConnection } from '@/lib/supabase/types';
 
@@ -88,6 +91,7 @@ export async function syncGoogleConnectionInventory(userId: string): Promise<{
   connectionId: string;
   inventory: GoogleConnectionInventory;
   syncedAt: string;
+  sources: { gsc: SourceSyncResult; ga4: SourceSyncResult; ads: SourceSyncResult };
 }> {
   const supabase = getSupabaseAdmin();
   const connection = await getLatestGoogleConnectionForUser(userId);
@@ -120,35 +124,49 @@ export async function syncGoogleConnectionInventory(userId: string): Promise<{
   }
 
   const scopes: string[] = Array.isArray(connection.scopes) ? connection.scopes : [];
-  const hasAdsScope = scopes.some((s) => s === GOOGLE_ADS_SCOPE || s.includes('adwords'));
+  const granted = (scope: string) => scopes.includes(scope);
+  const previous = (connection as GoogleConnection & { inventory?: GoogleConnectionInventory | null })
+    .inventory;
 
-  const [gscSites, ga4Properties, adsAccounts] = await Promise.all([
-    listSearchConsoleSites(auth),
-    listGa4Properties(auth),
-    hasAdsScope && isGoogleAdsConfigured()
-      ? listAccessibleAdsCustomers(accessToken).catch((error) => {
-          console.error('[syncGoogleConnectionInventory] Ads list failed', error);
-          return [];
-        })
-      : Promise.resolve([]),
+  // Each source stands alone, as in the property sync: one denied or failing API
+  // must not blank the others.
+  const [gsc, ga4, ads] = await Promise.all([
+    loadSource({
+      label: 'Search Console',
+      granted: granted(GOOGLE_SEARCH_CONSOLE_SCOPE),
+      load: async () =>
+        (await listSearchConsoleSites(auth)).map((site) => ({
+          siteUrl: site.siteUrl,
+          permissionLevel: site.permissionLevel ?? null,
+        })),
+    }),
+    loadSource({
+      label: 'GA4',
+      granted: granted(GOOGLE_ANALYTICS_SCOPE),
+      load: async () =>
+        (await listGa4Properties(auth)).map((property) => ({
+          propertyId: property.propertyId,
+          propertyName: property.propertyName,
+          accountName: property.accountName,
+        })),
+    }),
+    loadSource({
+      label: 'Google Ads',
+      granted: true,
+      load: async () =>
+        (await listAgencyAdsAccounts()).map((account) => ({
+          customerId: account.customerId,
+          descriptiveName: account.descriptiveName,
+          currencyCode: account.currencyCode ?? null,
+          timeZone: account.timeZone ?? null,
+        })),
+    }),
   ]);
 
   const inventory: GoogleConnectionInventory = {
-    gsc: gscSites.map((site) => ({
-      siteUrl: site.siteUrl,
-      permissionLevel: site.permissionLevel ?? null,
-    })),
-    ga4: ga4Properties.map((property) => ({
-      propertyId: property.propertyId,
-      propertyName: property.propertyName,
-      accountName: property.accountName,
-    })),
-    ads: adsAccounts.map((account) => ({
-      customerId: account.customerId,
-      descriptiveName: account.descriptiveName,
-      currencyCode: account.currencyCode ?? null,
-      timeZone: account.timeZone ?? null,
-    })),
+    gsc: keepOrClear(gsc, previous?.gsc),
+    ga4: keepOrClear(ga4, previous?.ga4),
+    ads: keepOrClear(ads, previous?.ads),
   };
 
   const syncedAt = new Date().toISOString();
@@ -157,11 +175,21 @@ export async function syncGoogleConnectionInventory(userId: string): Promise<{
     .update({
       inventory,
       inventory_synced_at: syncedAt,
-      operator_email: connection.operator_email || getOperatorEmail(),
       updated_at: syncedAt,
     })
     .eq('id', connection.id);
   if (error) throw new Error(error.message);
 
-  return { connectionId: connection.id, inventory, syncedAt };
+  return {
+    connectionId: connection.id,
+    inventory,
+    syncedAt,
+    sources: { gsc: gsc.result, ga4: ga4.result, ads: ads.result },
+  };
+}
+
+/** Fresh rows when the call worked; cleared when unticked; otherwise keep the last list. */
+function keepOrClear<T>(outcome: SourceOutcome<T>, previousRows: T[] | undefined): T[] {
+  if (outcome.rows) return outcome.rows;
+  return outcome.result.status === 'missing_scope' ? [] : (previousRows ?? []);
 }

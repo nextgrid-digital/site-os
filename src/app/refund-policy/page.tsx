@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { SITE_CONFIG } from '@/lib/site-config';
 
 export const metadata = {
   title: 'Refund Policy | Site-OS',
@@ -59,10 +60,10 @@ export default function RefundPolicyPage() {
           <p className="mt-2">
             To request a refund, email{' '}
             <a
-              href="mailto:support@site-os.app?subject=Refund Request"
+              href={`mailto:${SITE_CONFIG.supportEmail}?subject=Refund Request`}
               className="font-medium text-foreground hover:underline"
             >
-              support@site-os.app
+              {SITE_CONFIG.supportEmail}
             </a>{' '}
             within 14 days of your purchase with:
           </p>
@@ -90,10 +91,10 @@ export default function RefundPolicyPage() {
             If you believe an audit result is inaccurate or incomplete, please contact our support
             team at{' '}
             <a
-              href="mailto:support@site-os.app?subject=Audit Accuracy Dispute"
+              href={`mailto:${SITE_CONFIG.supportEmail}?subject=Audit Accuracy Dispute`}
               className="font-medium text-foreground hover:underline"
             >
-              support@site-os.app
+              {SITE_CONFIG.supportEmail}
             </a>{' '}
             with details. We will investigate and, if a material error is found, either correct
             the audit or issue a refund at our discretion.
@@ -122,10 +123,10 @@ export default function RefundPolicyPage() {
           <p className="mt-2">
             If you have questions about this Refund Policy, please contact us at{' '}
             <a
-              href="mailto:support@site-os.app?subject=Refund Policy Question"
+              href={`mailto:${SITE_CONFIG.supportEmail}?subject=Refund Policy Question`}
               className="font-medium text-foreground hover:underline"
             >
-              support@site-os.app
+              {SITE_CONFIG.supportEmail}
             </a>
             .
           </p>

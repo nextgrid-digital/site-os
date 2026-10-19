@@ -7,6 +7,7 @@ import {
   getLatestAuditSessionForProject,
   type AuditSession,
 } from '@/lib/db/audit-sessions';
+import { anonSessionIdsFromCookies, canAccessProject } from '@/lib/db/project-access';
 import { getSupabaseAdmin, hasSupabaseConfig } from '@/lib/supabase/server';
 import type { Website } from '@/lib/supabase/types';
 import { createClient } from '@/utils/supabase/server';
@@ -59,16 +60,17 @@ export const resolveAuditWorkspace = cache(async function resolveAuditWorkspace(
   if (!session) {
     const { data: project } = await supabase.from('projects').select('id, user_id').eq('id', id).maybeSingle();
     if (!project) notFound();
-    if (project.user_id && project.user_id !== user?.id) notFound();
+    if (!(await canAccessProject(project, user?.id ?? null, anonSessionIdsFromCookies(cookieStore)))) notFound();
     projectId = project.id;
     session = await getLatestAuditSessionForProject(project.id);
   } else {
     const { data: project } = await supabase
       .from('projects')
-      .select('user_id')
+      .select('id, user_id')
       .eq('id', projectId)
       .maybeSingle();
-    if (project?.user_id && project.user_id !== user?.id) notFound();
+    if (!project) notFound();
+    if (!(await canAccessProject(project, user?.id ?? null, anonSessionIdsFromCookies(cookieStore)))) notFound();
   }
 
   if (!projectId) notFound();

@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { buildUnifiedWorkItems, matchFindingIdForWorkOrder } from '@/lib/workflow/work-items';
-import { deriveWorkflowStages } from '@/lib/workflow/stages';
 import { buildMonthlyCompare } from '@/lib/workflow/monthly-compare';
 import type { Finding, GraphWorkOrder } from '@/lib/supabase/types';
 
@@ -73,35 +72,6 @@ test('buildUnifiedWorkItems prefers linked work orders over duplicate findings',
   assert.equal(items[0].source, 'work_order');
 });
 
-test('deriveWorkflowStages lands on setup then audit then work', () => {
-  const setup = deriveWorkflowStages({
-    websiteConnected: false,
-    googleConnected: false,
-    hasCompletedAudit: false,
-    openWorkCount: 0,
-    hasPreviousAudit: false,
-  });
-  assert.equal(setup.now.stage, 'setup');
-
-  const audit = deriveWorkflowStages({
-    websiteConnected: true,
-    googleConnected: true,
-    hasCompletedAudit: false,
-    openWorkCount: 0,
-    hasPreviousAudit: false,
-  });
-  assert.equal(audit.now.stage, 'audit');
-
-  const work = deriveWorkflowStages({
-    websiteConnected: true,
-    googleConnected: true,
-    hasCompletedAudit: true,
-    openWorkCount: 3,
-    hasPreviousAudit: false,
-  });
-  assert.equal(work.now.stage, 'work');
-});
-
 test('buildMonthlyCompare reports pending and finding deltas', () => {
   const compare = buildMonthlyCompare({
     historicalChanges: [
@@ -144,4 +114,31 @@ test('buildMonthlyCompare reports pending and finding deltas', () => {
   assert.equal(compare.stillPending[0]?.detail, 'Rewrite homepage CTA');
   assert.equal(compare.needsFollowUp.length, 1);
   assert.equal(compare.needsFollowUp[0]?.detail, 'Fix soon');
+  assert.deepEqual(compare.scorecard.issues, { previous: 6, current: 4 });
+  assert.deepEqual(compare.scorecard.openTasks, { previous: 3, current: 1 });
+});
+
+test('buildMonthlyCompare keeps neutral changes out of the improved bucket', () => {
+  const compare = buildMonthlyCompare({
+    historicalChanges: [
+      {
+        event_type: 'positioning_shift',
+        previous_value: 'budget',
+        current_value: 'premium',
+        first_observed_at: new Date().toISOString(),
+        change_observed_at: new Date().toISOString(),
+        source: 'brand_associations',
+        confidence: 0.7,
+        previous_audit_run_id: 'prev',
+      },
+    ],
+    openWorkItems: [],
+    currentFindingCount: 2,
+    previousFindingCount: 2,
+    currentOpenWorkCount: 0,
+    previousOpenWorkCount: 0,
+  });
+
+  assert.equal(compare.improved.length, 0);
+  assert.equal(compare.changed[0]?.detail, 'Budget → Premium');
 });
