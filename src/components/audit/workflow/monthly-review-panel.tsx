@@ -175,19 +175,19 @@ export function MonthlyReviewPanel({
               {verdict.headline}
             </h2>
             <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-zinc-500">
-              <CalendarDays className="size-4 text-zinc-400" aria-hidden />
+              <CalendarDays className="size-4 text-zinc-500" aria-hidden />
               <span>Last audit {previousDate}</span>
               <ArrowRight className="size-3.5 text-zinc-300" aria-hidden />
               <span className="font-medium text-zinc-700">This audit {currentDate}</span>
               {gapDays != null ? (
-                <span className="text-zinc-400">· {plural(gapDays, 'day')} apart</span>
+                <span className="text-zinc-500">· {plural(gapDays, 'day')} apart</span>
               ) : null}
             </p>
           </div>
           <div className="flex shrink-0 flex-col items-start gap-1 sm:items-end">
             <RerunFullAuditButton projectId={projectId} />
             {nextCheckInDate ? (
-              <p className={`text-xs ${checkInDue ? 'font-medium text-amber-700' : 'text-zinc-400'}`}>
+              <p className={`text-xs ${checkInDue ? 'font-medium text-amber-700' : 'text-zinc-500'}`}>
                 {checkInDue ? 'Next check-in is due' : `Next check-in ~${nextCheckInDate}`}
               </p>
             ) : null}
@@ -280,11 +280,11 @@ export function MonthlyReviewPanel({
           <details className="group mt-4 rounded-xl border border-zinc-100">
             <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3.5 py-3 text-sm font-medium text-zinc-700 [&::-webkit-details-marker]:hidden">
               <span className="inline-flex items-center gap-2">
-                <ListTodo className="size-4 text-zinc-400" aria-hidden />
+                <ListTodo className="size-4 text-zinc-500" aria-hidden />
                 {plural(otherOpen.length, 'other open task')}
               </span>
               <ChevronDown
-                className="size-4 text-zinc-400 transition-transform group-open:rotate-180"
+                className="size-4 text-zinc-500 transition-transform group-open:rotate-180"
                 aria-hidden
               />
             </summary>
@@ -442,7 +442,7 @@ function MetricTile({
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-sm font-medium text-zinc-700">{label}</p>
-          <p className="text-xs text-zinc-400">{hint}</p>
+          <p className="text-xs text-zinc-500">{hint}</p>
         </div>
         {deltaText ? (
           <span
@@ -457,7 +457,7 @@ function MetricTile({
       <div className="mt-3 flex items-baseline gap-2">
         {previous != null ? (
           <>
-            <span className="text-lg font-medium text-zinc-400 tabular-nums line-through decoration-zinc-300">
+            <span className="text-lg font-medium text-zinc-500 tabular-nums line-through decoration-zinc-300">
               {previous}
             </span>
             <ArrowRight className="size-4 self-center text-zinc-300" aria-hidden />

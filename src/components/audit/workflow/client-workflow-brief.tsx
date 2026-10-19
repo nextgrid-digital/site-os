@@ -10,6 +10,7 @@ import {
   TrendingUp,
   Wrench,
 } from 'lucide-react';
+import { SiteCardFavicon } from '@/components/audit/site-card-favicon';
 import { SoftAuditTabLink } from '@/components/audit/soft-audit-tab-link';
 import { PageChip, PriorityBadge } from '@/components/audit/workflow/workflow-badges';
 import { ReportPdfButton } from '@/components/workspace/report-pdf-button';
@@ -71,12 +72,24 @@ export function ClientWorkflowBrief({
       >
         {/* Header */}
         <header className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-[11px] font-medium tracking-wide text-zinc-400 uppercase">
-              NextGrid · Site-OS brief
-            </p>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-950">{domain}</h1>
-            <p className="mt-1 text-sm text-zinc-500">Website action brief</p>
+          <div className="flex min-w-0 items-start gap-3">
+            <SiteCardFavicon domain={domain} name={domain} />
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium tracking-wide text-zinc-500 uppercase">
+                NextGrid · Site-OS brief
+              </p>
+              <h1 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-950">
+                <a
+                  href={/^https?:\/\//.test(domain) ? domain : `https://${domain}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="no-underline"
+                >
+                  {domain}
+                </a>
+              </h1>
+              <p className="mt-1 text-sm text-zinc-500">Website action brief</p>
+            </div>
           </div>
           {brief?.readinessLabel ? (
             <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-600">
@@ -87,7 +100,7 @@ export function ClientWorkflowBrief({
 
         {/* The bottom line — what a busy reader needs in ten seconds. */}
         <section className="rounded-xl bg-gradient-to-br from-zinc-50 to-white p-5 ring-1 ring-zinc-100 sm:p-6">
-          <p className="text-[11px] font-medium tracking-wide text-zinc-400 uppercase">
+          <p className="text-[11px] font-medium tracking-wide text-zinc-500 uppercase">
             The bottom line
           </p>
           {verdict ? (
@@ -232,7 +245,7 @@ export function ClientWorkflowBrief({
                 ))}
               </ul>
               {pending.length > MAX_TASKS ? (
-                <p className="mt-2 text-xs text-zinc-400">
+                <p className="mt-2 text-xs text-zinc-500">
                   + {pending.length - MAX_TASKS} more in the Dashboard.
                 </p>
               ) : null}
@@ -345,7 +358,7 @@ function StatTile({ label, value, hint }: { label: string; value: ReactNode; hin
       <dd className="mt-1 text-2xl font-semibold tracking-tight text-zinc-950 tabular-nums">
         {value}
       </dd>
-      <dd className="text-xs text-zinc-400">{hint}</dd>
+      <dd className="text-xs text-zinc-500">{hint}</dd>
     </div>
   );
 }
@@ -361,9 +374,9 @@ function MonthTile({ monthly }: { monthly: MonthlyCompareSection | null }) {
       label="Since last month"
       value={
         <span className="flex items-baseline gap-2">
-          <span className="text-emerald-600">+{wins}</span>
+          <span className="text-emerald-700">+{wins}</span>
           <span className="text-base text-zinc-300">/</span>
-          <span className={slips > 0 ? 'text-rose-600' : 'text-zinc-400'}>−{slips}</span>
+          <span className={slips > 0 ? 'text-rose-600' : 'text-zinc-500'}>−{slips}</span>
         </span>
       }
       hint={`${wins} better · ${slips} slipped`}
