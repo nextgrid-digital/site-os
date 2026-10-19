@@ -36,7 +36,8 @@ export function ClientWorkflowBrief({
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
         <p className="text-sm text-zinc-500">
-          Client-ready memo for {domain}. Send this into the meeting, then track fixes in Work.
+          Client-ready memo for {domain}. Send this into the meeting, then re-run the audit next
+          month to see what changed.
         </p>
         <div className="flex flex-wrap gap-2">
           <ReportPdfButton
@@ -44,13 +45,6 @@ export function ClientWorkflowBrief({
             filename={`${domain}-workflow-brief.pdf`}
             backgroundColor="#ffffff"
           />
-          <SoftAuditTabLink
-            href={`${workspaceBase}/work`}
-            suffix="/work"
-            className="inline-flex h-8 items-center rounded-lg bg-white px-3 text-sm font-medium text-zinc-800 shadow-sm hover:bg-zinc-50"
-          >
-            Open Work
-          </SoftAuditTabLink>
         </div>
       </div>
 
@@ -156,13 +150,6 @@ export function ClientWorkflowBrief({
             </ul>
           ) : brief?.offerRecommendation ? (
             <div className="space-y-2 text-sm text-zinc-700">
-              <p>
-                <span className="font-medium">{brief.offerRecommendation.tier}</span>
-                {brief.offerRecommendation.priceRange
-                  ? ` · ${brief.offerRecommendation.priceRange}`
-                  : ''}
-              </p>
-              <p>{brief.offerRecommendation.rationale}</p>
               <p>{brief.offerRecommendation.nextgridAction}</p>
             </div>
           ) : (
@@ -170,10 +157,6 @@ export function ClientWorkflowBrief({
           )}
           <p className="mt-4 text-sm text-zinc-500">
             Deep source detail:{' '}
-            <a href={`${workspaceBase}/evidence`} className="underline underline-offset-2">
-              Evidence
-            </a>
-            {' · '}
             <SoftAuditTabLink
               href={`${workspaceBase}/workflow`}
               suffix="/workflow"

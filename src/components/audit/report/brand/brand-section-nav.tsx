@@ -55,12 +55,6 @@ const DASHBOARD_RAIL_ITEMS: PreviewRailItem[] = [
     href: '#funnel',
   },
   {
-    id: 'leads',
-    label: 'Leads',
-    description: 'CRM lead gain by channel, stage, and status.',
-    href: '#leads',
-  },
-  {
     id: 'issues',
     label: 'Issues',
     description: 'Chain breaks and paid mismatches.',

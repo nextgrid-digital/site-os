@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { CircleCheck } from 'lucide-react';
 import { readinessLabel, type AuditReadiness } from '@/lib/audit/audit-readiness';
 import { ADMIN_STATUS_COPY, type ConnectionStatus } from '@/lib/google/connection-status';
-import { PlanToggle } from '@/components/operator/plan-toggle';
 import { cn } from '@/lib/utils';
 
 export interface SiteCardData {
@@ -11,8 +10,6 @@ export interface SiteCardData {
   domain: string | null;
   url: string | null;
   updatedAt: string;
-  /** null when the project has no signed-in owner yet (pre-signup / admin-added). */
-  plan: 'free' | 'paid' | null;
   connectionStatus: ConnectionStatus;
   /** Client self-reported "I've granted access" — distinct from our verified sync state. */
   clientConfirmedAt: string | null;
@@ -58,7 +55,7 @@ function auditMeta(card: SiteCardData) {
 export function SiteCard({ site }: { site: SiteCardData }) {
   return (
     <Link
-      href={`/audit/${site.id}/overview`}
+      href={`/audit/${site.id}/workflow`}
       className={cn('group block rounded-2xl border border-white/8 bg-[#141416] p-5 transition-colors',
         'hover:border-white/16 hover:bg-[#18181b]'
       )}
@@ -75,7 +72,6 @@ export function SiteCard({ site }: { site: SiteCardData }) {
             ) : null}
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <PlanToggle projectId={site.id} plan={site.plan} />
             <span
               className={cn(
                 'rounded-full px-2 py-0.5 text-[11px] font-medium',

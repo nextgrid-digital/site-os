@@ -1,16 +1,13 @@
-import { SoftAuditTabLink } from '@/components/audit/soft-audit-tab-link';
 import { RerunFullAuditButton } from '@/components/audit/rerun-full-audit-button';
 import type { MonthlyCompareSection, MonthlyLine } from '@/lib/workflow/monthly-compare';
 
 export function MonthlyReviewPanel({
-  workspaceBase,
   projectId,
   currentLabel,
   previousLabel,
   compare,
   hasPrevious,
 }: {
-  workspaceBase: string;
   projectId: string;
   currentLabel: string;
   previousLabel: string | null;
@@ -33,13 +30,6 @@ export function MonthlyReviewPanel({
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <RerunFullAuditButton projectId={projectId} />
-          <SoftAuditTabLink
-            href={`${workspaceBase}/work`}
-            suffix="/work"
-            className="inline-flex h-9 items-center rounded-lg bg-white px-3.5 text-sm font-medium text-zinc-800 shadow-sm hover:bg-zinc-50"
-          >
-            Review open tasks
-          </SoftAuditTabLink>
         </div>
       </section>
 

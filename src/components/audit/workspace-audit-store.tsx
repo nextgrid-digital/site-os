@@ -18,15 +18,8 @@ export type WorkspaceAuditBundle = {
   auditRunId: string | null;
   connected: ConnectedAuditMetrics | null;
   growthBrief: unknown | null;
-  leadSummary: unknown | null;
-  work: {
-    findings: unknown[];
-    workOrders: unknown[];
-    prompts: unknown[];
-  } | null;
   brief: unknown | null;
   monthly: unknown | null;
-  leads: unknown | null;
   connect: unknown | null;
 };
 
@@ -56,14 +49,10 @@ function sliceLoaded(prev: WorkspaceAuditBundle | null, slice: string) {
   switch (slice) {
     case 'dashboard':
       return Boolean(prev.connected);
-    case 'work':
-      return Boolean(prev.work);
     case 'brief':
       return Boolean(prev.brief);
     case 'monthly':
       return Boolean(prev.monthly);
-    case 'leads':
-      return Boolean(prev.leads);
     case 'connect':
       return Boolean(prev.connect);
     default:
@@ -91,11 +80,8 @@ export function WorkspaceAuditProvider({
           auditRunId: initial.auditRunId ?? null,
           connected: initial.connected ?? null,
           growthBrief: initial.growthBrief ?? null,
-          leadSummary: initial.leadSummary ?? null,
-          work: initial.work ?? null,
           brief: initial.brief ?? null,
           monthly: initial.monthly ?? null,
-          leads: initial.leads ?? null,
           connect: initial.connect ?? null,
         }
       : null
@@ -114,11 +100,8 @@ export function WorkspaceAuditProvider({
       auditRunId: next.auditRunId ?? prev?.auditRunId ?? null,
       connected: next.connected ?? prev?.connected ?? null,
       growthBrief: next.growthBrief ?? prev?.growthBrief ?? null,
-      leadSummary: next.leadSummary ?? prev?.leadSummary ?? null,
-      work: next.work ?? prev?.work ?? null,
       brief: next.brief ?? prev?.brief ?? null,
       monthly: next.monthly ?? prev?.monthly ?? null,
-      leads: next.leads ?? prev?.leads ?? null,
       connect: next.connect ?? prev?.connect ?? null,
     }));
     setLoading(false);
@@ -132,18 +115,13 @@ export function WorkspaceAuditProvider({
         auditRunId: (data.auditRunId as string | null) ?? prev?.auditRunId ?? null,
         connected:
           (data.connected as ConnectedAuditMetrics | null) ?? prev?.connected ?? null,
-        growthBrief:
-          data.growthBrief !== undefined ? data.growthBrief : (prev?.growthBrief ?? null),
-        leadSummary:
-          data.leadSummary !== undefined ? data.leadSummary : (prev?.leadSummary ?? null),
-        work:
-          data.work !== undefined
-            ? (data.work as WorkspaceAuditBundle['work'])
-            : (prev?.work ?? null),
-        brief: data.brief !== undefined ? data.brief : (prev?.brief ?? null),
-        monthly: data.monthly !== undefined ? data.monthly : (prev?.monthly ?? null),
-        leads: data.leads !== undefined ? data.leads : (prev?.leads ?? null),
-        connect: data.connect !== undefined ? data.connect : (prev?.connect ?? null),
+        // The bundle route sends every slice key (null when not requested), so a
+        // null here means "not in this response" — keep what we already loaded.
+        // Otherwise a Brief/Work fetch wipes the Setup slice and Google looks disconnected.
+        growthBrief: (data.growthBrief as unknown) ?? prev?.growthBrief ?? null,
+        brief: (data.brief as unknown) ?? prev?.brief ?? null,
+        monthly: (data.monthly as unknown) ?? prev?.monthly ?? null,
+        connect: (data.connect as unknown) ?? prev?.connect ?? null,
       }));
     },
     [projectId]
@@ -181,7 +159,7 @@ export function WorkspaceAuditProvider({
     setError(null);
     try {
       const res = await fetch(
-        `/api/projects/${projectId}/audit-bundle?include=dashboard,work,brief,monthly,leads,connect`,
+        `/api/projects/${projectId}/audit-bundle?include=dashboard,brief,monthly,connect`,
         { cache: 'no-store' }
       );
       if (!res.ok) {

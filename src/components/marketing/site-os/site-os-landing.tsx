@@ -12,7 +12,6 @@ import SeeWhereVisitorsSection from './sections/see-where-visitors-section';
 import GalleryShowcaseSection from './sections/gallery-showcase-section';
 import LogoCloudSection2 from './sections/logo-cloud-section2';
 import LogoCloudSection3 from './sections/logo-cloud-section3';
-import ProductGridSection2 from './sections/product-grid-section2';
 import FaqSection from './sections/faq-section';
 import Footer from './sections/footer';
 
@@ -42,7 +41,6 @@ export function SiteOsLanding({
         <GalleryShowcaseSection />
         <LogoCloudSection2 />
         <LogoCloudSection3 />
-        <ProductGridSection2 />
         <FaqSection />
       </main>
       <Footer />

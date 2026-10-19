@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
-import { PaidPlanRequiredError, requirePaidSession } from '@/lib/db/profiles';
+import { requireSignedInSession, SessionRequiredError } from '@/lib/db/profiles';
 import {
   assertProjectOwnership,
   claimProjectOwnership,
-  isFullBriefUnlocked,
   ProjectAccessError,
   getProjectOverview,
 } from '@/lib/db/projects';
@@ -27,17 +26,12 @@ export async function GET(request: Request) {
 
   let session;
   try {
-    session = await requirePaidSession();
+    session = await requireSignedInSession();
   } catch (error) {
-    if (error instanceof PaidPlanRequiredError) {
+    if (error instanceof SessionRequiredError) {
       const next = `/audit/${projectId}/connect`;
-      if (error.status === 401) {
-        return NextResponse.redirect(
-          new URL(`/login?next=${encodeURIComponent(next)}`, request.url)
-        );
-      }
       return NextResponse.redirect(
-        new URL(`/audit/${projectId}/connect?upgrade=1`, request.url)
+        new URL(`/login?next=${encodeURIComponent(next)}`, request.url)
       );
     }
     throw error;
@@ -63,9 +57,6 @@ export async function GET(request: Request) {
   const project = await getProjectOverview(projectId);
   if (!project) {
     return NextResponse.json({ error: 'Project not found.' }, { status: 404 });
-  }
-  if (!session.isAdmin && !isFullBriefUnlocked(project)) {
-    return NextResponse.redirect(new URL(`/audit/${projectId}/connect`, request.url));
   }
 
   const nonce = crypto.randomUUID();

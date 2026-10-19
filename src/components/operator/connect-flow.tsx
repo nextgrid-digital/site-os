@@ -87,7 +87,6 @@ export function ConnectFlow({
   scopes = [],
   missingFeatures = [],
   isAdminView = false,
-  plan = 'free',
   connectionStatus = 'not_granted',
   clientAccessConfirmedAt = null,
   workspaceBase,
@@ -109,7 +108,6 @@ export function ConnectFlow({
   missingFeatures?: { key: string; label: string }[];
   /** True when the viewer is an admin managing this client's connection, not the client themselves. */
   isAdminView?: boolean;
-  plan?: 'free' | 'paid';
   connectionStatus?: ConnectionStatus;
   clientAccessConfirmedAt?: string | null;
   workspaceBase?: string;
@@ -156,7 +154,6 @@ export function ConnectFlow({
     invalidateTab('/connect');
     invalidateTab('/workflow');
     invalidateTab('/brief');
-    invalidateTab('/work');
     invalidateTab('/monthly');
 
     const summary = [
@@ -188,34 +185,9 @@ export function ConnectFlow({
     invalidateTab('/connect');
     invalidateTab('/workflow');
     invalidateTab('/brief');
-    invalidateTab('/work');
     invalidateTab('/monthly');
     setMappingSaved(true);
     setMessage('Property mapping saved.');
-  }
-
-  if (!isAdminView && plan === 'free') {
-    return (
-      <div className="space-y-4">
-        <section className="rounded-[14px] bg-white p-5 shadow-sm">
-          <h3 className="text-sm font-semibold text-zinc-950">Free crawl audit</h3>
-          <p className="mt-1 text-sm leading-5 text-zinc-500">
-            Your free audit only crawls your public site — no Google account needed.
-          </p>
-        </section>
-        <section className="rounded-[14px] border border-zinc-200/80 bg-zinc-50 p-5">
-          <h3 className="text-sm font-semibold text-zinc-950">Want the full audit?</h3>
-          <p className="mt-1 text-sm leading-5 text-zinc-500">
-            Upgrade for a full audit built from your real Search Console, GA4, and Ads data — we
-            run it using our own agency account once you grant access, so you never have to share
-            your Google login.
-          </p>
-          <a href="/pricing" className={`${primaryBtnClass} mt-4`}>
-            Upgrade — $700
-          </a>
-        </section>
-      </div>
-    );
   }
 
   console.log('ConnectFlow props:', {
@@ -230,7 +202,6 @@ export function ConnectFlow({
     lastSyncedAt,
     scopes,
     isAdminView,
-    plan,
     connectionStatus,
     clientAccessConfirmedAt,
     workspaceBase,
@@ -238,7 +209,7 @@ export function ConnectFlow({
   
   return (
     <div className="space-y-6">
-      {!isAdminView && plan === 'paid' ? (
+      {!isAdminView ? (
         <section className="rounded-[14px] bg-white p-5 shadow-sm">
           <div className="flex items-start gap-3">
             <span
@@ -262,7 +233,7 @@ export function ConnectFlow({
         </section>
       ) : null}
 
-      {(mappingSaved || googleConnected) && (isAdminView || plan === 'paid') ? (
+      {mappingSaved || googleConnected ? (
         <div className="flex flex-wrap gap-2">
           <a href={reportHref} className={primaryBtnClass}>
             View Brief

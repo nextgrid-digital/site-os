@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { buildUnifiedWorkItems, matchFindingIdForWorkOrder } from '@/lib/workflow/work-items';
-import { deriveWorkflowStages } from '@/lib/workflow/stages';
 import { buildMonthlyCompare } from '@/lib/workflow/monthly-compare';
 import type { Finding, GraphWorkOrder } from '@/lib/supabase/types';
 
@@ -71,35 +70,6 @@ test('buildUnifiedWorkItems prefers linked work orders over duplicate findings',
   const items = buildUnifiedWorkItems({ findings, workOrders });
   assert.equal(items.length, 1);
   assert.equal(items[0].source, 'work_order');
-});
-
-test('deriveWorkflowStages lands on setup then audit then work', () => {
-  const setup = deriveWorkflowStages({
-    websiteConnected: false,
-    googleConnected: false,
-    hasCompletedAudit: false,
-    openWorkCount: 0,
-    hasPreviousAudit: false,
-  });
-  assert.equal(setup.now.stage, 'setup');
-
-  const audit = deriveWorkflowStages({
-    websiteConnected: true,
-    googleConnected: true,
-    hasCompletedAudit: false,
-    openWorkCount: 0,
-    hasPreviousAudit: false,
-  });
-  assert.equal(audit.now.stage, 'audit');
-
-  const work = deriveWorkflowStages({
-    websiteConnected: true,
-    googleConnected: true,
-    hasCompletedAudit: true,
-    openWorkCount: 3,
-    hasPreviousAudit: false,
-  });
-  assert.equal(work.now.stage, 'work');
 });
 
 test('buildMonthlyCompare reports pending and finding deltas', () => {

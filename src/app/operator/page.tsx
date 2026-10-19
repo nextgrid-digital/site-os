@@ -1,5 +1,4 @@
 import { AddSiteDialog } from '@/components/operator/add-site-dialog';
-import { OperatorShell } from '@/components/operator/operator-shell';
 import { SiteCard, type SiteCardData } from '@/components/operator/site-card';
 import type { AuditReadiness } from '@/lib/audit/audit-readiness';
 import { deriveConnectionStatus } from '@/lib/google/connection-status';
@@ -79,20 +78,6 @@ async function listSiteCards(): Promise<SiteCardData[]> {
     }
   }
 
-  const ownerIds = Array.from(
-    new Set(projects.map((project) => project.user_id).filter((id): id is string => Boolean(id)))
-  );
-  const planByOwner = new Map<string, 'free' | 'paid'>();
-  if (ownerIds.length > 0) {
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('user_id, plan')
-      .in('user_id', ownerIds);
-    for (const row of profiles ?? []) {
-      planByOwner.set(row.user_id, row.plan === 'paid' ? 'paid' : 'free');
-    }
-  }
-
   const [{ data: connections }, { data: gscSelected }, { data: ga4Selected }, { data: adsSelected }] =
     await Promise.all([
       supabase
@@ -124,7 +109,6 @@ async function listSiteCards(): Promise<SiteCardData[]> {
 
   return projects.map((project) => {
     const latest = latestByProject.get(project.id) ?? null;
-    const ownerId = project.user_id;
     const connectionStatus = deriveConnectionStatus(
       connectionByProject.get(project.id) ?? null,
       mappedProjectIds.has(project.id)
@@ -135,7 +119,6 @@ async function listSiteCards(): Promise<SiteCardData[]> {
       domain: project.website?.domain ?? null,
       url: project.website?.url ?? null,
       updatedAt: project.updated_at,
-      plan: ownerId ? (planByOwner.get(ownerId) ?? 'free') : null,
       connectionStatus: connectionStatus.status,
       clientConfirmedAt: project.client_access_confirmed_at,
       latestAudit: latest
@@ -154,7 +137,7 @@ async function listSiteCards(): Promise<SiteCardData[]> {
 export default async function OperatorHomePage() {
   if (!hasSupabaseConfig()) {
     return (
-      <OperatorShell>
+      <>
         <div className="rounded-2xl border border-border bg-card px-5 py-8 text-center">
           <p className="text-sm font-medium text-foreground">Supabase configuration required</p>
           <p className="mt-2 text-sm text-foreground/55">
@@ -162,14 +145,14 @@ export default async function OperatorHomePage() {
             <code className="text-foreground/80">.env.local</code> and set your credentials.
           </p>
         </div>
-      </OperatorShell>
+      </>
     );
   }
 
   const sites = await listSiteCards();
 
   return (
-    <OperatorShell>
+    <>
       <div className="flex flex-col gap-8">
         <div className="flex items-center justify-end">
           <AddSiteDialog />
@@ -197,6 +180,6 @@ export default async function OperatorHomePage() {
           )}
         </section>
       </div>
-    </OperatorShell>
+    </>
   );
 }

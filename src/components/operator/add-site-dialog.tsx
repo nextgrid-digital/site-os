@@ -51,7 +51,7 @@ export function AddSiteDialog({
     setOpen(false);
     setName('');
     setWebsiteUrl('');
-    router.push(`/audit/${data.project.id}/overview`);
+    router.push(`/audit/${data.project.id}/workflow`);
     router.refresh();
   }
 

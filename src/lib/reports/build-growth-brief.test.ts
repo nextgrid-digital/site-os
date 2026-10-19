@@ -78,12 +78,6 @@ test('buildGrowthBrief teaser mode exposes one leak gap aeo and next step', () =
       error_message: 'AI provider is not configured.',
       analysis: null,
     },
-    pricing: {
-      recommended_tier: 'Site audit',
-      price_range: '$0',
-      rationale: 'Site audit',
-      included_items: [],
-    },
     readiness: 'full_data',
     dataAvailability: {
       gscConnected: true,
@@ -152,12 +146,6 @@ test('buildGrowthBrief no_data teaser works without traffic and avoids zero metr
       error_message: 'AI provider is not configured.',
       analysis: null,
     },
-    pricing: {
-      recommended_tier: 'Site audit',
-      price_range: '$0',
-      rationale: 'Site audit',
-      included_items: [],
-    },
     readiness: 'no_data',
     dataAvailability: {
       gscConnected: false,
@@ -220,12 +208,6 @@ test('buildGrowthBrief includes GSC/GA4 sections when connected even below volum
       error_message: null,
       analysis: null,
     },
-    pricing: {
-      recommended_tier: 'Site audit',
-      price_range: '$0',
-      rationale: 'Site audit',
-      included_items: [],
-    },
     readiness: 'no_data',
     dataAvailability: {
       gscConnected: true,
@@ -283,12 +265,6 @@ test('buildAuditVerdict highlights thin footprint and proof gaps', () => {
       error_message: null,
       analysis: null,
     },
-    pricing: {
-      recommended_tier: 'Site audit',
-      price_range: '$0',
-      rationale: 'Site audit',
-      included_items: [],
-    },
     readiness: 'no_data',
     dataAvailability: {
       gscConnected: false,
@@ -335,12 +311,6 @@ test('buildGrowthBrief maps homepage ogImageUrl into siteOnlySummary', () => {
       model: null,
       error_message: null,
       analysis: null,
-    },
-    pricing: {
-      recommended_tier: 'Site audit',
-      price_range: '$0',
-      rationale: 'Site audit',
-      included_items: [],
     },
     readiness: 'no_data',
     dataAvailability: {
@@ -391,12 +361,6 @@ test('buildGrowthBrief full mode includes priority stack and execution briefs', 
         risks_and_ambiguities: ['Vague homepage'],
         confidence_notes: 'Medium',
       },
-    },
-    pricing: {
-      recommended_tier: 'Full audit',
-      price_range: '~$700',
-      rationale: 'Brief',
-      included_items: ['Priority stack'],
     },
   });
 

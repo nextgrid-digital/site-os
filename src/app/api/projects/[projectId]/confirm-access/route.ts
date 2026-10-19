@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { confirmClientAccess } from '@/lib/db/projects';
-import { PaidPlanRequiredError, requirePaidSession } from '@/lib/db/profiles';
+import { requireSignedInSession, SessionRequiredError } from '@/lib/db/profiles';
 import { getProjectOverview, ProjectAccessError, requireProjectOwner } from '@/lib/db/projects';
 
 /**
@@ -15,7 +15,7 @@ export async function POST(
 ) {
   try {
     const { projectId } = await context.params;
-    const session = await requirePaidSession();
+    const session = await requireSignedInSession();
     if (session.isAdmin) {
       const project = await getProjectOverview(projectId);
       if (!project) {
@@ -27,7 +27,7 @@ export async function POST(
     const project = await confirmClientAccess(projectId);
     return NextResponse.json({ ok: true, confirmedAt: project.client_access_confirmed_at });
   } catch (error) {
-    if (error instanceof PaidPlanRequiredError || error instanceof ProjectAccessError) {
+    if (error instanceof SessionRequiredError || error instanceof ProjectAccessError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
     return NextResponse.json(

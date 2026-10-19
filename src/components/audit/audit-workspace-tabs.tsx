@@ -17,8 +17,6 @@ const PRIMARY_TABS: {
 }[] = [
   { id: 'workflow', label: 'Dashboard', suffix: '/workflow' },
   { id: 'brief', label: 'Brief', suffix: '/brief' },
-  { id: 'work', label: 'Work', suffix: '/work' },
-  { id: 'leads', label: 'Leads', suffix: '/leads' },
   { id: 'monthly', label: 'Monthly', suffix: '/monthly' },
   { id: 'connect', label: 'Setup', suffix: '/connect' },
 ];

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { SITE_CONFIG } from '@/lib/site-config';
 
 export const metadata = {
   title: 'Privacy Policy | Site-OS',
@@ -150,8 +151,8 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-lg font-semibold">9. Contact</h2>
           <p className="mt-2">
             Questions about this policy or your data? Contact us at{' '}
-            <a href="mailto:support@site-os.app" className="underline">
-              support@site-os.app
+            <a href={`mailto:${SITE_CONFIG.supportEmail}`} className="underline">
+              {SITE_CONFIG.supportEmail}
             </a>
             .
           </p>

@@ -7,7 +7,6 @@ export const SITE_CONTENT_CLASS = "mx-auto w-full max-w-280 px-8";
 
 export const SITE_NAV_LINKS = [
   { href: "/#how-it-works", label: "How it works" },
-  { href: "/#pricing", label: "Pricing" },
   { href: "/#faq", label: "FAQ" },
 ] as const;
 
@@ -16,7 +15,7 @@ interface SiteNavProps {
   showSignIn?: boolean;
   /** Explicit Supabase session — hides Sign in even if initials are missing. */
   signedIn?: boolean;
-  /** Marketing center links (How it works / Pricing / FAQ). Off on product pages. */
+  /** Marketing center links (How it works / FAQ). Off on product pages. */
   showMarketingNav?: boolean;
   rightSlot?: ReactNode;
 }

@@ -2,7 +2,7 @@
 
 Site-OS is a self-serve website audit product. Anyone can paste a URL for a free crawl-based
 audit; signing in unlocks the full report, and connecting Google Search Console, GA4, and Google
-Ads unlocks a connected audit with real performance data, findings, pricing guidance, and
+Ads unlocks a connected audit with real performance data, findings, next steps, and
 universal agent prompts for client-ready reports. An internal `/operator` console also exists for
 running and managing audits directly.
 
@@ -40,7 +40,7 @@ internal console.
 1. Paste a website URL for a free crawl audit — no signup required
 2. Sign up / log in (email+password or Google) to unlock the full free report
 3. Connect Google Search Console, GA4, and/or Google Ads to unlock the connected audit
-4. Run the audit and review findings, pricing guidance, architecture gaps, and the report
+4. Run the audit and review findings, next steps, architecture gaps, and the report
 
 ## Routes
 
@@ -63,4 +63,4 @@ npm test
 - Every project and Google connection is scoped to the owning account; see
   `supabase/migrations/018_project_ownership.sql` and `019_tighten_rls_policies.sql`.
 - No demo data or fake sample reports.
-- Payment/billing (Paddle) is not yet integrated — see the project roadmap for sequencing.
+- There are no paid plans or payments. GA4, Google Search Console and the Dashboard are free for every user.

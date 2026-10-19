@@ -1,10 +1,9 @@
 import { after, NextResponse } from 'next/server';
 import { runAudit } from '@/lib/audit/run-audit';
 import { getClientIntake } from '@/lib/db/client-intake';
-import { PaidPlanRequiredError, requirePaidSession } from '@/lib/db/profiles';
+import { requireSignedInSession, SessionRequiredError } from '@/lib/db/profiles';
 import {
   getProjectOverview,
-  isFullBriefUnlocked,
   ProjectAccessError,
   requireProjectAccess,
   requireProjectOwner,
@@ -27,7 +26,7 @@ export async function POST(
     const runType = body.runType === 'mini' ? 'mini' : 'full';
 
     if (runType === 'full') {
-      const session = await requirePaidSession();
+      await requireSignedInSession();
       await requireProjectOwner(projectId);
       const project = await getProjectOverview(projectId);
 
@@ -35,12 +34,6 @@ export async function POST(
 
       if (!project) {
         return NextResponse.json({ error: 'Project not found.' }, { status: 404 });
-      }
-      if (!session.isAdmin && !isFullBriefUnlocked(project)) {
-        return NextResponse.json(
-          { error: 'Unlock full audit access before running a full audit.' },
-          { status: 403 }
-        );
       }
     } else {
       await requireProjectAccess(projectId);
@@ -59,7 +52,7 @@ export async function POST(
 
     return NextResponse.json({ status: 'started', projectId, runType });
   } catch (error) {
-    if (error instanceof PaidPlanRequiredError || error instanceof ProjectAccessError) {
+    if (error instanceof SessionRequiredError || error instanceof ProjectAccessError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
     return NextResponse.json(

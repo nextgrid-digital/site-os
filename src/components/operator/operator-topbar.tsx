@@ -6,7 +6,6 @@ import {
   Building2,
   Link2,
   ScrollText,
-  Settings2,
 } from 'lucide-react';
 import { SITE_NAV_LINKS } from '@/components/audit/site-nav';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -16,8 +15,6 @@ import { cn } from '@/lib/utils';
 const primaryPills = [
   { title: 'Dashboard', suffix: '/workflow', icon: Building2 },
   { title: 'Brief', suffix: '/brief', icon: ScrollText },
-  { title: 'Work', suffix: '/work', icon: Settings2 },
-  { title: 'Leads', suffix: '/leads', icon: ScrollText },
   { title: 'Setup', suffix: '/connect', icon: Link2 },
 ] as const;
 

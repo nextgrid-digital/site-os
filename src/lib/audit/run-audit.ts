@@ -20,7 +20,6 @@ import {
   generateFindings,
 } from '@/lib/audit/finding-generators';
 import { generatePromptForFinding } from '@/lib/audit/prompt-generator';
-import { recommendPricing } from '@/lib/audit/pricing';
 import { applyGoalWeights } from '@/lib/audit/goal-scoring';
 import { scoreAndSortFindings, type ScoredFinding } from '@/lib/audit/score-findings';
 import { buildSiteOnlyAnalysis } from '@/lib/audit/site-only-analysis';
@@ -66,7 +65,6 @@ import type {
   ChannelTrafficRow,
   Finding,
   PageMetric,
-  PricingPlan,
   QueryMetric,
 } from '@/lib/supabase/types';
 import { normalizePath } from '@/lib/utils/urls';
@@ -76,7 +74,6 @@ export interface AuditRunResult {
   metrics: AuditMetrics;
   findings: Finding[];
   prompts: AgentPrompt[];
-  pricing: PricingPlan | null;
   architecture: ArchitectureRecommendation[];
   pageMetrics: PageMetric[];
   queryMetrics: QueryMetric[];
@@ -511,7 +508,6 @@ async function finalizeAuditRun(input: {
   const scoredFindings = applyGoalWeights(baseScoredFindings, goalCategory as Parameters<typeof applyGoalWeights>[1]);
   const limitedFindings =
     runType === 'mini' ? selectTeaserFindings(scoredFindings) : scoredFindings;
-  const pricing = recommendPricing(limitedFindings, runType);
   const architecture = generateArchitectureRecommendations(limitedFindings);
 
   const gscPageMap = new Map(gscData.pageRows.map((row) => [normalizePath(row.page), row]));
@@ -682,7 +678,6 @@ async function finalizeAuditRun(input: {
   const skipPrescriptions = runType === 'free';
 
   let prompts: AgentPrompt[] = [];
-  let pricingPlan: PricingPlan | null = null;
   let architectureRows: ArchitectureRecommendation[] = [];
 
   if (!skipPrescriptions) {
@@ -714,20 +709,6 @@ async function finalizeAuditRun(input: {
         ? await supabase.from('agent_prompts').insert(promptsPayload).select('*')
         : { data: [] as AgentPrompt[] };
     prompts = promptsRes.data ?? [];
-
-    const { data: pricingRow } = await supabase
-      .from('pricing_plans')
-      .insert({
-        audit_run_id: auditRunId,
-        project_id: projectId,
-        recommended_tier: pricing.recommended_tier,
-        price_range: pricing.price_range,
-        rationale: pricing.rationale,
-        included_items: pricing.included_items,
-      })
-      .select('*')
-      .single();
-    pricingPlan = pricingRow;
 
     const architectureRes =
       architecture.length > 0
@@ -826,7 +807,6 @@ async function finalizeAuditRun(input: {
       opportunity_score: row.opportunity_score,
     })),
     aeoResult,
-    pricing,
     readiness,
     dataAvailability,
     siteOnlyAnalysis,
@@ -854,7 +834,6 @@ async function finalizeAuditRun(input: {
     metrics,
     findings,
     prompts,
-    pricing: pricingPlan,
     architecture: architectureRows,
     pageMetrics,
     queryMetrics,
@@ -975,7 +954,6 @@ async function finalizeAuditRun(input: {
     metrics: metrics!,
     findings: findings ?? [],
     prompts: prompts ?? [],
-    pricing: pricingPlan,
     architecture: architectureRows ?? [],
     pageMetrics: pageMetrics ?? [],
     queryMetrics: queryMetrics ?? [],

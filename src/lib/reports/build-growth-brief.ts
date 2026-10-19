@@ -6,7 +6,6 @@ import {
   type DataAvailability,
 } from '@/lib/audit/audit-readiness';
 import { generatePromptForFinding } from '@/lib/audit/prompt-generator';
-import type { PricingRecommendation } from '@/lib/audit/pricing';
 import type { ScoredFinding } from '@/lib/audit/score-findings';
 import type { SiteOnlyAnalysis, SiteOnlyPageInventoryItem } from '@/lib/audit/site-only-analysis';
 import type { CommercialGraphBriefSlice } from '@/lib/graph/types';
@@ -134,10 +133,6 @@ export interface GrowthBrief {
   priorityStack: GrowthBriefPriorityItem[];
   executionBriefs: GrowthBriefExecutionItem[];
   offerRecommendation: {
-    tier: string;
-    priceRange: string;
-    rationale: string;
-    includedItems: string[];
     nextgridAction: string;
   };
   teaser: GrowthBriefTeaser | null;
@@ -406,7 +401,6 @@ type GrowthBriefInput = {
   > | null;
   queryMetrics: Array<Pick<QueryMetric, 'query' | 'impressions' | 'clicks' | 'opportunity_score'>>;
   aeoResult: AeoRunResult;
-  pricing: PricingRecommendation;
   readiness?: AuditReadiness;
   dataAvailability?: DataAvailability;
   siteOnlyAnalysis?: SiteOnlyAnalysis | null;
@@ -527,13 +521,11 @@ export function buildGrowthBrief(input: GrowthBriefInput): GrowthBrief {
   });
 
   const nextgridAction =
-    input.pricing.recommended_tier === 'Implementation sprint'
-      ? 'Review the full audit, then book an implementation sprint on the top execution briefs marked should-implement.'
-      : reportType === 'teaser'
-        ? 'Use this site audit to frame the gaps; unlock full audit access before implementation.'
-        : readiness === 'no_data'
-          ? 'Execute site-structure and AEO fixes first; reconnect Google data later to validate demand.'
-          : 'Review priority stack with the client, then propose implementation on items marked should-implement.';
+    reportType === 'teaser'
+      ? 'Use this site audit to frame the gaps; run the full audit with Google connected before implementation.'
+      : readiness === 'no_data'
+        ? 'Execute site-structure and AEO fixes first; reconnect Google data later to validate demand.'
+        : 'Review priority stack with the client, then propose implementation on items marked should-implement.';
 
   const includeSearchSection = dataAvailability.gscConnected;
   const includeGa4Section = dataAvailability.ga4Connected;
@@ -725,10 +717,6 @@ export function buildGrowthBrief(input: GrowthBriefInput): GrowthBrief {
     priorityStack,
     executionBriefs,
     offerRecommendation: {
-      tier: input.pricing.recommended_tier,
-      priceRange: input.pricing.price_range,
-      rationale: input.pricing.rationale,
-      includedItems: input.pricing.included_items,
       nextgridAction,
     },
     teaser,
@@ -756,7 +744,7 @@ export function buildGrowthBrief(input: GrowthBriefInput): GrowthBrief {
       {
         feature: 'Implementation path',
         teaser: 'Locked until full audit',
-        growthBrief: 'Should-implement flags + sprint recommendation',
+        growthBrief: 'Should-implement flags + next-step guidance',
       },
     ],
     commercialGraph: input.commercialGraph ?? null,

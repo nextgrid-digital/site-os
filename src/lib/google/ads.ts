@@ -1,7 +1,7 @@
 /**
  * Google Ads API helpers (REST + GAQL).
  *
- * Ads is read through one agency login (hello@nextgrid.digital) and NextGrid's manager
+ * Ads is read through one agency login (the Google account in OPERATOR_EMAIL) and NextGrid's manager
  * account (GOOGLE_ADS_MCC_ID). Every client account is linked under that MCC by an invite
  * the client accepts. Requests send `login-customer-id`. No developer token (sunset 2026-09-09).
  */
@@ -135,7 +135,7 @@ export function getNextgridMccId(): string | null {
 }
 
 /**
- * Access token for the agency login (hello@nextgrid.digital), from the stored refresh
+ * Access token for the agency login (OPERATOR_EMAIL), from the stored refresh
  * token. Null when GOOGLE_ADS_REFRESH_TOKEN is unset, which disables Ads.
  */
 export async function getAgencyAdsAccessToken(): Promise<string | null> {

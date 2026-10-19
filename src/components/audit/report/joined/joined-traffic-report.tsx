@@ -36,7 +36,6 @@ import { buildFunnelAssessment } from '@/lib/audit/funnel-assessment';
 import { buildFunnelHealth } from '@/lib/audit/funnel-health';
 import { buildJoinedTrafficStory } from '@/lib/audit/joined-traffic-story';
 import type { ConnectedAuditMetrics } from '@/lib/db/connected-metrics';
-import type { LeadFunnelSummary } from '@/lib/supabase/types';
 
 const sectionFallback = (
   <div className="h-40 animate-pulse rounded-2xl bg-zinc-100" aria-hidden />
@@ -94,14 +93,6 @@ const DashboardFunnelViews = dynamic(
   () =>
     import('@/components/audit/dashboard/dashboard-funnel-views').then(
       (mod) => mod.DashboardFunnelViews
-    ),
-  { ssr: false, loading: () => sectionFallback }
-);
-
-const DashboardLeadsBlock = dynamic(
-  () =>
-    import('@/components/audit/dashboard/dashboard-leads-block').then(
-      (mod) => mod.DashboardLeadsBlock
     ),
   { ssr: false, loading: () => sectionFallback }
 );
@@ -180,21 +171,18 @@ function buildChainKpiTiles({
 export function JoinedTrafficReport({
   projectId,
   connectedMetrics,
-  leadSummary = null,
   domain,
   websiteConnected = false,
   websiteLabel = null,
 }: {
   projectId: string;
   connectedMetrics: ConnectedAuditMetrics | null;
-  leadSummary?: LeadFunnelSummary | null;
   domain?: string;
   websiteConnected?: boolean;
   websiteLabel?: string | null;
 }) {
   const [secondaryTab, setSecondaryTab] = useState<'channels' | 'keywords'>('channels');
   const connectHref = `/audit/${projectId}/connect`;
-  const leadsHref = `/audit/${projectId}/leads`;
 
   const story = useMemo(
     () => buildJoinedTrafficStory(connectedMetrics),
@@ -336,7 +324,7 @@ export function JoinedTrafficReport({
         <div className="mx-auto max-w-280 space-y-4 px-8 pb-8">
           <SectionHeading
             title="Chain KPIs"
-            lead="Query → click → landing → engagement → GA4 conversion (not CRM leads)"
+            lead="Query → click → landing → engagement → GA4 conversion"
           />
           <AnalyticsKpiRow
             tiles={buildChainKpiTiles({
@@ -480,24 +468,6 @@ export function JoinedTrafficReport({
               title="Funnel data not ready"
               body={funnelAssessment.emptyReason ?? 'Connect GA4 and re-run a full audit.'}
               connectHref={connectHref}
-            />
-          )}
-        </div>
-      </section>
-
-      <section id="leads" className="block scroll-mt-24 pt-2">
-        <div className="mx-auto max-w-280 space-y-6 px-8 py-10">
-          <SectionHeading
-            title="Leads"
-            lead="Channel-wise lead gain, funnel stage, and status (CRM)"
-          />
-          {leadSummary ? (
-            <DashboardLeadsBlock leadSummary={leadSummary} leadsHref={leadsHref} />
-          ) : (
-            <BrandEmptyState
-              title="Lead reporting unavailable"
-              body="Open Leads to add pipeline records and track stage and status."
-              connectHref={leadsHref}
             />
           )}
         </div>

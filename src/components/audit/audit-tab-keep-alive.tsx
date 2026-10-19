@@ -16,9 +16,7 @@ import {
   SpaBriefPanel,
   SpaConnectPanel,
   SpaDashboardPanel,
-  SpaLeadsPanel,
   SpaMonthlyPanel,
-  SpaWorkPanel,
 } from '@/components/audit/spa-tab-panels';
 import type { ConnectedAuditMetrics } from '@/lib/db/connected-metrics';
 import type { AuditPrimaryTabSuffix } from '@/components/audit/audit-tab-cache';
@@ -27,7 +25,6 @@ export type AuditShellInitial = {
   auditRunId: string | null;
   connected: ConnectedAuditMetrics;
   growthBrief: unknown | null;
-  leadSummary: unknown | null;
 };
 
 /**
@@ -58,7 +55,6 @@ export function AuditTabKeepAlive({
         auditRunId: initial.auditRunId,
         connected: initial.connected,
         growthBrief: initial.growthBrief,
-        leadSummary: initial.leadSummary,
       }
     : null;
 
@@ -146,22 +142,12 @@ function AuditWorkspaceShell({
               <SpaBriefPanel domain={domain ?? ''} workspaceBase={base} />
             </div>
           ) : null}
-          {mounted.has('/work') ? (
-            <div hidden={active !== '/work'} {...(active !== '/work' ? { inert: true } : {})}>
-              <SpaWorkPanel projectId={projectId} />
-            </div>
-          ) : null}
-          {mounted.has('/leads') ? (
-            <div hidden={active !== '/leads'} {...(active !== '/leads' ? { inert: true } : {})}>
-              <SpaLeadsPanel projectId={projectId} workspaceId={workspaceId} />
-            </div>
-          ) : null}
           {mounted.has('/monthly') ? (
             <div
               hidden={active !== '/monthly'}
               {...(active !== '/monthly' ? { inert: true } : {})}
             >
-              <SpaMonthlyPanel projectId={projectId} workspaceBase={base} />
+              <SpaMonthlyPanel projectId={projectId} />
             </div>
           ) : null}
           {mounted.has('/connect') ? (

@@ -1,9 +1,6 @@
 import { AuditTabKeepAlive } from '@/components/audit/audit-tab-keep-alive';
 import { loadDashboardMetricsForProject } from '@/lib/db/connected-metrics';
-import {
-  getLeadSummaryOnly,
-  getPreferredCompletedAuditRunMeta,
-} from '@/lib/db/projects';
+import { getPreferredCompletedAuditRunMeta } from '@/lib/db/projects';
 import { resolveAuditWorkspace } from '@/lib/db/resolve-audit-workspace';
 
 export default async function AuditProjectLayout({
@@ -20,9 +17,8 @@ export default async function AuditProjectLayout({
   // Canonical tab suffix redirects live on each primary page (preserve /brief etc.).
   // Client shell also replaceState's to session workspaceId.
 
-  const [dash, leadSummary, preferredRun] = await Promise.all([
+  const [dash, preferredRun] = await Promise.all([
     loadDashboardMetricsForProject(projectId),
-    getLeadSummaryOnly(projectId),
     getPreferredCompletedAuditRunMeta(projectId),
   ]);
 
@@ -55,7 +51,6 @@ export default async function AuditProjectLayout({
           auditRunId: dash.auditRunId,
           connected: dash.connected,
           growthBrief: dash.growthBrief,
-          leadSummary,
         }}
       />
       {/* Primary pages return null; keep slot for redirects / Next segment matching. */}

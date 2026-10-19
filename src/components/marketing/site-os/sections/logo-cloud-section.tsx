@@ -57,7 +57,7 @@ export default function LogoCloudSection({ logos = logosContent, tile3Data = Til
                 Connected data sources
               </h2>
               <p className="block mt-1.5 text-muted-foreground 2xl:text-lg 2xl:leading-7" data-cid="n1412">
-                Connect Search Console and GA4 on a paid audit and read queries, sessions, and conversion gaps beside crawl findings.
+                Connect Search Console and GA4 in the full audit and read queries, sessions, and conversion gaps beside crawl findings.
               </p>
             </div>
             <div className="w-36 flex mt-8 mx-auto flex-wrap items-center gap-y-2 gap-x-4 text-muted-foreground text-xs font-medium leading-4 max-lg:mx-0" data-cid="n1413" aria-label="Supported revenue providers">

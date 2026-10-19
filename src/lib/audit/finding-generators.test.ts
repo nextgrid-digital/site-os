@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { generateFindings, generateArchitectureRecommendations } from '@/lib/audit/finding-generators';
 import { generatePromptForFinding } from '@/lib/audit/prompt-generator';
-import { recommendPricing } from '@/lib/audit/pricing';
 import { normalizePath, normalizeWebsiteUrl } from '@/lib/utils/urls';
 
 test('normalizeWebsiteUrl strips trailing slash and adds protocol', () => {
@@ -95,28 +94,6 @@ test('generatePromptForFinding returns universal prompt sections', () => {
   assert.match(prompt.full_prompt, /## Context/);
   assert.match(prompt.full_prompt, /## Acceptance criteria/);
   assert.equal(prompt.constraints.includes('universal'), true);
-});
-
-test('recommendPricing suggests Full audit for moderate finding volume', () => {
-  const findings = Array.from({ length: 6 }, (_, index) => ({
-    type: 'search_ctr_gap',
-    category: 'search',
-    severity: index < 2 ? ('high' as const) : ('medium' as const),
-    title: `Finding ${index}`,
-    summary: 'Summary',
-    page_path: '/',
-    evidence: {},
-    buyer_moment: 'Evaluation',
-    estimated_value: 'Value',
-  }));
-
-  const pricing = recommendPricing(findings, 'full');
-  assert.equal(pricing.recommended_tier, 'Full audit');
-});
-
-test('recommendPricing maps mini runs to Site audit', () => {
-  const pricing = recommendPricing([], 'mini');
-  assert.equal(pricing.recommended_tier, 'Site audit');
 });
 
 test('architecture recommendations derive from architecture findings', () => {

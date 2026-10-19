@@ -7,7 +7,7 @@ const ListRow7_data: ListRow7Data[] = [
     { ariahidden: "true", text: "·" },
     { text: "Scored findings" },
     { ariahidden: "true", text: "·" },
-    { text: "GSC + GA4 upgrade" },
+    { text: "GSC + GA4 connect" },
     { ariahidden: "true", text: "·" },
     { text: "Growth briefs" }
 ];

@@ -1,6 +1,4 @@
-/** Default agency Google account clients invite. */
-export const DEFAULT_OPERATOR_EMAIL = 'hello@nextgrid.digital';
-
-export function getOperatorEmail() {
-  return process.env.OPERATOR_EMAIL?.trim() || DEFAULT_OPERATOR_EMAIL;
+/** Agency Google account clients invite. Comes only from OPERATOR_EMAIL; null when unset. */
+export function getOperatorEmail(): string | null {
+  return process.env.OPERATOR_EMAIL?.trim() || null;
 }

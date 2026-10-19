@@ -2,7 +2,6 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { SitesDashboard, type SitesDashboardSite } from '@/components/audit/sites-dashboard';
 import { listUnlockedAuditSessionsForUser } from '@/lib/db/audit-sessions';
-import { getSessionPlan } from '@/lib/db/profiles';
 import { getSupabaseAdmin, hasSupabaseConfig } from '@/lib/supabase/server';
 import { createClient } from '@/utils/supabase/server';
 
@@ -137,13 +136,10 @@ export default async function AppHomePage({
     },
   }));
 
-  const session = await getSessionPlan();
-
   return (
     <SitesDashboard
       sites={sites}
       highlightSessionId={highlightSessionId ?? null}
-      showUpgradeBanner={session.plan === 'free'}
     />
   );
 }

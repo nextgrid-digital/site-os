@@ -1,18 +1,15 @@
 import { NextResponse } from 'next/server';
 import { loadDashboardMetricsForProject } from '@/lib/db/connected-metrics';
-import { getSessionPlan } from '@/lib/db/profiles';
+import { getSessionUser } from '@/lib/db/profiles';
 import { loadBrandEvidenceForAuditRun } from '@/lib/evidence/persist';
 import {
   getAuditWorkBundle,
   getGoogleConnection,
   getGrowthBriefForAuditRun,
-  getLeadSummaryOnly,
   getPreferredCompletedAuditRunId,
-  getProjectLeadReportingSummary,
   getProjectOverview,
   getWorkOrdersForAudit,
   listAuditRuns,
-  listLeads,
   listPropertyOptions,
   ProjectAccessError,
   requireProjectOwner,
@@ -48,11 +45,6 @@ export async function GET(request: Request, context: RouteContext) {
     await requireProjectOwner(projectId);
     const includeParam = new URL(request.url).searchParams.get('include');
     const includes = parseIncludes(includeParam);
-    // Legacy: include=work
-    if (includeParam === 'work') {
-      includes.add('work');
-      includes.add('dashboard');
-    }
 
     const dash = await loadDashboardMetricsForProject(projectId);
     const runId = dash.auditRunId ?? (await getPreferredCompletedAuditRunId(projectId));
@@ -62,32 +54,16 @@ export async function GET(request: Request, context: RouteContext) {
       auditRunId: dash.auditRunId,
       connected: dash.connected,
       growthBrief: dash.growthBrief,
-      leadSummary: null,
-      work: null,
       brief: null,
       monthly: null,
-      leads: null,
       connect: null,
     };
 
-    if (includes.has('dashboard') || includes.has('leads')) {
-      body.leadSummary = await getLeadSummaryOnly(projectId);
-    }
-
-    if (includes.has('work') || includes.has('brief') || includes.has('monthly')) {
-      if (runId) {
-        const work = await getAuditWorkBundle(runId);
-        body.work = work;
-        if (!body.growthBrief) {
-          body.growthBrief = await getGrowthBriefForAuditRun(runId);
-        }
-      }
-    }
-
     if (includes.has('brief') && runId) {
-      const work = (body.work as Awaited<ReturnType<typeof getAuditWorkBundle>> | null) ??
-        (await getAuditWorkBundle(runId));
-      body.work = work;
+      const work = await getAuditWorkBundle(runId);
+      if (!body.growthBrief) {
+        body.growthBrief = await getGrowthBriefForAuditRun(runId);
+      }
       const promptsByFindingId = new Map(work.prompts.map((p) => [p.finding_id, p]));
       const workItems = buildUnifiedWorkItems({
         findings: work.findings,
@@ -129,9 +105,7 @@ export async function GET(request: Request, context: RouteContext) {
     }
 
     if (includes.has('monthly') && runId) {
-      const work = (body.work as Awaited<ReturnType<typeof getAuditWorkBundle>> | null) ??
-        (await getAuditWorkBundle(runId));
-      body.work = work;
+      const work = await getAuditWorkBundle(runId);
       const promptsByFindingId = new Map(work.prompts.map((p) => [p.finding_id, p]));
       const workItems = buildUnifiedWorkItems({
         findings: work.findings,
@@ -180,25 +154,12 @@ export async function GET(request: Request, context: RouteContext) {
       };
     }
 
-    if (includes.has('leads')) {
-      const [project, leads] = await Promise.all([
-        getProjectOverview(projectId),
-        listLeads(projectId),
-      ]);
-      const reporting = await getProjectLeadReportingSummary(projectId, leads);
-      body.leads = {
-        projectName: project?.name ?? 'Project',
-        leads,
-        reporting,
-      };
-    }
-
     if (includes.has('connect')) {
       const [properties, storedConnection, connectorState, session, connectProject] = await Promise.all([
         listPropertyOptions(projectId),
         getGoogleConnection(projectId),
         loadProjectConnectorStatuses(projectId),
-        getSessionPlan(),
+        getSessionUser(),
         getProjectOverview(projectId),
       ]);
       const freshConnection = storedConnection
@@ -227,7 +188,6 @@ export async function GET(request: Request, context: RouteContext) {
             }))
           : [],
         isAdmin: session.isAdmin,
-        plan: session.plan,
         connectionStatus: freshConnection?.needsReconnect
           ? 'needs_refresh'
           : deriveConnectionStatus(connection, hasSelectedProperty).status,
