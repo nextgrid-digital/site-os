@@ -10,19 +10,19 @@ function pct(rate: number) {
 function tagClass(tag: JoinedProblemTag) {
   switch (tag) {
     case 'keep':
-      return 'bg-emerald-50 text-emerald-800';
+      return 'bg-success-soft text-success-ink';
     case 'ok':
-      return 'bg-zinc-100 text-zinc-600';
+      return 'bg-tint text-foreground/70';
     case 'deprioritize':
-      return 'bg-zinc-100 text-zinc-500';
+      return 'bg-tint text-muted-foreground';
     case 'discoverability':
-      return 'bg-sky-50 text-sky-800';
+      return 'bg-info-soft text-info-ink';
     case 'visibility':
     case 'click':
     case 'landing':
     case 'engagement':
     case 'conversion':
-      return 'bg-amber-50 text-amber-900';
+      return 'bg-warning-soft text-warning-ink';
     default: {
       const _exhaustive: never = tag;
       return _exhaustive;
@@ -33,7 +33,7 @@ function tagClass(tag: JoinedProblemTag) {
 export function JoinedQueryBridges({ rows }: { rows: JoinedQueryBridge[] }) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-[14px] bg-surface-5 px-4 py-8 text-center">
+      <div className="rounded-xl bg-surface-5 px-4 py-8 text-center">
         <p className="text-sm text-muted-foreground">
           No Search Console queries stored for this audit yet.
         </p>
@@ -42,7 +42,7 @@ export function JoinedQueryBridges({ rows }: { rows: JoinedQueryBridge[] }) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-[14px] bg-surface-3">
+    <div className="overflow-x-auto rounded-xl bg-surface-3">
       <table className="w-full min-w-[52rem] border-collapse text-left text-sm">
         <thead>
           <tr className="border-b border-surface-6 text-xs text-muted-foreground">

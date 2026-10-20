@@ -60,6 +60,22 @@
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-raised: var(--raised);
+  --color-tint: var(--tint);
+  --color-tint-strong: var(--tint-strong);
+  --color-line-strong: var(--line-strong);
+  --color-field: var(--field);
+  --color-success-soft: var(--success-soft);
+  --color-success-ink: var(--success-ink);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-ink: var(--warning-ink);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-ink: var(--danger-ink);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-soft: var(--info-soft);
+  --color-info-ink: var(--info-ink);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -139,7 +155,25 @@
   --muted-foreground: oklch(0.5 0 0);
   --accent: oklch(0.72 0.18 195);
   --accent-foreground: oklch(0.15 0 0);
-  --destructive: oklch(0.62 0.22 25);
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  /* Tonal surfaces and status tints (semantic replacements for zinc/white/emerald/etc.) */
+  --raised: oklch(1 0 0);
+  --tint: oklch(0.967 0 0);
+  --tint-strong: oklch(0.92 0 0);
+  --line-strong: oklch(0.87 0 0);
+  /* Form-field border: opaque, >=3:1 on paper and raised (WCAG 1.4.11) */
+  --field: oklch(0.62 0 0);
+  --success-soft: oklch(0.979 0.021 166);
+  --success-ink: oklch(0.45 0.11 165);
+  --warning-soft: oklch(0.987 0.022 95);
+  --warning-ink: oklch(0.47 0.12 60);
+  --danger-soft: oklch(0.969 0.015 12);
+  --danger-ink: oklch(0.48 0.19 17);
+  --info: oklch(0.5 0.15 240);
+  --info-foreground: oklch(0.99 0 0);
+  --info-soft: oklch(0.977 0.013 237);
+  --info-ink: oklch(0.44 0.11 240);
   --border: oklch(0.15 0 0 / 0.06);
   --input: oklch(0.15 0 0 / 0.06);
   --ring: oklch(0.15 0 0 / 0.12);
@@ -147,7 +181,7 @@
   --priority-foreground: oklch(0.99 0 0);
   --aeo: oklch(0.78 0.12 85);
   --aeo-foreground: oklch(0.15 0 0);
-  --success: oklch(0.55 0.12 155);
+  --success: oklch(0.5 0.12 155);
   --success-foreground: oklch(0.99 0 0);
   --warning: oklch(0.72 0.14 75);
   --warning-foreground: oklch(0.15 0 0);
@@ -181,10 +215,26 @@
   --secondary: #1c1c1c;
   --secondary-foreground: oklch(0.96 0 0);
   --muted: #1c1c1c;
-  --muted-foreground: oklch(0.62 0 0);
+  --muted-foreground: oklch(0.68 0 0);
   --accent: oklch(0.8 0.18 195);
   --accent-foreground: #151515;
   --destructive: oklch(0.62 0.22 25);
+  --destructive-foreground: #151515;
+  --raised: #1c1c1c;
+  --tint: #222222;
+  --tint-strong: #2a2a2a;
+  --line-strong: #3a3a3a;
+  --field: oklch(0.55 0 0);
+  --success-soft: oklch(0.27 0.05 160);
+  --success-ink: oklch(0.82 0.13 160);
+  --warning-soft: oklch(0.29 0.05 80);
+  --warning-ink: oklch(0.84 0.13 80);
+  --danger-soft: oklch(0.28 0.06 17);
+  --danger-ink: oklch(0.82 0.12 17);
+  --info: oklch(0.7 0.14 240);
+  --info-foreground: #151515;
+  --info-soft: oklch(0.27 0.05 235);
+  --info-ink: oklch(0.83 0.1 235);
   --border: rgb(255 255 255 / 0.05);
   --input: rgb(255 255 255 / 0.05);
   --ring: rgb(255 255 255 / 0.1);
@@ -211,61 +261,6 @@
   --sidebar-ring: rgb(255 255 255 / 0.1);
   --report-paper: #1c1c1c;
   --report-ink: oklch(0.96 0 0);
-}
-
-/*
- * Product audit UI still uses many hardcoded zinc/white utilities.
- * Remap those Tailwind color vars under the product shell in dark mode
- * so cards/ink invert without rewriting every component.
- */
-.dark [data-audit-app] {
-  --color-white: var(--card);
-  --color-black: var(--foreground);
-  --color-zinc-50: var(--muted);
-  --color-zinc-100: #222222;
-  --color-zinc-200: #2a2a2a;
-  --color-zinc-300: #3a3a3a;
-  --color-zinc-400: #525252;
-  --color-zinc-500: oklch(0.62 0 0);
-  --color-zinc-600: oklch(0.72 0 0);
-  --color-zinc-700: oklch(0.82 0 0);
-  --color-zinc-800: oklch(0.9 0 0);
-  --color-zinc-900: oklch(0.94 0 0);
-  --color-zinc-950: var(--foreground);
-  /* Tinted status surfaces: dark fills with light text (WCAG AA on card) */
-  --color-emerald-50: oklch(0.27 0.05 160);
-  --color-emerald-200: oklch(0.42 0.08 160);
-  --color-emerald-700: oklch(0.82 0.13 160);
-  --color-emerald-800: oklch(0.86 0.1 160);
-  --color-emerald-900: oklch(0.9 0.07 160);
-  --color-emerald-950: oklch(0.94 0.04 160);
-  --color-rose-50: oklch(0.28 0.06 17);
-  --color-rose-600: oklch(0.78 0.14 17);
-  --color-rose-700: oklch(0.82 0.12 17);
-  --color-amber-50: oklch(0.29 0.05 80);
-  --color-amber-700: oklch(0.84 0.13 80);
-  --color-amber-950: oklch(0.95 0.05 80);
-  --color-amber-200: oklch(0.42 0.08 80);
-  --color-amber-900: oklch(0.9 0.08 80);
-  --color-red-50: oklch(0.28 0.06 25);
-  --color-red-200: oklch(0.42 0.1 25);
-  --color-red-900: oklch(0.9 0.06 25);
-  --color-sky-50: oklch(0.27 0.05 235);
-  --color-sky-700: oklch(0.83 0.1 235);
-  color-scheme: dark;
-}
-
-/* Literal Tailwind utilities that may not read remapped --color-* vars */
-.dark [data-audit-app] :is(.bg-white, .bg-zinc-50, .bg-zinc-100) {
-  background-color: var(--card);
-}
-.dark [data-audit-app] :is(.text-zinc-950, .text-zinc-900) {
-  color: var(--foreground);
-}
-
-/* Inverted chips: remapped bg-zinc-950 becomes light, so flip white text */
-.dark [data-audit-app] .bg-zinc-950.text-white {
-  color: var(--card);
 }
 
 @layer base {
@@ -297,22 +292,6 @@
   .font-display {
     font-family: var(--font-display), var(--font-geist), ui-serif, Georgia, serif;
   }
-
-  .report-sheet {
-    background: rgb(255 255 255 / 0.03);
-    color: var(--foreground);
-    border: 0;
-    border-radius: 1.5rem;
-    box-shadow: none;
-  }
-
-  .score-pill {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
-  }
-
-  .section-rail {
-    @apply relative rounded-3xl bg-white/[0.03];
-  }
 }
 
 /* ─── PDF / Print styles (dark mode) ─── */
@@ -343,7 +322,6 @@
     display: block !important;
   }
 
-  .report-sheet,
   [data-slot='card'] {
     background: #141416 !important;
     border-color: rgba(255, 255, 255, 0.08) !important;
@@ -352,11 +330,6 @@
   }
 
   section {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  .section-rail {
     break-inside: avoid;
     page-break-inside: avoid;
   }
@@ -377,4 +350,13 @@
 
 .audit-progress-bar {
   animation: audit-progress-indeterminate 1.4s ease-in-out infinite;
+}
+
+/* Reduced motion: keep the bar visible as a static partial fill instead of sliding */
+@media (prefers-reduced-motion: reduce) {
+  .audit-progress-bar {
+    animation: none;
+    transform: none;
+    width: 40%;
+  }
 }

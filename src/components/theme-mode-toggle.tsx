@@ -42,7 +42,7 @@ export function ThemeModeToggle({ className }: { className?: string }) {
             title={label}
             onClick={() => setTheme(value)}
             className={cn(
-              'inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-xs font-medium transition-colors',
+              'inline-flex h-7 pointer-coarse:h-10 items-center gap-1.5 rounded-md px-2 text-xs font-medium transition-colors',
               isActive
                 ? 'bg-background text-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground',

@@ -9,7 +9,7 @@ export function SiteCardFavicon({ domain, name }: { domain: string; name: string
 
   if (failed || !domain) {
     return (
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-sm font-semibold text-zinc-600">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-tint text-sm font-semibold text-foreground/70">
         {letter}
       </span>
     );
@@ -22,7 +22,7 @@ export function SiteCardFavicon({ domain, name }: { domain: string; name: string
       alt=""
       width={36}
       height={36}
-      className="h-9 w-9 shrink-0 rounded-lg bg-white object-contain p-1"
+      className="h-9 w-9 shrink-0 rounded-lg bg-raised object-contain p-1"
       onError={() => setFailed(true)}
     />
   );

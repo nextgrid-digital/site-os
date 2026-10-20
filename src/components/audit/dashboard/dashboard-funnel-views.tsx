@@ -50,7 +50,7 @@ function StepBars({
   steps: Array<{ label: string; visitors: number; dropOffPct: number | null; tag?: string }>;
 }) {
   if (steps.length === 0) {
-    return <p className="text-sm text-zinc-500">No steps in this audit yet.</p>;
+    return <p className="text-sm text-muted-foreground">No steps in this audit yet.</p>;
   }
   const max = Math.max(...steps.map((s) => s.visitors), 1);
   let worstIdx = -1;
@@ -67,20 +67,20 @@ function StepBars({
       {steps.map((step, index) => (
         <li key={`${step.label}-${index}`}>
           <div className="mb-1 flex items-baseline justify-between gap-2 text-xs">
-            <span className="font-medium text-zinc-800">{step.label}</span>
-            <span className="tabular-nums text-zinc-500">
+            <span className="font-medium text-foreground/90">{step.label}</span>
+            <span className="tabular-nums text-muted-foreground">
               {step.visitors.toLocaleString()}
               {step.dropOffPct != null ? ` · −${pct(step.dropOffPct)}` : ''}
               {index === worstIdx && worstDrop >= 40 ? '· biggest drop' : ''}
               {step.tag ? ` · ${step.tag}` : ''}
             </span>
           </div>
-          <div className="h-2 overflow-hidden rounded-full bg-zinc-100">
+          <div className="h-2 overflow-hidden rounded-full bg-tint">
             <div
               className={
                 index === worstIdx && worstDrop >= 40
-                  ? 'h-full rounded-full bg-amber-500'
-                  : 'h-full rounded-full bg-zinc-800'
+                  ? 'h-full rounded-full bg-warning'
+                  : 'h-full rounded-full bg-foreground/85'
               }
               style={{ width: `${Math.max(4, (step.visitors / max) * 100)}%` }}
             />
@@ -152,15 +152,15 @@ export function DashboardFunnelViews({
   return (
     <div className="space-y-4">
       {leakHint ? (
-        <p className="rounded-lg bg-amber-50/70 px-3 py-2 text-sm text-amber-950">
+        <p className="rounded-lg bg-warning-soft/70 px-3 py-2 text-sm text-warning-ink">
           {leakHint}
         </p>
       ) : null}
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <section className="rounded-[14px] bg-white p-4">
-          <h3 className="text-sm font-semibold text-zinc-950">By channel</h3>
-          <p className="mt-0.5 text-xs text-zinc-500">
+        <section className="rounded-xl bg-raised p-4">
+          <h3 className="text-sm font-semibold text-foreground">By channel</h3>
+          <p className="mt-0.5 text-xs text-muted-foreground">
             Ranked sources · −% = sessions that did not convert
           </p>
           <div className="mt-4">
@@ -168,9 +168,9 @@ export function DashboardFunnelViews({
           </div>
         </section>
 
-        <section className="rounded-[14px] bg-white p-4">
-          <h3 className="text-sm font-semibold text-zinc-950">Top pages by sessions</h3>
-          <p className="mt-0.5 text-xs text-zinc-500">
+        <section className="rounded-xl bg-raised p-4">
+          <h3 className="text-sm font-semibold text-foreground">Top pages by sessions</h3>
+          <p className="mt-0.5 text-xs text-muted-foreground">
             Popular pages — not a click path / journey
           </p>
           <div className="mt-4">
@@ -178,9 +178,9 @@ export function DashboardFunnelViews({
           </div>
         </section>
 
-        <section className="rounded-[14px] bg-white p-4">
-          <h3 className="text-sm font-semibold text-zinc-950">Goal funnel</h3>
-          <p className="mt-0.5 text-xs text-zinc-500">
+        <section className="rounded-xl bg-raised p-4">
+          <h3 className="text-sm font-semibold text-foreground">Goal funnel</h3>
+          <p className="mt-0.5 text-xs text-muted-foreground">
             Property totals · Visit → engagement → GA4 conversion
           </p>
           <div className="mt-4">

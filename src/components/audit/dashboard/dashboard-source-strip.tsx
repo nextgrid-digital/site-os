@@ -23,30 +23,30 @@ export function DashboardSourceStrip({
           className={cn(
             'inline-flex max-w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs',
             source.connected
-              ? 'bg-white text-zinc-800'
-              : 'bg-zinc-50 text-zinc-500'
+              ? 'bg-raised text-foreground/90'
+              : 'bg-muted text-muted-foreground'
           )}
         >
           <span
             className={cn('size-1.5 shrink-0 rounded-full',
-              source.connected ? 'bg-emerald-500' : 'bg-zinc-300'
+              source.connected ? 'bg-success' : 'bg-line-strong'
             )}
             aria-hidden
           />
           <span className="font-medium whitespace-nowrap">{source.label}</span>
           {source.detail ? (
-            <span className="max-w-[10rem] truncate text-zinc-500" title={source.detail}>
+            <span className="max-w-[10rem] truncate text-muted-foreground" title={source.detail}>
               {source.detail}
             </span>
           ) : (
-            <span className="text-zinc-500">{source.connected ? 'On' : 'Off'}</span>
+            <span className="text-muted-foreground">{source.connected ? 'On' : 'Off'}</span>
           )}
         </div>
       ))}
       <SoftAuditTabLink
         href={connectHref}
         suffix="/connect"
-        className="text-xs font-medium text-zinc-600 underline-offset-2 hover:text-zinc-950 hover:underline"
+        className="text-xs font-medium text-foreground/70 underline-offset-2 hover:text-foreground hover:underline"
       >
         Setup
       </SoftAuditTabLink>

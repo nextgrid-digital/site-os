@@ -138,12 +138,12 @@ export function AuthSignInGate({
 
   if (mode === 'forgot') {
     return (
-      <Card className="w-full gap-5 rounded-[14px] bg-white p-6 shadow-sm ring-1 ring-zinc-100 sm:p-8">
+      <Card className="w-full gap-5 rounded-xl bg-raised p-6 shadow-sm ring-1 ring-border sm:p-8">
         <CardHeader className="gap-1 px-0">
-          <CardTitle className="font-sans text-2xl font-semibold tracking-tight text-zinc-950">
+          <CardTitle className="font-sans text-2xl font-semibold tracking-tight text-foreground">
             Reset your password
           </CardTitle>
-          <CardDescription className="text-sm text-zinc-500">
+          <CardDescription className="text-sm text-muted-foreground">
             Enter your email and we&apos;ll send a link to choose a new password.
           </CardDescription>
         </CardHeader>
@@ -171,25 +171,25 @@ export function AuthSignInGate({
           </form>
 
           {message ? <p className="text-sm text-success">{message}</p> : null}
-          {error ? <p className="text-sm text-rose-700">{error}</p> : null}
+          {error ? <p className="text-sm text-danger-ink">{error}</p> : null}
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="w-full gap-5 rounded-[14px] bg-white p-6 shadow-sm ring-1 ring-zinc-100 sm:p-8">
+    <Card className="w-full gap-5 rounded-xl bg-raised p-6 shadow-sm ring-1 ring-border sm:p-8">
       <CardHeader className="gap-1 px-0">
-        <CardTitle className="font-sans text-2xl font-semibold tracking-tight text-zinc-950">
+        <CardTitle className="font-sans text-2xl font-semibold tracking-tight text-foreground">
           {mode === 'signup' ? 'Create your account' : 'Sign in'}
         </CardTitle>
-        <CardDescription className="text-sm text-zinc-500">
+        <CardDescription className="text-sm text-muted-foreground">
           {mode === 'signup' ? 'Set up your Site-OS account to continue.' : 'Sign in to continue to Site-OS.'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 px-0">
         <Tabs value={mode} onValueChange={(value) => switchMode(value as Mode)}>
-          <TabsList className="w-full rounded-xl bg-zinc-100 group-data-horizontal/tabs:h-10">
+          <TabsList className="w-full rounded-xl bg-tint group-data-horizontal/tabs:h-10">
             <TabsTrigger className="rounded-lg" value="signin">Sign in</TabsTrigger>
             <TabsTrigger className="rounded-lg" value="signup">Sign up</TabsTrigger>
           </TabsList>
@@ -263,7 +263,7 @@ export function AuthSignInGate({
           </Button>
         </form>
 
-        {error ? <p className="text-sm text-rose-700">{error}</p> : null}
+        {error ? <p className="text-sm text-danger-ink">{error}</p> : null}
 
         <div className="flex items-center gap-3">
           <Separator className="flex-1" />
@@ -276,7 +276,7 @@ export function AuthSignInGate({
           variant="outline"
           onClick={handleGoogle}
           disabled={googleLoading || loading}
-          className="h-11 w-full cursor-pointer gap-2 rounded-xl hover:bg-zinc-100"
+          className="h-11 w-full cursor-pointer gap-2 rounded-xl hover:bg-tint"
         >
           <GoogleIcon />
           {googleLoading

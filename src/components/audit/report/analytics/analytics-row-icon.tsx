@@ -67,15 +67,15 @@ function looksLikeHost(label: string) {
 
 function channelIcon(label: string): { Icon: LucideIcon; color: string; bg: string } {
   const l = label.toLowerCase();
-  if (l.includes('direct')) return { Icon: Link2, color: 'text-zinc-700', bg: 'bg-zinc-100' };
+  if (l.includes('direct')) return { Icon: Link2, color: 'text-foreground/80', bg: 'bg-tint' };
   if (l.includes('organic') || l.includes('search'))
-    return { Icon: Search, color: 'text-sky-700', bg: 'bg-sky-50' };
+    return { Icon: Search, color: 'text-info-ink', bg: 'bg-info-soft' };
   if (l.includes('social')) return { Icon: Share2, color: 'text-violet-700', bg: 'bg-violet-50' };
-  if (l.includes('email')) return { Icon: Mail, color: 'text-amber-700', bg: 'bg-amber-50' };
+  if (l.includes('email')) return { Icon: Mail, color: 'text-warning-ink', bg: 'bg-warning-soft' };
   if (l.includes('paid') || l.includes('cpc'))
-    return { Icon: MousePointerClick, color: 'text-rose-700', bg: 'bg-rose-50' };
-  if (l.includes('referral')) return { Icon: Globe, color: 'text-emerald-700', bg: 'bg-emerald-50' };
-  return { Icon: Globe, color: 'text-zinc-600', bg: 'bg-zinc-100' };
+    return { Icon: MousePointerClick, color: 'text-danger-ink', bg: 'bg-danger-soft' };
+  if (l.includes('referral')) return { Icon: Globe, color: 'text-success-ink', bg: 'bg-success-soft' };
+  return { Icon: Globe, color: 'text-foreground/70', bg: 'bg-tint' };
 }
 
 function deviceIcon(label: string): { Icon: LucideIcon; color: string; bg: string } {
@@ -94,24 +94,24 @@ function browserStyle(label: string): { letter: string; color: string; bg: strin
   if (l.includes('opera')) return { letter: 'O', color: 'text-red-800', bg: 'bg-red-100' };
   return {
     letter: (label[0] || '?').toUpperCase(),
-    color: 'text-zinc-700',
-    bg: 'bg-zinc-100',
+    color: 'text-foreground/80',
+    bg: 'bg-tint',
   };
 }
 
 function eventIcon(label: string): { Icon: LucideIcon; color: string; bg: string } {
   const l = label.toLowerCase();
   if (l.includes('generate_lead') || l.includes('lead') || l.includes('purchase') || l.includes('sign'))
-    return { Icon: Zap, color: 'text-amber-700', bg: 'bg-amber-50' };
+    return { Icon: Zap, color: 'text-warning-ink', bg: 'bg-warning-soft' };
   if (l.includes('page_view') || l.includes('view'))
-    return { Icon: Eye, color: 'text-sky-700', bg: 'bg-sky-50' };
+    return { Icon: Eye, color: 'text-info-ink', bg: 'bg-info-soft' };
   if (l.includes('session_start') || l.includes('session'))
-    return { Icon: Activity, color: 'text-emerald-700', bg: 'bg-emerald-50' };
+    return { Icon: Activity, color: 'text-success-ink', bg: 'bg-success-soft' };
   if (l.includes('first_visit') || l.includes('first'))
     return { Icon: UserPlus, color: 'text-violet-700', bg: 'bg-violet-50' };
   if (l.includes('engagement') || l.includes('scroll') || l.includes('click'))
-    return { Icon: MousePointerClick, color: 'text-rose-700', bg: 'bg-rose-50' };
-  return { Icon: Radio, color: 'text-zinc-700', bg: 'bg-zinc-100' };
+    return { Icon: MousePointerClick, color: 'text-danger-ink', bg: 'bg-danger-soft' };
+  return { Icon: Radio, color: 'text-foreground/80', bg: 'bg-tint' };
 }
 
 function LucideMark({
@@ -150,11 +150,11 @@ export function AnalyticsRowIcon({
   switch (kind) {
     case 'page':
       return (
-        <LucideMark Icon={FileText} color="text-zinc-600" bg="bg-zinc-100" className={className} />
+        <LucideMark Icon={FileText} color="text-foreground/70" bg="bg-tint" className={className} />
       );
     case 'search':
       return (
-        <LucideMark Icon={Search} color="text-sky-700" bg="bg-sky-50" className={className} />
+        <LucideMark Icon={Search} color="text-info-ink" bg="bg-info-soft" className={className} />
       );
     case 'source': {
       if (looksLikeHost(label)) {
@@ -189,7 +189,7 @@ export function AnalyticsRowIcon({
         );
       }
       return (
-        <LucideMark Icon={Globe} color="text-emerald-700" bg="bg-emerald-50" className={className} />
+        <LucideMark Icon={Globe} color="text-success-ink" bg="bg-success-soft" className={className} />
       );
     }
     case 'device': {
@@ -200,7 +200,7 @@ export function AnalyticsRowIcon({
       const b = browserStyle(label);
       return (
         <span
-          className={cn('inline-flex size-5 shrink-0 items-center justify-center rounded-md text-[10px] font-bold',
+          className={cn('inline-flex size-5 shrink-0 items-center justify-center rounded-md text-[11px] font-bold',
             b.bg,
             b.color,
             className

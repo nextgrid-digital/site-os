@@ -15,12 +15,12 @@ export function SitesGrid({
 
   if (sites.length === 0) {
     return (
-      <div className="rounded-2xl bg-white px-6 py-14 text-center">
-        <p className="text-sm font-medium text-zinc-900">No sites yet</p>
-        <p className="mt-1 text-sm text-zinc-500">Add a site to start your first free audit.</p>
+      <div className="rounded-2xl bg-raised px-6 py-14 text-center">
+        <p className="text-sm font-medium text-foreground">No sites yet</p>
+        <p className="mt-1 text-sm text-muted-foreground">Add a site to start your first free audit.</p>
         <div className="mt-5 flex justify-center">
           <AddSiteAuditDialogLazy
-            triggerClassName="inline-flex h-auto items-center gap-1.5 rounded-lg bg-zinc-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-800"
+            triggerClassName="inline-flex h-auto items-center gap-1.5 rounded-lg bg-primary px-4 py-2 pointer-coarse:py-3 text-sm font-medium text-primary-foreground transition hover:bg-primary/80"
           />
         </div>
       </div>

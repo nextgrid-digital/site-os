@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 const DEFAULT_TRIGGER_CLASS =
-  'inline-flex h-auto items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-sm font-medium text-zinc-900 shadow-sm transition hover:bg-zinc-50';
+  'inline-flex h-auto items-center gap-1.5 rounded-lg bg-raised px-3 py-2 text-sm font-medium text-foreground shadow-sm transition hover:bg-muted';
 
 export function AddSiteAuditDialog({
   triggerClassName,

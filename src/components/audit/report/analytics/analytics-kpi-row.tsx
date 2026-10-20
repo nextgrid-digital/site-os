@@ -19,7 +19,7 @@ export function AnalyticsKpiRow({ tiles }: { tiles: AnalyticsKpiTile[] }) {
         return (
           <div
             key={tile.id}
-            className={`relative block h-full w-full min-w-0 rounded-[14px] border border-solid p-4 text-left ${
+            className={`relative block h-full w-full min-w-0 rounded-xl border border-solid p-4 text-left ${
               selected ? METRIC_TILE_ACTIVE : METRIC_TILE_IDLE
             }`}
           >

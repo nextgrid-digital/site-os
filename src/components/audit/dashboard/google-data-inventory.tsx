@@ -27,9 +27,9 @@ export function GoogleDataInventory({
 
   if (!hasAnything) {
     return (
-      <div className="rounded-[14px] bg-white p-4">
-        <h3 className="text-sm font-semibold text-zinc-950">Google data inventory</h3>
-        <p className="mt-1 text-sm text-zinc-500">
+      <div className="rounded-xl bg-raised p-4">
+        <h3 className="text-sm font-semibold text-foreground">Google data inventory</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
           Re-run a full audit to pull key events, full event counts, campaigns, and Search Console
           country/device cuts.
         </p>
@@ -39,9 +39,9 @@ export function GoogleDataInventory({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-[14px] bg-white p-4">
-        <h3 className="text-sm font-semibold text-zinc-950">GA4 key events</h3>
-        <p className="mt-0.5 text-xs text-zinc-500">
+      <div className="rounded-xl bg-raised p-4">
+        <h3 className="text-sm font-semibold text-foreground">GA4 key events</h3>
+        <p className="mt-0.5 text-xs text-muted-foreground">
           Configured conversion / key events from the property (Admin API)
         </p>
         {keyEvents.length > 0 ? (
@@ -49,35 +49,35 @@ export function GoogleDataInventory({
             {keyEvents.map((event) => (
               <span
                 key={event.eventName}
-                className="rounded-full bg-zinc-50 px-2.5 py-1 text-xs font-medium text-zinc-800"
+                className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-foreground/90"
               >
                 {event.eventName}
               </span>
             ))}
           </div>
         ) : (
-          <p className="mt-3 text-sm text-zinc-500">
+          <p className="mt-3 text-sm text-muted-foreground">
             No key events returned from Admin API. Mark events as key events in GA4 to track
             conversions.
           </p>
         )}
       </div>
 
-      <div className="rounded-[14px] bg-white p-4">
+      <div className="rounded-xl bg-raised p-4">
         <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
           <div>
-            <h3 className="text-sm font-semibold text-zinc-950">Event inventory</h3>
-            <p className="mt-0.5 text-xs text-zinc-500">
+            <h3 className="text-sm font-semibold text-foreground">Event inventory</h3>
+            <p className="mt-0.5 text-xs text-muted-foreground">
               Ordered by event count · key events highlighted
             </p>
           </div>
-          <p className="text-xs text-zinc-500">{events.length} events in window</p>
+          <p className="text-xs text-muted-foreground">{events.length} events in window</p>
         </div>
         {events.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="text-xs text-zinc-500">
+                <tr className="text-xs text-muted-foreground">
                   <th className="pb-2 font-medium">Event</th>
                   <th className="pb-2 text-right font-medium">Count</th>
                   <th className="pb-2 text-right font-medium">Sessions</th>
@@ -86,22 +86,22 @@ export function GoogleDataInventory({
               </thead>
               <tbody>
                 {events.slice(0, 40).map((event) => (
-                  <tr key={event.eventName} className="border-t border-zinc-100">
-                    <td className="py-2 pr-2 font-medium text-zinc-900">
+                  <tr key={event.eventName} className="border-t border-border">
+                    <td className="py-2 pr-2 font-medium text-foreground">
                       {event.eventName}
                       {event.isKeyEvent ? (
-                        <span className="ml-2 text-[10px] font-semibold tracking-wide text-emerald-700 uppercase">
+                        <span className="ml-2 text-[11px] font-semibold tracking-wide text-success-ink uppercase">
                           key
                         </span>
                       ) : null}
                     </td>
-                    <td className="py-2 text-right tabular-nums text-zinc-700">
+                    <td className="py-2 text-right tabular-nums text-foreground/80">
                       {event.eventCount.toLocaleString()}
                     </td>
-                    <td className="py-2 text-right tabular-nums text-zinc-500">
+                    <td className="py-2 text-right tabular-nums text-muted-foreground">
                       {event.sessions.toLocaleString()}
                     </td>
-                    <td className="py-2 text-right tabular-nums text-zinc-700">
+                    <td className="py-2 text-right tabular-nums text-foreground/80">
                       {event.conversions.toLocaleString()}
                     </td>
                   </tr>
@@ -110,7 +110,7 @@ export function GoogleDataInventory({
             </table>
           </div>
         ) : (
-          <p className="text-sm text-zinc-500">No events in this audit window.</p>
+          <p className="text-sm text-muted-foreground">No events in this audit window.</p>
         )}
       </div>
 
@@ -174,13 +174,13 @@ function InventoryTable({
   rows: Array<{ label: string; values: number[] }>;
 }) {
   return (
-    <div className="rounded-[14px] bg-white p-4">
-      <h3 className="text-sm font-semibold text-zinc-950">{title}</h3>
+    <div className="rounded-xl bg-raised p-4">
+      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
       {rows.length > 0 ? (
         <div className="mt-3 overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="text-xs text-zinc-500">
+              <tr className="text-xs text-muted-foreground">
                 <th className="pb-2 font-medium">{nameLabel}</th>
                 {columns.map((col) => (
                   <th key={col} className="pb-2 text-right font-medium">
@@ -191,15 +191,15 @@ function InventoryTable({
             </thead>
             <tbody>
               {rows.map((row) => (
-                <tr key={row.label} className="border-t border-zinc-100">
-                  <td className="max-w-[14rem] truncate py-2 pr-2 font-medium text-zinc-900">
+                <tr key={row.label} className="border-t border-border">
+                  <td className="max-w-[14rem] truncate py-2 pr-2 font-medium text-foreground">
                     {row.label}
                   </td>
                   {row.values.map((value, i) => (
                     <td
                       key={`${row.label}-${columns[i]}`}
                       className={`py-2 text-right tabular-nums ${
-                        i === 0 ? 'text-zinc-700' : 'text-zinc-500'
+                        i === 0 ? 'text-foreground/80' : 'text-muted-foreground'
                       }`}
                     >
                       {value.toLocaleString()}
@@ -211,7 +211,7 @@ function InventoryTable({
           </table>
         </div>
       ) : (
-        <p className="mt-3 text-sm text-zinc-500">{empty}</p>
+        <p className="mt-3 text-sm text-muted-foreground">{empty}</p>
       )}
     </div>
   );

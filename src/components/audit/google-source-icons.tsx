@@ -34,7 +34,7 @@ function SourceIcon({
   return (
     <div
       className={cn(
-        'inline-flex size-9 items-center justify-center rounded-lg bg-zinc-50',
+        'inline-flex size-9 items-center justify-center rounded-lg bg-muted',
         connected ? '' : 'pointer-events-none opacity-40 grayscale'
       )}
       title={`${label} ${status}`}

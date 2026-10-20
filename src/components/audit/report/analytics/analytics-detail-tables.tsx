@@ -11,14 +11,14 @@ function TableCard({
   secondaryLabel?: string;
 }) {
   return (
-    <div className="rounded-[14px] bg-white p-4 shadow-sm">
-      <p className="text-sm font-semibold text-zinc-950">{title}</p>
+    <div className="rounded-xl bg-raised p-4 shadow-sm">
+      <p className="text-sm font-semibold text-foreground">{title}</p>
       {rows.length === 0 ? (
-        <p className="mt-4 text-sm text-zinc-500">No data for this dimension yet.</p>
+        <p className="mt-4 text-sm text-muted-foreground">No data for this dimension yet.</p>
       ) : (
         <table className="mt-3 w-full text-left text-sm">
           <thead>
-            <tr className="text-xs text-zinc-400">
+            <tr className="text-xs text-muted-foreground">
               <th className="pb-2 font-medium">Name</th>
               <th className="pb-2 text-right font-medium">Views</th>
               <th className="pb-2 text-right font-medium">Share</th>
@@ -29,17 +29,17 @@ function TableCard({
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.label} className="border-t border-zinc-100">
+              <tr key={row.label} className="border-t border-border">
                 <td className="max-w-[12rem] py-2 pr-2">
                   <span className="flex min-w-0 items-center gap-2">
                     <AnalyticsRowIcon kind={row.kind} label={row.label} />
-                    <span className="truncate font-medium text-zinc-900">{row.label}</span>
+                    <span className="truncate font-medium text-foreground">{row.label}</span>
                   </span>
                 </td>
-                <td className="py-2 text-right tabular-nums text-zinc-700">{row.views}</td>
-                <td className="py-2 text-right tabular-nums text-zinc-500">{row.share}</td>
+                <td className="py-2 text-right tabular-nums text-foreground/80">{row.views}</td>
+                <td className="py-2 text-right tabular-nums text-muted-foreground">{row.share}</td>
                 {rows.some((r) => r.secondary) ? (
-                  <td className="py-2 text-right tabular-nums text-zinc-700">
+                  <td className="py-2 text-right tabular-nums text-foreground/80">
                     {row.secondary ?? '—'}
                   </td>
                 ) : null}

@@ -106,9 +106,9 @@ export function BrandSectionNav() {
       {/* Mobile: compact horizontal pills inside content */}
       <nav
         aria-label="Dashboard sections"
-        className="sticky top-0 z-10 -mx-2 mb-6 overflow-x-auto bg-white/90 px-2 py-2 backdrop-blur xl:hidden"
+        className="sticky top-0 z-10 mb-6 mx-7 overflow-x-auto px-2 py-2 backdrop-blur xl:hidden"
       >
-        <ul className="flex min-w-max gap-1 rounded-xl bg-zinc-50 p-1">
+        <ul className="flex min-w-max gap-1 rounded-xl bg-tint-strong p-1">
           {DASHBOARD_RAIL_ITEMS.map((section) => {
             const active = activeId === section.id;
             return (
@@ -119,8 +119,8 @@ export function BrandSectionNav() {
                   className={cn(
                     'block rounded-lg px-2.5 py-1.5 text-xs font-medium whitespace-nowrap',
                     active
-                      ? 'bg-white text-zinc-950'
-                      : 'text-zinc-600 hover:bg-white hover:text-zinc-950'
+                      ? 'bg-raised text-foreground'
+                      : 'text-foreground/70 hover:bg-raised hover:text-foreground'
                   )}
                 >
                   {section.label}
@@ -167,14 +167,14 @@ export function BrandEmptyState({
   connectHref?: string;
 }) {
   return (
-    <div className="rounded-[14px] bg-white px-4 py-5 text-center">
-      <p className="text-sm font-semibold text-zinc-950">{title}</p>
-      <p className="mx-auto mt-1 max-w-md text-sm text-zinc-500">{body}</p>
+    <div className="rounded-xl bg-raised px-4 py-5 text-center">
+      <p className="text-sm font-semibold text-foreground">{title}</p>
+      <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">{body}</p>
       {connectHref ? (
         <p className="mt-2">
           <Link
             href={connectHref}
-            className="text-sm font-medium text-zinc-900 underline underline-offset-2"
+            className="text-sm font-medium text-foreground underline underline-offset-2"
           >
             Open Setup
           </Link>

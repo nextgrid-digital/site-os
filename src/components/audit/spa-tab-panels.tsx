@@ -32,9 +32,9 @@ function FreeAuditProgress({
 }) {
   if (status === 'failed') {
     return (
-      <div className="rounded-[14px] bg-white px-6 py-12 text-center shadow-sm">
-        <p className="text-base font-semibold text-zinc-950">The audit didn&apos;t finish</p>
-        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">
+      <div className="rounded-xl bg-raised px-6 py-12 text-center shadow-sm">
+        <p className="text-base font-semibold text-foreground">The audit didn&apos;t finish</p>
+        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
           We couldn&apos;t complete the audit for {domain}. Run it again from the home page.
         </p>
       </div>
@@ -42,18 +42,18 @@ function FreeAuditProgress({
   }
   if (status === 'none') {
     return (
-      <div className="rounded-[14px] bg-white px-6 py-12 text-center shadow-sm">
-        <p className="text-base font-semibold text-zinc-950">No audit yet</p>
-        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">
+      <div className="rounded-xl bg-raised px-6 py-12 text-center shadow-sm">
+        <p className="text-base font-semibold text-foreground">No audit yet</p>
+        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
           Run a free audit for {domain} to get your brief and task list.
         </p>
       </div>
     );
   }
   return (
-    <div className="rounded-[14px] bg-white px-6 py-12 text-center shadow-sm" role="status">
-      <p className="text-base font-semibold text-zinc-950">Auditing {domain}…</p>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">
+    <div className="rounded-xl bg-raised px-6 py-12 text-center shadow-sm" role="status">
+      <p className="text-base font-semibold text-foreground">Auditing {domain}…</p>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
         We&apos;re crawling the site and writing your brief. This usually takes a minute or two.
         This page updates by itself when it&apos;s ready.
       </p>
@@ -63,9 +63,9 @@ function FreeAuditProgress({
 
 function PanelPulse() {
   return (
-    <div className="animate-pulse space-y-4" aria-busy="true" aria-label="Loading">
-      <div className="h-40 rounded-2xl bg-white" />
-      <div className="h-56 rounded-2xl bg-white" />
+    <div className="motion-safe:animate-pulse space-y-4" aria-busy="true" aria-label="Loading">
+      <div className="h-40 rounded-2xl bg-raised" />
+      <div className="h-56 rounded-2xl bg-raised" />
     </div>
   );
 }
@@ -178,9 +178,9 @@ export function SpaMonthlyPanel({ projectId }: { projectId: string }) {
         title="Monthly check-in"
         description="Your site's progress, month over month — in plain English."
       >
-        <div className="rounded-[14px] bg-white px-6 py-12 text-center shadow-sm">
-          <p className="text-base font-semibold text-zinc-950">No audits yet</p>
-          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">
+        <div className="rounded-xl bg-raised px-6 py-12 text-center shadow-sm">
+          <p className="text-base font-semibold text-foreground">No audits yet</p>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
             Run your first audit to set a baseline. From then on, each monthly re-run shows what
             got better, what slipped, and what to fix next.
           </p>
@@ -259,12 +259,12 @@ export function SpaConnectPanel({
       description="Connect your Google data in a few minutes so your audit uses real search and visitor numbers."
     >
       {errorMessage ? (
-        <div className="mb-4 rounded-[14px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
+        <div className="mb-4 rounded-xl border border-danger-ink/20 bg-danger-soft px-4 py-3 text-sm text-danger-ink">
           {errorMessage}
         </div>
       ) : null}
       {message ? (
-        <div className="mb-4 rounded-[14px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+        <div className="mb-4 rounded-xl border border-success-ink/20 bg-success-soft px-4 py-3 text-sm text-success-ink">
           {message}
         </div>
       ) : null}

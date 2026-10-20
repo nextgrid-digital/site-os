@@ -20,6 +20,7 @@ import { ClientGoogleInviteCard } from '@/components/audit/client-google-invite-
 import { ConnectorSourceCards } from '@/components/audit/connectors/connector-source-cards';
 import { AdsInvitePanel } from '@/components/workspace/ads-invite-panel';
 import { Label } from '@/components/ui/label';
+import { StatusBadge } from '@/components/ui/status-badge';
 import {
   ADMIN_STATUS_COPY,
   CLIENT_STATUS_COPY,
@@ -38,13 +39,13 @@ const MANAGE_CONTROL_ID: Partial<Record<ConnectorId, string>> = {
 };
 
 const fieldClass =
-  'h-9 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-950 outline-none transition focus:border-zinc-400';
+  'h-9 pointer-coarse:h-11 w-full rounded-lg border border-field bg-raised px-3 text-sm text-foreground outline-none transition focus-visible:border-foreground focus-visible:ring-3 focus-visible:ring-foreground/15';
 
 const primaryBtnClass =
-  'inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-zinc-950 px-3.5 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:pointer-events-none disabled:opacity-50';
+  'inline-flex h-9 pointer-coarse:h-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-primary px-3.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/80 disabled:pointer-events-none disabled:opacity-50';
 
 const outlineBtnClass =
-  'inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-white px-3.5 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50 disabled:pointer-events-none disabled:opacity-50';
+  'inline-flex h-9 pointer-coarse:h-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-raised px-3.5 text-sm font-medium text-foreground/90 shadow-sm transition hover:bg-muted disabled:pointer-events-none disabled:opacity-50';
 
 /** "3 min ago" / "in 42 min", with the exact time available as a tooltip. */
 function RelativeTime({ value, emptyLabel = 'Never' }: { value: string | null; emptyLabel?: string }) {
@@ -92,15 +93,15 @@ type SetupStep = { title: string; body: string; state: StepState };
 
 function StepMarker({ state, index }: { state: StepState; index: number }) {
   if (state === 'done') {
-    return <CheckCircle2 className="size-6 shrink-0 text-emerald-600" strokeWidth={2} />;
+    return <CheckCircle2 className="size-6 shrink-0 text-success-ink" strokeWidth={2} />;
   }
   if (state === 'attention') {
-    return <AlertTriangle className="size-6 shrink-0 text-amber-600" strokeWidth={2} />;
+    return <AlertTriangle className="size-6 shrink-0 text-warning-ink" strokeWidth={2} />;
   }
   return (
     <span
       className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
-        state === 'current' ? 'bg-zinc-950 text-white' : 'bg-zinc-100 text-zinc-500'
+        state === 'current' ? 'bg-primary text-primary-foreground' : 'bg-tint text-muted-foreground'
       }`}
     >
       {index + 1}
@@ -127,26 +128,26 @@ function SourceField({
   children: ReactNode;
 }) {
   return (
-    <div className="grid gap-2 rounded-xl bg-zinc-50 p-3.5">
+    <div className="grid gap-2 rounded-xl bg-muted p-3.5">
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-start gap-2.5">
-          <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-white text-zinc-600 shadow-sm">
+          <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-raised text-foreground/70 shadow-sm">
             {icon}
           </span>
           <div className="min-w-0">
-            <Label htmlFor={id} className="text-sm font-medium text-zinc-900">
+            <Label htmlFor={id} className="text-sm font-medium text-foreground">
               {label}
             </Label>
-            <p className="text-xs leading-5 text-zinc-500">{help}</p>
+            <p className="text-xs leading-5 text-muted-foreground">{help}</p>
           </div>
         </div>
         {chosen ? (
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-            <CheckCircle2 className="size-3" strokeWidth={2} />
+          <StatusBadge tone="success">
+            <CheckCircle2 strokeWidth={2} />
             Selected
-          </span>
+          </StatusBadge>
         ) : (
-          <span className="shrink-0 text-[11px] text-zinc-500">{count} found</span>
+          <span className="shrink-0 text-[11px] text-muted-foreground">{count} found</span>
         )}
       </div>
       {children}
@@ -363,20 +364,20 @@ export function ConnectFlow({
   return (
     <div className="space-y-6">
       {/* Progress — where am I, and what's the one thing to do next? */}
-      <section className="rounded-[14px] bg-white p-5 shadow-sm sm:p-6">
+      <section className="rounded-xl bg-raised p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <p className="text-[11px] font-medium tracking-wide text-zinc-500 uppercase">
+            <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
               {setupComplete ? 'Setup complete' : `Step ${Math.min(doneCount + 1, 4)} of 4`}
             </p>
-            <h2 className="mt-1.5 text-lg font-semibold tracking-tight text-zinc-950">
+            <h2 className="mt-1.5 text-lg font-semibold tracking-tight text-foreground">
               {setupComplete
                 ? "You're all set — your audit will use real Google data"
                 : needsRefresh
                   ? 'Your Google access needs a quick refresh'
                   : steps.find((step) => step.state === 'current')?.title ?? 'Finish setup'}
             </h2>
-            <p className="mt-1 max-w-xl text-sm leading-6 text-zinc-500">
+            <p className="mt-1 max-w-xl text-sm leading-6 text-muted-foreground">
               {setupComplete
                 ? 'Run an audit from the Dashboard any time. Come back here to change sources.'
                 : 'Connecting Google adds real search and visitor numbers to your audit. Without it, the audit uses your website only.'}
@@ -385,9 +386,9 @@ export function ConnectFlow({
           <div className="shrink-0">{nextAction}</div>
         </div>
 
-        <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-zinc-100">
+        <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-tint">
           <div
-            className="h-full rounded-full bg-emerald-500 transition-all"
+            className="h-full rounded-full bg-success transition-all"
             style={{ width: `${(doneCount / 3) * 100}%` }}
           />
         </div>
@@ -398,9 +399,9 @@ export function ConnectFlow({
               key={step.title}
               className={`flex gap-3 rounded-xl p-3 ${
                 step.state === 'current'
-                  ? 'bg-zinc-50 ring-1 ring-zinc-200'
+                  ? 'bg-muted ring-1 ring-border'
                   : step.state === 'attention'
-                    ? 'bg-amber-50'
+                    ? 'bg-warning-soft'
                     : ''
               }`}
             >
@@ -408,12 +409,12 @@ export function ConnectFlow({
               <div className="min-w-0">
                 <p
                   className={`text-sm font-medium ${
-                    step.state === 'upcoming' ? 'text-zinc-500' : 'text-zinc-900'
+                    step.state === 'upcoming' ? 'text-muted-foreground' : 'text-foreground'
                   }`}
                 >
                   {step.title}
                 </p>
-                <p className="mt-0.5 text-xs leading-5 text-zinc-500">{step.body}</p>
+                <p className="mt-0.5 text-xs leading-5 text-muted-foreground">{step.body}</p>
               </div>
             </li>
           ))}
@@ -421,7 +422,7 @@ export function ConnectFlow({
       </section>
 
       {googleConnected && missingFeatures.length > 0 ? (
-        <div className="flex flex-col gap-3 rounded-[14px] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-xl border border-warning-ink/20 bg-warning-soft p-4 text-sm text-warning-ink sm:flex-row sm:items-center sm:justify-between">
           <p className="min-w-0 leading-5">
             <span className="font-semibold">
               {missingFeatures.map((feature) => feature.label).join(', ')}
@@ -436,14 +437,14 @@ export function ConnectFlow({
       ) : null}
 
       <div className="grid gap-4 lg:grid-cols-5">
-        <section id="google-account" className="rounded-[14px] bg-white p-5 shadow-sm lg:col-span-2">
+        <section id="google-account" className="rounded-xl bg-raised p-5 shadow-sm lg:col-span-2">
           <div className="flex items-start gap-3">
-            <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-700">
+            <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-tint text-foreground/80">
               <GoogleFilledIcon className="size-4" strokeWidth={1.75} />
             </span>
             <div className="min-w-0">
-              <h3 className="text-sm font-semibold text-zinc-950">Google account</h3>
-              <p className="mt-1 text-sm leading-5 text-zinc-500">
+              <h3 className="text-sm font-semibold text-foreground">Google account</h3>
+              <p className="mt-1 text-sm leading-5 text-muted-foreground">
                 Read-only access. We never change anything in your Google accounts.
               </p>
             </div>
@@ -454,8 +455,8 @@ export function ConnectFlow({
               <div
                 className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm ${
                   needsRefresh
-                    ? 'border-amber-200 bg-amber-50 text-amber-900'
-                    : 'border-emerald-200 bg-emerald-50 text-emerald-900'
+                    ? 'border-warning-ink/20 bg-warning-soft text-warning-ink'
+                    : 'border-success-ink/20 bg-success-soft text-success-ink'
                 }`}
               >
                 {needsRefresh ? (
@@ -468,19 +469,19 @@ export function ConnectFlow({
                 </span>
               </div>
             ) : (
-              <p className="rounded-lg bg-zinc-50 px-3 py-2.5 text-sm text-zinc-500">
+              <p className="rounded-lg bg-muted px-3 py-2.5 text-sm text-muted-foreground">
                 Not connected yet.
               </p>
             )}
           </div>
 
           {googleConnected ? (
-            <dl className="mt-4 space-y-2.5 border-t border-zinc-100 pt-4 text-xs text-zinc-500">
+            <dl className="mt-4 space-y-2.5 border-t border-border pt-4 text-xs text-muted-foreground">
               <div className="flex items-center justify-between gap-2">
                 <dt>Status</dt>
                 <dd
                   className={
-                    needsRefresh ? 'font-semibold text-amber-700' : 'font-semibold text-zinc-950'
+                    needsRefresh ? 'font-semibold text-warning-ink' : 'font-semibold text-foreground'
                   }
                 >
                   {ADMIN_STATUS_COPY[connectionStatus]}
@@ -488,13 +489,13 @@ export function ConnectFlow({
               </div>
               <div className="flex items-center justify-between gap-2">
                 <dt>Last synced</dt>
-                <dd className="font-medium text-zinc-700">
+                <dd className="font-medium text-foreground/80">
                   <RelativeTime value={lastSyncedAt} />
                 </dd>
               </div>
               <div className="flex items-center justify-between gap-2">
                 <dt>Access renews</dt>
-                <dd className="font-medium text-zinc-700">
+                <dd className="font-medium text-foreground/80">
                   <RelativeTime value={tokenExpiry} emptyLabel="Not set" />
                 </dd>
               </div>
@@ -505,7 +506,7 @@ export function ConnectFlow({
                     {scopes.map((scope) => (
                       <span
                         key={scope}
-                        className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700"
+                        className="rounded-full bg-tint px-2 py-0.5 text-[11px] font-medium text-foreground/80"
                       >
                         {scopeLabel(scope)}
                       </span>
@@ -523,11 +524,11 @@ export function ConnectFlow({
           </div>
         </section>
 
-        <section className="rounded-[14px] bg-white p-5 shadow-sm lg:col-span-3">
+        <section className="rounded-xl bg-raised p-5 shadow-sm lg:col-span-3">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h3 className="text-sm font-semibold text-zinc-950">Choose your data sources</h3>
-              <p className="mt-1 text-sm leading-5 text-zinc-500">
+              <h3 className="text-sm font-semibold text-foreground">Choose your data sources</h3>
+              <p className="mt-1 text-sm leading-5 text-muted-foreground">
                 Pick one of each that belongs to this website. Your website itself is always
                 included.
               </p>
@@ -545,7 +546,7 @@ export function ConnectFlow({
           </div>
 
           {!googleConnected ? (
-            <p className="mt-4 rounded-lg bg-zinc-50 px-3 py-2.5 text-sm text-zinc-500">
+            <p className="mt-4 rounded-lg bg-muted px-3 py-2.5 text-sm text-muted-foreground">
               Connect Google first — your properties will show up here.
             </p>
           ) : null}
@@ -629,7 +630,7 @@ export function ConnectFlow({
               </select>
               {viewerSignedIn ? (
                 <details className="group">
-                  <summary className="cursor-pointer list-none text-xs font-medium text-zinc-600 underline-offset-2 hover:underline [&::-webkit-details-marker]:hidden">
+                  <summary className="cursor-pointer list-none text-xs font-medium text-foreground/70 underline-offset-2 hover:underline [&::-webkit-details-marker]:hidden">
                     Don&apos;t see the Ads account? Send an invite
                   </summary>
                   <div className="mt-2">
@@ -644,8 +645,8 @@ export function ConnectFlow({
                 role="status"
                 className={`rounded-lg px-3 py-2.5 text-sm ${
                   messageTone === 'error'
-                    ? 'bg-amber-50 text-amber-900'
-                    : 'bg-emerald-50 text-emerald-900'
+                    ? 'bg-warning-soft text-warning-ink'
+                    : 'bg-success-soft text-success-ink'
                 }`}
               >
                 {message}
@@ -653,8 +654,8 @@ export function ConnectFlow({
             ) : null}
           </div>
 
-          <div className="mt-5 flex flex-col gap-2 border-t border-zinc-100 pt-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <p className="min-w-0 text-xs text-zinc-500 sm:pr-2">
+          <div className="mt-5 flex flex-col gap-2 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <p className="min-w-0 text-xs text-muted-foreground sm:pr-2">
               Skipping one is fine — the audit uses whatever you pick.
             </p>
             <button
@@ -673,14 +674,14 @@ export function ConnectFlow({
       {activeSources.length > 0 ? (
         <section className="space-y-3">
           <div>
-            <h2 className="text-sm font-semibold text-zinc-950">What the audit can see</h2>
-            <p className="mt-1 text-sm text-zinc-500">
+            <h2 className="text-sm font-semibold text-foreground">What the audit can see</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
               Live status for each data source. Green means it&apos;s feeding your audit.
             </p>
           </div>
           <ConnectorSourceCards statuses={activeSources} onManage={focusManageTarget} />
           {comingSoon.length > 0 ? (
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-muted-foreground">
               Coming soon:{' '}
               {comingSoon.map((status) => status.label).join(', ')}
             </p>

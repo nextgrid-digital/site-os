@@ -38,7 +38,7 @@ import { buildJoinedTrafficStory } from '@/lib/audit/joined-traffic-story';
 import type { ConnectedAuditMetrics } from '@/lib/db/connected-metrics';
 
 const sectionFallback = (
-  <div className="h-40 animate-pulse rounded-2xl bg-zinc-100" aria-hidden />
+  <div className="h-40 motion-safe:animate-pulse rounded-2xl bg-tint" aria-hidden />
 );
 
 const HeroDemoDashboard = dynamic(
@@ -305,10 +305,10 @@ export function JoinedTrafficReport({
                   {domain}
                 </p>
               ) : null}
-              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-zinc-950">
+              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
                 Dashboard
               </h1>
-              <p className="mt-1 text-sm text-zinc-500">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Search shows what people wanted. Analytics shows what they did. Funnels show where
                 they left.
               </p>
@@ -337,7 +337,7 @@ export function JoinedTrafficReport({
             })}
           />
           {story.status.breakCallout ? (
-            <p className="rounded-lg bg-zinc-50 px-3 py-2 text-sm text-zinc-700">
+            <p className="rounded-lg bg-muted px-3 py-2 text-sm text-foreground/80">
               {story.status.breakCallout}
             </p>
           ) : null}
@@ -482,10 +482,10 @@ export function JoinedTrafficReport({
               {funnelAssessment.paidMismatches.slice(0, 4).map((p) => (
                 <li
                   key={p.channel}
-                  className="rounded-[12px] bg-white px-3 py-2 text-sm"
+                  className="rounded-lg bg-raised px-3 py-2 text-sm"
                 >
                   <span className="font-medium">{p.channel}</span>
-                  <span className="text-zinc-500"> — {p.meaning}</span>
+                  <span className="text-muted-foreground"> — {p.meaning}</span>
                 </li>
               ))}
             </ul>

@@ -53,7 +53,7 @@ export function AccountNav() {
       >
         Sign out
       </button>
-      {signOutError ? <p className="px-3 text-xs text-red-600">{signOutError}</p> : null}
+      {signOutError ? <p className="px-3 text-xs text-danger-ink">{signOutError}</p> : null}
     </nav>
   );
 }

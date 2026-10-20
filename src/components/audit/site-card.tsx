@@ -41,8 +41,8 @@ function SiteStatusStrip({ status }: { status: string }) {
           : 'Audit';
 
   return (
-    <div className="flex h-16 items-center rounded-xl bg-zinc-50 px-3" aria-hidden="true">
-      <p className="text-xs font-medium text-zinc-500">{label}</p>
+    <div className="flex h-16 items-center rounded-xl bg-muted px-3" aria-hidden="true">
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
     </div>
   );
 }
@@ -95,23 +95,23 @@ export function SiteCard({
         onFocus={() => {
           router.prefetch(href);
         }}
-        className={`block rounded-2xl bg-white p-4 shadow-sm transition hover:shadow-md ${
-          highlighted ? 'ring-1 ring-zinc-900' : ''
+        className={`block rounded-2xl bg-raised p-4 shadow-sm transition hover:shadow-md ${
+          highlighted ? 'ring-1 ring-foreground' : ''
         }`}
       >
         <div className="mb-4 flex items-start gap-3 pr-8">
           <SiteCardFavicon domain={site.domain} name={site.name} />
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-zinc-950">{site.name}</p>
-            <p className="truncate text-xs text-zinc-500">{site.domain}</p>
+            <p className="truncate text-sm font-semibold text-foreground">{site.name}</p>
+            <p className="truncate text-xs text-muted-foreground">{site.domain}</p>
           </div>
         </div>
         <SiteStatusStrip status={site.status} />
         <div className="mt-3 flex items-center justify-between gap-3 text-sm">
-          <span className="inline-flex min-w-0 items-center gap-2 text-zinc-600">
-            <span className="h-2.5 w-2.5 shrink-0 rounded-[2px] bg-zinc-950" aria-hidden="true" />
+          <span className="inline-flex min-w-0 items-center gap-2 text-foreground/70">
+            <span className="h-2.5 w-2.5 shrink-0 rounded-[2px] bg-foreground" aria-hidden="true" />
             Findings
-            <span className="font-medium text-zinc-950">
+            <span className="font-medium text-foreground">
               {site.findingsCount ?? (site.status === 'pending' ? '…' : 0)}
             </span>
           </span>
@@ -132,7 +132,7 @@ export function SiteCard({
           setError(null);
           setConfirmOpen(true);
         }}
-        className="absolute top-3 right-3 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white text-zinc-500 shadow-sm transition hover:bg-zinc-50 hover:text-zinc-900"
+        className="absolute top-3 right-3 inline-flex h-8 w-8 pointer-coarse:h-11 pointer-coarse:w-11 items-center justify-center rounded-lg bg-raised text-muted-foreground shadow-sm transition hover:bg-muted hover:text-foreground"
       >
         <Trash2 className="size-3.5" />
       </button>

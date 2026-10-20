@@ -52,26 +52,26 @@ export function UserAccountMenu(_props: { initials?: string } = {}) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-white px-2.5 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50"
+        className="inline-flex h-8 pointer-coarse:h-11 items-center gap-1.5 rounded-lg bg-raised px-2.5 text-sm font-medium text-foreground/90 shadow-sm transition hover:bg-muted"
         aria-label="Dashboard menu"
         aria-expanded={open}
         aria-haspopup="menu"
       >
         Dashboard
         <ChevronDown
-          className={`size-3.5 text-zinc-500 transition ${open ? 'rotate-180' : ''}`}
+          className={`size-3.5 text-muted-foreground transition ${open ? 'rotate-180' : ''}`}
           aria-hidden
         />
       </button>
       {open ? (
         <div
           role="menu"
-          className="absolute right-0 z-50 mt-2 w-44 overflow-hidden rounded-xl bg-white py-1 shadow-lg"
+          className="absolute right-0 z-50 mt-2 w-44 overflow-hidden rounded-xl bg-raised py-1 shadow-lg"
         >
           <Link
             href="/app"
             role="menuitem"
-            className="block px-3 py-2 text-sm text-zinc-800 transition hover:bg-zinc-50"
+            className="block px-3 py-2 text-sm text-foreground/90 transition hover:bg-muted"
             onClick={() => setOpen(false)}
           >
             Dashboard
@@ -79,7 +79,7 @@ export function UserAccountMenu(_props: { initials?: string } = {}) {
           <Link
             href="/account"
             role="menuitem"
-            className="block px-3 py-2 text-sm text-zinc-800 transition hover:bg-zinc-50"
+            className="block px-3 py-2 text-sm text-foreground/90 transition hover:bg-muted"
             onClick={() => setOpen(false)}
           >
             Account
@@ -87,7 +87,7 @@ export function UserAccountMenu(_props: { initials?: string } = {}) {
           <Link
             href="/account/billing"
             role="menuitem"
-            className="block px-3 py-2 text-sm text-zinc-800 transition hover:bg-zinc-50"
+            className="block px-3 py-2 text-sm text-foreground/90 transition hover:bg-muted"
             onClick={() => setOpen(false)}
           >
             Billing
@@ -97,12 +97,12 @@ export function UserAccountMenu(_props: { initials?: string } = {}) {
             role="menuitem"
             onClick={handleSignOut}
             disabled={signingOut}
-            className="block w-full px-3 py-2 text-left text-sm text-zinc-800 transition hover:bg-zinc-50 disabled:opacity-50"
+            className="block w-full px-3 py-2 text-left text-sm text-foreground/90 transition hover:bg-muted disabled:opacity-50"
           >
             {signingOut ? 'Signing out…' : 'Sign out'}
           </button>
           {signOutError ? (
-            <p className="px-3 pb-2 text-xs text-red-600">{signOutError}</p>
+            <p className="px-3 pb-2 text-xs text-danger-ink">{signOutError}</p>
           ) : null}
         </div>
       ) : null}
