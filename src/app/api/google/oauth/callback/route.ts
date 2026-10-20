@@ -18,6 +18,22 @@ function connectErrorRedirect(appUrl: string, projectId: string | null, returnTo
   );
 }
 
+const GENERIC_CONNECT_ERROR =
+  'Something went wrong while connecting your Google account. Please try again, and contact support if it keeps happening.';
+
+/** Turns raw Google/OAuth errors into messages that are safe and useful to show a customer. */
+function friendlyGoogleError(raw: string): string {
+  const code = raw.toLowerCase();
+  if (code.includes('access_denied')) {
+    return 'Google access was not granted. Please try again and approve the requested permissions.';
+  }
+  if (code.includes('invalid_grant')) {
+    return 'The connection request expired. Please try connecting again.';
+  }
+  // invalid_client, redirect_uri_mismatch, unauthorized_client, etc. are our configuration problems.
+  return GENERIC_CONNECT_ERROR;
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
@@ -54,7 +70,8 @@ export async function GET(request: Request) {
   }
 
   if (error) {
-    return connectErrorRedirect(appUrl, projectId, returnTo, error);
+    console.error('[google/oauth/callback] Google returned error', error);
+    return connectErrorRedirect(appUrl, projectId, returnTo, friendlyGoogleError(error));
   }
 
   if (!code || !state) {
@@ -98,11 +115,12 @@ export async function GET(request: Request) {
     }
     return NextResponse.redirect(`${appUrl}${returnTo}?connected=1`);
   } catch (callbackError) {
+    console.error('[google/oauth/callback] token exchange failed', callbackError);
     return connectErrorRedirect(
       appUrl,
       projectId,
       returnTo,
-      callbackError instanceof Error ? callbackError.message : 'OAuth failed.'
+      friendlyGoogleError(callbackError instanceof Error ? callbackError.message : '')
     );
   }
 }
