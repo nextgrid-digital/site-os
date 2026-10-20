@@ -24,7 +24,7 @@ export function DashboardSourceStrip({
             'inline-flex max-w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs',
             source.connected
               ? 'bg-raised text-foreground/90'
-              : 'bg-muted text-muted-foreground'
+              : 'bg-tint-strong text-muted-foreground'
           )}
         >
           <span
