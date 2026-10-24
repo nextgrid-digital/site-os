@@ -69,10 +69,7 @@ export default function LogoCloudSection({ logos = logosContent, tile3Data = Til
           </div>
         </div>
         <div className="h-[851.1px] block relative mt-8 max-md:h-[73.7875rem] md:max-lg:h-[855.1px]" data-cid="n1427">
-          <astro-island class="contents" data-cid="n1428">
             <div className="h-[851.1px] block max-md:h-[73.7875rem] md:max-lg:h-[855.1px]" data-cid="n1429">
-              <astro-slot class="contents" data-cid="n1430">
-                <astro-island class="contents" data-cid="n1431">
                   <div className="w-full block relative" data-cid="n1432">
                     <section className="block mt-2" data-cid="n1433" aria-label="Key metrics">
                       <div className="grid relative gap-3 grid-rows-[166px] grid-cols-6 items-stretch max-md:grid-rows-[77px_77px_77px] max-md:grid-cols-2 md:max-lg:grid-rows-[77px_81px] md:max-lg:grid-cols-3" data-cid="n1434">
@@ -198,10 +195,7 @@ export default function LogoCloudSection({ logos = logosContent, tile3Data = Til
                       </div>
                     </div>
                   </div>
-                </astro-island>
-              </astro-slot>
             </div>
-          </astro-island>
         </div>
         <div className="grid mt-8 gap-4 grid-rows-[68px] text-center text-balance grid-cols-3 max-md:grid-rows-[68px_88px_68px] max-md:grid-cols-1 max-lg:[text-align:inherit] md:max-lg:grid-rows-[88px]" data-cid="n1642">
           {featureCardData2.map((d, i) => <FeatureCard key={i} d={d} cids={FeatureCard_cids2[i]} />)}

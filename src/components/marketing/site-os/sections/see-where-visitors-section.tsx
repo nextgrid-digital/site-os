@@ -36,10 +36,7 @@ export default function SeeWhereVisitorsSection({ tile4Data = Tile4_data, tile5D
           </div>
         </div>
         <div className="h-[681.5px] block relative mt-8 max-md:h-[44.9125rem]" data-cid="n1658">
-          <astro-island class="contents" data-cid="n1659">
             <div className="h-[681.5px] block max-md:h-[44.9125rem]" data-cid="n1660">
-              <astro-slot class="contents" data-cid="n1661">
-                <astro-island class="contents" data-cid="n1662">
                   <div className="block w-full" data-cid="n1663">
                     <div className="border border-solid border-surface flex mb-4 rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-auto w-full" data-cid="n1664">
                       <div className="h-[75.3px] grid pt-5 pb-4 px-4 rounded-tl-md rounded-tr-md items-start gap-1 grid-rows-[19.25px_16px] [grid-auto-rows:min-content] grid-cols-1 max-md:h-[67.3px] max-md:pt-4 max-md:pb-3 max-md:px-3" data-cid="n1665">
@@ -104,10 +101,7 @@ export default function SeeWhereVisitorsSection({ tile4Data = Tile4_data, tile5D
                       </div>
                     </div>
                   </div>
-                </astro-island>
-              </astro-slot>
             </div>
-          </astro-island>
         </div>
       </div>
     </section>

@@ -18,12 +18,15 @@ export default function ProductGridSection({ products = productsContent } = {}) 
             </p>
           </div>
         </div>
-        <div className="h-[77.5rem] block mt-12 max-md:h-[3675.3px] md:max-lg:h-532.5" data-cid="n468">
-          <astro-island class="contents" data-cid="n469">
-            <div className="w-full grid relative items-start gap-y-20 gap-x-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3" data-cid="n470">
-              {products.map((d, i) => <ProductCard key={d.variant} d={d} cids={ProductCard_cids[i]} styles={ProductCard_styles[i]} />)}
+        <div className="block mt-12" data-cid="n468">
+            {/* Mobile: horizontal swipe row. md+: grid. */}
+            <div className="w-full flex relative items-start gap-x-4 gap-y-6 overflow-x-auto snap-x snap-mandatory pb-4 max-md:-mx-8 max-md:px-8 max-md:[scrollbar-width:none] md:grid md:overflow-visible md:grid-cols-2 lg:grid-cols-3" data-cid="n470">
+              {products.map((d, i) => (
+                <div key={d.variant} className="shrink-0 snap-start md:shrink">
+                  <ProductCard d={d} cids={ProductCard_cids[i]} styles={ProductCard_styles[i]} />
+                </div>
+              ))}
             </div>
-          </astro-island>
         </div>
       </div>
     </section>

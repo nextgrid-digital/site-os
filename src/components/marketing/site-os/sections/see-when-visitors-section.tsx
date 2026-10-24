@@ -29,10 +29,7 @@ export default function SeeWhenVisitorsSection({ tile2Data = Tile2_data, cards =
           </div>
         </div>
         <div className="h-[95.0375rem] block relative mt-8 max-md:h-[140.8875rem] md:max-lg:h-[141.125rem]" data-cid="n767">
-          <astro-island class="contents" data-cid="n768">
             <div className="h-[95.0375rem] block max-md:h-[140.8875rem] md:max-lg:h-[141.125rem]" data-cid="n769">
-              <astro-slot class="contents" data-cid="n770">
-                <astro-island class="contents" data-cid="n771">
                   <div className="block w-full" data-cid="n772">
                     <section className="block mt-2 mb-4 -mx-2 p-2" data-cid="n773" aria-label="Insight metrics">
                       <div className="grid relative gap-3 grid-rows-[166px] grid-cols-6 max-md:grid-rows-[77px_77px_77px] max-md:grid-cols-2 md:max-lg:grid-rows-[77px_77px] md:max-lg:grid-cols-3" data-cid="n774">
@@ -311,10 +308,7 @@ export default function SeeWhenVisitorsSection({ tile2Data = Tile2_data, cards =
                       </div>
                     </div>
                   </div>
-                </astro-island>
-              </astro-slot>
             </div>
-          </astro-island>
         </div>
         <div className="grid mt-8 gap-4 grid-rows-[88px] text-center text-balance grid-cols-3 max-md:grid-rows-[88px_88px_88px] max-md:grid-cols-1 max-lg:[text-align:inherit] md:max-lg:grid-rows-[108px]" data-cid="n1322">
           {featureCardData.map((d, i) => <FeatureCard key={i} d={d} cids={FeatureCard_cids[i]} />)}

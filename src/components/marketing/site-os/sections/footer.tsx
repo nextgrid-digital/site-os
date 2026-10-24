@@ -12,7 +12,7 @@ export default function Footer({ listRow11Data = listRow11DataContent, listRow11
   return (
     <footer className="block relative pt-20 pb-8 overflow-x-clip" data-cid="n2416">
       <img className="block absolute right-0 bottom-0 z-0 max-w-full overflow-clip aspect-[auto_343/370] align-middle pointer-events-none h-auto w-56 max-md:w-36 md:max-lg:w-44" data-cid="n2417" data-component="image" alt="" aria-hidden="true" height="370" src="/assets/cloned/images/ed1c86b8e3c8.png" width="343" />
-      <div className="h-412 block relative z-10 max-w-280 mx-auto px-8 max-md:h-568 2xl:h-445" data-cid="n2418">
+      <div className="block relative z-10 max-w-280 mx-auto px-8" data-cid="n2418">
         <div className="h-170.5 border border-solid border-surface-4 block rounded-[18px] overflow-hidden bg-surface-3 max-md:h-167.5 md:max-lg:h-163.5 2xl:h-200.5" data-cid="n2419">
           <div className="h-full grid grid-rows-[680px] grid-cols-3 max-md:grid-rows-[400px_268px] max-lg:grid-cols-1 md:max-lg:grid-rows-[376px_276px] 2xl:grid-rows-[800px]" data-cid="n2420">
             <div className="h-170 flex p-20 flex-col justify-center col-start-[span_2] col-end-[span_2] text-left text-balance max-md:h-100 max-lg:p-8 max-lg:[grid-column-start:initial] max-lg:[grid-column-end:initial] max-lg:[text-align:inherit] md:max-lg:h-94 2xl:h-200" data-cid="n2421">
@@ -37,7 +37,6 @@ export default function Footer({ listRow11Data = listRow11DataContent, listRow11
                 </a>
               </div>
             </div>
-            <astro-island class="contents min-w-0" data-cid="n2430">
               <div className="h-165.5 min-h-full flex relative justify-center items-center overflow-hidden w-full max-md:h-67 max-lg:min-h-64 md:max-lg:h-69 2xl:h-195.5" data-cid="n2431" aria-hidden="true">
                 <img className="w-full h-165.5 block absolute min-w-0 max-w-full overflow-clip object-cover align-middle [filter:blur(8px)] [scale:1.1] max-md:h-67 md:max-lg:h-69 2xl:h-195.5" data-cid="n2432" data-component="image" alt="" src="/assets/cloned/images/1a229c4e3deb.png" />
                 <div className="flex relative z-10 p-10 justify-center w-full max-md:px-6" data-cid="n2433">
@@ -87,7 +86,6 @@ export default function Footer({ listRow11Data = listRow11DataContent, listRow11
                   </div>
                 </div>
               </div>
-            </astro-island>
           </div>
         </div>
         <div className="block mt-24 w-full" data-cid="n2455">
@@ -135,7 +133,8 @@ export default function Footer({ listRow11Data = listRow11DataContent, listRow11
               </ul>
             </div>
           </nav>
-          <nav className="border-t border-solid border-t-surface-4 grid mt-12 pt-12 gap-y-10 gap-x-8 grid-rows-[164px_216px] text-sm leading-5 grid-cols-5 max-md:grid-rows-[184px_120px_192px_236px] max-md:grid-cols-2 md:max-lg:grid-rows-[164px_236px] md:max-lg:grid-cols-4 2xl:grid-rows-[168px_220px]" data-cid="n2496" data-component="nav">
+          {/* Feature-link columns (Overview/Breakdowns/...): commented out until those features ship. */}
+          {/* <nav className="border-t border-solid border-t-surface-4 grid mt-12 pt-12gap-y-10 gap-x-8 grid-rows-[164px_216px] text-sm leading-5 grid-cols-5 max-md:grid-rows-[184px_120px_192px_236px] max-md:grid-cols-2 md:max-lg:grid-rows-[164px_236px] md:max-lg:grid-cols-4 2xl:grid-rows-[168px_220px]" data-cid="n2496" data-component="nav">
             <div className="h-41 block max-md:h-46 2xl:h-42" data-cid="n2497">
               <p className="block mb-3 text-xs font-semibold leading-4 uppercase 2xl:[font-size:inherit] 2xl:leading-[inherit]" data-cid="n2498">
                 Overview
@@ -200,7 +199,7 @@ export default function Footer({ listRow11Data = listRow11DataContent, listRow11
                 {listRow11Data11.map((d, i) => <ListRow11 key={i} d={d} cids={ListRow11_cids11[i]} styles={ListRow11_styles11[i]} />)}
               </ul>
             </div>
-          </nav>
+          </nav> */}
           <div className="border-t border-solid border-t-surface-4 flex mt-48 pt-4 flex-wrap justify-between items-center gap-2 text-xs font-semibold leading-4 uppercase max-lg:mt-24" data-cid="n2599">
             <div className="h-6 flex items-center gap-2 text-muted-foreground" data-cid="n2600">
               <Icon12 cid={"n2601"} />

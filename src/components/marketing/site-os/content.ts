@@ -184,9 +184,8 @@ export type ListRow11Data2Item = {
   label: string;
 };
 export const listRow11Data2: ListRow11Data2Item[] = [
-    { href: "/login", label: "Sign in" },
-    { href: "/#faq", label: "FAQ" },
-    { href: "/", label: "Start free audit" }
+    { href: `mailto:${SITE_CONFIG.supportEmail}`, label: "Get help" }
+    // Sign in / FAQ / Start free audit already appear under Product.
 ];
 
 export type ListRow11Data3Item = {
