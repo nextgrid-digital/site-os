@@ -1,3 +1,4 @@
+import { SCORE_BANDS } from '@/lib/aeo/score-bands';
 import type { AeoCheckId } from '@/lib/aeo/page-scanner';
 import type { AeoPageScanRow } from '@/lib/db/aeo';
 
@@ -21,11 +22,7 @@ export interface AeoScanSummary {
   checks: AeoCheckRollup[];
 }
 
-const BANDS = [
-  { label: '0–59', min: 0, max: 59 },
-  { label: '60–79', min: 60, max: 79 },
-  { label: '80–100', min: 80, max: 100 },
-];
+const BANDS = SCORE_BANDS.map(({ label, min, max }) => ({ label, min, max }));
 
 export function summarizeAeoScans(scans: AeoPageScanRow[]): AeoScanSummary {
   const rollup = new Map<AeoCheckId, AeoCheckRollup>();

@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import { summarizeAeoScans } from '@/lib/aeo/summarize-scans';
-import { loadAeoAnalysis, loadAeoPageScans, loadTopicMap } from '@/lib/db/aeo';
+import {
+  getSelectedGa4Property,
+  loadAeoAnalysis,
+  loadAeoPageScans,
+  loadAiReferrals,
+  loadTopicMap,
+} from '@/lib/db/aeo';
 import { loadDashboardMetricsForProject } from '@/lib/db/connected-metrics';
 import { loadBrandEvidenceForAuditRun } from '@/lib/evidence/persist';
 import {
@@ -156,7 +162,19 @@ export async function GET(request: Request, context: RouteContext) {
           loadAeoAnalysis(runId),
           loadTopicMap(runId),
         ]);
-        body.aeo = { auditRunId: runId, pages, analysis, topicMap, summary: summarizeAeoScans(pages) };
+        // Traffic data is Google-backed, so it follows the same signed-in rule as `connect`.
+        const [ga4Property, aiReferrals] = userId
+          ? await Promise.all([getSelectedGa4Property(projectId), loadAiReferrals(projectId)])
+          : [null, null];
+        body.aeo = {
+          auditRunId: runId,
+          pages,
+          analysis,
+          topicMap,
+          summary: summarizeAeoScans(pages),
+          ga4Connected: Boolean(ga4Property),
+          aiReferrals,
+        };
       } else {
         body.aeo = null;
       }

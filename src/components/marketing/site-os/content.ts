@@ -22,6 +22,8 @@ export type ProductsItem = {
   imgSrc: string;
   description: string;
   description2: string;
+  /** Columns this tile spans on md+ (default 1). */
+  span?: 2 | 3;
 };
 export const products: ProductsItem[] = [
   {
@@ -58,23 +60,49 @@ export const products: ProductsItem[] = [
       "Find where your offer, proof, and call to action don't connect.",
   },
   {
-    variant: "connect-search-console-to-see-which-querie",
-    eyebrow: "Search Console",
+    variant: "ai-answer-readiness",
+    eyebrow: "AEO",
     title:
-      "Connect Search Console in the full audit to tie queries and page performance to crawl findings.",
-    stat: "GSC",
-    imgSrc: "/assets/cloned/images/af9128c8772f.png",
-    description: "Search Console",
-    description2: "See which searches reach you and which pages lose them.",
+      "Every crawled page scored on how easily an AI answer can find, trust, and quote it.",
+    stat: "68",
+    imgSrc: "/assets/cloned/images/2db9318bbc2f.png",
+    description: "AI answer readiness",
+    description2:
+      "Score every page on schema, direct answers, and quotable structure, then see the costliest gaps first.",
+    span: 2,
   },
   {
-    variant: "see-who-is-on-your-site-right-now-where-th",
+    variant: "citation-probe",
+    eyebrow: "Citation probe",
+    title:
+      "Ask AI search the questions your buyers ask and see whether it cites your site.",
+    stat: "2/3",
+    imgSrc: "/assets/cloned/images/914b33ffec33.png",
+    description: "Citation probe",
+    description2:
+      "Test real buyer questions and see which competitors get cited instead.",
+  },
+  {
+    variant: "topic-map",
+    eyebrow: "Topic map",
+    title:
+      "Your pages grouped by topic, plus the subjects buyers expect that no page answers.",
+    stat: "6",
+    imgSrc: "/assets/cloned/images/3aed687c1b1f.png",
+    description: "Topic map",
+    description2:
+      "See what you cover, what's thin, and which pages to write next.",
+  },
+  {
+    variant: "ai-traffic",
     eyebrow: "GA4",
     title:
-      "Connect GA4 to read sessions and conversion gaps next to the free crawl report.",
+      "Visits from ChatGPT, Perplexity, Gemini and other AI tools, read from your own GA4.",
+    stat: "AI",
     imgSrc: "/assets/cloned/images/3aa13c971186.png",
-    description: "GA4 connect",
-    description2: "See where visitors drop off before they buy.",
+    description: "Visits from AI tools",
+    description2:
+      "Know how many real visitors AI assistants send, and where they land.",
   },
   {
     variant: "flag-your-not-found-page-once-then-see-bro",
@@ -87,6 +115,26 @@ export const products: ProductsItem[] = [
     description2: "Paste a ready-made fix into Cursor or Claude.",
   },
   {
+    variant: "connect-search-console-to-see-which-querie",
+    eyebrow: "Search Console",
+    title:
+      "Connect Search Console in the full audit to tie queries and page performance to crawl findings.",
+    stat: "GSC",
+    imgSrc: "/assets/cloned/images/af9128c8772f.png",
+    description: "Search Console",
+    description2: "See which searches reach you and which pages lose them.",
+    span: 2,
+  },
+  {
+    variant: "see-who-is-on-your-site-right-now-where-th",
+    eyebrow: "GA4",
+    title:
+      "Connect GA4 to read sessions and conversion gaps next to the free crawl report.",
+    imgSrc: "/assets/cloned/images/3aa13c971186.png",
+    description: "GA4 connect",
+    description2: "See where visitors drop off before they buy.",
+  },
+  {
     variant: "connect-cursor-claude-code-or-codex-to-pul",
     eyebrow: "Growth brief",
     title:
@@ -95,6 +143,7 @@ export const products: ProductsItem[] = [
     imgSrc: "/assets/cloned/images/ddc11a1b5498.png",
     description: "Growth brief",
     description2: "One shareable report to send your client.",
+    span: 3,
   },
 ];
 
@@ -506,7 +555,9 @@ export type ListRow11Data6Item = {
 export const listRow11Data6: ListRow11Data6Item[] = [
   { href: "/", label: "Knowledge graph" },
   { href: "/", label: "Work orders" },
-  { href: "/", label: "AEO scoring" },
+  { href: "/#aeo", label: "AI answer readiness" },
+  { href: "/#aeo", label: "Citation probe" },
+  { href: "/#aeo", label: "Topic map" },
   { href: "/", label: "Fix prompts" },
 ];
 
@@ -557,7 +608,7 @@ export const listRow11Data10: ListRow11Data10Item[] = [
   { href: "/", label: "Growth brief" },
   { href: "/", label: "Fix prompts" },
   { href: "/#faq", label: "Operator workflow" },
-  { href: "/", label: "AEO scoring" },
+  { href: "/#aeo", label: "AI answer readiness" },
 ];
 
 export type ListRow11Data11Item = {

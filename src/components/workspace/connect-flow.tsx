@@ -128,7 +128,7 @@ function SourceField({
   children: ReactNode;
 }) {
   return (
-    <div className="grid gap-2 rounded-xl bg-muted p-3.5">
+    <div className="grid gap-2 rounded-xl bg-tint p-3.5">
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-start gap-2.5">
           <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-raised text-foreground/70 shadow-sm">
@@ -399,7 +399,7 @@ export function ConnectFlow({
               key={step.title}
               className={`flex gap-3 rounded-xl p-3 ${
                 step.state === 'current'
-                  ? 'bg-muted ring-1 ring-border'
+                  ? 'bg-tint ring-1 ring-border'
                   : step.state === 'attention'
                     ? 'bg-warning-soft'
                     : ''

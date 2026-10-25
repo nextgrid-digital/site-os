@@ -101,7 +101,7 @@ export const BentoGridItem = ({
       whileHover={reduce ? undefined : { y: -6, transition: SPRING_PRESS }}
       whileTap={reduce ? undefined : { scale: 0.985, transition: SPRING_PRESS }}
       className={cn(
-        "group/bento shadow-input row-span-1 flex flex-col justify-between space-y-4 rounded-xl border border-neutral-200 bg-white p-4 transition-shadow duration-200 hover:shadow-xl dark:border-white/[0.2] dark:bg-surface-3 dark:shadow-none",
+        "group/bento shadow-input row-span-1 flex flex-col justify-between space-y-4 rounded-xl border border-surface bg-white p-4 transition-shadow duration-200 hover:shadow-xl dark:bg-surface-3 dark:shadow-none",
         className,
       )}
     >

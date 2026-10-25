@@ -1,6 +1,9 @@
 import { products as productsContent } from "../content";
 import { ProductHeader } from "../components/product-header";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
+// Literal class names so Tailwind can see them.
+const SPAN_CLASS = { 2: "md:col-span-2", 3: "md:col-span-3" } as const;
+
 /** Product Grid section. */
 export default function ProductGridSection({
   products = productsContent,
@@ -21,8 +24,9 @@ export default function ProductGridSection({
               className="block mt-1.5 text-muted-foreground 2xl:text-lg 2xl:leading-7"
               data-cid="n467"
             >
-              Free crawl findings, AEO, knowledge graph, fix prompts, and growth
-              briefs—then connect GSC and GA4 when you need depth.
+              Free crawl findings, AI answer readiness, knowledge graph, fix
+              prompts, and growth briefs. Sign in to test whether AI search
+              cites you, then connect GSC and GA4 when you need depth.
             </p>
           </div>
         </div>
@@ -48,7 +52,7 @@ export default function ProductGridSection({
                     </div>
                   </div>
                 }
-                className={i === 3 || i === 6 ? "md:col-span-2" : ""}
+                className={item.span ? SPAN_CLASS[item.span] : ""}
               />
             ))}
           </BentoGrid>

@@ -3,21 +3,18 @@
 import { animate, motion, useReducedMotion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { EASE_OUT } from '@/lib/ease';
+import { bandFor, SCORE_BANDS, type ScoreBandId } from '@/lib/aeo/score-bands';
 import { cn } from '@/lib/utils';
 
-export type ScoreTone = 'success' | 'warning' | 'danger';
+export type ScoreTone = ScoreBandId;
 
 export function scoreTone(score: number): ScoreTone {
-  if (score >= 80) return 'success';
-  if (score >= 60) return 'warning';
-  return 'danger';
+  return bandFor(score).id;
 }
 
-export const TONE_TEXT: Record<ScoreTone, string> = {
-  success: 'text-success-ink',
-  warning: 'text-warning-ink',
-  danger: 'text-danger-ink',
-};
+export const TONE_TEXT = Object.fromEntries(
+  SCORE_BANDS.map((band) => [band.id, band.text])
+) as Record<ScoreTone, string>;
 
 const RADIUS = 52;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
@@ -80,7 +77,7 @@ export function AeoScoreGauge({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl font-semibold font-mono tabular-nums tracking-tight">{shown}</span>
+        <span className="text-3xl font-semibold font-mono tracking-tight">{shown}</span>
         <span className="text-[11px] font-medium text-muted-foreground">{label}</span>
       </div>
     </div>

@@ -92,3 +92,25 @@ export function SortDecreasingIcon(props: SVGProps<SVGSVGElement>) {
     <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48" {...props}>{/* Icon from IconPark Outline by ByteDance - https://github.com/bytedance/IconPark/blob/master/LICENSE */}<path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M23 8h20M14 41l-8-8m8-26v34m9-23h16M23 28h12M23 38h8" /></svg>
   )
 }
+
+
+
+export function IssuesListIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>{/* Icon from Meteor Icons by zkreations - https://github.com/zkreations/icons/blob/main/LICENSE */}<path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 7v10l-9 5l-9-5V7l9-5Zl-9 5l-9-5m9 5v10" /></svg>
+  )
+}
+
+
+export function OpenTaskIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 80 80" {...props}>{/* Icon from Glyphs by Goran Spasojevic - https://github.com/gorango/glyphs/blob/main/license */}<g fill="currentColor"><path d="M16.104 40.31A8 8 0 0 1 23.638 35h44.686c2.766 0 4.697 2.74 3.767 5.345l-7.143 20A4 4 0 0 1 61.181 63H10.838a2 2 0 0 1-1.883-2.673z" /><path fillRule="evenodd" d="M8 21a4 4 0 0 1 4-4h11.032a4 4 0 0 1 3.252 1.671l3.1 4.329l.376.525l.376.526l.34.474c.213.298.557.475.923.475H60a4 4 0 0 1 4 4v3H23.638a11 11 0 0 0-10.36 7.3L8 54.08zm56 17v16.08l-1.877 5.256a1 1 0 0 1-.942.664H12.257l6.672-18.682A5 5 0 0 1 23.638 38z" clipRule="evenodd" /></g></svg>
+  )
+}
+
+
+export function CalendarIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>{/* Icon from Material Symbols by Google - https://github.com/google/material-design-icons/blob/master/LICENSE */}<path fill="currentColor" d="M3 22V4h3V2h2v2h8V2h2v2h3v7.675q-.475-.225-.975-.375T19 11.075V10H5v10h6.3q.175.55.413 1.05t.562.95zm11.463-.462Q13 20.075 13 18t1.463-3.537T18 13t3.538 1.463T23 18t-1.463 3.538T18 23t-3.537-1.463m5.212-1.162l.7-.7L18.5 17.8V15h-1v3.2z" /></svg>
+  )
+}

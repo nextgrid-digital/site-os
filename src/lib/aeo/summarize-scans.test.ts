@@ -41,7 +41,7 @@ test('summarizeAeoScans rolls up failing checks, skips inapplicable, bands score
     { applicable: summary.checks[0].applicable, failing: summary.checks[0].failing, lost: summary.checks[0].weightLost },
     { applicable: 3, failing: 2, lost: 40 }
   );
-  assert.deepEqual(summary.bands.map((b) => b.count), [2, 0, 1]);
+  assert.deepEqual(summary.bands.map((b) => b.count), [1, 1, 0, 1]);
 });
 
 test('summarizeAeoScans handles no scans', () => {

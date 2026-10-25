@@ -1,4 +1,5 @@
 import { google } from 'googleapis';
+import { aiSourceFilterRegex, type AiReferralRow } from '@/lib/aeo/ai-referrals';
 import type { getAuthorizedClient } from '@/lib/google/oauth';
 
 export interface Ga4PropertyOption {
@@ -630,5 +631,67 @@ export async function fetchGa4AnalyticsBundle(
     channelGroups: pick(8, empty.channelGroups),
     campaigns: pick(9, empty.campaigns),
     sourceMedium: pick(10, empty.sourceMedium),
+  };
+}
+
+/**
+ * Sessions that arrived from AI assistants (ChatGPT, Perplexity, ...), by source
+ * and landing page, plus a per-day series. Filtered server-side with a regex
+ * superset of the known AI hosts; callers re-check each source with classifyAiSource.
+ */
+export async function fetchGa4AiReferrals(
+  auth: AuthClient,
+  propertyId: string,
+  startDate: string,
+  endDate: string
+): Promise<{
+  rows: AiReferralRow[];
+  daily: Array<{ date: string; source: string; sessions: number }>;
+}> {
+  const analyticsData = google.analyticsdata({ version: 'v1beta', auth });
+  const dimensionFilter = {
+    filter: {
+      fieldName: 'sessionSource',
+      stringFilter: { matchType: 'PARTIAL_REGEXP', value: aiSourceFilterRegex(), caseSensitive: false },
+    },
+  };
+
+  const [byPage, byDay] = await Promise.all([
+    analyticsData.properties.runReport({
+      property: `properties/${propertyId}`,
+      requestBody: {
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: 'sessionSource' }, { name: 'landingPage' }],
+        metrics: [{ name: 'sessions' }, { name: 'engagedSessions' }, { name: 'conversions' }],
+        dimensionFilter,
+        orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+        limit: '1000',
+      },
+    }),
+    analyticsData.properties.runReport({
+      property: `properties/${propertyId}`,
+      requestBody: {
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: 'date' }, { name: 'sessionSource' }],
+        metrics: [{ name: 'sessions' }],
+        dimensionFilter,
+        limit: '2000',
+      },
+    }),
+  ]);
+
+  return {
+    rows: (byPage.data.rows ?? []).map((row) => ({
+      source: row.dimensionValues?.[0]?.value ?? '',
+      landingPage: row.dimensionValues?.[1]?.value || '/',
+      sessions: num(row.metricValues?.[0]?.value),
+      engagedSessions: num(row.metricValues?.[1]?.value),
+      conversions: num(row.metricValues?.[2]?.value),
+    })),
+    daily: (byDay.data.rows ?? []).map((row) => ({
+      date: formatGa4Date(row.dimensionValues?.[0]?.value ?? ''),
+      source: row.dimensionValues?.[1]?.value ?? '',
+      sessions: num(row.metricValues?.[0]?.value),
+    })),
   };
 }

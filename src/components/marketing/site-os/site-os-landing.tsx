@@ -6,6 +6,7 @@ import HeroSection from './sections/hero-section';
 // Commented out until implemented or de-duplicated:
 // import S8kbDefaultTrackerSection from './sections/s8kb-default-tracker-section';
 import ProductGridSection from './sections/product-grid-section';
+import AeoDemoSection from './sections/aeo-demo-section';
 import SeeWhenVisitorsSection from './sections/see-when-visitors-section';
 // import EverythingYouNeedSection from './sections/everything-you-need-section';
 // import LogoCloudSection from './sections/logo-cloud-section';
@@ -35,6 +36,7 @@ export function SiteOsLanding({
         <HeroSection />
         {/* <S8kbDefaultTrackerSection /> */}
         <ProductGridSection />
+        <AeoDemoSection />
         <SeeWhenVisitorsSection />
         {/* <EverythingYouNeedSection /> */}
         {/* <LogoCloudSection /> */}

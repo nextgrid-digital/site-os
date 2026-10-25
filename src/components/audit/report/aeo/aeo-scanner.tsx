@@ -19,12 +19,19 @@ import {
   TONE_TEXT,
 } from '@/components/audit/report/aeo/aeo-score-gauge';
 import { CitationProbeCard } from '@/components/audit/report/aeo/citation-probe-card';
+import {
+  AeoSection,
+  AeoSectionToggles,
+  useHiddenAeoSections,
+} from '@/components/audit/report/aeo/aeo-sections';
+import { AiReferralsCard, type AiReferralsPayload } from '@/components/audit/report/aeo/ai-referrals-card';
 import { TopicMapCard } from '@/components/audit/report/aeo/topic-map-card';
 import type { TopicMap } from '@/lib/aeo/topic-map';
 import { StatusBadge } from '@/components/ui/status-badge';
 import type { AeoAnalysis } from '@/lib/aeo/schema';
 import type { AeoScanSummary } from '@/lib/aeo/summarize-scans';
 import type { AeoPageScanRow } from '@/lib/db/aeo';
+import { SCORE_BANDS } from '@/lib/aeo/score-bands';
 import { EASE_OUT, SPRING_LAYOUT } from '@/lib/ease';
 import { cn } from '@/lib/utils';
 import { SortIncreasingIcon, SortDecreasingIcon } from '@/components/icons';
@@ -34,14 +41,15 @@ export interface AeoPanelData {
   pages: AeoPageScanRow[];
   analysis: AeoAnalysis | null;
   topicMap?: TopicMap | null;
+  ga4Connected?: boolean;
+  aiReferrals?: AiReferralsPayload | null;
   summary: AeoScanSummary;
 }
 
-const TONE_BAR: Record<ReturnType<typeof scoreTone>, string> = {
-  success: 'bg-success-ink',
-  warning: 'bg-warning-ink',
-  danger: 'bg-danger-ink',
-};
+const TONE_BAR = Object.fromEntries(SCORE_BANDS.map((band) => [band.id, band.bar])) as Record<
+  ReturnType<typeof scoreTone>,
+  string
+>;
 
 const KIND_LABEL = { home: 'Homepage', article: 'Article', page: 'Page' } as const;
 
@@ -109,9 +117,9 @@ function Hero({ data }: { data: AeoPanelData }) {
   const { summary, analysis } = data;
   const tone = scoreTone(summary.averageScore);
   const headline =
-    tone === 'success'
+    tone === 'high'
       ? 'Your pages are well set up to be quoted by AI answers.'
-      : tone === 'warning'
+      : tone === 'good'
         ? 'AI engines can read your site, but few pages are easy to quote.'
         : 'Most of your pages are hard for AI engines to quote.';
 
@@ -197,7 +205,7 @@ function CostliestGaps({ summary }: { summary: AeoScanSummary }) {
   );
 }
 
-const BAND_FILL = ['var(--destructive)', 'var(--warning)', 'var(--success)'];
+const BAND_FILL = SCORE_BANDS.map((band) => band.fill);
 
 function Distribution({ summary }: { summary: AeoScanSummary }) {
   const reduced = useReducedMotion();
@@ -431,6 +439,7 @@ export function AeoScanner({
   domain?: string;
 }) {
   const rewrites = data.analysis?.suggested_aeo_rewrites ?? [];
+  const { hidden, toggle } = useHiddenAeoSections();
 
   return (
     <div className="space-y-4">
@@ -458,9 +467,27 @@ export function AeoScanner({
           </ul>
         </Card>
       ) : null}
-      {projectId ? <TopicMapCard projectId={projectId} initial={data.topicMap ?? null} /> : null}
-      {projectId && domain ? (
-        <CitationProbeCard projectId={projectId} domain={domain} analysis={data.analysis} />
+      {projectId ? (
+        <div>
+          <AeoSectionToggles hidden={hidden} onToggle={toggle} />
+          {data.ga4Connected !== undefined ? (
+            <AeoSection visible={!hidden.has('ai-traffic')}>
+              <AiReferralsCard
+                projectId={projectId}
+                ga4Connected={data.ga4Connected}
+                initial={data.aiReferrals ?? null}
+              />
+            </AeoSection>
+          ) : null}
+          <AeoSection visible={!hidden.has('topic-map')}>
+            <TopicMapCard projectId={projectId} initial={data.topicMap ?? null} />
+          </AeoSection>
+          {domain ? (
+            <AeoSection visible={!hidden.has('citation-probe')}>
+              <CitationProbeCard projectId={projectId} domain={domain} analysis={data.analysis} />
+            </AeoSection>
+          ) : null}
+        </div>
       ) : null}
       <Pages pages={data.pages} />
     </div>

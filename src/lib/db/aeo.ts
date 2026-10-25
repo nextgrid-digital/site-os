@@ -1,4 +1,5 @@
 import type { AeoCheck, AeoPageKind, AeoPageSignals } from '@/lib/aeo/page-scanner';
+import type { AiReferralData } from '@/lib/aeo/ai-referrals';
 import type { TopicMap } from '@/lib/aeo/topic-map';
 import type { ProbeResult } from '@/lib/aeo/citation-probe';
 import type { AeoAnalysis } from '@/lib/aeo/schema';
@@ -215,4 +216,42 @@ export async function saveTopicMap(
     logError('aeo.save-topic-map', error, { projectId, auditRunId });
     throw new Error('Could not save the topic map.');
   }
+}
+
+export async function loadAiReferrals(
+  projectId: string
+): Promise<{ data: AiReferralData; fetchedAt: string } | null> {
+  const { data, error } = await getSupabaseAdmin()
+    .from('aeo_ai_referrals')
+    .select('data, fetched_at')
+    .eq('project_id', projectId)
+    .maybeSingle();
+  if (error) {
+    logError('aeo.load-ai-referrals', error, { projectId });
+    return null;
+  }
+  return data ? { data: data.data as AiReferralData, fetchedAt: data.fetched_at as string } : null;
+}
+
+export async function saveAiReferrals(projectId: string, data: AiReferralData) {
+  const fetchedAt = new Date().toISOString();
+  const { error } = await getSupabaseAdmin()
+    .from('aeo_ai_referrals')
+    .upsert({ project_id: projectId, data, fetched_at: fetchedAt }, { onConflict: 'project_id' });
+  if (error) {
+    logError('aeo.save-ai-referrals', error, { projectId });
+    throw new Error('Could not save AI traffic.');
+  }
+  return fetchedAt;
+}
+
+/** Selected GA4 property for the project, if one is mapped. */
+export async function getSelectedGa4Property(projectId: string) {
+  const { data } = await getSupabaseAdmin()
+    .from('ga4_properties')
+    .select('property_id, property_name, connection_id')
+    .eq('project_id', projectId)
+    .eq('is_selected', true)
+    .maybeSingle();
+  return (data as { property_id: string; property_name: string; connection_id: string | null } | null) ?? null;
 }

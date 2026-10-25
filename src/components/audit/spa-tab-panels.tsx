@@ -1,28 +1,32 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { AuditWorkspacePanel } from '@/components/audit/audit-workspace-panel';
-import { LastAuditLabel } from '@/components/audit/last-audit-label';
-import { AeoScanner, type AeoPanelData } from '@/components/audit/report/aeo/aeo-scanner';
-import { JoinedTrafficReport } from '@/components/audit/report/joined/joined-traffic-report';
+import { useEffect, useState } from "react";
+import { AuditWorkspacePanel } from "@/components/audit/audit-workspace-panel";
+import { LastAuditLabel } from "@/components/audit/last-audit-label";
+import {
+  AeoScanner,
+  type AeoPanelData,
+} from "@/components/audit/report/aeo/aeo-scanner";
+import { JoinedTrafficReport } from "@/components/audit/report/joined/joined-traffic-report";
 import {
   useWorkspaceAudit,
   type FreeAuditStatus,
-} from '@/components/audit/workspace-audit-store';
-import { ClientWorkflowBrief } from '@/components/audit/workflow/client-workflow-brief';
-import { MonthlyReviewPanel } from '@/components/audit/workflow/monthly-review-panel';
-import { ConnectFlow } from '@/components/workspace/connect-flow';
-import type { ConnectedAuditMetrics } from '@/lib/db/connected-metrics';
-import type { GrowthBrief } from '@/lib/reports/build-growth-brief';
+} from "@/components/audit/workspace-audit-store";
+import { ClientWorkflowBrief } from "@/components/audit/workflow/client-workflow-brief";
+import { MonthlyReviewPanel } from "@/components/audit/workflow/monthly-review-panel";
+import { ConnectFlow } from "@/components/workspace/connect-flow";
+import type { ConnectedAuditMetrics } from "@/lib/db/connected-metrics";
+import type { GrowthBrief } from "@/lib/reports/build-growth-brief";
 import type {
   Ga4Property,
   GoogleAdsAccount,
   SearchConsoleProperty,
-} from '@/lib/supabase/types';
-import type { ConnectorStatus } from '@/lib/connectors/types';
-import type { ConnectionStatus } from '@/lib/google/connection-status';
-import type { WorkItemView } from '@/lib/workflow/work-items';
-import type { MonthlyCompareSection } from '@/lib/workflow/monthly-compare';
+} from "@/lib/supabase/types";
+import type { ConnectorStatus } from "@/lib/connectors/types";
+import type { ConnectionStatus } from "@/lib/google/connection-status";
+import type { WorkItemView } from "@/lib/workflow/work-items";
+import type { MonthlyCompareSection } from "@/lib/workflow/monthly-compare";
+import { Spinner } from "../ui/spinner";
 
 function FreeAuditProgress({
   domain,
@@ -31,17 +35,20 @@ function FreeAuditProgress({
   domain: string;
   status: FreeAuditStatus | null;
 }) {
-  if (status === 'failed') {
+  if (status === "failed") {
     return (
       <div className="rounded-xl bg-raised px-6 py-12 text-center shadow-sm">
-        <p className="text-base font-semibold text-foreground">The audit didn&apos;t finish</p>
+        <p className="text-base font-semibold text-foreground">
+          The audit didn&apos;t finish
+        </p>
         <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-          We couldn&apos;t complete the audit for {domain}. Run it again from the home page.
+          We couldn&apos;t complete the audit for {domain}. Run it again from
+          the home page.
         </p>
       </div>
     );
   }
-  if (status === 'none') {
+  if (status === "none") {
     return (
       <div className="rounded-xl bg-raised px-6 py-12 text-center shadow-sm">
         <p className="text-base font-semibold text-foreground">No audit yet</p>
@@ -52,11 +59,20 @@ function FreeAuditProgress({
     );
   }
   return (
-    <div className="rounded-xl bg-raised px-6 py-12 text-center shadow-sm" role="status">
-      <p className="text-base font-semibold text-foreground">Auditing {domain}…</p>
+    <div
+      className="rounded-xl bg-raised px-6 py-12 text-center shadow-sm"
+      role="status"
+    >
+      <p className="text-base font-semibold text-foreground inline-flex items-center gap-2">
+        {" "}
+        <Spinner className="inline-block h-4 w-4" />{" "}
+        <span className="shimmer shimmer-color-blue-500 shimmer-duration-4000 shimmer-spread-32">
+          Auditing {domain}
+        </span>{" "} 
+      </p>
       <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-        We&apos;re crawling the site and writing your brief. This usually takes a minute or two.
-        This page updates by itself when it&apos;s ready.
+        We&apos;re crawling the site and writing your brief. This usually takes
+        a minute or two. This page updates by itself when it&apos;s ready.
       </p>
     </div>
   );
@@ -64,7 +80,11 @@ function FreeAuditProgress({
 
 function PanelPulse() {
   return (
-    <div className="motion-safe:animate-pulse space-y-4" aria-busy="true" aria-label="Loading">
+    <div
+      className="motion-safe:animate-pulse space-y-4"
+      aria-busy="true"
+      aria-label="Loading"
+    >
       <div className="h-40 rounded-2xl bg-raised" />
       <div className="h-56 rounded-2xl bg-raised" />
     </div>
@@ -85,7 +105,7 @@ export function SpaDashboardPanel({
   const ctx = useWorkspaceAudit();
   const ensureSlice = ctx?.ensureSlice;
   useEffect(() => {
-    void ensureSlice?.('dashboard');
+    void ensureSlice?.("dashboard");
   }, [ensureSlice]);
 
   const connected = ctx?.bundle?.connected ?? null;
@@ -116,7 +136,7 @@ export function SpaBriefPanel({
   const ctx = useWorkspaceAudit();
   const ensureSlice = ctx?.ensureSlice;
   useEffect(() => {
-    void ensureSlice?.('brief');
+    void ensureSlice?.("brief");
   }, [ensureSlice]);
 
   if (!ctx?.bundle?.brief && ctx?.sliceLoading.brief) return <PanelPulse />;
@@ -159,7 +179,7 @@ export function SpaMonthlyPanel({ projectId }: { projectId: string }) {
   const ctx = useWorkspaceAudit();
   const ensureSlice = ctx?.ensureSlice;
   useEffect(() => {
-    void ensureSlice?.('monthly');
+    void ensureSlice?.("monthly");
   }, [ensureSlice]);
 
   const monthly = ctx?.bundle?.monthly as {
@@ -180,10 +200,12 @@ export function SpaMonthlyPanel({ projectId }: { projectId: string }) {
         description="Your site's progress, month over month — in plain English."
       >
         <div className="rounded-xl bg-raised px-6 py-12 text-center shadow-sm">
-          <p className="text-base font-semibold text-foreground">No audits yet</p>
+          <p className="text-base font-semibold text-foreground">
+            No audits yet
+          </p>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-            Run your first audit to set a baseline. From then on, each monthly re-run shows what
-            got better, what slipped, and what to fix next.
+            Run your first audit to set a baseline. From then on, each monthly
+            re-run shows what got better, what slipped, and what to fix next.
           </p>
         </div>
       </AuditWorkspacePanel>
@@ -212,13 +234,13 @@ export function SpaAeoPanel({ domain }: { domain: string }) {
   const ctx = useWorkspaceAudit();
   const ensureSlice = ctx?.ensureSlice;
   useEffect(() => {
-    void ensureSlice?.('aeo');
+    void ensureSlice?.("aeo");
   }, [ensureSlice]);
 
   const aeo = ctx?.bundle?.aeo as AeoPanelData | null | undefined;
-  const title = 'AI answer readiness';
+  const title = "AI answer readiness";
   const description =
-    'How easy each page is for AI answer engines to read, trust and quote.';
+    "How easy each page is for AI answer engines to read, trust and quote.";
 
   if (!aeo && ctx?.sliceLoading.aeo) return <PanelPulse />;
 
@@ -235,10 +257,12 @@ export function SpaAeoPanel({ domain }: { domain: string }) {
     return (
       <AuditWorkspacePanel title={title} description={description}>
         <div className="rounded-xl bg-raised px-6 py-12 text-center shadow-sm">
-          <p className="text-base font-semibold text-foreground">No AEO scan for this audit</p>
+          <p className="text-base font-semibold text-foreground">
+            No AEO scan for this audit
+          </p>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-            Re-run the audit for {domain || 'this site'} to scan every crawled page for schema,
-            direct answers and quotable structure.
+            Re-run the audit for {domain || "this site"} to scan every crawled
+            page for schema, direct answers and quotable structure.
           </p>
         </div>
       </AuditWorkspacePanel>
@@ -249,7 +273,9 @@ export function SpaAeoPanel({ domain }: { domain: string }) {
     <AuditWorkspacePanel title={title} description={description}>
       <AeoScanner
         data={aeo}
-        projectId={(ctx?.bundle as { projectId?: string } | null | undefined)?.projectId}
+        projectId={
+          (ctx?.bundle as { projectId?: string } | null | undefined)?.projectId
+        }
         domain={domain}
       />
     </AuditWorkspacePanel>
@@ -269,16 +295,18 @@ export function SpaConnectPanel({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    void ensureSlice?.('connect');
+    void ensureSlice?.("connect");
   }, [ensureSlice]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
-    if (params.get('connected')) {
-      setMessage('Google connected. Next, pick which site and accounts to track below.');
+    if (params.get("connected")) {
+      setMessage(
+        "Google connected. Next, pick which site and accounts to track below.",
+      );
     }
-    const error = params.get('error');
+    const error = params.get("error");
     if (error) {
       setErrorMessage(error);
     }
@@ -330,7 +358,7 @@ export function SpaConnectPanel({
         lastSyncedAt={connect?.lastSyncedAt ?? null}
         scopes={connect?.scopes ?? []}
         missingFeatures={connect?.missingFeatures ?? []}
-        connectionStatus={connect?.connectionStatus ?? 'not_granted'}
+        connectionStatus={connect?.connectionStatus ?? "not_granted"}
         clientAccessConfirmedAt={connect?.clientAccessConfirmedAt ?? null}
         viewerSignedIn={Boolean(connect)}
         workspaceBase={workspaceBase}

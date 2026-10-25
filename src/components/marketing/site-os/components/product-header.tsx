@@ -204,6 +204,106 @@ export const ProductGrowthBrief = () => {
   );
 };
 
+export const ProductAnswerReadiness = () => {
+  const checks = [
+    { label: "Direct answer", pass: false },
+    { label: "FAQ schema", pass: false },
+    { label: "Author and date", pass: true },
+  ];
+  return (
+    <div className={`${CARD} max-w-xs`}>
+      <div className="mb-2 flex items-center justify-between">
+        <span className="font-medium">AI answer readiness</span>
+        <span className="text-primary font-medium">68 / 100</span>
+      </div>
+      <ul className="flex flex-col gap-1.5 [list-style-type:none]">
+        {checks.map((c) => (
+          <li key={c.label} className="flex items-center justify-between gap-2">
+            <span className="min-w-0 truncate">{c.label}</span>
+            <span
+              className={`shrink-0 text-[0.6875rem] font-medium ${c.pass ? "text-primary" : "text-muted-foreground"}`}
+            >
+              {c.pass ? "Pass" : "Fix"}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export const ProductCitationProbe = () => {
+  const rows = [
+    { q: "best crm for small agencies", cited: true },
+    { q: "crm with client reporting", cited: false },
+    { q: "how to choose an agency crm", cited: true },
+  ];
+  return (
+    <ul className="flex w-full max-w-xs flex-col gap-1.5 [list-style-type:none] pointer-events-none">
+      {rows.map((r) => (
+        <li
+          key={r.q}
+          className="flex items-center gap-2 rounded-lg border border-solid border-surface bg-surface-3 px-2 py-1.5 text-xs leading-4"
+        >
+          <span
+            aria-hidden="true"
+            className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[0.625rem] ${r.cited ? "bg-primary text-background" : "bg-background text-muted-foreground"}`}
+          >
+            {r.cited ? "✓" : "×"}
+          </span>
+          <span className="min-w-0 flex-1 truncate">{r.q}</span>
+          <span className="shrink-0 text-[0.6875rem] text-muted-foreground">
+            {r.cited ? "Cited" : "Missed"}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+};
+
+export const ProductTopicMap = () => {
+  const topics = [
+    { name: "Pricing", tone: "bg-primary" },
+    { name: "Integrations", tone: "bg-primary" },
+    { name: "Case studies", tone: "bg-muted-foreground" },
+    { name: "Security", tone: "bg-muted-foreground" },
+  ];
+  return (
+    <div className={`${CARD} max-w-xs`}>
+      <div className="mb-2 flex items-center justify-between">
+        <span className="font-medium">Topic map</span>
+        <span className="text-primary font-medium">2 missing</span>
+      </div>
+      <ul className="grid grid-cols-2 gap-1.5 [list-style-type:none]">
+        {topics.map((t) => (
+          <li
+            key={t.name}
+            className="flex items-center gap-1.5 rounded-md border border-solid border-surface bg-background px-1.5 py-1 text-[0.6875rem]"
+          >
+            <span aria-hidden="true" className={`block h-1.5 w-1.5 shrink-0 rounded-full ${t.tone}`} />
+            <span className="min-w-0 truncate">{t.name}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export const ProductAiTraffic = () => {
+  const rows = [
+    { label: "ChatGPT", visits: "142", width: "88%" },
+    { label: "Perplexity", visits: "61", width: "40%" },
+    { label: "Gemini", visits: "24", width: "18%" },
+  ];
+  return (
+    <ul className="flex w-full max-w-xs flex-col gap-1.5 [list-style-type:none] pointer-events-none">
+      {rows.map((r) => (
+        <BreakdownRow key={r.label} width={r.width} label={r.label} value={r.visits} />
+      ))}
+    </ul>
+  );
+};
+
 /** Header mockup shown above each product tile's image, keyed by product variant. */
 export const ProductHeader = ({ variant }: { variant: string }) => {
   switch (variant) {
@@ -221,6 +321,14 @@ export const ProductHeader = ({ variant }: { variant: string }) => {
       return <ProductFixPrompts />;
     case "connect-cursor-claude-code-or-codex-to-pul":
       return <ProductGrowthBrief />;
+    case "ai-answer-readiness":
+      return <ProductAnswerReadiness />;
+    case "citation-probe":
+      return <ProductCitationProbe />;
+    case "topic-map":
+      return <ProductTopicMap />;
+    case "ai-traffic":
+      return <ProductAiTraffic />;
     default:
       return null;
   }
