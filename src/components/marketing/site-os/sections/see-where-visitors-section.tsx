@@ -56,7 +56,7 @@ export default function SeeWhereVisitorsSection({ tile4Data = Tile4_data, tile5D
                             <div className="w-full block max-md:hidden" data-cid="n1726">
                               <div className="h-80 min-h-80 border-r border-solid border-r-clr-15 border-l border-l-clr-15 block relative overflow-hidden" data-cid="n1727">
                                 <Illustration3 cid={"n1728"} />
-                                <div className="w-255 min-h-80 grid relative z-10 grid-cols-3 grid-rows-1 aspect-[3.188] md:max-lg:w-167 md:max-lg:aspect-[2.088]" data-cid="n1729">
+                                <div className="w-255 min-h-80 grid relative z-10 grid-cols-3 grid-rows-1 aspect-[3.188] md:max-lg:w-full md:max-lg:aspect-[2.088]" data-cid="n1729">
                                   {tile5Data.map((d, i) => <Tile5 key={i} d={d} cids={Tile5_cids[i]} styles={Tile5_styles[i]} />)}
                                 </div>
                               </div>
