@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { AuditWorkspacePanel } from '@/components/audit/audit-workspace-panel';
 import { LastAuditLabel } from '@/components/audit/last-audit-label';
+import { AeoScanner, type AeoPanelData } from '@/components/audit/report/aeo/aeo-scanner';
 import { JoinedTrafficReport } from '@/components/audit/report/joined/joined-traffic-report';
 import {
   useWorkspaceAudit,
@@ -202,6 +203,54 @@ export function SpaMonthlyPanel({ projectId }: { projectId: string }) {
         previousLabel={monthly.previousLabel}
         currentAt={monthly.currentAt ?? null}
         previousAt={monthly.previousAt ?? null}
+      />
+    </AuditWorkspacePanel>
+  );
+}
+
+export function SpaAeoPanel({ domain }: { domain: string }) {
+  const ctx = useWorkspaceAudit();
+  const ensureSlice = ctx?.ensureSlice;
+  useEffect(() => {
+    void ensureSlice?.('aeo');
+  }, [ensureSlice]);
+
+  const aeo = ctx?.bundle?.aeo as AeoPanelData | null | undefined;
+  const title = 'AI answer readiness';
+  const description =
+    'How easy each page is for AI answer engines to read, trust and quote.';
+
+  if (!aeo && ctx?.sliceLoading.aeo) return <PanelPulse />;
+
+  if (ctx?.bundle && !ctx.bundle.auditRunId) {
+    return (
+      <AuditWorkspacePanel title={title} description={description}>
+        <FreeAuditProgress domain={domain} status={ctx.auditStatus} />
+      </AuditWorkspacePanel>
+    );
+  }
+
+  // Audits from before AEO scanning have a run but no page scans.
+  if (!aeo || aeo.pages.length === 0) {
+    return (
+      <AuditWorkspacePanel title={title} description={description}>
+        <div className="rounded-xl bg-raised px-6 py-12 text-center shadow-sm">
+          <p className="text-base font-semibold text-foreground">No AEO scan for this audit</p>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+            Re-run the audit for {domain || 'this site'} to scan every crawled page for schema,
+            direct answers and quotable structure.
+          </p>
+        </div>
+      </AuditWorkspacePanel>
+    );
+  }
+
+  return (
+    <AuditWorkspacePanel title={title} description={description}>
+      <AeoScanner
+        data={aeo}
+        projectId={(ctx?.bundle as { projectId?: string } | null | undefined)?.projectId}
+        domain={domain}
       />
     </AuditWorkspacePanel>
   );

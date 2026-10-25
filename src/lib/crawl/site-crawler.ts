@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio';
+import { extractAeoSignals, scoreAeoPage, type AeoPageScan } from '@/lib/aeo/page-scanner';
 import { fetchSitemapUrls } from '@/lib/crawl/sitemap';
 import { isSameDomain, normalizePath, resolveInternalUrl } from '@/lib/utils/urls';
 
@@ -17,6 +18,8 @@ export interface CrawledPage {
   hasFaqSchema: boolean;
   statusCode: number;
   textExcerpt: string | null;
+  /** Per-page AEO scan; optional so hand-built fixtures stay valid. */
+  aeo?: AeoPageScan;
 }
 
 /** Resolve a meta image URL (og/twitter) against the page URL; allows CDN hosts. */
@@ -142,9 +145,11 @@ function parsePage(url: string, html: string, statusCode: number, baseUrl: strin
     if (resolved) internalLinks.add(resolved);
   });
 
+  const path = normalizePath(url);
+
   return {
     url,
-    path: normalizePath(url),
+    path,
     title,
     metaDescription,
     h1,
@@ -155,6 +160,7 @@ function parsePage(url: string, html: string, statusCode: number, baseUrl: strin
     hasFaqSchema: detectFaqSchema($),
     statusCode,
     textExcerpt: extractTextExcerpt($),
+    aeo: scoreAeoPage(path, extractAeoSignals($)),
   };
 }
 

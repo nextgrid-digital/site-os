@@ -18,6 +18,7 @@ const PRIMARY_TABS: {
   { id: 'workflow', label: 'Dashboard', suffix: '/workflow' },
   { id: 'brief', label: 'Brief', suffix: '/brief' },
   { id: 'monthly', label: 'Monthly', suffix: '/monthly' },
+  { id: 'aeo', label: 'AEO', suffix: '/aeo' },
   { id: 'connect', label: 'Setup', suffix: '/connect' },
 ];
 

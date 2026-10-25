@@ -15,12 +15,14 @@ export type AuditPrimaryTabSuffix =
   | '/workflow'
   | '/brief'
   | '/monthly'
+  | '/aeo'
   | '/connect';
 
 export const AUDIT_PRIMARY_TAB_SUFFIXES: readonly AuditPrimaryTabSuffix[] = [
   '/workflow',
   '/brief',
   '/monthly',
+  '/aeo',
   '/connect',
 ];
 

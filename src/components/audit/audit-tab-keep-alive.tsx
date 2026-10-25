@@ -16,6 +16,7 @@ import {
   SpaBriefPanel,
   SpaConnectPanel,
   SpaDashboardPanel,
+  SpaAeoPanel,
   SpaMonthlyPanel,
 } from '@/components/audit/spa-tab-panels';
 import type { ConnectedAuditMetrics } from '@/lib/db/connected-metrics';
@@ -154,6 +155,11 @@ function AuditWorkspaceShell({
               {...(active !== '/monthly' ? { inert: true } : {})}
             >
               <SpaMonthlyPanel projectId={projectId} />
+            </div>
+          ) : null}
+          {mounted.has('/aeo') ? (
+            <div hidden={active !== '/aeo'} {...(active !== '/aeo' ? { inert: true } : {})}>
+              <SpaAeoPanel domain={domain ?? ''} />
             </div>
           ) : null}
           {mounted.has('/connect') ? (

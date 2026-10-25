@@ -115,3 +115,59 @@ export async function generateGeminiJson(
 
   return { model, text };
 }
+
+/**
+ * Plain-text answer with Google Search grounding, i.e. the sources an answer
+ * engine would cite. JSON mode can't be combined with the search tool, so this
+ * returns raw text plus the grounding chunks.
+ */
+export async function generateGroundedAnswer(
+  prompt: string,
+  options?: { timeoutMs?: number; systemInstruction?: string }
+): Promise<{
+  model: string;
+  text: string;
+  chunks: Array<{ web?: { uri?: string; title?: string } }>;
+}> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error('AI provider is not configured.');
+
+  const model = getGeminiModel();
+  const url = `${getGeminiBaseUrl()}/models/${model}:generateContent?key=${apiKey}`;
+  const timeoutMs = options?.timeoutMs ?? getGeminiTimeoutMs();
+
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        ...(options?.systemInstruction
+          ? { systemInstruction: { parts: [{ text: options.systemInstruction }] } }
+          : {}),
+        tools: [{ google_search: {} }],
+        generationConfig: { maxOutputTokens: 1024 },
+      }),
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+  } catch (error) {
+    throw toPlainError(error, `AI request timed out after ${Math.round(timeoutMs / 1000)}s.`);
+  }
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`AI request failed (${response.status}): ${body.slice(0, 400)}`);
+  }
+
+  const data = (await response.json()) as {
+    candidates?: Array<{
+      content?: { parts?: Array<{ text?: string }> };
+      groundingMetadata?: { groundingChunks?: Array<{ web?: { uri?: string; title?: string } }> };
+    }>;
+  };
+  const candidate = data.candidates?.[0];
+  const text = candidate?.content?.parts?.map((part) => part.text ?? '').join('') ?? '';
+  if (!text.trim()) throw new Error('AI provider returned an empty response.');
+  return { model, text, chunks: candidate?.groundingMetadata?.groundingChunks ?? [] };
+}

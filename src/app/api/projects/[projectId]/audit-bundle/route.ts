@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { summarizeAeoScans } from '@/lib/aeo/summarize-scans';
+import { loadAeoAnalysis, loadAeoPageScans, loadTopicMap } from '@/lib/db/aeo';
 import { loadDashboardMetricsForProject } from '@/lib/db/connected-metrics';
 import { loadBrandEvidenceForAuditRun } from '@/lib/evidence/persist';
 import {
@@ -145,6 +147,19 @@ export async function GET(request: Request, context: RouteContext) {
         previousAt: previous?.created_at ?? null,
         currentRunType: current?.run_type ?? null,
       };
+    }
+
+    if (includes.has('aeo')) {
+      if (runId) {
+        const [pages, analysis, topicMap] = await Promise.all([
+          loadAeoPageScans(runId),
+          loadAeoAnalysis(runId),
+          loadTopicMap(runId),
+        ]);
+        body.aeo = { auditRunId: runId, pages, analysis, topicMap, summary: summarizeAeoScans(pages) };
+      } else {
+        body.aeo = null;
+      }
     }
 
     // Google connections belong to signed-in users. Anonymous free-audit visitors

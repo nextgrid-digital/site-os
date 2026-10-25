@@ -6,6 +6,7 @@ import {
   detectAuditReadiness,
 } from '@/lib/audit/audit-readiness';
 import { crawlWebsite } from '@/lib/crawl/site-crawler';
+import { persistAeoPageScans } from '@/lib/db/aeo';
 import { logError } from '@/lib/monitoring/log-error';
 import {
   buildBrandEvidenceRecord,
@@ -742,6 +743,8 @@ async function finalizeAuditRun(input: {
     })
     .select('*')
     .single();
+
+  await persistAeoPageScans(auditRunId, projectId, crawlResult.pages);
 
   const graphArtifact = analyzeCommercialGraph({
     projectName,
