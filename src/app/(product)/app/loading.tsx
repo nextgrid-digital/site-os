@@ -1,6 +1,6 @@
 export default function AppLoading() {
   return (
-    <div className="motion-safe:animate-pulse space-y-6" aria-busy="true" aria-label="Loading sites">
+    <div className="relative isolate space-y-6 overflow-hidden" aria-busy="true" aria-label="Loading sites">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="h-9 w-36 rounded-lg bg-tint-strong" />
         <div className="flex gap-2">
@@ -26,6 +26,10 @@ export default function AppLoading() {
           </div>
         ))}
       </div>
+    <div
+        aria-hidden
+        className="dashboard-sheen pointer-events-none absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/50 to-transparent will-change-transform motion-reduce:hidden"
+      />
     </div>
   );
 }

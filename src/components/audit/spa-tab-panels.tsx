@@ -27,6 +27,7 @@ import type { ConnectionStatus } from "@/lib/google/connection-status";
 import type { WorkItemView } from "@/lib/workflow/work-items";
 import type { MonthlyCompareSection } from "@/lib/workflow/monthly-compare";
 import { Spinner } from "../ui/spinner";
+import { DashboardSkeleton } from "@/components/audit/dashboard/dashboard-skeleton";
 
 function FreeAuditProgress({
   domain,
@@ -78,17 +79,8 @@ function FreeAuditProgress({
   );
 }
 
-function PanelPulse() {
-  return (
-    <div
-      className="motion-safe:animate-pulse space-y-4"
-      aria-busy="true"
-      aria-label="Loading"
-    >
-      <div className="h-40 rounded-2xl bg-raised" />
-      <div className="h-56 rounded-2xl bg-raised" />
-    </div>
-  );
+function PanelPulse({ tiles = false }: { tiles?: boolean }) {
+  return <DashboardSkeleton blocks={3} tiles={tiles} />;
 }
 
 export function SpaDashboardPanel({
@@ -110,7 +102,7 @@ export function SpaDashboardPanel({
 
   const connected = ctx?.bundle?.connected ?? null;
 
-  if (!connected && ctx?.sliceLoading.dashboard) return <PanelPulse />;
+  if (!connected && ctx?.sliceLoading.dashboard) return <PanelPulse tiles />;
 
   return (
     <div className="space-y-3">

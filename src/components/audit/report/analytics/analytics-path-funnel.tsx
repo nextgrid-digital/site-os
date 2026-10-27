@@ -1,90 +1,87 @@
-import type { AnalyticsFunnelStepView } from '@/lib/audit/connected-analytics';
-import { AnalyticsRowIcon } from '@/components/audit/report/analytics/analytics-row-icon';
+"use client";
 
-export function AnalyticsPathFunnel({ steps }: { steps: AnalyticsFunnelStepView[] }) {
-  const completed = steps.length ? steps[steps.length - 1] : null;
-  const totalConv = completed ? Math.round(completed.conversionPct) : 0;
+import { motion, useReducedMotion } from "motion/react";
+import { HoverTip, InfoTip } from "@/components/audit/dashboard/info-tip";
+import { AnalyticsRowIcon } from "@/components/audit/report/analytics/analytics-row-icon";
+import type { AnalyticsFunnelStepView } from "@/lib/audit/connected-analytics";
+import { EASE_OUT } from "@/lib/ease";
+
+/** Page-by-page funnel built from the top GA4 pages, in order of traffic. */
+export function AnalyticsPathFunnel({
+  steps,
+}: {
+  steps: AnalyticsFunnelStepView[];
+}) {
+  const reduce = useReducedMotion();
+  const first = steps[0];
+  const last = steps.length ? steps[steps.length - 1] : null;
+  const max = Math.max(...steps.map((s) => s.visitors), 1);
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-xl bg-raised p-5 shadow-sm">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-foreground">Lead conversion</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {steps.length >= 2
-                ? `${completed?.visitors.toLocaleString() ?? 0} at final step · ${totalConv}% of first-step traffic`
-                : 'Path funnel from top GA4 pages'}
-            </p>
-          </div>
-        </div>
-
-        {steps.length < 2 ? (
-          <p className="mt-6 text-sm text-muted-foreground">
-            Not enough page-path data to build a funnel. Re-run a full audit with GA4 connected.
-          </p>
-        ) : (
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            {steps.map((step) => (
-              <div key={step.step} className="rounded-xl bg-muted/80 p-4">
-                <div className="flex min-w-0 items-center gap-2">
-                  <AnalyticsRowIcon kind="page" label={step.path} />
-                  <p className="truncate font-mono text-xs text-muted-foreground">{step.path}</p>
-                </div>
-                <p className="mt-2 text-lg font-semibold tabular-nums text-foreground">
-                  {step.visitors.toLocaleString()} visitors
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {step.dropOffPct == null
-                    ? 'Entry step'
-                    : `${step.dropOffPct.toFixed(0)}% drop-off`}
-                </p>
-                <p className="mt-4 text-3xl font-semibold tabular-nums text-success-ink">
-                  {Math.round(step.conversionPct)}%
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
+    <div className="rounded-xl bg-raised p-5 shadow-sm">
+      <div className="flex items-center gap-2">
+        <p className="text-sm font-semibold text-foreground">Lead path</p>
+        <InfoTip
+          what="Your most visited pages lined up from most to least traffic. Each bar shows how many visitors reached that page, and the % is how many are left compared with the first page."
+          why="A big drop between two pages is where people lose interest. Fix or move the call-to-action on the page just before the drop."
+        />
       </div>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {steps.length >= 2 && first && last
+          ? `${last.visitors.toLocaleString()} visitors reach ${last.path} — ${Math.round(last.conversionPct)}% of those who start at ${first.path}`
+          : "Path funnel from top GA4 pages"}
+      </p>
 
-      {steps.length >= 2 ? (
-        <div className="rounded-xl bg-raised p-5 shadow-sm">
-          <p className="text-sm font-semibold text-foreground">Step breakdown</p>
-          <p className="mt-1 text-sm text-muted-foreground">All time in this audit window</p>
-          <table className="mt-4 w-full text-left text-sm">
-            <thead>
-              <tr className="text-xs text-muted-foreground">
-                <th className="pb-2 font-medium">Step</th>
-                <th className="pb-2 text-right font-medium">Visitors</th>
-                <th className="pb-2 text-right font-medium">Conv.</th>
-                <th className="pb-2 text-right font-medium">Drop-off</th>
-              </tr>
-            </thead>
-            <tbody>
-              {steps.map((step) => (
-                <tr key={step.step} className="border-t border-border">
-                  <td className="py-2 font-medium text-foreground">
-                    <span className="inline-flex items-center gap-2">
-                      <AnalyticsRowIcon kind="page" label={step.path} />
-                      <span>
-                        {step.step}. {step.path}
-                      </span>
-                    </span>
-                  </td>
-                  <td className="py-2 text-right tabular-nums">{step.visitors.toLocaleString()}</td>
-                  <td className="py-2 text-right tabular-nums">
-                    {step.conversionPct.toFixed(1)}%
-                  </td>
-                  <td className="py-2 text-right tabular-nums text-muted-foreground">
-                    {step.dropOffPct == null ? '—' : `${step.dropOffPct.toFixed(1)}%`}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : null}
+      {steps.length < 2 ? (
+        <p className="mt-6 text-sm text-muted-foreground">
+          Not enough page-path data to build a funnel. Re-run a full audit with
+          GA4 connected.
+        </p>
+      ) : (
+        <ul className="mt-5 space-y-4">
+          {steps.map((step, i) => (
+            <li key={step.step}>
+              <div className="mb-1.5 flex items-center justify-between gap-3 text-sm">
+                <span className="flex min-w-0 items-center gap-2">
+                  <AnalyticsRowIcon kind="page" label={step.path} />
+                  <HoverTip
+                    text={step.path}
+                    className="truncate font-mono text-xs text-foreground"
+                  >
+                    {step.path}
+                  </HoverTip>
+                </span>
+                <span className="shrink-0 tabular-nums text-muted-foreground">
+                  <span className="font-medium text-foreground">
+                    {step.visitors.toLocaleString()}
+                  </span>
+                  {" · "}
+                  {Math.round(step.conversionPct)}%
+                  {step.dropOffPct != null
+                    ? ` · −${step.dropOffPct.toFixed(0)}% vs previous`
+                    : ""}
+                </span>
+              </div>
+              <div className="h-2.5 overflow-hidden rounded-full bg-tint">
+                <motion.div
+                  className="h-full origin-left rounded-full bg-foreground/85"
+                  style={{
+                    width: `${Math.max(3, (step.visitors / max) * 100)}%`,
+                  }}
+                  initial={reduce ? false : { scaleX: 0 }}
+                  whileInView={{ scaleX: 1 }}
+                  viewport={{ once: true }}
+                  transition={{
+                    duration: 0.6,
+                    ease: EASE_OUT,
+                    delay: i * 0.08,
+                  }}
+                />
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

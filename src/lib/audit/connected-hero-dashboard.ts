@@ -37,6 +37,14 @@ function barsFromRows(
   }));
 }
 
+/** "2026-03-05" → "Mar 5" (month name is unambiguous across locales, unlike 05-03). */
+function shortDate(iso: string): string {
+  if (iso.length < 10) return iso;
+  const d = new Date(`${iso.slice(0, 10)}T12:00:00Z`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+}
+
 function emptySeries(): ChartPoint[] {
   return [{ date: 'empty', label: '—', value: 0 }];
 }
@@ -336,7 +344,7 @@ export function buildHeroDashboardFromConnected(
     return daily.map((d) => {
       const raw = pick(d);
       const value = asPercent ? (raw <= 1 ? raw * 100 : raw) : raw;
-      const label = d.date.length >= 10 ? d.date.slice(5) : d.date;
+      const label = shortDate(d.date);
       return { date: d.date, label, value: Math.max(0, value) };
     });
   }

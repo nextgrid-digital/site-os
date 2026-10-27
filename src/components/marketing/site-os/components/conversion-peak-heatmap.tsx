@@ -8,7 +8,7 @@ const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const HOUR_LABELS: Record<number, string> = { 0: "0", 3: "3", 6: "6", 9: "9", 12: "12", 15: "15", 18: "18", 21: "21" };
 
 /** Events per UTC hour, Sunday first. */
-const EVENTS = [
+const DEMO_EVENTS = [
   [3, 4, 4, 0, 2, 0, 2, 3, 0, 2, 2, 0, 0, 1, 4, 0, 3, 0, 1, 3, 1, 4, 3, 2],
   [1, 1, 4, 3, 1, 0, 0, 2, 1, 0, 0, 3, 2, 2, 4, 1, 3, 2, 1, 1, 2, 0, 1, 2],
   [3, 1, 1, 0, 2, 3, 0, 2, 0, 1, 1, 2, 2, 2, 9, 9, 7, 14, 9, 6, 12, 12, 11, 11],
@@ -17,19 +17,35 @@ const EVENTS = [
   [1, 2, 2, 2, 1, 4, 2, 1, 3, 3, 1, 1, 5, 3, 4, 1, 0, 1, 0, 1, 0, 3, 1, 1],
   [2, 1, 2, 1, 6, 2, 2, 0, 2, 3, 0, 2, 1, 3, 2, 0, 1, 2, 0, 2, 3, 1, 3, 2],
 ];
-const MAX = Math.max(...EVENTS.flat());
 
-const opacityFor = (events: number) => (events === 0 ? 1 : events === MAX ? 1 : 0.15 + events * 0.0137);
+const opacityFor = (events: number, max: number) =>
+  events === 0 ? 1 : events === max ? 1 : 0.15 + (events / max) * 0.85;
 
 const CELL = "h-[2.4375rem] min-h-3 border border-solid border-border block rounded-md aspect-square max-md:h-[1.4375rem] md:max-lg:h-[24.3px]";
 
-/** Interactive hour-by-weekday conversion heatmap. */
-export default function ConversionPeakHeatmap() {
+/**
+ * Interactive hour-by-weekday heatmap. Defaults to the landing demo data;
+ * pass `events` (7 rows, Sunday first x 24 hours) to render live data.
+ */
+export default function ConversionPeakHeatmap({
+  events: matrix = DEMO_EVENTS,
+  unit = ["event", "events"],
+  tz = "UTC",
+}: {
+  events?: number[][];
+  unit?: [string, string];
+  tz?: string;
+}) {
+  const EVENTS = matrix;
+  const tzSuffix = tz ? ` ${tz}` : "";
+  const MAX = Math.max(...EVENTS.flat(), 1);
+  let peak = { d: 0, h: 0 };
+  EVENTS.forEach((row, d) => row.forEach((v, h) => { if (v > EVENTS[peak.d][peak.h]) peak = { d, h }; }));
   const reduce = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-40px" });
   const [active, setActive] = useState<{ d: number; h: number } | null>(null);
-  const events = active ? EVENTS[active.d][active.h] : null;
+  const count = active ? EVENTS[active.d][active.h] : null;
 
   return (
     <div
@@ -51,8 +67,8 @@ export default function ConversionPeakHeatmap() {
         ...EVENTS[d].map((e, h) => {
           const focused = active && (active.d === d || active.h === h);
           const isActive = active?.d === d && active.h === h;
-          const base = opacityFor(e);
-          const label = `${day} ${h}:00 UTC, ${e} events`;
+          const base = opacityFor(e, MAX);
+          const label = `${day} ${h}:00${tzSuffix}, ${e} ${e === 1 ? unit[0] : unit[1]}`;
           return (
             <motion.div
               key={`${d}-${h}`}
@@ -100,7 +116,9 @@ export default function ConversionPeakHeatmap() {
           transition={{ duration: 0.15, ease: EASE_OUT }}
           aria-live="polite"
         >
-          {active ? `${DAYS[active.d]} ${active.h}:00 UTC · ${events} ${events === 1 ? "event" : "events"}` : `Peak: Wed 13:00 UTC · ${MAX} events`}
+          {active
+            ? `${DAYS[active.d]} ${active.h}:00${tzSuffix} · ${count} ${count === 1 ? unit[0] : unit[1]}`
+            : `Peak: ${DAYS[peak.d]} ${peak.h}:00${tzSuffix} · ${MAX} ${MAX === 1 ? unit[0] : unit[1]}`}
         </motion.span>
       </div>
     </div>

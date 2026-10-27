@@ -26,6 +26,14 @@ Rules: reply only with factual information that answers the question. Never writ
 
 export const maxDuration = 120;
 
+const QUOTA_ERROR = /\b429\b|RESOURCE_EXHAUSTED|quota/i;
+
+/** Short, readable reason for one failed question (never the raw provider JSON). */
+function plainProbeError(error: unknown): string {
+  const message = toPlainError(error, 'Probe timed out.').message;
+  return QUOTA_ERROR.test(message) ? 'AI provider quota exceeded (429).' : message.slice(0, 160);
+}
+
 type RouteContext = { params: Promise<{ projectId: string }> };
 
 function errorResponse(error: unknown) {
@@ -136,11 +144,26 @@ export async function POST(request: Request, context: RouteContext) {
             cited: false,
             mentioned: false,
             sources: [],
-            error: toPlainError(error, 'Probe timed out.').message,
+            error: plainProbeError(error),
           };
         }
       })
     );
+
+    // A run where the AI provider failed every question has no results worth keeping.
+    // Saving it would burn the daily limit and cooldown for nothing.
+    if (results.every((r) => r.error)) {
+      const quota = results.some((r) => QUOTA_ERROR.test(r.error ?? ''));
+      return NextResponse.json(
+        {
+          code: quota ? 'quota' : 'provider',
+          error: quota
+            ? 'The AI provider is out of quota right now, so nothing was tested. This did not count against your limit. Check the Gemini API plan and billing, then try again.'
+            : 'The AI provider could not answer these questions. This did not count against your limit — please try again.',
+        },
+        { status: quota ? 503 : 502 }
+      );
+    }
 
     const probeRunId = randomUUID();
     await persistCitationProbes(projectId, probeRunId, results);

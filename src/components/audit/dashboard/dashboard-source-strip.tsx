@@ -1,8 +1,8 @@
-import { SoftAuditTabLink } from '@/components/audit/soft-audit-tab-link';
-import { cn } from '@/lib/utils';
+import { SoftAuditTabLink } from "@/components/audit/soft-audit-tab-link";
+import { cn } from "@/lib/utils";
 
 export type DashboardSourceChip = {
-  id: 'website' | 'gsc' | 'ga4' | 'ads';
+  id: "website" | "gsc" | "ga4" | "ads";
   label: string;
   connected: boolean;
   detail: string | null;
@@ -21,25 +21,31 @@ export function DashboardSourceStrip({
         <div
           key={source.id}
           className={cn(
-            'inline-flex max-w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs',
+            "inline-flex max-w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs",
             source.connected
-              ? 'bg-raised text-foreground/90'
-              : 'bg-tint-strong text-muted-foreground'
+              ? "bg-raised text-foreground/90"
+              : "bg-tint-strong text-muted-foreground",
           )}
         >
           <span
-            className={cn('size-1.5 shrink-0 rounded-full',
-              source.connected ? 'bg-success' : 'bg-line-strong'
+            className={cn(
+              "size-1.5 shrink-0 rounded-full",
+              source.connected ? "bg-success" : "bg-line-strong",
             )}
             aria-hidden
           />
           <span className="font-medium whitespace-nowrap">{source.label}</span>
           {source.detail ? (
-            <span className="max-w-[10rem] truncate text-muted-foreground" title={source.detail}>
+            <span
+              className="max-w-[10rem] truncate text-muted-foreground"
+              title={source.detail}
+            >
               {source.detail}
             </span>
           ) : (
-            <span className="text-muted-foreground">{source.connected ? 'On' : 'Off'}</span>
+            <span className="text-muted-foreground">
+              {source.connected ? "On" : "Off"}
+            </span>
           )}
         </div>
       ))}
@@ -75,26 +81,26 @@ export function buildDashboardSourceChips({
 }): DashboardSourceChip[] {
   return [
     {
-      id: 'website',
-      label: 'Website',
+      id: "website",
+      label: "Website",
       connected: websiteConnected,
       detail: websiteConnected ? websiteLabel : null,
     },
     {
-      id: 'gsc',
-      label: 'Search Console',
+      id: "gsc",
+      label: "Search Console",
       connected: gscConnected,
       detail: gscConnected ? gscLabel : null,
     },
     {
-      id: 'ga4',
-      label: 'GA4',
+      id: "ga4",
+      label: "GA4",
       connected: ga4Connected,
       detail: ga4Connected ? ga4Label : null,
     },
     {
-      id: 'ads',
-      label: 'Ads',
+      id: "ads",
+      label: "Ads",
       connected: adsConnected,
       detail: adsConnected ? adsLabel : null,
     },

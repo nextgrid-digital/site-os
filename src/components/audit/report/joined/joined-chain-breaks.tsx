@@ -1,10 +1,12 @@
-import type { JoinedChainBreak } from '@/lib/audit/joined-traffic-story';
+import type { JoinedChainBreak } from "@/lib/audit/joined-traffic-story";
 
 export function JoinedChainBreaks({ breaks }: { breaks: JoinedChainBreak[] }) {
   if (breaks.length === 0) {
     return (
       <div className="rounded-xl bg-raised px-4 py-5 text-center">
-        <p className="text-sm text-muted-foreground">No clear chain breaks in this window.</p>
+        <p className="text-sm text-muted-foreground">
+          No clear chain breaks in this window.
+        </p>
       </div>
     );
   }
@@ -38,7 +40,10 @@ export function JoinedChainBreaks({ breaks }: { breaks: JoinedChainBreak[] }) {
                 <td className="py-2 pr-3 align-top font-medium whitespace-nowrap text-foreground">
                   {item.title}
                 </td>
-                <td className="py-2 align-top text-muted-foreground" title={item.statement}>
+                <td
+                  className="py-2 align-top text-muted-foreground"
+                  title={item.statement}
+                >
                   {item.statement}
                 </td>
               </tr>

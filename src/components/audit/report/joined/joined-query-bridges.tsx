@@ -1,28 +1,32 @@
-import { AnalyticsRowIcon } from '@/components/audit/report/analytics/analytics-row-icon';
-import type { JoinedProblemTag, JoinedQueryBridge } from '@/lib/audit/joined-traffic-story';
+import { HoverTip } from "@/components/audit/dashboard/info-tip";
+import { AnalyticsRowIcon } from "@/components/audit/report/analytics/analytics-row-icon";
+import type {
+  JoinedProblemTag,
+  JoinedQueryBridge,
+} from "@/lib/audit/joined-traffic-story";
 
 function pct(rate: number) {
-  if (!rate) return '—';
+  if (!rate) return "—";
   const value = rate <= 1 ? rate * 100 : rate;
   return `${value.toFixed(1)}%`;
 }
 
 function tagClass(tag: JoinedProblemTag) {
   switch (tag) {
-    case 'keep':
-      return 'bg-success-soft text-success-ink';
-    case 'ok':
-      return 'bg-tint text-foreground/70';
-    case 'deprioritize':
-      return 'bg-tint text-muted-foreground';
-    case 'discoverability':
-      return 'bg-info-soft text-info-ink';
-    case 'visibility':
-    case 'click':
-    case 'landing':
-    case 'engagement':
-    case 'conversion':
-      return 'bg-warning-soft text-warning-ink';
+    case "keep":
+      return "bg-success-soft text-success-ink";
+    case "ok":
+      return "bg-tint text-foreground/70";
+    case "deprioritize":
+      return "bg-tint text-muted-foreground";
+    case "discoverability":
+      return "bg-info-soft text-info-ink";
+    case "visibility":
+    case "click":
+    case "landing":
+    case "engagement":
+    case "conversion":
+      return "bg-warning-soft text-warning-ink";
     default: {
       const _exhaustive: never = tag;
       return _exhaustive;
@@ -58,19 +62,27 @@ export function JoinedQueryBridges({ rows }: { rows: JoinedQueryBridge[] }) {
         <tbody>
           {rows.map((row) => (
             <tr
-              key={`${row.query}-${row.pagePath ?? 'none'}`}
+              key={`${row.query}-${row.pagePath ?? "none"}`}
               className="border-b border-surface-6 last:border-b-0"
             >
               <td className="max-w-[14rem] truncate px-4 py-2.5 font-medium">
                 <span className="inline-flex max-w-full items-center gap-2">
-                  <AnalyticsRowIcon kind="search" label={row.query} className="shrink-0" />
+                  <AnalyticsRowIcon
+                    kind="search"
+                    label={row.query}
+                    className="shrink-0"
+                  />
                   <span className="truncate">{row.query}</span>
                 </span>
               </td>
               <td className="max-w-[12rem] truncate px-4 py-2.5 font-mono text-xs">
                 {row.pagePath ? (
                   <span className="inline-flex max-w-full items-center gap-2">
-                    <AnalyticsRowIcon kind="page" label={row.pagePath} className="shrink-0" />
+                    <AnalyticsRowIcon
+                      kind="page"
+                      label={row.pagePath}
+                      className="shrink-0"
+                    />
                     <span className="truncate">{row.pagePath}</span>
                   </span>
                 ) : (
@@ -83,17 +95,19 @@ export function JoinedQueryBridges({ rows }: { rows: JoinedQueryBridge[] }) {
               <td className="px-4 py-2.5 text-right tabular-nums">
                 {row.clicks.toLocaleString()}
               </td>
-              <td className="px-4 py-2.5 text-right tabular-nums">{pct(row.ctr)}</td>
               <td className="px-4 py-2.5 text-right tabular-nums">
-                {row.position > 0 ? row.position.toFixed(1) : '—'}
+                {pct(row.ctr)}
+              </td>
+              <td className="px-4 py-2.5 text-right tabular-nums">
+                {row.position > 0 ? row.position.toFixed(1) : "—"}
               </td>
               <td className="px-4 py-2.5">
-                <span
+                <HoverTip
+                  text={row.note}
                   className={`inline-flex max-w-[12rem] truncate rounded-md px-2 py-0.5 text-xs font-medium ${tagClass(row.problemTag)}`}
-                  title={row.note}
                 >
                   {row.note}
-                </span>
+                </HoverTip>
               </td>
             </tr>
           ))}

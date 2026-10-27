@@ -328,11 +328,7 @@ export function ConnectFlow({
 
   let nextAction: ReactNode;
   if (!googleStepDone) {
-    nextAction = (
-      <a href={oauthHref} className={primaryBtnClass}>
-        {needsRefresh ? 'Reconnect Google' : 'Connect'}
-      </a>
-    );
+    nextAction = null
   } else if (!loadedStepDone) {
     nextAction = (
       <button type="button" onClick={syncProperties} disabled={loading} className={primaryBtnClass}>

@@ -6,7 +6,12 @@ type ErrorContext = Record<string, unknown>;
  * once a DSN is provisioned, without touching every call site.
  */
 export function logError(scope: string, error: unknown, context?: ErrorContext) {
-  const message = error instanceof Error ? error.message : String(error);
+  const message =
+    error instanceof Error
+      ? error.message
+      : error && typeof error === 'object'
+        ? JSON.stringify(error)
+        : String(error);
   const stack = error instanceof Error ? error.stack : undefined;
   console.error(`[${scope}]`, message, { ...context, stack });
 }

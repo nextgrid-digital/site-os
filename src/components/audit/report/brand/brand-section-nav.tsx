@@ -25,22 +25,10 @@ const DASHBOARD_RAIL_ITEMS: PreviewRailItem[] = [
     href: '#channels',
   },
   {
-    id: 'inventory',
-    label: 'Inventory',
-    description: 'Key events, event counts, campaigns, GSC country/device.',
-    href: '#inventory',
-  },
-  {
     id: 'pages',
-    label: 'Pages',
-    description: 'GSC + GA4 on the same path.',
+    label: 'Pages & queries',
+    description: 'Which pages and searches bring visitors, and do they convert?',
     href: '#pages',
-  },
-  {
-    id: 'search',
-    label: 'Queries',
-    description: 'Query → page → did it convert?',
-    href: '#search',
   },
   {
     id: 'ads',

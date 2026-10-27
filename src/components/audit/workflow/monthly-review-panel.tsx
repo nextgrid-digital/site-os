@@ -17,6 +17,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { RerunFullAuditButton } from '@/components/audit/rerun-full-audit-button';
+import { CopyFixPrompt } from '@/components/audit/workflow/copy-fix-prompt';
 import { PageChip, PriorityBadge } from '@/components/audit/workflow/workflow-badges';
 import type {
   MonthlyCompareSection,
@@ -265,7 +266,11 @@ export function MonthlyReviewPanel({
                     <PriorityBadge priority={item.priority} />
                     {item.pagePath ? <PageChip path={item.pagePath} /> : null}
                   </div>
+                  {item.detail ? (
+                    <p className="mt-1.5 text-sm leading-5 text-muted-foreground">Next step: {item.detail}</p>
+                  ) : null}
                 </div>
+                {item.fixPrompt ? <CopyFixPrompt prompt={item.fixPrompt} /> : null}
               </li>
             ))}
           </ol>
@@ -294,6 +299,7 @@ export function MonthlyReviewPanel({
                   <div className="flex flex-wrap items-center gap-1.5">
                     <p className="font-medium leading-6 text-foreground/90">{item.title}</p>
                     <PriorityBadge priority={item.priority} />
+                    {item.fixPrompt ? <CopyFixPrompt prompt={item.fixPrompt} /> : null}
                   </div>
                   {item.detail ? (
                     <p className="mt-0.5 leading-5 text-muted-foreground">Next step: {item.detail}</p>

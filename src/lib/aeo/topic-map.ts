@@ -132,3 +132,14 @@ export function parseTopicMap(text: string, pages: TopicMapPage[]): TopicMap {
     gaps: parsed.gaps.map((g) => ({ topic: g.topic, why: g.why, suggestedPage: g.suggested_page })),
   };
 }
+
+/** Ready-made prompt a customer can paste into an AI assistant to write a missing page. */
+export function buildGapPrompt(gap: TopicGap, domain?: string | null): string {
+  return [
+    `You are helping me write a new page for ${domain ? `my website ${domain}` : 'my website'}.`,
+    `Page to write: ${gap.suggestedPage}`,
+    `Topic gap: ${gap.topic}`,
+    `Why buyers need it: ${gap.why}`,
+    'Write the full page copy: a clear H1, short sections with descriptive headings, and a direct answer to the buyer question in the first paragraph. Use plain language, avoid filler, and end with one clear next step. Then suggest a title tag and meta description.',
+  ].join('\n');
+}

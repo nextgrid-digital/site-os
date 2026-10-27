@@ -5,6 +5,7 @@ import {
   Eye,
   InfoIcon,
   Lightbulb,
+  Lock,
   ListTodo,
   Target,
   TrendingDown,
@@ -18,6 +19,7 @@ import {
   PageChip,
   PriorityBadge,
 } from "@/components/audit/workflow/workflow-badges";
+import { CopyFixPrompt } from "@/components/audit/workflow/copy-fix-prompt";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Tooltip,
@@ -32,7 +34,7 @@ import type {
   MonthlyCompareSection,
   MonthlyLine,
 } from "@/lib/workflow/monthly-compare";
-import type { WorkItemView } from "@/lib/workflow/work-items";
+import { buildFixPrompt, type WorkItemView } from "@/lib/workflow/work-items";
 
 const MAX_TASKS = 8;
 
@@ -153,7 +155,9 @@ export function ClientWorkflowBrief({
               label="Open tasks"
               value={pending.length}
               hint={
-                urgentCount > 0 ? `${urgentCount} high-impact` : "None urgent"
+                urgentCount > 0
+                  ? `${urgentCount} high-impact · not fixed yet`
+                  : "Not fixed yet"
               }
             />
             <MonthTile monthly={monthly} />
@@ -307,7 +311,8 @@ export function ClientWorkflowBrief({
         <BriefSection
           icon={<ListTodo className="size-4" aria-hidden />}
           title="Open tasks"
-          subtitle="Work that's still to do, with the next step for each."
+          action={pending.length > 0 ? <LockedCopyAll /> : undefined}
+          subtitle="Fixes the audit found that haven't been done yet. Copy a ready-made prompt for each and paste it into your AI assistant."
         >
           {pending.length > 0 ? (
             <>
@@ -319,6 +324,7 @@ export function ClientWorkflowBrief({
                         {item.issue}
                       </p>
                       <PriorityBadge priority={item.priority} />
+                      <CopyFixPrompt prompt={buildFixPrompt(item, domain)} />
                     </div>
                     {item.nextAction &&
                     item.nextAction.trim() !== item.issue.trim() ? (
@@ -419,11 +425,13 @@ function BriefSection({
   icon,
   title,
   subtitle,
+  action,
   children,
 }: {
   icon: ReactNode;
   title: string;
   subtitle: string;
+  action?: ReactNode;
   children: ReactNode;
 }) {
   return (
@@ -432,15 +440,36 @@ function BriefSection({
         <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-tint text-foreground/80">
           {icon}
         </span>
-        <div>
+        <div className="min-w-0 flex-1">
           <div className="text-base font-semibold text-foreground">{title}</div>
           <div className="text-xs leading-5 text-muted-foreground">
             {subtitle}
           </div>
         </div>
+        {action}
       </div>
       {children}
     </section>
+  );
+}
+
+/** Placeholder for a future "copy every prompt at once" action. Locked for now. */
+function LockedCopyAll() {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger
+          aria-disabled="true"
+          aria-label="Copy all prompts (locked)"
+          onClick={(event) => event.preventDefault()}
+          className="inline-flex shrink-0 cursor-not-allowed items-center gap-1.5 rounded-md bg-tint px-2.5 py-1.5 text-xs font-medium text-muted-foreground opacity-70 print:hidden"
+        >
+          <Lock className="size-3.5" aria-hidden />
+          Copy all prompts
+        </TooltipTrigger>
+        <TooltipContent>Locked for now — coming soon</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
 

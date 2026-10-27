@@ -17,6 +17,8 @@ export type WorkItemView = {
   ownerHint: string;
   pagePath: string | null;
   findingId: string | null;
+  /** Ready-to-paste instruction for an AI coding assistant (Cursor, Claude, ChatGPT). */
+  fixPrompt?: string | null;
 };
 
 function severityToPriority(severity: Finding['severity']): WorkItemPriority {
@@ -119,11 +121,13 @@ export function findingToWorkItem(
     ownerHint: ownerHintForFinding(finding.category),
     pagePath: finding.page_path,
     findingId: finding.id,
+    fixPrompt: prompt?.full_prompt?.trim() || null,
   };
 }
 
 export function workOrderToWorkItem(
-  order: GraphWorkOrder & { next_action?: string | null }
+  order: GraphWorkOrder & { next_action?: string | null },
+  prompt?: AgentPrompt | null
 ): WorkItemView {
   return {
     id: order.id,
@@ -138,6 +142,7 @@ export function workOrderToWorkItem(
     ownerHint: ownerHintForWorkOrder(order.action_type),
     pagePath: null,
     findingId: order.finding_id,
+    fixPrompt: prompt?.full_prompt?.trim() || null,
   };
 }
 
@@ -151,7 +156,12 @@ export function buildUnifiedWorkItems(input: {
     input.workOrders.map((o) => o.finding_id).filter((id): id is string => Boolean(id))
   );
 
-  const fromOrders = input.workOrders.map(workOrderToWorkItem);
+  const fromOrders = input.workOrders.map((o) =>
+    workOrderToWorkItem(
+      o,
+      o.finding_id ? (input.promptsByFindingId?.get(o.finding_id) ?? null) : null
+    )
+  );
   const fromFindings = input.findings
     .filter((f) => !linkedFindingIds.has(f.id))
     .map((f) => findingToWorkItem(f, input.promptsByFindingId?.get(f.id) ?? null));
@@ -179,4 +189,22 @@ export function matchFindingIdForWorkOrder(
       f.title.trim().toLowerCase().includes(normalized)
   );
   return partial?.id ?? null;
+}
+
+/** Stored agent prompt when the audit produced one; otherwise built from the task. */
+export function buildFixPrompt(
+  item: Pick<WorkItemView, 'issue' | 'whyItMatters' | 'nextAction' | 'pagePath' | 'fixPrompt'>,
+  domain?: string | null
+): string {
+  if (item.fixPrompt) return item.fixPrompt;
+  return [
+    `You are helping me fix an issue on ${domain ? `my website ${domain}` : 'my website'}.`,
+    item.pagePath ? `Page: ${item.pagePath}` : null,
+    `Issue: ${item.issue}`,
+    item.whyItMatters ? `Why it matters: ${item.whyItMatters}` : null,
+    `What to do: ${item.nextAction}`,
+    'Make the smallest change that fixes it, show me the exact code or copy to use, and tell me how to check that it worked.',
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
