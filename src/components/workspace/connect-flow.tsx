@@ -45,7 +45,7 @@ const primaryBtnClass =
   'inline-flex h-9 pointer-coarse:h-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-primary px-3.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/80 disabled:pointer-events-none disabled:opacity-50';
 
 const outlineBtnClass =
-  'inline-flex h-9 pointer-coarse:h-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-raised px-3.5 text-sm font-medium text-foreground/90 shadow-sm transition hover:bg-muted disabled:pointer-events-none disabled:opacity-50';
+  'inline-flex h-9 pointer-coarse:h-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-foreground/20 bg-transparent px-3.5 text-sm font-medium text-foreground/90 transition hover:bg-muted disabled:pointer-events-none disabled:opacity-50';
 
 /** "3 min ago" / "in 42 min", with the exact time available as a tooltip. */
 function RelativeTime({ value, emptyLabel = 'Never' }: { value: string | null; emptyLabel?: string }) {
