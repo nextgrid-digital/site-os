@@ -2,9 +2,6 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
-import Icon3 from "../svgs/svg-icon3";
-import Icon6 from "../svgs/svg-icon6";
-import TextLink2, { type TextLink2Data } from "../components/text-link2";
 import ListRow3, { type ListRow3Data } from "../components/list-row3";
 import ListRow4, { type ListRow4Data } from "../components/list-row4";
 import ListRow5, { type ListRow5Data } from "../components/list-row5";
@@ -12,27 +9,18 @@ import ListRow6, { type ListRow6Data } from "../components/list-row6";
 import { HeroAuditNotch } from "../hero-audit-notch";
 import { HeroDemoDashboard } from "../demo/hero-demo-dashboard";
 import {
-  TextLink2_cids3,
-  TextLink2_cids4,
   ListRow3_cids,
   ListRow4_cids,
   ListRow5_cids,
   ListRow6_cids,
 } from "../_cids";
 import {
-  TextLink2_styles3,
-  TextLink2_styles4,
   ListRow3_styles,
   ListRow4_styles,
   ListRow5_styles,
   ListRow6_styles,
 } from "../_styles";
 
-const TextLink2_data3: TextLink2Data[] = [
-  { ariaselected: "true", id: "_r14R_34u_-t-0", label: "Countries" },
-  { ariaselected: "false", id: "_r14R_34u_-t-1", label: "Regions" },
-  { ariaselected: "false", id: "_r14R_34u_-t-2", label: "Cities" },
-];
 const ListRow3_data: ListRow3Data[] = [
   {
     style: {
@@ -82,11 +70,6 @@ const ListRow3_data: ListRow3Data[] = [
     text2: "982",
   },
 ];
-const TextLink2_data4: TextLink2Data[] = [
-  { ariaselected: "true", id: "_r14R_35e_-t-0", label: "Browsers" },
-  { ariaselected: "false", id: "_r14R_35e_-t-1", label: "OS" },
-  { ariaselected: "false", id: "_r14R_35e_-t-2", label: "Devices" },
-];
 const ListRow4_data: ListRow4Data[] = [
   { label: "Chrome", text: "Chrome", text2: "5,924" },
   { label: "Safari", text: "Safari", text2: "2,622" },
@@ -127,9 +110,7 @@ const cardVariants = {
 
 /** Hero section — the page's lead block. */
 export default function HeroSection({
-  textLink2Data3 = TextLink2_data3,
   listRow3Data = ListRow3_data,
-  textLink2Data4 = TextLink2_data4,
   listRow4Data = ListRow4_data,
   listRow5Data = ListRow5_data,
   listRow6Data = ListRow6_data,
@@ -185,7 +166,7 @@ export default function HeroSection({
             </span>
             <span className="text-[13px]">Pick a metric</span>
           </div>
-          <HeroDemoDashboard />
+          <HeroDemoDashboard variant="landing" />
 
           <motion.div
             variants={gridVariants}
@@ -205,38 +186,6 @@ export default function HeroSection({
               <div className="grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[24px] items-center gap-x-3 gap-y-2 rounded-tl-md rounded-tr-md px-4 pt-5 pb-4 [grid-auto-rows:min-content] max-md:grid-cols-1 max-md:grid-rows-[19.25px_24px] max-md:items-start max-md:gap-x-1 max-md:px-3 max-md:pt-4 max-md:pb-3">
                 <div className="block min-w-0 font-medium leading-[1.1875rem]">
                   Locations
-                </div>
-                <div className="flex min-w-0 max-w-full flex-wrap items-center justify-end gap-3 max-md:justify-start">
-                  <div
-                    className="flex flex-wrap items-center gap-3 text-xs font-medium leading-4"
-                    aria-label="Locations"
-                    role="tablist"
-                  >
-                    {textLink2Data3.map((d, i) => (
-                      <TextLink2
-                        key={i}
-                        d={d}
-                        cids={TextLink2_cids3[i]}
-                        styles={TextLink2_styles3[i]}
-                      />
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-0.5">
-                    <button
-                      type="button"
-                      className="flex h-6 w-6 items-center justify-center rounded-lg text-muted-foreground"
-                      aria-label="Open full breakdown"
-                    >
-                      <Icon6 cid="n271" />
-                    </button>
-                    <button
-                      type="button"
-                      className="flex h-6 w-6 items-center justify-center rounded-lg text-muted-foreground"
-                      aria-label="Share breakdown"
-                    >
-                      <Icon3 cid="n273" />
-                    </button>
-                  </div>
                 </div>
               </div>
               <div className="block min-w-0 px-4 pb-4 max-md:px-3 max-md:pb-3">
@@ -263,38 +212,6 @@ export default function HeroSection({
                 <div className="block min-w-0 font-medium leading-[1.1875rem]">
                   Devices
                 </div>
-                <div className="flex min-w-0 max-w-full flex-wrap items-center justify-end gap-3 max-md:justify-start">
-                  <div
-                    className="flex flex-wrap items-center gap-3 text-xs font-medium leading-4"
-                    aria-label="Devices"
-                    role="tablist"
-                  >
-                    {textLink2Data4.map((d, i) => (
-                      <TextLink2
-                        key={i}
-                        d={d}
-                        cids={TextLink2_cids4[i]}
-                        styles={TextLink2_styles4[i]}
-                      />
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-0.5">
-                    <button
-                      type="button"
-                      className="flex h-6 w-6 items-center justify-center rounded-lg text-muted-foreground"
-                      aria-label="Open full breakdown"
-                    >
-                      <Icon6 cid="n332" />
-                    </button>
-                    <button
-                      type="button"
-                      className="flex h-6 w-6 items-center justify-center rounded-lg text-muted-foreground"
-                      aria-label="Share breakdown"
-                    >
-                      <Icon3 cid="n334" />
-                    </button>
-                  </div>
-                </div>
               </div>
               <div className="block min-w-0 px-4 pb-4 max-md:px-3 max-md:pb-3">
                 <ul className="flex list-outside flex-col [list-style-type:none]">
@@ -320,32 +237,6 @@ export default function HeroSection({
                 <div className="block min-w-0 font-medium leading-[1.1875rem]">
                   Google Search
                 </div>
-                <div className="flex min-w-0 max-w-full flex-wrap items-center justify-end gap-3">
-                  <button
-                    type="button"
-                    className="block rounded-sm text-center"
-                    aria-selected="true"
-                    role="tab"
-                  >
-                    Queries
-                  </button>
-                  <div className="flex items-center gap-0.5">
-                    <button
-                      type="button"
-                      className="flex h-6 w-6 items-center justify-center rounded-lg text-muted-foreground"
-                      aria-label="Open full breakdown"
-                    >
-                      <Icon6 cid="n374" />
-                    </button>
-                    <button
-                      type="button"
-                      className="flex h-6 w-6 items-center justify-center rounded-lg text-muted-foreground"
-                      aria-label="Share breakdown"
-                    >
-                      <Icon3 cid="n376" />
-                    </button>
-                  </div>
-                </div>
               </div>
               <div className="block min-w-0 px-4 pb-4 max-md:px-3 max-md:pb-3">
                 <ul className="flex h-32 list-outside flex-col [list-style-type:none]">
@@ -370,48 +261,6 @@ export default function HeroSection({
               <div className="grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[24px] items-center gap-x-3 gap-y-2 rounded-tl-md rounded-tr-md px-4 pt-5 pb-4 [grid-auto-rows:min-content] max-md:grid-cols-1 max-md:grid-rows-[19.25px_24px] max-md:items-start max-md:gap-x-1 max-md:px-3 max-md:pt-4 max-md:pb-3">
                 <div className="block min-w-0 font-medium leading-[1.1875rem]">
                   Events
-                </div>
-                <div className="flex min-w-0 max-w-full flex-wrap items-center justify-end gap-3">
-                  <div
-                    className="flex flex-wrap items-center gap-3 text-xs font-medium leading-4"
-                    role="tablist"
-                  >
-                    <button
-                      type="button"
-                      className="block rounded-sm text-center"
-                      role="tab"
-                      aria-selected="true"
-                    >
-                      Count
-                    </button>
-                    <button
-                      type="button"
-                      className="block rounded-sm text-center text-muted-foreground"
-                      role="tab"
-                      aria-selected="false"
-                    >
-                      Share
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-0.5">
-                    <button
-                      type="button"
-                      className="flex h-6 w-6 items-center justify-center rounded-lg text-muted-foreground"
-                      aria-label="Open activity log"
-                    >
-                      <Icon6 cid="n413" />
-                    </button>
-                    <span className="text-xs font-medium leading-4 text-muted-foreground underline [text-decoration-style:dotted]">
-                      Activity log
-                    </span>
-                    <button
-                      type="button"
-                      className="flex h-6 w-6 items-center justify-center rounded-lg text-muted-foreground"
-                      aria-label="Share events breakdown"
-                    >
-                      <Icon3 cid="n416" />
-                    </button>
-                  </div>
                 </div>
               </div>
               <div className="block min-w-0 px-4 pb-4 max-md:px-3 max-md:pb-3">

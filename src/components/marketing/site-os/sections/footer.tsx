@@ -125,13 +125,8 @@ export default function Footer({ listRow11Data = listRow11DataContent, listRow11
               </ul>
             </div>
           </nav> */}
-          <div className="border-t border-solid border-t-surface-4 flex mt-48 pt-4 flex-wrap justify-between items-center gap-2 text-xs font-semibold leading-4 uppercase max-lg:mt-24" data-cid="n2599">
-            <div className="h-6 flex items-center gap-2 text-muted-foreground" data-cid="n2600">
-              <Icon12 cid={"n2601"} />
-              <span className="block" data-cid="n2602">
-                Made in the Åland Islands
-              </span>
-            </div>
+          <div className="border-t border-solid border-t-surface-4 flex mt-48 pt-4 flex-wrap justify-end items-center gap-2 text-xs font-semibold leading-4 uppercase max-lg:mt-24" data-cid="n2599">
+           
             <div className="flex flex-wrap items-center gap-3 normal-case tracking-normal">
               <ThemeModeToggle />
               <p className="block uppercase tracking-wider" data-cid="n2603">

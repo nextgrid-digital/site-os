@@ -61,7 +61,7 @@ export const METRICS: MetricDef[] = [
   {
     id: 'bounce',
     label: 'Bounce rate',
-    change: '-6.3%',
+    change: '−6.3%',
     changePositive: true,
     value: '29%',
     chartTitle: 'Bounce rate over time',

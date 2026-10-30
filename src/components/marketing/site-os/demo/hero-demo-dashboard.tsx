@@ -14,7 +14,6 @@ import {
 import Icon3 from '../svgs/svg-icon3';
 import Icon4 from '../svgs/svg-icon4';
 import Icon5 from '../svgs/svg-icon5';
-import Icon6 from '../svgs/svg-icon6';
 import {
   DEMO_HERO_DASHBOARD,
   PAGES_TABS,
@@ -45,13 +44,17 @@ export function HeroDemoDashboard({
   data = DEMO_HERO_DASHBOARD,
   showBreakdowns = true,
   chartHint,
+  variant = 'default',
 }: {
   data?: HeroDashboardData;
   /** Live dashboard shows real breakdown tables elsewhere, so it hides the demo Pages/Sources cards. */
   showBreakdowns?: boolean;
   /** Optional help element rendered next to the chart title (e.g. an info tooltip). */
   chartHint?: ReactNode;
+  /** 'landing' uses the larger marketing tiles; 'default' matches the in-app dashboard. */
+  variant?: 'default' | 'landing';
 }) {
+  const landing = variant === 'landing';
   const metrics = data.metrics;
   const seriesByMetric = data.seriesByMetric;
   const pagesByTab = data.pagesByTab;
@@ -129,7 +132,13 @@ export function HeroDemoDashboard({
   return (
     <div className="block w-full">
       <section className="mt-2 block" aria-label="Key metrics">
-        <div className={`${METRIC_TILE_GRID}`}>
+        <div
+          className={
+            landing
+              ? 'grid grid-cols-[repeat(auto-fit,minmax(min(150px,100%),1fr))] gap-3'
+              : METRIC_TILE_GRID
+          }
+        >
           {metrics.map((m) => {
             const selected = m.id === activeMetric;
             return (
@@ -138,21 +147,25 @@ export function HeroDemoDashboard({
                 type="button"
                 aria-pressed={selected}
                 onClick={() => selectMetric(m.id)}
-                className={`relative block h-full w-full min-w-0 cursor-pointer rounded-[14px] border border-solid p-4 text-left ${
-                  selected ? TILE_ACTIVE : TILE_IDLE
-                }`}
+                className={`relative block h-full w-full min-w-0 cursor-pointer border border-solid text-left ${
+                  landing ? 'min-h-30 rounded-[18px] p-[18px]' : 'rounded-[14px] p-4'
+                } ${selected ? TILE_ACTIVE : TILE_IDLE}`}
               >
                 <div className="flex h-full w-full min-w-0 flex-col gap-1">
                   <div className="flex w-full min-w-0 items-baseline justify-between gap-2">
                     <span
-                      className={`block overflow-hidden text-xs font-medium leading-[0.9375rem] whitespace-nowrap ${
+                      className={`block overflow-hidden font-medium whitespace-nowrap ${
+                        landing ? 'text-[13px] leading-4' : 'text-xs leading-[0.9375rem]'
+                      } ${
                         selected ? 'text-color-004' : 'text-muted-foreground'
                       }`}
                     >
                       {m.label}
                     </span>
                     <span
-                      className={`relative flex shrink-0 text-xs font-medium leading-[0.9375rem] ${
+                      className={`relative flex shrink-0 font-medium ${
+                        landing ? 'text-[13px] leading-4' : 'text-xs leading-[0.9375rem]'
+                      } ${
                         selected
                           ? 'text-color-004'
                           : m.changePositive
@@ -163,11 +176,15 @@ export function HeroDemoDashboard({
                       {m.change}
                     </span>
                   </div>
-                  <div className="mt-auto min-w-0">
+                  <div className="mt-auto min-w-0 font-mono">
                     <span
-                      className={`inline font-medium leading-5 tracking-[-0.4px] ${
-                        m.id === 'revenue' ? 'text-lg leading-7 tracking-[-0.45px]' : ''
-                      }`}
+                      className={
+                        landing
+                          ? 'inline text-3xl leading-8 font-bold tracking-tight'
+                          : `inline font-medium leading-5 tracking-[-0.4px] ${
+                              m.id === 'revenue' ? 'text-lg leading-7 tracking-[-0.45px]' : ''
+                            }`
+                      }
                     >
                       {m.value}
                     </span>
@@ -585,22 +602,6 @@ function BreakdownCard({
         <div className="block min-w-0 font-medium leading-[1.1875rem]">{title}</div>
         <div className="flex min-w-0 max-w-full flex-wrap items-center justify-end gap-3 max-md:justify-start max-md:gap-2">
           {tabs}
-          <div className="flex items-center gap-0.5">
-            <button
-              type="button"
-              className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-lg text-center text-muted-foreground hover:bg-surface-4"
-              aria-label="Open full breakdown"
-            >
-              <Icon6 cid="demo-expand" />
-            </button>
-            <button
-              type="button"
-              className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-lg text-center text-muted-foreground hover:bg-surface-4"
-              aria-label="Share breakdown"
-            >
-              <Icon3 cid="demo-share2" />
-            </button>
-          </div>
         </div>
       </div>
       <div className="block min-w-0 px-4 pb-4 max-md:px-3 max-md:pb-3">{children}</div>
