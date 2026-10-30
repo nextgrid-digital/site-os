@@ -74,12 +74,3 @@
 .site-os-home.site-os-home--flush {
   background: transparent;
 }
-
-@keyframes dashboard-sheen {
-  to {
-    transform: translateX(100%);
-  }
-}
-.dashboard-sheen {
-  animation: dashboard-sheen 1.4s ease-in-out infinite;
-}

@@ -41,7 +41,10 @@ function SiteStatusStrip({ status }: { status: string }) {
           : 'Audit';
 
   return (
-    <div className="flex h-16 items-center rounded-xl bg-muted px-3" aria-hidden="true">
+    <div
+      className="flex h-16 items-center rounded-xl bg-muted px-3"
+      aria-hidden="true"
+    >
       <p className="text-xs font-medium text-muted-foreground">{label}</p>
     </div>
   );
@@ -95,8 +98,8 @@ export function SiteCard({
         onFocus={() => {
           router.prefetch(href);
         }}
-        className={`block rounded-2xl bg-raised p-4 shadow-sm transition hover:shadow-md ${
-          highlighted ? 'ring-1 ring-foreground' : ''
+        className={`group/card block cursor-pointer rounded-2xl bg-raised p-4 shadow-sm ring-1 ring-transparent transition duration-150 hover:shadow-md hover:ring-foreground/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40 ${
+          highlighted ? 'ring-foreground' : ''
         }`}
       >
         <div className="mb-4 flex items-start gap-3 pr-8">
@@ -132,7 +135,7 @@ export function SiteCard({
           setError(null);
           setConfirmOpen(true);
         }}
-        className="absolute top-3 right-3 inline-flex h-8 w-8 pointer-coarse:h-11 pointer-coarse:w-11 items-center justify-center rounded-lg bg-raised text-muted-foreground shadow-sm transition hover:bg-muted hover:text-foreground"
+        className="absolute top-3 right-3 inline-flex h-8 w-8 pointer-coarse:h-11 pointer-coarse:w-11 items-center justify-center rounded-lg bg-raised text-muted-foreground shadow-sm transition hover:bg-danger-ink/15 hover:text-danger-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger-ink/40"
       >
         <Trash2 className="size-3.5" />
       </button>

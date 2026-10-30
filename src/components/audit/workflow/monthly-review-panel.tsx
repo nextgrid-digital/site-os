@@ -135,7 +135,6 @@ export function MonthlyReviewPanel({
   const nextCheckInAt = currentAt
     ? new Date(new Date(currentAt).getTime() + CHECK_IN_INTERVAL_DAYS * DAY_MS).toISOString()
     : null;
-  const nextCheckInDate = formatDate(nextCheckInAt);
   const [now] = useState(() => Date.now());
   const checkInDue = nextCheckInAt ? now >= new Date(nextCheckInAt).getTime() : false;
 
@@ -144,7 +143,6 @@ export function MonthlyReviewPanel({
       <FirstCheckIn
         projectId={projectId}
         currentDate={currentDate}
-        nextCheckInDate={nextCheckInDate}
         checkInDue={checkInDue}
       />
     );
@@ -185,13 +183,8 @@ export function MonthlyReviewPanel({
               ) : null}
             </p>
           </div>
-          <div className="flex shrink-0 flex-col items-start gap-1 sm:items-end">
+          <div className="shrink-0">
             <RerunFullAuditButton projectId={projectId} />
-            {nextCheckInDate ? (
-              <p className={`text-xs ${checkInDue ? 'font-medium text-warning-ink' : 'text-muted-foreground'}`}>
-                {checkInDue ? 'Next check-in is due' : `Next check-in ~${nextCheckInDate}`}
-              </p>
-            ) : null}
           </div>
         </div>
 
@@ -317,12 +310,10 @@ export function MonthlyReviewPanel({
 function FirstCheckIn({
   projectId,
   currentDate,
-  nextCheckInDate,
   checkInDue,
 }: {
   projectId: string;
   currentDate: string;
-  nextCheckInDate: string | null;
   checkInDue: boolean;
 }) {
   const steps: Array<{ title: string; body: string; done: boolean }> = [
@@ -338,9 +329,7 @@ function FirstCheckIn({
     },
     {
       title: 'Run your next check-in',
-      body: nextCheckInDate
-        ? `Re-run the audit around ${nextCheckInDate}. We'll show exactly what got better, what slipped, and what's left.`
-        : "Re-run the audit next month. We'll show exactly what got better, what slipped, and what's left.",
+      body: "Re-run the audit next month. We'll show exactly what got better, what slipped, and what's left.",
       done: false,
     },
   ];

@@ -21,7 +21,7 @@ const DEMO_EVENTS = [
 const opacityFor = (events: number, max: number) =>
   events === 0 ? 1 : events === max ? 1 : 0.15 + (events / max) * 0.85;
 
-const CELL = "h-[2.4375rem] min-h-3 border border-solid border-border block rounded-md aspect-square max-md:h-[1.4375rem] md:max-lg:h-[24.3px]";
+const CELL = "block w-full min-w-0 aspect-square border border-solid border-border rounded-[3px] sm:rounded-md";
 
 /**
  * Interactive hour-by-weekday heatmap. Defaults to the landing demo data;
@@ -50,18 +50,18 @@ export default function ConversionPeakHeatmap({
   return (
     <div
       ref={ref}
-      className="grid gap-0.5 grid-rows-[14.2812px_repeat(7,38.9219px)_25.875px] text-muted-foreground text-[0.625rem] leading-[0.875rem] grid-cols-[2.5rem_repeat(24,minmax(0,1fr))] max-md:grid-rows-[14.2812px_repeat(7,23px)_25.875px] md:max-lg:grid-rows-[14.2812px_repeat(7,24.25px)_25.875px]"
+      className="grid w-full min-w-0 gap-px sm:gap-0.5 text-muted-foreground text-[0.625rem] leading-[0.875rem] grid-cols-[1.75rem_repeat(24,minmax(0,1fr))] sm:grid-cols-[2.5rem_repeat(24,minmax(0,1fr))]"
       onPointerLeave={() => setActive(null)}
       onBlur={() => setActive(null)}
     >
       <div />
       {Array.from({ length: 24 }, (_, h) => (
-        <div key={h} className={`text-center transition-colors duration-150 ${active?.h === h ? "text-foreground" : ""}`}>
+        <div key={h} className={`whitespace-nowrap text-center transition-colors duration-150 ${active?.h === h ? "text-foreground" : ""}`}>
           {HOUR_LABELS[h]}
         </div>
       ))}
       {DAYS.map((day, d) => [
-        <div key={day} className={`flex pr-1 items-center text-xs leading-4 transition-colors duration-150 ${active?.d === d ? "text-foreground" : ""}`}>
+        <div key={day} className={`flex items-center pr-1 text-[0.625rem] leading-4 sm:text-xs transition-colors duration-150 ${active?.d === d ? "text-foreground" : ""}`}>
           {day}
         </div>,
         ...EVENTS[d].map((e, h) => {
@@ -96,7 +96,7 @@ export default function ConversionPeakHeatmap({
         }),
       ])}
       <div />
-      <div className="flex pt-2 items-center gap-1.5 col-span-24 text-[0.6875rem] leading-[1.125rem]">
+      <div className="col-span-full flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 text-[0.6875rem] leading-[1.125rem]">
         <div className="flex items-center gap-1.5" aria-hidden="true">
           <span>Less</span>
           <div className="flex items-center gap-0.5">
@@ -110,7 +110,7 @@ export default function ConversionPeakHeatmap({
         </div>
         <motion.span
           key={active ? `${active.d}-${active.h}` : "idle"}
-          className="ml-auto tabular-nums text-foreground"
+          className="ml-auto text-right tabular-nums text-foreground"
           initial={reduce ? false : { opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15, ease: EASE_OUT }}

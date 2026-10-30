@@ -7,6 +7,7 @@ import type { Topic, TopicCoverage, TopicGap, TopicMap } from '@/lib/aeo/topic-m
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useCopyClipboard } from '@/hooks/use-copy-clipboard';
 
 const COVERAGE_LABEL: Record<TopicCoverage, string> = {
   strong: 'Well covered',
@@ -111,17 +112,7 @@ function TopicRow({
 }
 
 function GapCard({ gap }: { gap: TopicGap }) {
-  const [copied, setCopied] = useState(false);
-
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(buildGapPrompt(gap));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-    }
-  }
+  const { copied, copy } = useCopyClipboard();
 
   const rowClass =
     'flex min-h-11 w-full items-center gap-2 rounded-xl border px-4 py-2 text-left text-sm font-medium outline-none';
@@ -149,7 +140,7 @@ function GapCard({ gap }: { gap: TopicGap }) {
       ) : (
         <button
           type="button"
-          onClick={copy}
+          onClick={() => void copy(buildGapPrompt(gap))}
           className={cn(
             rowClass,
             'border-foreground bg-raised text-foreground transition-colors hover:bg-foreground hover:text-background focus-visible:ring-2 focus-visible:ring-ring',

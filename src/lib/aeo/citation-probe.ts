@@ -24,6 +24,9 @@ export interface ProbeSummary {
   topCompetitors: Array<{ domain: string; count: number }>;
 }
 
+/** Kill switch: while false, new probe runs are refused (saved results stay viewable). */
+export const CITATION_PROBE_ENABLED = false;
+
 export const MAX_PROBE_PROMPTS = 5;
 export const MAX_PROBE_RUNS_PER_DAY = 5;
 export const PROBE_COOLDOWN_MS = 30_000;

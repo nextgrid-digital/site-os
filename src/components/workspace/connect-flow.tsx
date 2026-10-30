@@ -20,6 +20,15 @@ import { ClientGoogleInviteCard } from '@/components/audit/client-google-invite-
 import { ConnectorSourceCards } from '@/components/audit/connectors/connector-source-cards';
 import { AdsInvitePanel } from '@/components/workspace/ads-invite-panel';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { propertyMismatchWarnings } from '@/lib/google/property-match';
 import { StatusBadge } from '@/components/ui/status-badge';
 import {
   ADMIN_STATUS_COPY,
@@ -37,9 +46,6 @@ const MANAGE_CONTROL_ID: Partial<Record<ConnectorId, string>> = {
   ga4: 'ga4',
   google_ads: 'ads',
 };
-
-const fieldClass =
-  'h-9 pointer-coarse:h-11 w-full rounded-lg border border-field bg-raised px-3 text-sm text-foreground outline-none transition focus-visible:border-foreground focus-visible:ring-3 focus-visible:ring-foreground/15';
 
 const primaryBtnClass =
   'inline-flex h-9 pointer-coarse:h-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-primary px-3.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/80 disabled:pointer-events-none disabled:opacity-50';
@@ -172,6 +178,7 @@ export function ConnectFlow({
   clientAccessConfirmedAt = null,
   viewerSignedIn = false,
   workspaceBase,
+  domain = null,
 }: {
   projectId: string;
   googleConnected: boolean;
@@ -194,6 +201,8 @@ export function ConnectFlow({
   /** Guests get no Google data, and the Ads invite API requires a signed-in user. */
   viewerSignedIn?: boolean;
   workspaceBase?: string;
+  /** The project's site, used to warn when a selected property looks like a different site. */
+  domain?: string | null;
 }) {
   const invalidateTab = useInvalidateAuditTab();
   const [selectedGsc, setSelectedGsc] = useState(
@@ -205,6 +214,15 @@ export function ConnectFlow({
   const [selectedAds, setSelectedAds] = useState(
     adsAccounts.find((account) => account.is_selected)?.id ?? ''
   );
+  const selectedGscSite = gscProperties.find((property) => property.id === selectedGsc);
+  const selectedGa4Property = ga4Properties.find((property) => property.id === selectedGa4);
+  const mismatchWarnings = propertyMismatchWarnings({
+    domain,
+    gscSiteUrl: selectedGscSite?.site_url,
+    ga4Names: selectedGa4Property
+      ? [selectedGa4Property.property_name, selectedGa4Property.account_name]
+      : undefined,
+  });
   const [message, setMessage] = useState<string | null>(null);
   const [messageTone, setMessageTone] = useState<'success' | 'error'>('success');
   const [loading, setLoading] = useState(false);
@@ -219,7 +237,7 @@ export function ConnectFlow({
     const controlId = googleConnected ? MANAGE_CONTROL_ID[connectorId] : undefined;
     const target = document.getElementById(controlId ?? 'google-account');
     target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    if (target instanceof HTMLSelectElement) target.focus();
+    if (target instanceof HTMLElement) target.focus();
   }
 
   async function syncProperties() {
@@ -323,7 +341,7 @@ export function ConnectFlow({
   function focusMapping() {
     const target = document.getElementById('gsc');
     target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    if (target instanceof HTMLSelectElement) target.focus();
+    if (target instanceof HTMLElement) target.focus();
   }
 
   let nextAction: ReactNode;
@@ -556,22 +574,30 @@ export function ConnectFlow({
               count={gscProperties.length}
               chosen={Boolean(selectedGsc)}
             >
-              <select
-                id="gsc"
-                className={fieldClass}
-                value={selectedGsc}
+              <Select
+                items={gscProperties.map((item) => ({ value: item.id, label: item.site_url }))}
+                value={selectedGsc || null}
                 disabled={!googleConnected}
-                onChange={(event) => setSelectedGsc(event.target.value)}
+                onValueChange={(value) => setSelectedGsc(value ?? '')}
               >
-                <option value="">
-                  {gscProperties.length === 0 ? 'No sites found' : 'Select a site'}
-                </option>
-                {gscProperties.map((property) => (
-                  <option key={property.id} value={property.id}>
-                    {property.site_url}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger id="gsc" className="w-full">
+                  <SelectValue placeholder={gscProperties.length === 0 ? 'No sites found' : 'Select a site'} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {gscProperties.length === 0 ? (
+                      <SelectItem value="" disabled>
+                        No sites found
+                      </SelectItem>
+                    ) : null}
+                    {gscProperties.map((item) => (
+                      <SelectItem key={item.id} value={item.id}>
+                        {item.site_url}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </SourceField>
 
             <SourceField
@@ -582,22 +608,30 @@ export function ConnectFlow({
               count={ga4Properties.length}
               chosen={Boolean(selectedGa4)}
             >
-              <select
-                id="ga4"
-                className={fieldClass}
-                value={selectedGa4}
+              <Select
+                items={ga4Properties.map((item) => ({ value: item.id, label: `${item.property_name} (${item.account_name})` }))}
+                value={selectedGa4 || null}
                 disabled={!googleConnected}
-                onChange={(event) => setSelectedGa4(event.target.value)}
+                onValueChange={(value) => setSelectedGa4(value ?? '')}
               >
-                <option value="">
-                  {ga4Properties.length === 0 ? 'No properties found' : 'Select a property'}
-                </option>
-                {ga4Properties.map((property) => (
-                  <option key={property.id} value={property.id}>
-                    {property.property_name} ({property.account_name})
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger id="ga4" className="w-full">
+                  <SelectValue placeholder={ga4Properties.length === 0 ? 'No properties found' : 'Select a property'} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {ga4Properties.length === 0 ? (
+                      <SelectItem value="" disabled>
+                        No properties found
+                      </SelectItem>
+                    ) : null}
+                    {ga4Properties.map((item) => (
+                      <SelectItem key={item.id} value={item.id}>
+                        {`${item.property_name} (${item.account_name})`}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </SourceField>
 
             <SourceField
@@ -608,22 +642,30 @@ export function ConnectFlow({
               count={adsAccounts.length}
               chosen={Boolean(selectedAds)}
             >
-              <select
-                id="ads"
-                className={fieldClass}
-                value={selectedAds}
+              <Select
+                items={adsAccounts.map((item) => ({ value: item.id, label: `${item.descriptive_name} (${item.customer_id})` }))}
+                value={selectedAds || null}
                 disabled={!googleConnected}
-                onChange={(event) => setSelectedAds(event.target.value)}
+                onValueChange={(value) => setSelectedAds(value ?? '')}
               >
-                <option value="">
-                  {adsAccounts.length === 0 ? 'No accounts found' : 'Select an account'}
-                </option>
-                {adsAccounts.map((account) => (
-                  <option key={account.id} value={account.id}>
-                    {account.descriptive_name} ({account.customer_id})
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger id="ads" className="w-full">
+                  <SelectValue placeholder={adsAccounts.length === 0 ? 'No accounts found' : 'Select an account'} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {adsAccounts.length === 0 ? (
+                      <SelectItem value="" disabled>
+                        No accounts found
+                      </SelectItem>
+                    ) : null}
+                    {adsAccounts.map((item) => (
+                      <SelectItem key={item.id} value={item.id}>
+                        {`${item.descriptive_name} (${item.customer_id})`}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
               {viewerSignedIn ? (
                 <details className="group">
                   <summary className="cursor-pointer list-none text-xs font-medium text-foreground/70 underline-offset-2 hover:underline [&::-webkit-details-marker]:hidden">
@@ -635,6 +677,21 @@ export function ConnectFlow({
                 </details>
               ) : null}
             </SourceField>
+
+            {mismatchWarnings.length > 0 ? (
+              <div
+                role="status"
+                className="rounded-lg bg-warning-soft px-3 py-2.5 text-sm text-warning-ink"
+              >
+                <p className="font-medium">These may be different websites</p>
+                <ul className="mt-1 list-disc pl-4">
+                  {mismatchWarnings.map((warning) => (
+                    <li key={warning}>{warning}</li>
+                  ))}
+                </ul>
+                <p className="mt-1">You can still save — just make sure this is intended.</p>
+              </div>
+            ) : null}
 
             {message ? (
               <p

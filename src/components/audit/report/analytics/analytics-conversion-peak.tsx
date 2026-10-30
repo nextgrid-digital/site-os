@@ -21,7 +21,7 @@ export function AnalyticsConversionPeak({
   }, [cells]);
 
   return (
-    <div className="rounded-xl bg-raised p-5 shadow-sm">
+    <div className="min-w-0 rounded-xl bg-raised p-3 shadow-sm sm:p-5">
       <div className="flex items-center gap-2">
         <p className="text-sm font-semibold text-foreground">Conversion peak</p>
         <InfoTip
@@ -37,7 +37,7 @@ export function AnalyticsConversionPeak({
           No conversion timing data yet. Re-run a full audit with GA4 connected.
         </p>
       ) : (
-        <div className="overflow-hidden">
+        <div className="min-w-0">
           <ConversionPeakHeatmap
             events={matrix}
             unit={["conversion", "conversions"]}

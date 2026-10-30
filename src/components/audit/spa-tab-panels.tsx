@@ -277,9 +277,11 @@ export function SpaAeoPanel({ domain }: { domain: string }) {
 export function SpaConnectPanel({
   projectId,
   workspaceBase,
+  domain,
 }: {
   projectId: string;
   workspaceBase: string;
+  domain?: string;
 }) {
   const ctx = useWorkspaceAudit();
   const ensureSlice = ctx?.ensureSlice;
@@ -354,6 +356,7 @@ export function SpaConnectPanel({
         clientAccessConfirmedAt={connect?.clientAccessConfirmedAt ?? null}
         viewerSignedIn={Boolean(connect)}
         workspaceBase={workspaceBase}
+        domain={domain}
       />
     </AuditWorkspacePanel>
   );

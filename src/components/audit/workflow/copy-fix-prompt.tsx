@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Check, Copy } from 'lucide-react';
 import {
@@ -9,28 +8,20 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useCopyClipboard } from '@/hooks/use-copy-clipboard';
 
 /**
  * Icon-only button that copies a ready-made prompt a customer can paste into
  * Cursor, Claude or ChatGPT to fix a task. Hidden in the PDF export.
  */
 export function CopyFixPrompt({ prompt }: { prompt: string }) {
-  const [copied, setCopied] = useState(false);
-
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(prompt);
-      setCopied(true);
-    } catch {
-      setCopied(false);
-    }
-  }
+  const { copied, copy } = useCopyClipboard();
 
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger
-          onClick={copy}
+          onClick={() => void copy(prompt)}
           aria-label={copied ? 'Prompt copied' : 'Copy prompt'}
           className="ml-auto flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-tint hover:text-foreground print:hidden"
         >

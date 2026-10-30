@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { Check, Copy } from 'lucide-react';
+import { useCopyClipboard } from '@/hooks/use-copy-clipboard';
 
 const copyText = [
   'Please accept the Google Ads invitation we sent to your account:',
@@ -23,17 +23,7 @@ export function ClientGoogleInviteCard({
   audience?: 'admin' | 'client';
   className?: string;
 }) {
-  const [copied, setCopied] = useState(false);
-
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(copyText);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-    }
-  }
+  const { copied, copy } = useCopyClipboard();
 
   return (
     <section
@@ -55,7 +45,7 @@ export function ClientGoogleInviteCard({
         {audience === 'admin' ? (
           <button
             type="button"
-            onClick={() => void copy()}
+            onClick={() => void copy(copyText)}
             className="inline-flex h-9 pointer-coarse:h-11 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground transition hover:bg-primary/80"
           >
             {copied ? <Check className="size-3.5" strokeWidth={2} /> : <Copy className="size-3.5" strokeWidth={2} />}

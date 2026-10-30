@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 const DEFAULT_TRIGGER_CLASS =
-  'inline-flex h-auto items-center gap-1.5 rounded-lg bg-raised px-3 py-2 text-sm font-medium text-foreground shadow-sm transition hover:bg-muted';
+  'inline-flex h-auto items-center gap-1.5 rounded-lg bg-raised px-3 py-2 text-sm font-medium text-foreground shadow-sm transition hover:bg-tint cursor-pointer';
 
 export function AddSiteAuditDialog({
   triggerClassName,
@@ -101,7 +101,7 @@ export function AddSiteAuditDialog({
     >
       <DialogTrigger
         render={
-          <button type="button"  className={triggerClassName ?? DEFAULT_TRIGGER_CLASS} />
+          <button type="button" className={triggerClassName ?? DEFAULT_TRIGGER_CLASS} />
         }
       >
         <span className="text-base leading-none">+</span>

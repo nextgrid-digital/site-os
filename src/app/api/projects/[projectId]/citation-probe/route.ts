@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import {
   analyzeProbe,
+  CITATION_PROBE_ENABLED,
   cleanPrompts,
   MAX_PROBE_RUNS_PER_DAY,
   PROBE_COOLDOWN_MS,
@@ -69,6 +70,12 @@ export async function GET(_request: Request, context: RouteContext) {
 
 export async function POST(request: Request, context: RouteContext) {
   try {
+    if (!CITATION_PROBE_ENABLED) {
+      return NextResponse.json(
+        { code: 'disabled', error: 'The citation probe is temporarily unavailable.' },
+        { status: 503 }
+      );
+    }
     if (!hasSupabaseConfig()) {
       return NextResponse.json({ error: 'Supabase is not configured.' }, { status: 500 });
     }

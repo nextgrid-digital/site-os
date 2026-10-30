@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/tooltip";
 import { ReportPdfButton } from "@/components/workspace/report-pdf-button";
 import { displayFactLabel, parseBriefFacts } from '@/lib/reports/brief-facts';
+import { buildAiBriefReport } from "@/lib/reports/ai-brief-pdf";
 import type { GrowthBrief } from "@/lib/reports/build-growth-brief";
 import type {
   MonthlyCompareSection,
@@ -37,6 +38,33 @@ import type {
 import { buildFixPrompt, type WorkItemView } from "@/lib/workflow/work-items";
 
 const MAX_TASKS = 8;
+
+function TaskList({
+  items,
+  domain,
+}: {
+  items: WorkItemView[];
+  domain: string;
+}) {
+  return (
+    <ul className="divide-y divide-border rounded-xl ring-1 ring-border">
+      {items.map((item) => (
+        <li key={item.id} className="px-4 py-3">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <p className="text-sm font-medium text-foreground">{item.issue}</p>
+            <PriorityBadge priority={item.priority} />
+            <CopyFixPrompt prompt={buildFixPrompt(item, domain)} />
+          </div>
+          {item.nextAction && item.nextAction.trim() !== item.issue.trim() ? (
+            <p className="mt-0.5 text-sm leading-6 text-muted-foreground">
+              Next step: {item.nextAction}
+            </p>
+          ) : null}
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export function ClientWorkflowBrief({
   domain,
@@ -81,9 +109,8 @@ export function ClientWorkflowBrief({
           PDF or walk through it on a call.
         </p>
         <ReportPdfButton
-          targetSelector="#client-workflow-brief"
           filename={`${domain}-workflow-brief.pdf`}
-          backgroundColor="#ffffff"
+          report={buildAiBriefReport({ domain, brief, pending, monthly })}
         />
       </div>
 
@@ -316,29 +343,17 @@ export function ClientWorkflowBrief({
         >
           {pending.length > 0 ? (
             <>
-              <ul className="divide-y divide-border rounded-xl ring-1 ring-border">
-                {pending.slice(0, MAX_TASKS).map((item) => (
-                  <li key={item.id} className="px-4 py-3">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <p className="text-sm font-medium text-foreground">
-                        {item.issue}
-                      </p>
-                      <PriorityBadge priority={item.priority} />
-                      <CopyFixPrompt prompt={buildFixPrompt(item, domain)} />
-                    </div>
-                    {item.nextAction &&
-                    item.nextAction.trim() !== item.issue.trim() ? (
-                      <p className="mt-0.5 text-sm leading-6 text-muted-foreground">
-                        Next step: {item.nextAction}
-                      </p>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
+              <TaskList items={pending.slice(0, MAX_TASKS)} domain={domain} />
               {pending.length > MAX_TASKS ? (
-                <p className="mt-2 text-xs text-muted-foreground">
-                  + {pending.length - MAX_TASKS} more in the Dashboard.
-                </p>
+                <details className="group mt-3">
+                  <summary className="cursor-pointer list-none text-sm font-medium text-foreground/90 underline-offset-2 hover:underline print:hidden group-open:hidden">
+                    Show {pending.length - MAX_TASKS} more tasks
+                  </summary>
+                  <TaskList
+                    items={pending.slice(MAX_TASKS)}
+                    domain={domain}
+                  />
+                </details>
               ) : null}
             </>
           ) : (

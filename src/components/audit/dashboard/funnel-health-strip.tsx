@@ -13,9 +13,9 @@ import { InfoTip } from "@/components/audit/dashboard/info-tip";
 import type { FunnelHealthReport } from "@/lib/audit/funnel-health";
 import type { Ga4DailyRow } from "@/lib/google/ga4";
 
-const SESSIONS = "oklch(0.205 0 0)";
+const SESSIONS = "var(--foreground)";
 const ENGAGED = "oklch(0.565 0.11 164.584)";
-const AXIS = { fontSize: 11, fill: "oklch(0.556 0 0)" };
+const AXIS = { fontSize: 11, fill: "var(--muted-foreground)" };
 
 function shortDate(iso: string) {
   const d = new Date(`${iso.slice(0, 10)}T12:00:00Z`);
@@ -77,7 +77,7 @@ export function FunnelHealthStrip({
               <CartesianGrid
                 strokeDasharray="3 3"
                 vertical={false}
-                stroke="oklab(0.922 0 0 / 0.7)"
+                stroke="var(--border)"
               />
               <XAxis
                 dataKey="label"
@@ -95,13 +95,16 @@ export function FunnelHealthStrip({
                 allowDecimals={false}
               />
               <Tooltip
-                cursor={{ stroke: "oklab(0.145 0 0 / 0.15)" }}
+                cursor={{ stroke: "var(--muted-foreground)", strokeOpacity: 0.3 }}
                 contentStyle={{
                   borderRadius: 10,
                   fontSize: 12,
-                  border: "1px solid oklab(0.922 0 0)",
+                  border: "1px solid var(--border)",
+                  background: "var(--popover)",
+                  color: "var(--popover-foreground)",
                   boxShadow: "none",
                 }}
+                labelStyle={{ color: "var(--muted-foreground)" }}
               />
               <Line
                 name="Sessions"

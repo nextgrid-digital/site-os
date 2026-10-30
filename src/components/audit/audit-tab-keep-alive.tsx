@@ -167,7 +167,7 @@ function AuditWorkspaceShell({
               hidden={active !== '/connect'}
               {...(active !== '/connect' ? { inert: true } : {})}
             >
-              <SpaConnectPanel projectId={projectId} workspaceBase={base} />
+              <SpaConnectPanel projectId={projectId} workspaceBase={base} domain={domain} />
             </div>
           ) : null}
         </div>

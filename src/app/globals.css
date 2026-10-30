@@ -294,18 +294,16 @@
   }
 }
 
-/* ─── PDF / Print styles (dark mode) ─── */
+/* ─── Print styles: plain black on white, no decoration ─── */
 @media print {
   @page {
-    size: A4 landscape;
-    margin: 12mm 10mm;
+    size: A4;
+    margin: 15mm;
   }
 
   html, body {
-    background: #0a0a0b !important;
-    color: #f4f4f5 !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+    background: #fff !important;
+    color: #111 !important;
     background-image: none !important;
   }
 
@@ -314,7 +312,9 @@
   .brief-toc,
   .brief-status-rail,
   header button,
-  footer {
+  footer,
+  svg,
+  img {
     display: none !important;
   }
 
@@ -322,41 +322,18 @@
     display: block !important;
   }
 
-  [data-slot='card'] {
-    background: #141416 !important;
-    border-color: rgba(255, 255, 255, 0.08) !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  section {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
   * {
+    background: transparent !important;
+    color: #111 !important;
     box-shadow: none !important;
+    border-color: #ccc !important;
+    text-shadow: none !important;
+    animation: none !important;
   }
-}
 
-@keyframes audit-progress-indeterminate {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(400%);
-  }
-}
-
-.audit-progress-bar {
-  animation: audit-progress-indeterminate 1.4s ease-in-out infinite;
-}
-
-/* Reduced motion: keep the bar visible as a static partial fill instead of sliding */
-@media (prefers-reduced-motion: reduce) {
-  .audit-progress-bar {
-    animation: none;
-    transform: none;
-    width: 40%;
+  section,
+  li {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 }

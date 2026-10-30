@@ -1,45 +1,40 @@
-/**
- * Lightweight loading placeholder. Static blocks + ONE compositor-only sheen
- * (transform on a single overlay) instead of N pulsing elements, and fixed
- * heights so content swapping in never shifts the layout.
- */
-export function DashboardSkeleton({
-  blocks = 2,
-  tiles = true,
+import { Loader } from 'lucide-react';
+
+/** Spinner + text, centered in a fixed-height area so content swapping in doesn't shift layout. */
+export function LoadingLabel({
+  text = 'Loading…',
+  className = 'min-h-64',
 }: {
-  blocks?: 1 | 2 | 3;
-  tiles?: boolean;
+  text?: string;
+  className?: string;
 }) {
   return (
     <div
-      className="relative isolate overflow-hidden rounded-2xl"
+      className={`flex ${className} flex-col items-center justify-center gap-3 text-sm text-muted-foreground`}
       aria-busy="true"
-      aria-label="Loading"
+      aria-label={text}
       role="status"
     >
-      <div className="space-y-4">
-        {tiles ? (
-          <div className="grid grid-cols-3 gap-3 md:grid-cols-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-20 rounded-xl bg-tint" />
-            ))}
-          </div>
-        ) : null}
-        {blocks >= 2 ? <div className="h-64 rounded-2xl bg-tint" /> : null}
-        {blocks >= 3 ? <div className="h-40 rounded-2xl bg-tint" /> : null}
-      </div>
-      <div
-        aria-hidden
-        className="dashboard-sheen pointer-events-none absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/50 to-transparent will-change-transform motion-reduce:hidden"
-      />
+      <Loader className="size-5 animate-spin motion-reduce:animate-none" aria-hidden />
+      <span className="shimmer font-semibold">{text}</span>
     </div>
   );
 }
 
+export function DashboardSkeleton({
+  text = 'Loading…',
+}: {
+  blocks?: 1 | 2 | 3;
+  tiles?: boolean;
+  text?: string;
+}) {
+  return <LoadingLabel text={text} className="min-h-96" />;
+}
+
 export function SectionSkeleton({
-  className = "h-48",
+  className = 'h-48',
 }: {
   className?: string;
 }) {
-  return <div className={`${className} rounded-2xl bg-tint`} aria-hidden />;
+  return <LoadingLabel className={className} />;
 }
