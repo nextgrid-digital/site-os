@@ -1,4 +1,5 @@
 import { after, NextResponse } from 'next/server';
+import { AuditCancelledError } from '@/lib/audit/cancel';
 import { runAudit } from '@/lib/audit/run-audit';
 import { getClientIntake } from '@/lib/db/client-intake';
 import { requireSignedInSession, SessionRequiredError } from '@/lib/db/profiles';
@@ -46,6 +47,7 @@ export async function POST(
       try {
         await runAudit(projectId, runType, goalCategory);
       } catch (error) {
+        if (error instanceof AuditCancelledError) return; // site was deleted mid-audit
         console.error('[run-audit] background failed', error);
       }
     });

@@ -12,7 +12,7 @@ export default function CardGridItem({ d }: { d: CardGridItemData }) {
   switch (d.variant) {
     case "top-sources":
       return (
-        <div className="w-130 border border-solid border-surface flex min-w-0 rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full max-md:w-[19.4375rem] md:max-lg:w-176" data-cid="n812">
+        <div className="w-130 border border-solid border-surface flex min-w-0 rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full max-md:w-[19.4375rem] md:max-lg:w-full" data-cid="n812">
           <div className="grid pt-5 pb-4 px-4 rounded-tl-md rounded-tr-md items-start gap-1 grid-rows-[19.25px_2.75px] [grid-auto-rows:min-content] grid-cols-[1fr_auto] max-md:pt-4 max-md:pb-3 max-md:px-3" data-cid="n813">
             <div className="block font-medium leading-[1.1875rem]" data-cid="n814">
               {d.title}
@@ -23,7 +23,7 @@ export default function CardGridItem({ d }: { d: CardGridItemData }) {
               </button>
             </div>
           </div>
-          <div className="w-129.5 h-[14.8125rem] block min-w-0 pb-5 px-4 max-md:w-[19.3125rem] max-md:h-[14.5625rem] max-md:pb-4 max-md:px-3 md:max-lg:w-175.5" data-cid="n818">
+          <div className="w-129.5 h-[14.8125rem] block min-w-0 pb-5 px-4 max-md:w-[19.3125rem] max-md:h-[14.5625rem] max-md:pb-4 max-md:px-3 md:max-lg:w-full" data-cid="n818">
             <div className="block relative w-full" data-cid="n819">
               <table className="h-[13.5625rem] table [table-layout:fixed] [border-collapse:collapse] w-full" data-cid="n820">
                 <thead className="table-header-group align-middle [border-collapse:collapse]" data-cid="n821">
@@ -156,7 +156,7 @@ export default function CardGridItem({ d }: { d: CardGridItemData }) {
       );
     case "top-countries":
       return (
-        <div className="w-130 border border-solid border-surface flex min-w-0 rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full max-md:w-[19.4375rem] md:max-lg:w-176" data-cid="n873">
+        <div className="w-130 border border-solid border-surface flex min-w-0 rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full max-md:w-[19.4375rem] md:max-lg:w-full" data-cid="n873">
           <div className="h-15.5 grid pt-5 pb-4 px-4 rounded-tl-md rounded-tr-md items-start gap-1 grid-rows-[19.25px_2.75px] [grid-auto-rows:min-content] grid-cols-[1fr_auto] max-md:h-13.5 max-md:pt-4 max-md:pb-3 max-md:px-3" data-cid="n874">
             <div className="block font-medium leading-[1.1875rem]" data-cid="n875">
               {d.title}
@@ -167,7 +167,7 @@ export default function CardGridItem({ d }: { d: CardGridItemData }) {
               </button>
             </div>
           </div>
-          <div className="w-129.5 h-[14.8125rem] block min-w-0 pb-5 px-4 max-md:w-[19.3125rem] max-md:h-[14.5625rem] max-md:pb-4 max-md:px-3 md:max-lg:w-175.5" data-cid="n879">
+          <div className="w-129.5 h-[14.8125rem] block min-w-0 pb-5 px-4 max-md:w-[19.3125rem] max-md:h-[14.5625rem] max-md:pb-4 max-md:px-3 md:max-lg:w-full" data-cid="n879">
             <div className="block relative w-full" data-cid="n880">
               <table className="h-[13.5625rem] table [table-layout:fixed] [border-collapse:collapse] w-full" data-cid="n881">
                 <thead className="table-header-group align-middle [border-collapse:collapse]" data-cid="n882">
@@ -300,7 +300,7 @@ export default function CardGridItem({ d }: { d: CardGridItemData }) {
       );
     case "devices":
       return (
-        <div className="w-130 border border-solid border-surface flex min-w-0 rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full max-md:w-[19.4375rem] md:max-lg:w-176" data-cid="n934">
+        <div className="w-130 border border-solid border-surface flex min-w-0 rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full max-md:w-[19.4375rem] md:max-lg:w-full" data-cid="n934">
           <div className="grid pt-5 pb-4 px-4 rounded-tl-md rounded-tr-md items-start gap-1 grid-rows-[19.25px_2.75px] [grid-auto-rows:min-content] grid-cols-[1fr_auto] max-md:pt-4 max-md:pb-3 max-md:px-3" data-cid="n935">
             <div className="block font-medium leading-[1.1875rem]" data-cid="n936">
               {d.title}
@@ -311,7 +311,7 @@ export default function CardGridItem({ d }: { d: CardGridItemData }) {
               </button>
             </div>
           </div>
-          <div className="w-129.5 block min-w-0 pb-5 px-4 max-md:w-[19.3125rem] max-md:pb-4 max-md:px-3 md:max-lg:w-175.5" data-cid="n940">
+          <div className="w-129.5 block min-w-0 pb-5 px-4 max-md:w-[19.3125rem] max-md:pb-4 max-md:px-3 md:max-lg:w-full" data-cid="n940">
             <div className="block relative w-full" data-cid="n941">
               <table className="table [table-layout:fixed] [border-collapse:collapse] w-full" data-cid="n942">
                 <thead className="table-header-group align-middle [border-collapse:collapse]" data-cid="n943">
@@ -393,7 +393,7 @@ export default function CardGridItem({ d }: { d: CardGridItemData }) {
       );
     case "browsers":
       return (
-        <div className="w-130 border border-solid border-surface flex min-w-0 rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full max-md:w-[19.4375rem] md:max-lg:w-176" data-cid="n971">
+        <div className="w-130 border border-solid border-surface flex min-w-0 rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full max-md:w-[19.4375rem] md:max-lg:w-full" data-cid="n971">
           <div className="grid pt-5 pb-4 px-4 rounded-tl-md rounded-tr-md items-start gap-1 grid-rows-[19.25px_2.75px] [grid-auto-rows:min-content] grid-cols-[1fr_auto] max-md:pt-4 max-md:pb-3 max-md:px-3" data-cid="n972">
             <div className="block font-medium leading-[1.1875rem]" data-cid="n973">
               {d.title}
@@ -404,7 +404,7 @@ export default function CardGridItem({ d }: { d: CardGridItemData }) {
               </button>
             </div>
           </div>
-          <div className="w-129.5 block min-w-0 pb-5 px-4 max-md:w-[19.3125rem] max-md:pb-4 max-md:px-3 md:max-lg:w-175.5" data-cid="n977">
+          <div className="w-129.5 block min-w-0 pb-5 px-4 max-md:w-[19.3125rem] max-md:pb-4 max-md:px-3 md:max-lg:w-full" data-cid="n977">
             <div className="block relative w-full" data-cid="n978">
               <table className="table [table-layout:fixed] [border-collapse:collapse] w-full" data-cid="n979">
                 <thead className="table-header-group align-middle [border-collapse:collapse]" data-cid="n980">
@@ -504,7 +504,7 @@ export default function CardGridItem({ d }: { d: CardGridItemData }) {
       );
     case "top-pages":
       return (
-        <div className="w-130 border border-solid border-surface flex min-w-0 rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full max-md:w-[19.4375rem] md:max-lg:w-176" data-cid="n1015">
+        <div className="w-130 border border-solid border-surface flex min-w-0 rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full max-md:w-[19.4375rem] md:max-lg:w-full" data-cid="n1015">
           <div className="grid pt-5 pb-4 px-4 rounded-tl-md rounded-tr-md items-start gap-1 grid-rows-[19.25px_2.75px] [grid-auto-rows:min-content] grid-cols-[1fr_auto] max-md:pt-4 max-md:pb-3 max-md:px-3" data-cid="n1016">
             <div className="block font-medium leading-[1.1875rem]" data-cid="n1017">
               {d.title}
@@ -515,7 +515,7 @@ export default function CardGridItem({ d }: { d: CardGridItemData }) {
               </button>
             </div>
           </div>
-          <div className="w-129.5 h-[14.8125rem] block min-w-0 pb-5 px-4 max-md:w-[19.3125rem] max-md:h-[14.5625rem] max-md:pb-4 max-md:px-3 md:max-lg:w-175.5" data-cid="n1021">
+          <div className="w-129.5 h-[14.8125rem] block min-w-0 pb-5 px-4 max-md:w-[19.3125rem] max-md:h-[14.5625rem] max-md:pb-4 max-md:px-3 md:max-lg:w-full" data-cid="n1021">
             <div className="block relative w-full" data-cid="n1022">
               <table className="h-[13.5625rem] table [table-layout:fixed] [border-collapse:collapse] w-full" data-cid="n1023">
                 <thead className="table-header-group align-middle [border-collapse:collapse]" data-cid="n1024">
@@ -633,7 +633,7 @@ export default function CardGridItem({ d }: { d: CardGridItemData }) {
       );
     case "top-converting-events":
       return (
-        <div className="w-130 border border-solid border-surface flex min-w-0 rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full max-md:w-[19.4375rem] md:max-lg:w-176" data-cid="n1066">
+        <div className="w-130 border border-solid border-surface flex min-w-0 rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full max-md:w-[19.4375rem] md:max-lg:w-full" data-cid="n1066">
           <div className="h-15.5 grid pt-5 pb-4 px-4 rounded-tl-md rounded-tr-md items-start gap-1 grid-rows-[19.25px_2.75px] [grid-auto-rows:min-content] grid-cols-[1fr_auto] max-md:h-13.5 max-md:pt-4 max-md:pb-3 max-md:px-3" data-cid="n1067">
             <div className="block font-medium leading-[1.1875rem]" data-cid="n1068">
               {d.title}
@@ -644,7 +644,7 @@ export default function CardGridItem({ d }: { d: CardGridItemData }) {
               </button>
             </div>
           </div>
-          <div className="w-129.5 h-50 block min-w-0 pb-5 px-4 max-md:w-[19.3125rem] max-md:h-49 max-md:pb-4 max-md:px-3 md:max-lg:w-175.5" data-cid="n1072">
+          <div className="w-129.5 h-50 block min-w-0 pb-5 px-4 max-md:w-[19.3125rem] max-md:h-49 max-md:pb-4 max-md:px-3 md:max-lg:w-full" data-cid="n1072">
             <div className="block relative w-full" data-cid="n1073">
               <table className="h-45 table [table-layout:fixed] [border-collapse:collapse] w-full" data-cid="n1074">
                 <thead className="table-header-group align-middle [border-collapse:collapse]" data-cid="n1075">

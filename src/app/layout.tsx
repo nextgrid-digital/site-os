@@ -22,7 +22,7 @@ const newsreader = Newsreader({
 export const metadata: Metadata = {
   title: 'Site-OS | Free website audit',
   description:
-    'Paste a URL for a free crawl audit. Sign in to save sites and connect Search Console and GA4.',
+    'Paste a URL for a free crawl audit, including AI answer readiness. Sign in to save sites, test whether AI search cites you, and connect Search Console and GA4.',
 };
 
 export default function RootLayout({

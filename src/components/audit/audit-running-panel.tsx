@@ -57,23 +57,23 @@ export function AuditRunningPanel() {
   return (
     <div className="mx-auto flex min-h-[50vh] w-full max-w-lg flex-col items-center justify-center gap-4 py-10">
       <div className="w-full text-center">
-        <p className="text-xs font-medium tracking-[0.14em] text-zinc-400 uppercase">Full audit</p>
-        <h2 className="mt-2 text-xl font-semibold tracking-tight text-zinc-950">
+        <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">Full audit</p>
+        <h2 className="mt-2 text-xl font-semibold tracking-tight text-foreground">
           {failed ? 'Audit stopped' : 'Running your audit'}
         </h2>
-        <p className="mt-1 text-sm text-zinc-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           {failed
             ? 'Fix the issue below, then try again.'
             : 'Tab content is paused until this finishes.'}
         </p>
       </div>
       <TodoList items={items} title="Audit plan" className="w-full" />
-      {error ? <p className="max-w-md text-center text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="max-w-md text-center text-sm text-danger-ink">{error}</p> : null}
       {failed ? (
         <button
           type="button"
           onClick={clearError}
-          className="inline-flex h-9 items-center rounded-lg bg-white px-3.5 text-sm font-medium text-zinc-800 shadow-sm hover:bg-zinc-50"
+          className="inline-flex h-9 pointer-coarse:h-11 items-center rounded-lg bg-raised px-3.5 text-sm font-medium text-foreground/90 shadow-sm hover:bg-muted"
         >
           Back to workspace
         </button>

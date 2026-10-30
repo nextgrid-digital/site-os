@@ -5,7 +5,9 @@ import {
   countFilledIntakeFields,
   detectAuditReadiness,
 } from '@/lib/audit/audit-readiness';
+import { assertAuditActive, AuditCancelledError, isAuditCancelled } from '@/lib/audit/cancel';
 import { crawlWebsite } from '@/lib/crawl/site-crawler';
+import { persistAeoPageScans } from '@/lib/db/aeo';
 import { logError } from '@/lib/monitoring/log-error';
 import {
   buildBrandEvidenceRecord,
@@ -241,7 +243,9 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
       landingPages: [],
     });
 
-    const crawlPromise = crawlWebsite(website.url, website.crawl_max_pages);
+    const crawlPromise = crawlWebsite(website.url, website.crawl_max_pages, () =>
+      isAuditCancelled(auditRun.id)
+    );
 
     // Free/mini audits are crawl-only. Never block them on expired Google tokens.
     if (connection && needsGoogle) {
@@ -396,6 +400,7 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
       goalCategory,
     });
   } catch (error) {
+    if (error instanceof AuditCancelledError) throw error;
     logError('audit.run-audit', error, { projectId, auditRunId: auditRun.id, runType });
     await supabase
       .from('audit_runs')
@@ -446,6 +451,8 @@ async function finalizeAuditRun(input: {
     goalCategory,
   } = input;
 
+  await assertAuditActive(auditRunId);
+
   const draftFindings = generateFindings({
     crawledPages: crawlResult.pages,
     gscQueries: gscData.queryRows,
@@ -475,6 +482,8 @@ async function finalizeAuditRun(input: {
       includeGeminiInference: false,
     });
   }
+
+  await assertAuditActive(auditRunId);
 
   const detectedCategory = siteOnlyAnalysis.classification?.category ?? null;
 
@@ -610,6 +619,8 @@ async function finalizeAuditRun(input: {
     connectorSyncs.map((s) => [s.connectorId, s.payload ?? { outcome: s.outcome, hasData: s.hasData }])
   );
 
+  await assertAuditActive(auditRunId);
+
   const confidenceScore = computeConfidenceScore({
     readiness,
     pagesCrawled: crawlResult.pages.length,
@@ -742,6 +753,8 @@ async function finalizeAuditRun(input: {
     })
     .select('*')
     .single();
+
+  await persistAeoPageScans(auditRunId, projectId, crawlResult.pages);
 
   const graphArtifact = analyzeCommercialGraph({
     projectName,

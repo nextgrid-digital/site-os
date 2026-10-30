@@ -1,4 +1,12 @@
 import { NextResponse } from 'next/server';
+import { summarizeAeoScans } from '@/lib/aeo/summarize-scans';
+import {
+  getSelectedGa4Property,
+  loadAeoAnalysis,
+  loadAeoPageScans,
+  loadAiReferrals,
+  loadTopicMap,
+} from '@/lib/db/aeo';
 import { loadDashboardMetricsForProject } from '@/lib/db/connected-metrics';
 import { loadBrandEvidenceForAuditRun } from '@/lib/evidence/persist';
 import {
@@ -145,6 +153,31 @@ export async function GET(request: Request, context: RouteContext) {
         previousAt: previous?.created_at ?? null,
         currentRunType: current?.run_type ?? null,
       };
+    }
+
+    if (includes.has('aeo')) {
+      if (runId) {
+        const [pages, analysis, topicMap] = await Promise.all([
+          loadAeoPageScans(runId),
+          loadAeoAnalysis(runId),
+          loadTopicMap(runId),
+        ]);
+        // Traffic data is Google-backed, so it follows the same signed-in rule as `connect`.
+        const [ga4Property, aiReferrals] = userId
+          ? await Promise.all([getSelectedGa4Property(projectId), loadAiReferrals(projectId)])
+          : [null, null];
+        body.aeo = {
+          auditRunId: runId,
+          pages,
+          analysis,
+          topicMap,
+          summary: summarizeAeoScans(pages),
+          ga4Connected: Boolean(ga4Property),
+          aiReferrals,
+        };
+      } else {
+        body.aeo = null;
+      }
     }
 
     // Google connections belong to signed-in users. Anonymous free-audit visitors

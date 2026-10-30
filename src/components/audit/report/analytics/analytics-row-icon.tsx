@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Activity,
@@ -17,101 +17,145 @@ import {
   UserPlus,
   Zap,
   type LucideIcon,
-} from 'lucide-react';
-import type { AnalyticsRowKind } from '@/lib/audit/connected-analytics';
-import { cn } from '@/lib/utils';
+} from "lucide-react";
+import type { AnalyticsRowKind } from "@/lib/audit/connected-analytics";
+import { cn } from "@/lib/utils";
 
 /** Compact country name → flag emoji (GA4 returns English names). */
 const COUNTRY_FLAGS: Record<string, string> = {
-  'united states': '🇺🇸',
-  usa: '🇺🇸',
-  us: '🇺🇸',
-  germany: '🇩🇪',
-  'united kingdom': '🇬🇧',
-  uk: '🇬🇧',
-  spain: '🇪🇸',
-  canada: '🇨🇦',
-  france: '🇫🇷',
-  india: '🇮🇳',
-  australia: '🇦🇺',
-  brazil: '🇧🇷',
-  netherlands: '🇳🇱',
-  italy: '🇮🇹',
-  japan: '🇯🇵',
-  mexico: '🇲🇽',
-  sweden: '🇸🇪',
-  poland: '🇵🇱',
-  singapore: '🇸🇬',
-  ireland: '🇮🇪',
-  switzerland: '🇨🇭',
-  austria: '🇦🇹',
-  belgium: '🇧🇪',
-  portugal: '🇵🇹',
-  norway: '🇳🇴',
-  denmark: '🇩🇰',
-  finland: '🇫🇮',
-  'new zealand': '🇳🇿',
-  'south korea': '🇰🇷',
-  korea: '🇰🇷',
-  china: '🇨🇳',
-  indonesia: '🇮🇩',
-  philippines: '🇵🇭',
-  israel: '🇮🇱',
-  'united arab emirates': '🇦🇪',
-  uae: '🇦🇪',
+  "united states": "🇺🇸",
+  usa: "🇺🇸",
+  us: "🇺🇸",
+  germany: "🇩🇪",
+  "united kingdom": "🇬🇧",
+  uk: "🇬🇧",
+  spain: "🇪🇸",
+  canada: "🇨🇦",
+  france: "🇫🇷",
+  india: "🇮🇳",
+  australia: "🇦🇺",
+  brazil: "🇧🇷",
+  netherlands: "🇳🇱",
+  italy: "🇮🇹",
+  japan: "🇯🇵",
+  mexico: "🇲🇽",
+  sweden: "🇸🇪",
+  poland: "🇵🇱",
+  singapore: "🇸🇬",
+  ireland: "🇮🇪",
+  switzerland: "🇨🇭",
+  austria: "🇦🇹",
+  belgium: "🇧🇪",
+  portugal: "🇵🇹",
+  norway: "🇳🇴",
+  denmark: "🇩🇰",
+  finland: "🇫🇮",
+  "new zealand": "🇳🇿",
+  "south korea": "🇰🇷",
+  korea: "🇰🇷",
+  china: "🇨🇳",
+  indonesia: "🇮🇩",
+  philippines: "🇵🇭",
+  israel: "🇮🇱",
+  "united arab emirates": "🇦🇪",
+  uae: "🇦🇪",
 };
 
 function looksLikeHost(label: string) {
-  return /^[a-z0-9.-]+\.[a-z]{2,}$/i.test(label.trim()) || label.includes('.com') || label.includes('.co');
+  return (
+    /^[a-z0-9.-]+\.[a-z]{2,}$/i.test(label.trim()) ||
+    label.includes(".com") ||
+    label.includes(".co")
+  );
 }
 
-function channelIcon(label: string): { Icon: LucideIcon; color: string; bg: string } {
+function channelIcon(label: string): {
+  Icon: LucideIcon;
+  color: string;
+  bg: string;
+} {
   const l = label.toLowerCase();
-  if (l.includes('direct')) return { Icon: Link2, color: 'text-zinc-700', bg: 'bg-zinc-100' };
-  if (l.includes('organic') || l.includes('search'))
-    return { Icon: Search, color: 'text-sky-700', bg: 'bg-sky-50' };
-  if (l.includes('social')) return { Icon: Share2, color: 'text-violet-700', bg: 'bg-violet-50' };
-  if (l.includes('email')) return { Icon: Mail, color: 'text-amber-700', bg: 'bg-amber-50' };
-  if (l.includes('paid') || l.includes('cpc'))
-    return { Icon: MousePointerClick, color: 'text-rose-700', bg: 'bg-rose-50' };
-  if (l.includes('referral')) return { Icon: Globe, color: 'text-emerald-700', bg: 'bg-emerald-50' };
-  return { Icon: Globe, color: 'text-zinc-600', bg: 'bg-zinc-100' };
+  if (l.includes("direct"))
+    return { Icon: Link2, color: "text-foreground/80", bg: "bg-tint" };
+  if (l.includes("organic") || l.includes("search"))
+    return { Icon: Search, color: "text-info-ink", bg: "bg-info-soft" };
+  if (l.includes("social"))
+    return { Icon: Share2, color: "text-violet-700", bg: "bg-violet-50" };
+  if (l.includes("email"))
+    return { Icon: Mail, color: "text-warning-ink", bg: "bg-warning-soft" };
+  if (l.includes("paid") || l.includes("cpc"))
+    return {
+      Icon: MousePointerClick,
+      color: "text-danger-ink",
+      bg: "bg-danger-soft",
+    };
+  if (l.includes("referral"))
+    return { Icon: Globe, color: "text-success-ink", bg: "bg-success-soft" };
+  return { Icon: Globe, color: "text-foreground/70", bg: "bg-tint" };
 }
 
-function deviceIcon(label: string): { Icon: LucideIcon; color: string; bg: string } {
+function deviceIcon(label: string): {
+  Icon: LucideIcon;
+  color: string;
+  bg: string;
+} {
   const l = label.toLowerCase();
-  if (l.includes('mobile')) return { Icon: Smartphone, color: 'text-indigo-700', bg: 'bg-indigo-50' };
-  if (l.includes('tablet')) return { Icon: Tablet, color: 'text-fuchsia-700', bg: 'bg-fuchsia-50' };
-  return { Icon: Monitor, color: 'text-cyan-700', bg: 'bg-cyan-50' };
+  if (l.includes("mobile"))
+    return { Icon: Smartphone, color: "text-indigo-700", bg: "bg-indigo-50" };
+  if (l.includes("tablet"))
+    return { Icon: Tablet, color: "text-fuchsia-700", bg: "bg-fuchsia-50" };
+  return { Icon: Monitor, color: "text-cyan-700", bg: "bg-cyan-50" };
 }
 
-function browserStyle(label: string): { letter: string; color: string; bg: string } {
+function browserStyle(label: string): {
+  letter: string;
+  color: string;
+  bg: string;
+} {
   const l = label.toLowerCase();
-  if (l.includes('chrome')) return { letter: 'C', color: 'text-yellow-800', bg: 'bg-yellow-100' };
-  if (l.includes('safari')) return { letter: 'S', color: 'text-blue-800', bg: 'bg-blue-100' };
-  if (l.includes('firefox')) return { letter: 'F', color: 'text-orange-800', bg: 'bg-orange-100' };
-  if (l.includes('edge')) return { letter: 'E', color: 'text-sky-800', bg: 'bg-sky-100' };
-  if (l.includes('opera')) return { letter: 'O', color: 'text-red-800', bg: 'bg-red-100' };
+  if (l.includes("chrome"))
+    return { letter: "C", color: "text-yellow-800", bg: "bg-yellow-100" };
+  if (l.includes("safari"))
+    return { letter: "S", color: "text-blue-800", bg: "bg-blue-100" };
+  if (l.includes("firefox"))
+    return { letter: "F", color: "text-orange-800", bg: "bg-orange-100" };
+  if (l.includes("edge"))
+    return { letter: "E", color: "text-sky-800", bg: "bg-sky-100" };
+  if (l.includes("opera"))
+    return { letter: "O", color: "text-red-800", bg: "bg-red-100" };
   return {
-    letter: (label[0] || '?').toUpperCase(),
-    color: 'text-zinc-700',
-    bg: 'bg-zinc-100',
+    letter: (label[0] || "?").toUpperCase(),
+    color: "text-foreground/80",
+    bg: "bg-tint",
   };
 }
 
-function eventIcon(label: string): { Icon: LucideIcon; color: string; bg: string } {
+function eventIcon(label: string): {
+  Icon: LucideIcon;
+  color: string;
+  bg: string;
+} {
   const l = label.toLowerCase();
-  if (l.includes('generate_lead') || l.includes('lead') || l.includes('purchase') || l.includes('sign'))
-    return { Icon: Zap, color: 'text-amber-700', bg: 'bg-amber-50' };
-  if (l.includes('page_view') || l.includes('view'))
-    return { Icon: Eye, color: 'text-sky-700', bg: 'bg-sky-50' };
-  if (l.includes('session_start') || l.includes('session'))
-    return { Icon: Activity, color: 'text-emerald-700', bg: 'bg-emerald-50' };
-  if (l.includes('first_visit') || l.includes('first'))
-    return { Icon: UserPlus, color: 'text-violet-700', bg: 'bg-violet-50' };
-  if (l.includes('engagement') || l.includes('scroll') || l.includes('click'))
-    return { Icon: MousePointerClick, color: 'text-rose-700', bg: 'bg-rose-50' };
-  return { Icon: Radio, color: 'text-zinc-700', bg: 'bg-zinc-100' };
+  if (
+    l.includes("generate_lead") ||
+    l.includes("lead") ||
+    l.includes("purchase") ||
+    l.includes("sign")
+  )
+    return { Icon: Zap, color: "text-warning-ink", bg: "bg-warning-soft" };
+  if (l.includes("page_view") || l.includes("view"))
+    return { Icon: Eye, color: "text-info-ink", bg: "bg-info-soft" };
+  if (l.includes("session_start") || l.includes("session"))
+    return { Icon: Activity, color: "text-success-ink", bg: "bg-success-soft" };
+  if (l.includes("first_visit") || l.includes("first"))
+    return { Icon: UserPlus, color: "text-violet-700", bg: "bg-violet-50" };
+  if (l.includes("engagement") || l.includes("scroll") || l.includes("click"))
+    return {
+      Icon: MousePointerClick,
+      color: "text-danger-ink",
+      bg: "bg-danger-soft",
+    };
+  return { Icon: Radio, color: "text-foreground/80", bg: "bg-tint" };
 }
 
 function LucideMark({
@@ -127,13 +171,14 @@ function LucideMark({
 }) {
   return (
     <span
-      className={cn('inline-flex size-5 shrink-0 items-center justify-center rounded-md',
+      className={cn(
+        "inline-flex size-5 shrink-0 items-center justify-center rounded-md",
         bg,
-        className
+        className,
       )}
       aria-hidden
     >
-      <Icon className={cn('size-3', color)} strokeWidth={2.25} />
+      <Icon className={cn("size-3", color)} strokeWidth={2.25} />
     </span>
   );
 }
@@ -148,17 +193,27 @@ export function AnalyticsRowIcon({
   className?: string;
 }) {
   switch (kind) {
-    case 'page':
+    case "page":
       return (
-        <LucideMark Icon={FileText} color="text-zinc-600" bg="bg-zinc-100" className={className} />
+        <LucideMark
+          Icon={FileText}
+          color="text-foreground/70"
+          bg="bg-tint"
+          className={className}
+        />
       );
-    case 'search':
+    case "search":
       return (
-        <LucideMark Icon={Search} color="text-sky-700" bg="bg-sky-50" className={className} />
+        <LucideMark
+          Icon={Search}
+          color="text-info-ink"
+          bg="bg-info-soft"
+          className={className}
+        />
       );
-    case 'source': {
+    case "source": {
       if (looksLikeHost(label)) {
-        const domain = label.replace(/^https?:\/\//, '').split('/')[0] ?? label;
+        const domain = label.replace(/^https?:\/\//, "").split("/")[0] ?? label;
         return (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -166,21 +221,32 @@ export function AnalyticsRowIcon({
             alt=""
             width={20}
             height={20}
-            className={cn('size-5 shrink-0 rounded-sm object-contain', className)}
+            className={cn(
+              "size-5 shrink-0 rounded-sm object-contain",
+              className,
+            )}
             aria-hidden
           />
         );
       }
       const ch = channelIcon(label);
-      return <LucideMark Icon={ch.Icon} color={ch.color} bg={ch.bg} className={className} />;
+      return (
+        <LucideMark
+          Icon={ch.Icon}
+          color={ch.color}
+          bg={ch.bg}
+          className={className}
+        />
+      );
     }
-    case 'country': {
+    case "country": {
       const flag = COUNTRY_FLAGS[label.trim().toLowerCase()];
       if (flag) {
         return (
           <span
-            className={cn('inline-flex size-5 shrink-0 items-center justify-center text-sm leading-none',
-              className
+            className={cn(
+              "inline-flex size-5 shrink-0 items-center justify-center text-sm leading-none",
+              className,
             )}
             aria-hidden
           >
@@ -189,21 +255,34 @@ export function AnalyticsRowIcon({
         );
       }
       return (
-        <LucideMark Icon={Globe} color="text-emerald-700" bg="bg-emerald-50" className={className} />
+        <LucideMark
+          Icon={Globe}
+          color="text-success-ink"
+          bg="bg-success-soft"
+          className={className}
+        />
       );
     }
-    case 'device': {
+    case "device": {
       const d = deviceIcon(label);
-      return <LucideMark Icon={d.Icon} color={d.color} bg={d.bg} className={className} />;
+      return (
+        <LucideMark
+          Icon={d.Icon}
+          color={d.color}
+          bg={d.bg}
+          className={className}
+        />
+      );
     }
-    case 'browser': {
+    case "browser": {
       const b = browserStyle(label);
       return (
         <span
-          className={cn('inline-flex size-5 shrink-0 items-center justify-center rounded-md text-[10px] font-bold',
+          className={cn(
+            "inline-flex size-5 shrink-0 items-center justify-center rounded-md text-[11px] font-bold",
             b.bg,
             b.color,
-            className
+            className,
           )}
           aria-hidden
         >
@@ -211,9 +290,16 @@ export function AnalyticsRowIcon({
         </span>
       );
     }
-    case 'event': {
+    case "event": {
       const e = eventIcon(label);
-      return <LucideMark Icon={e.Icon} color={e.color} bg={e.bg} className={className} />;
+      return (
+        <LucideMark
+          Icon={e.Icon}
+          color={e.color}
+          bg={e.bg}
+          className={className}
+        />
+      );
     }
     default: {
       const _exhaustive: never = kind;

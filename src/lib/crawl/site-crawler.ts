@@ -1,4 +1,6 @@
+import { AuditCancelledError } from '@/lib/audit/cancel';
 import * as cheerio from 'cheerio';
+import { extractAeoSignals, scoreAeoPage, type AeoPageScan } from '@/lib/aeo/page-scanner';
 import { fetchSitemapUrls } from '@/lib/crawl/sitemap';
 import { isSameDomain, normalizePath, resolveInternalUrl } from '@/lib/utils/urls';
 
@@ -17,6 +19,8 @@ export interface CrawledPage {
   hasFaqSchema: boolean;
   statusCode: number;
   textExcerpt: string | null;
+  /** Per-page AEO scan; optional so hand-built fixtures stay valid. */
+  aeo?: AeoPageScan;
 }
 
 /** Resolve a meta image URL (og/twitter) against the page URL; allows CDN hosts. */
@@ -142,9 +146,11 @@ function parsePage(url: string, html: string, statusCode: number, baseUrl: strin
     if (resolved) internalLinks.add(resolved);
   });
 
+  const path = normalizePath(url);
+
   return {
     url,
-    path: normalizePath(url),
+    path,
     title,
     metaDescription,
     h1,
@@ -155,6 +161,7 @@ function parsePage(url: string, html: string, statusCode: number, baseUrl: strin
     hasFaqSchema: detectFaqSchema($),
     statusCode,
     textExcerpt: extractTextExcerpt($),
+    aeo: scoreAeoPage(path, extractAeoSignals($)),
   };
 }
 
@@ -168,7 +175,12 @@ function prioritizeQueue(links: string[], baseUrl: string) {
   }).filter((link) => isSameDomain(baseUrl, link));
 }
 
-export async function crawlWebsite(baseUrl: string, maxPages = 50): Promise<CrawlResult> {
+export async function crawlWebsite(
+  baseUrl: string,
+  maxPages = 50,
+  /** Polled before each page fetch; resolve true to abort the crawl (e.g. site deleted). */
+  shouldAbort?: () => Promise<boolean>
+): Promise<CrawlResult> {
   const origin = new URL(baseUrl).origin;
   const visited = new Set<string>();
   // Dedupe by path: http/https, www/apex and ?query variants of one page all
@@ -187,6 +199,7 @@ export async function crawlWebsite(baseUrl: string, maxPages = 50): Promise<Craw
   const queue = [baseUrl, ...seeded];
 
   while (queue.length > 0 && pages.length < maxPages) {
+    if (shouldAbort && (await shouldAbort())) throw new AuditCancelledError();
     const current = queue.shift()!;
     if (visited.has(current)) continue;
     visited.add(current);

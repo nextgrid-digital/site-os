@@ -1,5 +1,5 @@
 import type { HistoricalChangeEvent } from '@/lib/evidence/types';
-import type { WorkItemPriority, WorkItemView } from '@/lib/workflow/work-items';
+import { buildFixPrompt, type WorkItemPriority, type WorkItemView } from '@/lib/workflow/work-items';
 
 export type MonthlyLine = {
   title: string;
@@ -8,6 +8,8 @@ export type MonthlyLine = {
   metric?: boolean;
   priority?: WorkItemPriority;
   pagePath?: string | null;
+  /** Ready-to-paste prompt for an AI assistant (open work items only). */
+  fixPrompt?: string;
 };
 
 export type MonthlyMetric = {
@@ -152,7 +154,13 @@ export function buildMonthlyCompare(input: {
         i.nextAction && i.nextAction.trim() && i.nextAction.trim() !== i.issue.trim()
           ? i.nextAction.trim()
           : undefined;
-      return { title: i.issue, detail, priority: i.priority, pagePath: i.pagePath };
+      return {
+        title: i.issue,
+        detail,
+        priority: i.priority,
+        pagePath: i.pagePath,
+        fixPrompt: buildFixPrompt(i),
+      };
     });
 
   const needsFollowUp = input.openWorkItems
@@ -160,9 +168,13 @@ export function buildMonthlyCompare(input: {
     .slice(0, 8)
     .map((i) => ({
       title: i.issue,
-      detail: 'Fix soon',
+      detail:
+        i.nextAction && i.nextAction.trim() && i.nextAction.trim() !== i.issue.trim()
+          ? i.nextAction.trim()
+          : undefined,
       priority: i.priority,
       pagePath: i.pagePath,
+      fixPrompt: buildFixPrompt(i),
     }));
 
   return {

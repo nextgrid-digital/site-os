@@ -1,24 +1,70 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 import {
   ArrowRight,
   Compass,
   Eye,
+  InfoIcon,
   Lightbulb,
+  Lock,
   ListTodo,
   Target,
   TrendingDown,
   TrendingUp,
   Wrench,
-} from 'lucide-react';
-import { SiteCardFavicon } from '@/components/audit/site-card-favicon';
-import { SoftAuditTabLink } from '@/components/audit/soft-audit-tab-link';
-import { PageChip, PriorityBadge } from '@/components/audit/workflow/workflow-badges';
-import { ReportPdfButton } from '@/components/workspace/report-pdf-button';
-import type { GrowthBrief } from '@/lib/reports/build-growth-brief';
-import type { MonthlyCompareSection, MonthlyLine } from '@/lib/workflow/monthly-compare';
-import type { WorkItemView } from '@/lib/workflow/work-items';
+} from "lucide-react";
+import { CalendarIcon, IssuesListIcon } from "@/components/icons";
+import { SiteCardFavicon } from "@/components/audit/site-card-favicon";
+import { SoftAuditTabLink } from "@/components/audit/soft-audit-tab-link";
+import {
+  PageChip,
+  PriorityBadge,
+} from "@/components/audit/workflow/workflow-badges";
+import { CopyFixPrompt } from "@/components/audit/workflow/copy-fix-prompt";
+import { StatusBadge } from "@/components/ui/status-badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { ReportPdfButton } from "@/components/workspace/report-pdf-button";
+import { displayFactLabel, parseBriefFacts } from '@/lib/reports/brief-facts';
+import { buildAiBriefReport } from "@/lib/reports/ai-brief-pdf";
+import type { GrowthBrief } from "@/lib/reports/build-growth-brief";
+import type {
+  MonthlyCompareSection,
+  MonthlyLine,
+} from "@/lib/workflow/monthly-compare";
+import { buildFixPrompt, type WorkItemView } from "@/lib/workflow/work-items";
 
 const MAX_TASKS = 8;
+
+function TaskList({
+  items,
+  domain,
+}: {
+  items: WorkItemView[];
+  domain: string;
+}) {
+  return (
+    <ul className="divide-y divide-border rounded-xl ring-1 ring-border">
+      {items.map((item) => (
+        <li key={item.id} className="px-4 py-3">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <p className="text-sm font-medium text-foreground">{item.issue}</p>
+            <PriorityBadge priority={item.priority} />
+            <CopyFixPrompt prompt={buildFixPrompt(item, domain)} />
+          </div>
+          {item.nextAction && item.nextAction.trim() !== item.issue.trim() ? (
+            <p className="mt-0.5 text-sm leading-6 text-muted-foreground">
+              Next step: {item.nextAction}
+            </p>
+          ) : null}
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export function ClientWorkflowBrief({
   domain,
@@ -37,6 +83,9 @@ export function ClientWorkflowBrief({
     brief?.businessInterpretation,
     ...(brief?.siteOnlySummary?.whatTheSiteSays.slice(0, 2) ?? []),
   ].filter((v): v is string => Boolean(v && v.trim()));
+  const facts = parseBriefFacts(happening);
+  const aiReading = facts.find((fact) => fact.label === 'AI inference') ?? null;
+  const otherFacts = facts.filter((fact) => fact !== aiReading);
 
   const broken = brief?.priorityStack.slice(0, 6) ?? [];
   const verdict = brief?.auditVerdict.verdict?.trim() || null;
@@ -49,38 +98,39 @@ export function ClientWorkflowBrief({
       ? [brief.offerRecommendation.nextgridAction]
       : []);
   const urgentCount = pending.filter(
-    (item) => item.priority === 'critical' || item.priority === 'high'
+    (item) => item.priority === "critical" || item.priority === "high",
   ).length;
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
-        <p className="max-w-xl text-sm text-zinc-500">
-          A one-page summary of {domain} you can share as-is. Download it as a PDF or walk through
-          it on a call.
+        <p className="max-w-xl text-sm text-muted-foreground">
+          A one-page summary of {domain} you can share as-is. Download it as a
+          PDF or walk through it on a call.
         </p>
         <ReportPdfButton
-          targetSelector="#client-workflow-brief"
           filename={`${domain}-workflow-brief.pdf`}
-          backgroundColor="#ffffff"
+          report={buildAiBriefReport({ domain, brief, pending, monthly })}
         />
       </div>
 
       <article
         id="client-workflow-brief"
-        className="typeset typeset-docs space-y-8 rounded-[14px] bg-white p-6 shadow-sm sm:p-8"
+        className="typeset typeset-docs space-y-8 rounded-xl bg-raised p-6 shadow-sm sm:p-8"
       >
         {/* Header */}
         <header className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 items-start gap-3">
             <SiteCardFavicon domain={domain} name={domain} />
             <div className="min-w-0">
-              <p className="text-[11px] font-medium tracking-wide text-zinc-500 uppercase">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                 NextGrid · Site-OS brief
               </p>
-              <h1 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-950">
+              <h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground hover:shimmer shimmer-duration-2000">
                 <a
-                  href={/^https?:\/\//.test(domain) ? domain : `https://${domain}`}
+                  href={
+                    /^https?:\/\//.test(domain) ? domain : `https://${domain}`
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
                   className="no-underline"
@@ -88,67 +138,84 @@ export function ClientWorkflowBrief({
                   {domain}
                 </a>
               </h1>
-              <p className="mt-1 text-sm text-zinc-500">Website action brief</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Website action brief
+              </p>
             </div>
           </div>
           {brief?.readinessLabel ? (
-            <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-600">
+            <span className="rounded-full bg-tint px-2.5 py-1 text-xs font-medium text-foreground/70">
               {brief.readinessLabel}
             </span>
           ) : null}
         </header>
 
         {/* The bottom line — what a busy reader needs in ten seconds. */}
-        <section className="rounded-xl bg-gradient-to-br from-zinc-50 to-white p-5 ring-1 ring-zinc-100 sm:p-6">
-          <p className="text-[11px] font-medium tracking-wide text-zinc-500 uppercase">
+        <section className="rounded-xl bg-gradient-to-br from-muted to-raised p-5 ring-1 ring-border sm:p-6">
+          <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
             The bottom line
           </p>
           {verdict ? (
-            <p className="mt-2 text-lg leading-7 font-semibold text-zinc-950">{verdict}</p>
+            <p className="mt-2 text-lg leading-7 font-semibold text-foreground">
+              {verdict}
+            </p>
           ) : (
-            <p className="mt-2 text-base text-zinc-500">
+            <p className="mt-2 text-base text-muted-foreground">
               Run an audit and the headline finding will appear here.
             </p>
           )}
           {mainIssue && mainIssue !== verdict ? (
-            <p className="mt-2 text-sm leading-6 text-zinc-600">{mainIssue}</p>
+            <p className="mt-2 text-sm leading-6 text-foreground/70">
+              {mainIssue}
+            </p>
           ) : null}
 
-          <dl className="mt-5 grid gap-3 sm:grid-cols-3">
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
             <StatTile
+              icon={<IssuesListIcon />}
               label="Issues to fix"
               value={brief?.priorityStack.length ?? 0}
               hint="Problems the audit flagged"
             />
             <StatTile
+              icon={<ListTodo className="size-4" />}
               label="Open tasks"
               value={pending.length}
-              hint={urgentCount > 0 ? `${urgentCount} high-impact` : 'None urgent'}
+              hint={
+                urgentCount > 0
+                  ? `${urgentCount} high-impact · not fixed yet`
+                  : "Not fixed yet"
+              }
             />
             <MonthTile monthly={monthly} />
-          </dl>
+          </div>
         </section>
 
         {/* Start here */}
         {firstFix || firstBrief ? (
-          <section className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-5">
+          <section className="rounded-xl border border-success-ink/20 bg-success-soft/60 p-5">
             <div className="flex items-start gap-3">
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-success text-success-foreground">
                 <Target className="size-4" aria-hidden />
               </span>
               <div className="min-w-0 space-y-2">
-                <p className="text-sm font-semibold text-emerald-900">Start here</p>
+                <p className="text-sm font-semibold text-success-ink">
+                  Start here
+                </p>
                 {firstFix ? (
-                  <p className="text-sm leading-6 text-emerald-950">{firstFix}</p>
+                  <p className="text-sm leading-6 text-success-ink">
+                    {firstFix}
+                  </p>
                 ) : null}
                 {firstBrief?.whatToChange ? (
-                  <p className="text-sm leading-6 text-emerald-900/80">
-                    <span className="font-medium">What to change:</span> {firstBrief.whatToChange}
+                  <p className="text-sm leading-6 text-success-ink/80">
+                    <span className="font-medium">What to change:</span>{" "}
+                    {firstBrief.whatToChange}
                   </p>
                 ) : null}
                 {firstBrief?.expectedEffect ? (
-                  <p className="text-sm leading-6 text-emerald-900/80">
-                    <span className="font-medium">Expected result:</span>{' '}
+                  <p className="text-sm leading-6 text-success-ink/80">
+                    <span className="font-medium">Expected result:</span>{" "}
                     {firstBrief.expectedEffect}
                   </p>
                 ) : null}
@@ -162,15 +229,48 @@ export function ClientWorkflowBrief({
           title="What we're seeing"
           subtitle="How the site comes across today."
         >
-          {happening.length > 0 ? (
-            <ul className="space-y-2">
-              {happening.map((line) => (
-                <li key={line} className="flex gap-2.5 text-sm leading-6 text-zinc-700">
-                  <span className="mt-2.5 size-1.5 shrink-0 rounded-full bg-zinc-300" aria-hidden />
-                  {line}
-                </li>
-              ))}
-            </ul>
+          {facts.length > 0 ? (
+            <div className="space-y-4">
+              {aiReading ? (
+                <div className="rounded-xl bg-tint p-4 ml-[1.5em]">
+                  <p className="inline-flex items-center gap-1.5 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+                    How an AI would describe you
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger
+                          aria-label="About this reading"
+                          className="inline-flex cursor-pointer items-center justify-center text-muted-foreground hover:text-foreground"
+                        >
+                          <InfoIcon className="size-3 stroke-2" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-64 normal-case tracking-normal text-left leading-5">
+                          This is a machine reading of your site, not a fact. If it misses how you describe
+                          your business, your pages are not making it clear enough.
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </p>
+                  <p className="mt-1.5 text-base leading-7 text-foreground">{aiReading.value}</p>
+                </div>
+              ) : null}
+              {otherFacts.length > 0 ? (
+                <ul className="space-y-3">
+                  {otherFacts.map((fact, index) => (
+                    <li
+                      key={`${fact.label ?? 'note'}-${index}`}
+                      className="grid gap-x-4 gap-y-0.5 text-sm leading-6 sm:grid-cols-[9.5rem_1fr] items-center"
+                    >
+                      {fact.label ? (
+                        <div className="font-semibold text-foreground">{displayFactLabel(fact.label)}</div>
+                      ) : null}
+                      <div className={`min-w-0 break-words text-foreground/80 ${fact.label ? '' : 'sm:col-span-2'}`}>
+                        {fact.value}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
           ) : (
             <Empty>Run an audit to populate this section.</Empty>
           )}
@@ -184,32 +284,45 @@ export function ClientWorkflowBrief({
           {broken.length > 0 ? (
             <ol className="space-y-2.5">
               {broken.map((item, index) => (
-                <li key={item.title} className="flex gap-3 rounded-xl bg-zinc-50 px-4 py-3.5">
+                <li
+                  key={item.title}
+                  className="flex gap-3 rounded-xl bg-tint px-4 py-3.5"
+                >
                   <span
                     className={`mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
-                      index === 0 ? 'bg-zinc-950 text-white' : 'bg-white text-zinc-700 shadow-sm'
+                      index === 0
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-raised text-foreground/80 shadow-sm"
                     }`}
                   >
                     {index + 1}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-zinc-950">{item.title}</p>
+                    <p className="text-sm font-semibold text-foreground">
+                      {item.title}
+                    </p>
                     {item.summary ? (
-                      <p className="mt-1 text-sm leading-6 text-zinc-600">{item.summary}</p>
+                      <p className="mt-1 text-sm leading-6 text-foreground/70">
+                        {item.summary}
+                      </p>
                     ) : null}
                     {item.whyFirst ? (
-                      <p className="mt-1 text-xs leading-5 text-zinc-500">
-                        <span className="font-medium text-zinc-600">Why it matters:</span>{' '}
+                      <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                        <span className="font-medium text-foreground/70">
+                          Why it matters:
+                        </span>{" "}
                         {item.whyFirst}
                       </p>
                     ) : null}
                     {item.page_path || item.estimated_value ? (
                       <div className="mt-2 flex flex-wrap gap-1.5">
-                        {item.page_path ? <PageChip path={item.page_path} /> : null}
+                        {item.page_path ? (
+                          <PageChip path={item.page_path} />
+                        ) : null}
                         {item.estimated_value ? (
-                          <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+                          <StatusBadge tone="success">
                             {item.estimated_value}
-                          </span>
+                          </StatusBadge>
                         ) : null}
                       </div>
                     ) : null}
@@ -225,33 +338,29 @@ export function ClientWorkflowBrief({
         <BriefSection
           icon={<ListTodo className="size-4" aria-hidden />}
           title="Open tasks"
-          subtitle="Work that's still to do, with the next step for each."
+          action={pending.length > 0 ? <LockedCopyAll /> : undefined}
+          subtitle="Fixes the audit found that haven't been done yet. Copy a ready-made prompt for each and paste it into your AI assistant."
         >
           {pending.length > 0 ? (
             <>
-              <ul className="divide-y divide-zinc-100 rounded-xl ring-1 ring-zinc-100">
-                {pending.slice(0, MAX_TASKS).map((item) => (
-                  <li key={item.id} className="px-4 py-3">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <p className="text-sm font-medium text-zinc-900">{item.issue}</p>
-                      <PriorityBadge priority={item.priority} />
-                    </div>
-                    {item.nextAction && item.nextAction.trim() !== item.issue.trim() ? (
-                      <p className="mt-0.5 text-sm leading-6 text-zinc-500">
-                        Next step: {item.nextAction}
-                      </p>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
+              <TaskList items={pending.slice(0, MAX_TASKS)} domain={domain} />
               {pending.length > MAX_TASKS ? (
-                <p className="mt-2 text-xs text-zinc-500">
-                  + {pending.length - MAX_TASKS} more in the Dashboard.
-                </p>
+                <details className="group mt-3">
+                  <summary className="cursor-pointer list-none text-sm font-medium text-foreground/90 underline-offset-2 hover:underline print:hidden group-open:hidden">
+                    Show {pending.length - MAX_TASKS} more tasks
+                  </summary>
+                  <TaskList
+                    items={pending.slice(MAX_TASKS)}
+                    domain={domain}
+                  />
+                </details>
               ) : null}
             </>
           ) : (
-            <Empty>All caught up — no open tasks. Re-run the audit next month to check progress.</Empty>
+            <Empty>
+              All caught up — no open tasks. Re-run the audit next month to
+              check progress.
+            </Empty>
           )}
         </BriefSection>
 
@@ -260,7 +369,8 @@ export function ClientWorkflowBrief({
           title="Since last month"
           subtitle="Compared to the previous audit."
         >
-          {monthly && (monthly.improved.length > 0 || monthly.regressed.length > 0) ? (
+          {monthly &&
+          (monthly.improved.length > 0 || monthly.regressed.length > 0) ? (
             <div className="grid gap-3 sm:grid-cols-2">
               <ChangeList
                 label="Got better"
@@ -276,11 +386,14 @@ export function ClientWorkflowBrief({
               />
             </div>
           ) : monthly ? (
-            <Empty>Steady month — nothing major changed since the last audit.</Empty>
+            <Empty>
+              Steady month — nothing major changed since the last audit.
+            </Empty>
           ) : (
             <Empty>
-              This is the first audit, so there&apos;s nothing to compare yet. Next month&apos;s
-              re-run will show what got better and what slipped.
+              This is the first audit, so there&apos;s nothing to compare yet.
+              Next month&apos;s re-run will show what got better and what
+              slipped.
             </Empty>
           )}
         </BriefSection>
@@ -293,8 +406,11 @@ export function ClientWorkflowBrief({
           {recommends.length > 0 ? (
             <ol className="space-y-2">
               {recommends.map((line, index) => (
-                <li key={line} className="flex gap-3 text-sm leading-6 text-zinc-700">
-                  <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-[11px] font-semibold text-zinc-600">
+                <li
+                  key={line}
+                  className="flex gap-3 text-sm leading-6 text-foreground/80"
+                >
+                  <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-tint text-[11px] font-semibold text-foreground/70">
                     {index + 1}
                   </span>
                   {line}
@@ -304,11 +420,11 @@ export function ClientWorkflowBrief({
           ) : (
             <Empty>Recommendations appear once the audit is complete.</Empty>
           )}
-          <p className="mt-5 text-sm text-zinc-500 print:hidden">
+          <p className="mt-5 text-sm text-muted-foreground print:hidden">
             <SoftAuditTabLink
               href={`${workspaceBase}/workflow`}
               suffix="/workflow"
-              className="inline-flex items-center gap-1 font-medium text-zinc-800 underline-offset-2 hover:underline"
+              className="inline-flex items-center gap-1 font-medium text-foreground/90 underline-offset-2 hover:underline"
             >
               See the full data in Dashboard
               <ArrowRight className="size-3.5" aria-hidden />
@@ -324,59 +440,121 @@ function BriefSection({
   icon,
   title,
   subtitle,
+  action,
   children,
 }: {
   icon: ReactNode;
   title: string;
   subtitle: string;
+  action?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <section className="space-y-4">
       <div className="flex items-start gap-3">
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-tint text-foreground/80">
           {icon}
         </span>
-        <div>
-          <div className="text-base font-semibold text-zinc-950">{title}</div>
-          <div className="text-xs leading-5 text-zinc-500">{subtitle}</div>
+        <div className="min-w-0 flex-1">
+          <div className="text-base font-semibold text-foreground">{title}</div>
+          <div className="text-xs leading-5 text-muted-foreground">
+            {subtitle}
+          </div>
         </div>
+        {action}
       </div>
       {children}
     </section>
   );
 }
 
-function Empty({ children }: { children: ReactNode }) {
-  return <p className="rounded-xl bg-zinc-50 px-4 py-3 text-sm leading-6 text-zinc-500">{children}</p>;
+/** Placeholder for a future "copy every prompt at once" action. Locked for now. */
+function LockedCopyAll() {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger
+          aria-disabled="true"
+          aria-label="Copy all prompts (locked)"
+          onClick={(event) => event.preventDefault()}
+          className="inline-flex shrink-0 cursor-not-allowed items-center gap-1.5 rounded-md bg-tint px-2.5 py-1.5 text-xs font-medium text-muted-foreground opacity-70 print:hidden"
+        >
+          <Lock className="size-3.5" aria-hidden />
+          Copy all prompts
+        </TooltipTrigger>
+        <TooltipContent>Locked for now — coming soon</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
 }
 
-function StatTile({ label, value, hint }: { label: string; value: ReactNode; hint: string }) {
+function Empty({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-xl bg-white p-4 ring-1 ring-zinc-100">
-      <dt className="text-xs font-medium text-zinc-500">{label}</dt>
-      <dd className="mt-1 text-2xl font-semibold tracking-tight text-zinc-950 tabular-nums">
+    <p className="rounded-xl bg-tint px-4 py-3 text-sm leading-6 text-muted-foreground">
+      {children}
+    </p>
+  );
+}
+
+/** Plain elements, not dl/dt/dd: the typeset stylesheet indents and recolours definition-list children. */
+function StatTile({
+  label,
+  value,
+  hint,
+  icon,
+}: {
+  label: string;
+  value: ReactNode;
+  hint: string;
+  icon?: ReactNode;
+}) {
+  return (
+    <div className="rounded-xl bg-tint p-4 ring-1 ring-border">
+      <p className="flex items-center gap-1.5 text-[11px] font-bold tracking-wide text-muted-foreground uppercase">
+        {icon ? (
+          <span
+            className="flex shrink-0 text-base text-foreground/70"
+            aria-hidden
+          >
+            {icon}
+          </span>
+        ) : null}
+        {label}
+      </p>
+      <div className="mt-2 text-2xl font-bold leading-7 text-foreground font-mono">
         {value}
-      </dd>
-      <dd className="text-xs text-zinc-500">{hint}</dd>
+      </div>
+      <p className="mt-1 text-sm leading-6 text-muted-foreground">{hint}</p>
     </div>
   );
 }
 
 function MonthTile({ monthly }: { monthly: MonthlyCompareSection | null }) {
   if (!monthly) {
-    return <StatTile label="Since last month" value="—" hint="First audit — baseline set" />;
+    return (
+      <StatTile
+        icon={<CalendarIcon />}
+        label="Since last month"
+        value="—"
+        hint="First audit — baseline set"
+      />
+    );
   }
   const wins = monthly.improved.length;
   const slips = monthly.regressed.length;
   return (
     <StatTile
+      icon={<CalendarIcon />}
       label="Since last month"
       value={
         <span className="flex items-baseline gap-2">
-          <span className="text-emerald-700">+{wins}</span>
-          <span className="text-base text-zinc-300">/</span>
-          <span className={slips > 0 ? 'text-rose-600' : 'text-zinc-500'}>−{slips}</span>
+          <span className="text-success-ink">+{wins}</span>
+          <span className="text-base text-line-strong">/</span>
+          <span
+            className={slips > 0 ? "text-danger-ink" : "text-muted-foreground"}
+          >
+            −{slips}
+          </span>
         </span>
       }
       hint={`${wins} better · ${slips} slipped`}
@@ -392,34 +570,44 @@ function ChangeList({
 }: {
   label: string;
   icon: ReactNode;
-  tone: 'good' | 'bad';
+  tone: "good" | "bad";
   items: MonthlyLine[];
 }) {
   const styles =
-    tone === 'good'
-      ? { head: 'text-emerald-700', dot: 'bg-emerald-500' }
-      : { head: 'text-rose-700', dot: 'bg-rose-500' };
+    tone === "good"
+      ? { head: "text-success-ink", dot: "bg-success" }
+      : { head: "text-danger-ink", dot: "bg-destructive" };
   return (
-    <div className="rounded-xl bg-zinc-50 p-4">
-      <p className={`flex items-center gap-1.5 text-sm font-semibold ${styles.head}`}>
+    <div className="rounded-xl bg-tint p-4">
+      <p
+        className={`flex items-center gap-1.5 text-sm font-semibold ${styles.head}`}
+      >
         {icon}
         {label}
       </p>
       {items.length > 0 ? (
         <ul className="mt-2.5 space-y-2">
           {items.slice(0, 6).map((item) => (
-            <li key={`${item.title}-${item.detail ?? ''}`} className="flex gap-2.5 text-sm">
-              <span className={`mt-2 size-1.5 shrink-0 rounded-full ${styles.dot}`} aria-hidden />
+            <li
+              key={`${item.title}-${item.detail ?? ""}`}
+              className="flex gap-2.5 text-sm"
+            >
+              <span
+                className={`mt-2 size-1.5 shrink-0 rounded-full ${styles.dot}`}
+                aria-hidden
+              />
               <div className="min-w-0">
-                <p className="leading-6 text-zinc-800">{item.title}</p>
-                {item.detail ? <p className="text-zinc-500">{item.detail}</p> : null}
+                <p className="leading-6 text-foreground/90">{item.title}</p>
+                {item.detail ? (
+                  <p className="text-muted-foreground">{item.detail}</p>
+                ) : null}
               </div>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="mt-2.5 text-sm text-zinc-500">
-          {tone === 'good' ? 'No new wins yet.' : 'Nothing slipped.'}
+        <p className="mt-2.5 text-sm text-muted-foreground">
+          {tone === "good" ? "No new wins yet." : "Nothing slipped."}
         </p>
       )}
     </div>

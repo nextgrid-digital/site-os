@@ -20,6 +20,7 @@ export type WorkspaceAuditBundle = {
   growthBrief: unknown | null;
   brief: unknown | null;
   monthly: unknown | null;
+  aeo: unknown | null;
   connect: unknown | null;
 };
 
@@ -62,6 +63,8 @@ function sliceLoaded(prev: WorkspaceAuditBundle | null, slice: string) {
       return Boolean(prev.brief);
     case 'monthly':
       return Boolean(prev.monthly);
+    case 'aeo':
+      return Boolean(prev.aeo);
     case 'connect':
       return Boolean(prev.connect);
     default:
@@ -91,6 +94,7 @@ export function WorkspaceAuditProvider({
           growthBrief: initial.growthBrief ?? null,
           brief: initial.brief ?? null,
           monthly: initial.monthly ?? null,
+          aeo: initial.aeo ?? null,
           connect: initial.connect ?? null,
         }
       : null
@@ -112,6 +116,7 @@ export function WorkspaceAuditProvider({
       growthBrief: next.growthBrief ?? prev?.growthBrief ?? null,
       brief: next.brief ?? prev?.brief ?? null,
       monthly: next.monthly ?? prev?.monthly ?? null,
+      aeo: next.aeo ?? prev?.aeo ?? null,
       connect: next.connect ?? prev?.connect ?? null,
     }));
     setLoading(false);
@@ -131,6 +136,7 @@ export function WorkspaceAuditProvider({
         growthBrief: (data.growthBrief as unknown) ?? prev?.growthBrief ?? null,
         brief: (data.brief as unknown) ?? prev?.brief ?? null,
         monthly: (data.monthly as unknown) ?? prev?.monthly ?? null,
+        aeo: (data.aeo as unknown) ?? prev?.aeo ?? null,
         connect: (data.connect as unknown) ?? prev?.connect ?? null,
       }));
     },
@@ -169,7 +175,7 @@ export function WorkspaceAuditProvider({
     setError(null);
     try {
       const res = await fetch(
-        `/api/projects/${projectId}/audit-bundle?include=dashboard,brief,monthly,connect`,
+        `/api/projects/${projectId}/audit-bundle?include=dashboard,brief,monthly,aeo,connect`,
         { cache: 'no-store' }
       );
       if (!res.ok) {

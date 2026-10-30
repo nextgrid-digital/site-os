@@ -16,7 +16,7 @@ export type ProductCardData = {
 /** A product card. */
 export default function ProductCard({ d, cids, styles }: { d: ProductCardData; cids: string[]; styles: ProductCardStyles }) {
   return (
-    <div data-cid={cids[0]} className="w-[341.3px] flex min-w-0 flex-col gap-4 h-full max-md:w-[19.4375rem] md:max-lg:w-86">
+    <div data-cid={cids[0]} className="w-[341.3px] flex min-w-0 flex-col gap-4 h-full max-md:w-[19.4375rem] md:max-lg:w-full">
       <div data-cid={cids[1]} className="block">
         <div data-cid={cids[2]} className="block">
           <div data-cid={cids[3]} className={cn("border border-solid border-surface-2 flex relative rounded-[10px] justify-center items-center overflow-hidden aspect-[4/3] w-full", styles.className)}>

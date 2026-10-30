@@ -61,147 +61,141 @@ export default function GalleryShowcaseSection({ textLink3Data = TextLink3_data,
           </div>
         </div>
         <div className="h-[73.375rem] block relative mt-8 max-md:h-[91.6625rem] md:max-lg:h-[73.525rem]" data-cid="n1789">
-          <astro-island class="contents" data-cid="n1790">
-            <div className="h-[73.375rem] block max-md:h-[91.6625rem] md:max-lg:h-[73.525rem]" data-cid="n1791">
-              <astro-slot class="contents" data-cid="n1792">
-                <astro-island class="contents" data-cid="n1793">
-                  <div className="w-full block relative mx-auto" data-cid="n1794">
-                    <section className="block mt-2 -mx-2 p-2" data-cid="n1795" aria-label="Web Vitals metrics">
-                      <div className="grid relative gap-3 grid-rows-[201.6px] grid-cols-5 max-md:grid-rows-[95px_95px_95px] max-md:grid-cols-2 md:max-lg:grid-rows-[96px_96px] md:max-lg:grid-cols-3" data-cid="n1796">
-                        {textLink3Data.map((d, i) => <TextLink3 key={i} d={d} cids={TextLink3_cids[i]} styles={TextLink3_styles[i]} />)}
+          <div className="h-[73.375rem] block max-md:h-[91.6625rem] md:max-lg:h-[73.525rem]" data-cid="n1791">
+            <div className="w-full block relative mx-auto" data-cid="n1794">
+              <section className="block mt-2 -mx-2 p-2" data-cid="n1795" aria-label="Web Vitals metrics">
+                <div className="grid relative gap-3 grid-rows-[201.6px] grid-cols-5 max-md:grid-rows-[95px_95px_95px] max-md:grid-cols-2 md:max-lg:grid-rows-[96px_96px] md:max-lg:grid-cols-3" data-cid="n1796">
+                  {textLink3Data.map((d, i) => <TextLink3 key={i} d={d} cids={TextLink3_cids[i]} styles={TextLink3_styles[i]} />)}
+                </div>
+              </section>
+              <div className="block mt-2" data-cid="n1842">
+                <div className="border border-solid border-surface flex mb-4 rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-auto" data-cid="n1843">
+                  <div className="grid pt-5 pb-4 px-4 rounded-tl-md rounded-tr-md items-start gap-1 grid-rows-[19.25px_16px] [grid-auto-rows:min-content] grid-cols-[1fr_auto] max-md:pt-4 max-md:pb-3 max-md:px-3" data-cid="n1844">
+                    <div className="block font-medium leading-[1.1875rem]" data-cid="n1845">
+                      LCP over time
+                    </div>
+                    <div className="block text-muted-foreground text-xs font-medium leading-4 text-balance" data-cid="n1846">
+                      Last 7 days
+                    </div>
+                    <div className="block self-start col-start-2 row-start-1 row-end-[span_2]" data-cid="n1847">
+                      <div className="flex flex-wrap items-center gap-1" data-cid="n1848">
+                        {textLink4Data.map((d, i) => <TextLink4 key={i} d={d} cids={TextLink4_cids[i]} styles={TextLink4_styles[i]} />)}
                       </div>
-                    </section>
-                    <div className="block mt-2" data-cid="n1842">
-                      <div className="border border-solid border-surface flex mb-4 rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-auto" data-cid="n1843">
-                        <div className="grid pt-5 pb-4 px-4 rounded-tl-md rounded-tr-md items-start gap-1 grid-rows-[19.25px_16px] [grid-auto-rows:min-content] grid-cols-[1fr_auto] max-md:pt-4 max-md:pb-3 max-md:px-3" data-cid="n1844">
-                          <div className="block font-medium leading-[1.1875rem]" data-cid="n1845">
-                            LCP over time
-                          </div>
-                          <div className="block text-muted-foreground text-xs font-medium leading-4 text-balance" data-cid="n1846">
-                            Last 7 days
-                          </div>
-                          <div className="block self-start col-start-2 row-start-1 row-end-[span_2]" data-cid="n1847">
-                            <div className="flex flex-wrap items-center gap-1" data-cid="n1848">
-                              {textLink4Data.map((d, i) => <TextLink4 key={i} d={d} cids={TextLink4_cids[i]} styles={TextLink4_styles[i]} />)}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="w-full block min-w-0 pb-5 h-auto max-md:pb-4" data-cid="n1852">
-                          <div className="w-full block px-4 max-md:px-3" data-cid="n1853">
-                            <div className="block relative w-full" data-cid="n1854">
-                              <div className="block relative text-xs leading-4 h-72 w-full max-md:h-64" data-cid="n1855">
-                                <div className="h-full min-h-50 block" data-cid="n1856">
-                                  <div className="w-0 h-0 block" data-cid="n1857">
-                                    <div className="w-full h-72 block relative shadow-[var(--clr-0)_0px_0px_0px_0px,var(--clr-0)_0px_0px_0px_0px,var(--clr-0)_0px_0px_0px_0px,var(--foreground)_0px_0px_0px_0px,var(--clr-0)_0px_0px_0px_0px] cursor-default max-md:h-64" data-cid="n1858" height="288" width="1022">
-                                      <Illustration4 cid={"n1859"} />
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="flex pt-2 px-1 flex-wrap items-center gap-y-1 gap-x-3 text-muted-foreground text-[0.6875rem] leading-[1.125rem]" data-cid="n1860">
-                                {tile7Data.map((d, i) => <Tile7 key={i} d={d} cids={Tile7_cids[i]} styles={Tile7_styles[i]} />)}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="border border-solid border-surface flex mb-4 rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-auto" data-cid="n1867">
-                        <div className="h-[75.3px] grid pt-5 pb-4 px-4 rounded-tl-md rounded-tr-md items-start gap-1 grid-rows-[19.25px_16px] [grid-auto-rows:min-content] grid-cols-1 max-md:h-[83.3px] max-md:pt-4 max-md:pb-3 max-md:px-3 max-md:grid-rows-[19.25px_32px]" data-cid="n1868">
-                          <div className="block font-medium leading-[1.1875rem]" data-cid="n1869">
-                            Needs attention
-                          </div>
-                          <div className="block text-muted-foreground text-xs font-medium leading-4 text-balance" data-cid="n1870">
-                            Pages with the highest p75 for LCP (min. 3 samples per path)
-                          </div>
-                        </div>
-                        <div className="w-full block min-w-0 pb-5 px-4 h-auto max-md:pb-4 max-md:px-3" data-cid="n1871">
-                          <div className="h-45 block relative overflow-auto w-full" data-cid="n1872">
-                            <table className="h-45 table [border-collapse:collapse] w-full" data-cid="n1873">
-                              <thead className="table-header-group align-middle [border-collapse:collapse]" data-cid="n1874">
-                                <tr className="table-row align-middle [border-collapse:collapse]" data-cid="n1875">
-                                  <th className="border-b border-solid border-b-surface-6 table-cell py-2 align-middle text-muted-foreground text-xs font-medium leading-4 text-left whitespace-nowrap text-nowrap [border-collapse:collapse] h-auto" data-cid="n1876">
-                                    Page
-                                  </th>
-                                  <th className="border-b border-solid border-b-surface-6 table-cell py-2 align-middle text-muted-foreground text-xs font-medium leading-4 text-right whitespace-nowrap text-nowrap [border-collapse:collapse] h-auto" data-cid="n1877">
-                                    p75
-                                  </th>
-                                  <th className="border-b border-solid border-b-surface-6 table-cell py-2 align-middle text-muted-foreground text-xs font-medium leading-4 text-right whitespace-nowrap text-nowrap [border-collapse:collapse] h-auto" data-cid="n1878">
-                                    Samples
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody className="h-[147.5px] table-row-group align-middle [border-collapse:collapse]" data-cid="n1879">
-                                {tile8Data.map((d, i) => <Tile8 key={i} d={d} cids={Tile8_cids[i]} styles={Tile8_styles[i]} />)}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      </div>
-                      <section className="grid gap-4 grid-rows-[228px] grid-cols-2 max-md:grid-rows-[221.25px_216px] max-md:grid-cols-1" data-cid="n1900">
-                        <div className="border border-solid border-surface flex rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full" data-cid="n1901">
-                          <div className="grid pt-5 pb-4 px-4 rounded-tl-md rounded-tr-md items-center gap-y-2 gap-x-3 grid-rows-[24px] [grid-auto-rows:min-content] grid-cols-[minmax(0,1fr)_auto] max-md:pt-4 max-md:pb-3 max-md:px-3 max-md:items-start max-md:gap-x-1 max-md:grid-rows-[19.25px_24px] max-md:grid-cols-1" data-cid="n1902">
-                            <div className="w-14 block min-w-0 font-medium leading-[1.1875rem]" data-cid="n1903">
-                              Devices
-                            </div>
-                            <div className="w-[11.3125rem] flex min-w-0 flex-wrap justify-end items-center gap-3 max-w-full max-md:w-[17.8125rem] max-md:justify-start max-md:gap-2" data-cid="n1904">
-                              <div className="flex flex-wrap items-center gap-3 text-xs font-medium leading-4 max-w-full max-md:gap-2" data-cid="n1905" aria-label="Devices" role="tablist">
-                                <button className="block rounded-sm text-center cursor-default" data-cid="n1906" data-component="button" aria-selected="true" id="_r20R_1iu_-t-0" role="tab" type="button">
-                                  Browsers
-                                </button>
-                                <button className="block rounded-sm text-muted-foreground text-center cursor-default hover:text-clr-26 hover:[text-decoration-color:var(--clr-26)]" data-cid="n1907" data-component="button" aria-selected="false" id="_r20R_1iu_-t-1" role="tab" type="button">
-                                  Devices
-                                </button>
-                              </div>
-                              <div className="flex items-center gap-0.5" data-cid="n1908">
-                                <button className="w-6 h-6 flex rounded-lg justify-center items-center text-muted-foreground text-center cursor-default" data-cid="n1909" data-component="button" aria-hidden="true" aria-label="Open full breakdown" type="button">
-                                  <Icon6 cid={"n1910"} />
-                                </button>
-                                <button className="w-6 h-6 flex rounded-lg justify-center items-center text-muted-foreground text-center cursor-default" data-cid="n1911" data-component="button" aria-hidden="true" aria-label="Share breakdown" type="button">
-                                  <Icon3 cid={"n1912"} />
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="w-129.5 block min-w-0 pb-4 max-md:w-[19.3125rem] max-md:pb-3 md:max-lg:w-85.5" data-cid="n1913">
-                            <div className="w-129.5 block px-4 max-md:w-[19.3125rem] max-md:px-3 md:max-lg:w-85.5" data-cid="n1914">
-                              <ul className="flex flex-col [list-style-type:none] list-outside" data-cid="n1915">
-                                {listRow9Data.map((d, i) => <ListRow9 key={i} d={d} cids={ListRow9_cids[i]} styles={ListRow9_styles[i]} />)}
-                              </ul>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="border border-solid border-surface flex rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full" data-cid="n1948">
-                          <div className="h-20.5 grid pt-5 pb-4 px-4 rounded-tl-md rounded-tr-md items-start gap-1 grid-rows-[19.25px_2.75px_16px] [grid-auto-rows:min-content] grid-cols-[1fr_auto] max-md:h-18.5 max-md:pt-4 max-md:pb-3 max-md:px-3" data-cid="n1949">
-                            <div className="block font-medium leading-[1.1875rem]" data-cid="n1950">
-                              Country
-                            </div>
-                            <div className="flex pt-0.5 items-center self-start gap-0.5 col-start-2 row-start-1 row-end-[span_2]" data-cid="n1951">
-                              <button className="w-6 h-6 flex rounded-lg justify-center items-center text-muted-foreground text-center cursor-default" data-cid="n1952" data-component="button" aria-hidden="true" aria-label="Open full breakdown" type="button">
-                                <Icon6 cid={"n1953"} />
-                              </button>
-                              <button className="w-6 h-6 flex rounded-lg justify-center items-center text-muted-foreground text-center cursor-default" data-cid="n1954" data-component="button" aria-hidden="true" aria-label="Share breakdown" type="button">
-                                <Icon3 cid={"n1955"} />
-                              </button>
-                            </div>
-                            <div className="block col-span-full text-muted-foreground text-xs font-medium leading-4 text-balance" data-cid="n1956">
-                              Slowest dimensions by p75 · LCP
-                            </div>
-                          </div>
-                          <div className="w-129.5 block min-w-0 pb-4 max-md:w-[19.3125rem] max-md:pb-3 md:max-lg:w-85.5" data-cid="n1957">
-                            <div className="w-129.5 block px-4 max-md:w-[19.3125rem] max-md:px-3 md:max-lg:w-85.5" data-cid="n1958">
-                              <ul className="flex flex-col [list-style-type:none] list-outside" data-cid="n1959">
-                                {listRow10Data.map((d, i) => <ListRow10 key={i} d={d} cids={ListRow10_cids[i]} styles={ListRow10_styles[i]} />)}
-                              </ul>
-                            </div>
-                          </div>
-                        </div>
-                      </section>
                     </div>
                   </div>
-                </astro-island>
-              </astro-slot>
+                  <div className="w-full block min-w-0 pb-5 h-auto max-md:pb-4" data-cid="n1852">
+                    <div className="w-full block px-4 max-md:px-3" data-cid="n1853">
+                      <div className="block relative w-full" data-cid="n1854">
+                        <div className="block relative text-xs leading-4 h-72 w-full max-md:h-64" data-cid="n1855">
+                          <div className="h-full min-h-50 block" data-cid="n1856">
+                            <div className="w-0 h-0 block" data-cid="n1857">
+                              <div className="w-full h-72 block relative shadow-[var(--clr-0)_0px_0px_0px_0px,var(--clr-0)_0px_0px_0px_0px,var(--clr-0)_0px_0px_0px_0px,var(--foreground)_0px_0px_0px_0px,var(--clr-0)_0px_0px_0px_0px] cursor-default max-md:h-64" data-cid="n1858" height="288" width="1022">
+                                <Illustration4 cid={"n1859"} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex pt-2 px-1 flex-wrap items-center gap-y-1 gap-x-3 text-muted-foreground text-[0.6875rem] leading-[1.125rem]" data-cid="n1860">
+                          {tile7Data.map((d, i) => <Tile7 key={i} d={d} cids={Tile7_cids[i]} styles={Tile7_styles[i]} />)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="border border-solid border-surface flex mb-4 rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-auto" data-cid="n1867">
+                  <div className="h-[75.3px] grid pt-5 pb-4 px-4 rounded-tl-md rounded-tr-md items-start gap-1 grid-rows-[19.25px_16px] [grid-auto-rows:min-content] grid-cols-1 max-md:h-[83.3px] max-md:pt-4 max-md:pb-3 max-md:px-3 max-md:grid-rows-[19.25px_32px]" data-cid="n1868">
+                    <div className="block font-medium leading-[1.1875rem]" data-cid="n1869">
+                      Needs attention
+                    </div>
+                    <div className="block text-muted-foreground text-xs font-medium leading-4 text-balance" data-cid="n1870">
+                      Pages with the highest p75 for LCP (min. 3 samples per path)
+                    </div>
+                  </div>
+                  <div className="w-full block min-w-0 pb-5 px-4 h-auto max-md:pb-4 max-md:px-3" data-cid="n1871">
+                    <div className="h-45 block relative overflow-auto w-full" data-cid="n1872">
+                      <table className="h-45 table [border-collapse:collapse] w-full" data-cid="n1873">
+                        <thead className="table-header-group align-middle [border-collapse:collapse]" data-cid="n1874">
+                          <tr className="table-row align-middle [border-collapse:collapse]" data-cid="n1875">
+                            <th className="border-b border-solid border-b-surface-6 table-cell py-2 align-middle text-muted-foreground text-xs font-medium leading-4 text-left whitespace-nowrap text-nowrap [border-collapse:collapse] h-auto" data-cid="n1876">
+                              Page
+                            </th>
+                            <th className="border-b border-solid border-b-surface-6 table-cell py-2 align-middle text-muted-foreground text-xs font-medium leading-4 text-right whitespace-nowrap text-nowrap [border-collapse:collapse] h-auto" data-cid="n1877">
+                              p75
+                            </th>
+                            <th className="border-b border-solid border-b-surface-6 table-cell py-2 align-middle text-muted-foreground text-xs font-medium leading-4 text-right whitespace-nowrap text-nowrap [border-collapse:collapse] h-auto" data-cid="n1878">
+                              Samples
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="h-[147.5px] table-row-group align-middle [border-collapse:collapse]" data-cid="n1879">
+                          {tile8Data.map((d, i) => <Tile8 key={i} d={d} cids={Tile8_cids[i]} styles={Tile8_styles[i]} />)}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+                <section className="grid gap-4 grid-rows-[228px] grid-cols-2 max-md:grid-rows-[221.25px_216px] max-md:grid-cols-1" data-cid="n1900">
+                  <div className="border border-solid border-surface flex rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full" data-cid="n1901">
+                    <div className="grid pt-5 pb-4 px-4 rounded-tl-md rounded-tr-md items-center gap-y-2 gap-x-3 grid-rows-[24px] [grid-auto-rows:min-content] grid-cols-[minmax(0,1fr)_auto] max-md:pt-4 max-md:pb-3 max-md:px-3 max-md:items-start max-md:gap-x-1 max-md:grid-rows-[19.25px_24px] max-md:grid-cols-1" data-cid="n1902">
+                      <div className="w-14 block min-w-0 font-medium leading-[1.1875rem]" data-cid="n1903">
+                        Devices
+                      </div>
+                      <div className="w-[11.3125rem] flex min-w-0 flex-wrap justify-end items-center gap-3 max-w-full max-md:w-[17.8125rem] max-md:justify-start max-md:gap-2" data-cid="n1904">
+                        <div className="flex flex-wrap items-center gap-3 text-xs font-medium leading-4 max-w-full max-md:gap-2" data-cid="n1905" aria-label="Devices" role="tablist">
+                          <button className="block rounded-sm text-center cursor-default" data-cid="n1906" data-component="button" aria-selected="true" id="_r20R_1iu_-t-0" role="tab" type="button">
+                            Browsers
+                          </button>
+                          <button className="block rounded-sm text-muted-foreground text-center cursor-default hover:text-clr-26 hover:[text-decoration-color:var(--clr-26)]" data-cid="n1907" data-component="button" aria-selected="false" id="_r20R_1iu_-t-1" role="tab" type="button">
+                            Devices
+                          </button>
+                        </div>
+                        <div className="flex items-center gap-0.5" data-cid="n1908">
+                          <button className="w-6 h-6 flex rounded-lg justify-center items-center text-muted-foreground text-center cursor-default" data-cid="n1909" data-component="button" aria-hidden="true" aria-label="Open full breakdown" type="button">
+                            <Icon6 cid={"n1910"} />
+                          </button>
+                          <button className="w-6 h-6 flex rounded-lg justify-center items-center text-muted-foreground text-center cursor-default" data-cid="n1911" data-component="button" aria-hidden="true" aria-label="Share breakdown" type="button">
+                            <Icon3 cid={"n1912"} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="w-129.5 block min-w-0 pb-4 max-md:w-[19.3125rem] max-md:pb-3 md:max-lg:w-85.5" data-cid="n1913">
+                      <div className="w-129.5 block px-4 max-md:w-[19.3125rem] max-md:px-3 md:max-lg:w-85.5" data-cid="n1914">
+                        <ul className="flex flex-col [list-style-type:none] list-outside" data-cid="n1915">
+                          {listRow9Data.map((d, i) => <ListRow9 key={i} d={d} cids={ListRow9_cids[i]} styles={ListRow9_styles[i]} />)}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="border border-solid border-surface flex rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-full" data-cid="n1948">
+                    <div className="h-20.5 grid pt-5 pb-4 px-4 rounded-tl-md rounded-tr-md items-start gap-1 grid-rows-[19.25px_2.75px_16px] [grid-auto-rows:min-content] grid-cols-[1fr_auto] max-md:h-18.5 max-md:pt-4 max-md:pb-3 max-md:px-3" data-cid="n1949">
+                      <div className="block font-medium leading-[1.1875rem]" data-cid="n1950">
+                        Country
+                      </div>
+                      <div className="flex pt-0.5 items-center self-start gap-0.5 col-start-2 row-start-1 row-end-[span_2]" data-cid="n1951">
+                        <button className="w-6 h-6 flex rounded-lg justify-center items-center text-muted-foreground text-center cursor-default" data-cid="n1952" data-component="button" aria-hidden="true" aria-label="Open full breakdown" type="button">
+                          <Icon6 cid={"n1953"} />
+                        </button>
+                        <button className="w-6 h-6 flex rounded-lg justify-center items-center text-muted-foreground text-center cursor-default" data-cid="n1954" data-component="button" aria-hidden="true" aria-label="Share breakdown" type="button">
+                          <Icon3 cid={"n1955"} />
+                        </button>
+                      </div>
+                      <div className="block col-span-full text-muted-foreground text-xs font-medium leading-4 text-balance" data-cid="n1956">
+                        Slowest dimensions by p75 · LCP
+                      </div>
+                    </div>
+                    <div className="w-129.5 block min-w-0 pb-4 max-md:w-[19.3125rem] max-md:pb-3 md:max-lg:w-85.5" data-cid="n1957">
+                      <div className="w-129.5 block px-4 max-md:w-[19.3125rem] max-md:px-3 md:max-lg:w-85.5" data-cid="n1958">
+                        <ul className="flex flex-col [list-style-type:none] list-outside" data-cid="n1959">
+                          {listRow10Data.map((d, i) => <ListRow10 key={i} d={d} cids={ListRow10_cids[i]} styles={ListRow10_styles[i]} />)}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
             </div>
-          </astro-island>
+          </div>
         </div>
       </div>
     </section>

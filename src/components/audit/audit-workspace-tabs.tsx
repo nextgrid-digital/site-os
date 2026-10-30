@@ -18,6 +18,7 @@ const PRIMARY_TABS: {
   { id: 'workflow', label: 'Dashboard', suffix: '/workflow' },
   { id: 'brief', label: 'Brief', suffix: '/brief' },
   { id: 'monthly', label: 'Monthly', suffix: '/monthly' },
+  { id: 'aeo', label: 'AEO', suffix: '/aeo' },
   { id: 'connect', label: 'Setup', suffix: '/connect' },
 ];
 
@@ -119,7 +120,7 @@ export function AuditWorkspaceTabs({
           )}
           <AddSiteAuditDialog
             triggerLabel="Audit another site"
-            triggerClassName="inline-flex h-8 items-center gap-1 rounded-lg border border-zinc-300 bg-white px-2.5 text-[13px] font-medium text-zinc-800 transition hover:bg-zinc-50"
+            triggerClassName="inline-flex h-8 pointer-coarse:h-11 items-center gap-1 rounded-lg border border-line-strong bg-raised px-2.5 text-[13px] font-medium text-foreground/90 transition hover:bg-muted"
             title="Run a new audit"
             description="Paste any public URL to start a fresh free audit."
             submitLabel="Run audit"

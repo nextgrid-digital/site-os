@@ -23,21 +23,21 @@ export type TodoListProps = {
 function StatusMark({ status, progress }: { status: TodoItemStatus; progress?: number }) {
   if (status === 'completed') {
     return (
-      <span className="grid size-5 shrink-0 place-items-center rounded-full bg-emerald-500 text-white">
+      <span className="grid size-5 shrink-0 place-items-center rounded-full bg-success text-success-foreground">
         <Check className="size-3" strokeWidth={3} />
       </span>
     );
   }
   if (status === 'cancelled') {
     return (
-      <span className="grid size-5 shrink-0 place-items-center rounded-full bg-rose-500 text-white">
+      <span className="grid size-5 shrink-0 place-items-center rounded-full bg-destructive text-destructive-foreground">
         <X className="size-3" strokeWidth={3} />
       </span>
     );
   }
   if (status === 'in-progress') {
     return (
-      <span className="relative grid size-5 shrink-0 place-items-center text-zinc-900">
+      <span className="relative grid size-5 shrink-0 place-items-center text-foreground">
         <LoaderCircle className="size-5 animate-spin" />
         {typeof progress === 'number' ? (
           <span className="sr-only">{Math.round(progress)}%</span>
@@ -46,7 +46,7 @@ function StatusMark({ status, progress }: { status: TodoItemStatus; progress?: n
     );
   }
   return (
-    <span className="grid size-5 shrink-0 place-items-center text-zinc-300">
+    <span className="grid size-5 shrink-0 place-items-center text-line-strong">
       <Circle className="size-4" />
     </span>
   );
@@ -58,15 +58,15 @@ export function TodoList({ items, title = 'To-dos', className }: TodoListProps) 
   return (
     <section
       aria-label="Task list"
-      className={cn('w-full overflow-hidden rounded-2xl bg-white shadow-sm',
+      className={cn('w-full overflow-hidden rounded-2xl bg-raised shadow-sm',
         className
       )}
     >
-      <div className="flex h-11 items-center justify-between gap-3 border-b border-zinc-100 px-4">
-        <p className="text-sm font-semibold text-zinc-950">{title}</p>
+      <div className="flex h-11 items-center justify-between gap-3 border-b border-border px-4">
+        <p className="text-sm font-semibold text-foreground">{title}</p>
         <p
-          className={cn('text-xs font-medium tabular-nums text-zinc-500',
-            completed === items.length && items.length > 0 && 'text-emerald-600'
+          className={cn('text-xs font-medium tabular-nums text-muted-foreground',
+            completed === items.length && items.length > 0 && 'text-success-ink'
           )}
         >
           {completed} of {items.length} tasks completed
@@ -84,17 +84,17 @@ export function TodoList({ items, title = 'To-dos', className }: TodoListProps) 
               <div className="min-w-0 flex-1">
                 <p
                   className={cn('truncate text-sm leading-5',
-                    status === 'pending' && 'text-zinc-400',
-                    status === 'in-progress' && 'text-zinc-950',
-                    status === 'completed' && 'text-zinc-400',
-                    status === 'cancelled' && 'text-zinc-400 line-through'
+                    status === 'pending' && 'text-muted-foreground',
+                    status === 'in-progress' && 'text-foreground',
+                    status === 'completed' && 'text-muted-foreground',
+                    status === 'cancelled' && 'text-muted-foreground line-through'
                   )}
                 >
                   {item.title}
                 </p>
               </div>
               {item.detail ? (
-                <span className="shrink-0 text-xs tabular-nums text-zinc-400">{item.detail}</span>
+                <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{item.detail}</span>
               ) : null}
             </li>
           );

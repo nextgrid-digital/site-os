@@ -5,9 +5,9 @@ import { Label } from '@/components/ui/label';
 import type { AdsInvite } from '@/lib/db/ads-invites';
 
 const fieldClass =
-  'h-9 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none focus:border-zinc-400';
+  'h-9 pointer-coarse:h-11 w-full rounded-md border border-field bg-raised px-3 text-sm text-foreground outline-none focus-visible:border-foreground focus-visible:ring-3 focus-visible:ring-foreground/15';
 const buttonClass =
-  'inline-flex h-9 shrink-0 items-center justify-center rounded-md bg-zinc-900 px-3 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50';
+  'inline-flex h-9 pointer-coarse:h-11 shrink-0 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/80 disabled:opacity-50';
 
 function statusText(invite: AdsInvite | null) {
   if (!invite) return 'Enter the client’s Google Ads ID and we’ll send them an invite.';
@@ -70,7 +70,7 @@ export function AdsInvitePanel({ projectId }: { projectId: string }) {
 
   return (
     <div className="grid gap-1.5">
-      <Label htmlFor="ads-invite" className="text-xs font-medium text-zinc-600">
+      <Label htmlFor="ads-invite" className="text-xs font-medium text-foreground/70">
         Client&apos;s Google Ads account ID
       </Label>
       <div className="flex gap-2">
@@ -91,8 +91,8 @@ export function AdsInvitePanel({ projectId }: { projectId: string }) {
           {busy ? 'Sending…' : 'Send invite'}
         </button>
       </div>
-      <p className="text-xs text-zinc-500">{statusText(invite)}</p>
-      {error ? <p className="text-xs text-red-600">{error}</p> : null}
+      <p className="text-xs text-muted-foreground">{statusText(invite)}</p>
+      {error ? <p className="text-xs text-danger-ink">{error}</p> : null}
     </div>
   );
 }

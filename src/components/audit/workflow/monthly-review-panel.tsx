@@ -17,6 +17,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { RerunFullAuditButton } from '@/components/audit/rerun-full-audit-button';
+import { CopyFixPrompt } from '@/components/audit/workflow/copy-fix-prompt';
 import { PageChip, PriorityBadge } from '@/components/audit/workflow/workflow-badges';
 import type {
   MonthlyCompareSection,
@@ -55,23 +56,23 @@ type Tone = 'good' | 'bad' | 'neutral' | 'mixed';
 
 const TONE_STYLES: Record<Tone, { pill: string; ring: string; icon: ReactNode }> = {
   good: {
-    pill: 'bg-emerald-50 text-emerald-700',
-    ring: 'from-emerald-50/70',
+    pill: 'bg-success-soft text-success-ink',
+    ring: 'from-success-soft/70',
     icon: <TrendingUp className="size-4" aria-hidden />,
   },
   bad: {
-    pill: 'bg-rose-50 text-rose-700',
-    ring: 'from-rose-50/70',
+    pill: 'bg-danger-soft text-danger-ink',
+    ring: 'from-danger-soft/70',
     icon: <TrendingDown className="size-4" aria-hidden />,
   },
   mixed: {
-    pill: 'bg-amber-50 text-amber-700',
-    ring: 'from-amber-50/70',
+    pill: 'bg-warning-soft text-warning-ink',
+    ring: 'from-warning-soft/70',
     icon: <Shuffle className="size-4" aria-hidden />,
   },
   neutral: {
-    pill: 'bg-zinc-100 text-zinc-700',
-    ring: 'from-zinc-50',
+    pill: 'bg-tint text-foreground/80',
+    ring: 'from-muted',
     icon: <Minus className="size-4" aria-hidden />,
   },
 };
@@ -134,7 +135,6 @@ export function MonthlyReviewPanel({
   const nextCheckInAt = currentAt
     ? new Date(new Date(currentAt).getTime() + CHECK_IN_INTERVAL_DAYS * DAY_MS).toISOString()
     : null;
-  const nextCheckInDate = formatDate(nextCheckInAt);
   const [now] = useState(() => Date.now());
   const checkInDue = nextCheckInAt ? now >= new Date(nextCheckInAt).getTime() : false;
 
@@ -143,7 +143,6 @@ export function MonthlyReviewPanel({
       <FirstCheckIn
         projectId={projectId}
         currentDate={currentDate}
-        nextCheckInDate={nextCheckInDate}
         checkInDue={checkInDue}
       />
     );
@@ -161,7 +160,7 @@ export function MonthlyReviewPanel({
     <div className="space-y-4">
       {/* 1. The verdict — answer "how did we do?" in one glance. */}
       <section
-        className={`rounded-[14px] bg-gradient-to-br ${tone.ring} to-white to-60% p-5 shadow-sm sm:p-6`}
+        className={`rounded-xl bg-gradient-to-br ${tone.ring} to-raised to-60% p-5 shadow-sm sm:p-6`}
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
@@ -171,26 +170,21 @@ export function MonthlyReviewPanel({
               {tone.icon}
               {verdict.label}
             </span>
-            <h2 className="mt-3 text-xl font-semibold tracking-tight text-zinc-950 sm:text-2xl">
+            <h2 className="mt-3 text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
               {verdict.headline}
             </h2>
-            <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-zinc-500">
-              <CalendarDays className="size-4 text-zinc-500" aria-hidden />
+            <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+              <CalendarDays className="size-4 text-muted-foreground" aria-hidden />
               <span>Last audit {previousDate}</span>
-              <ArrowRight className="size-3.5 text-zinc-300" aria-hidden />
-              <span className="font-medium text-zinc-700">This audit {currentDate}</span>
+              <ArrowRight className="size-3.5 text-line-strong" aria-hidden />
+              <span className="font-medium text-foreground/80">This audit {currentDate}</span>
               {gapDays != null ? (
-                <span className="text-zinc-500">· {plural(gapDays, 'day')} apart</span>
+                <span className="text-muted-foreground">· {plural(gapDays, 'day')} apart</span>
               ) : null}
             </p>
           </div>
-          <div className="flex shrink-0 flex-col items-start gap-1 sm:items-end">
+          <div className="shrink-0">
             <RerunFullAuditButton projectId={projectId} />
-            {nextCheckInDate ? (
-              <p className={`text-xs ${checkInDue ? 'font-medium text-amber-700' : 'text-zinc-500'}`}>
-                {checkInDue ? 'Next check-in is due' : `Next check-in ~${nextCheckInDate}`}
-              </p>
-            ) : null}
           </div>
         </div>
 
@@ -241,10 +235,10 @@ export function MonthlyReviewPanel({
       ) : null}
 
       {/* 4. What to do next — turn the comparison into action. */}
-      <section className="rounded-[14px] bg-white p-5 shadow-sm">
+      <section className="rounded-xl bg-raised p-5 shadow-sm">
         <SectionHeading
           icon={<Flag className="size-4" aria-hidden />}
-          iconClass="bg-zinc-950 text-white"
+          iconClass="bg-primary text-primary-foreground"
           title="Fix these before the next check-in"
           subtitle="High-impact tasks still open — knocking these out moves next month's numbers most."
         />
@@ -254,49 +248,54 @@ export function MonthlyReviewPanel({
             {compare.needsFollowUp.map((item, index) => (
               <li
                 key={`${item.title}-${index}`}
-                className="flex items-start gap-3 rounded-xl bg-zinc-50 px-3.5 py-3"
+                className="flex items-start gap-3 rounded-xl bg-muted px-3.5 py-3"
               >
-                <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-semibold text-zinc-700 shadow-sm">
+                <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-raised text-xs font-semibold text-foreground/80 shadow-sm">
                   {index + 1}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium leading-6 text-zinc-900">{item.title}</p>
+                  <p className="text-sm font-medium leading-6 text-foreground">{item.title}</p>
                   <div className="mt-1 flex flex-wrap items-center gap-1.5">
                     <PriorityBadge priority={item.priority} />
                     {item.pagePath ? <PageChip path={item.pagePath} /> : null}
                   </div>
+                  {item.detail ? (
+                    <p className="mt-1.5 text-sm leading-5 text-muted-foreground">Next step: {item.detail}</p>
+                  ) : null}
                 </div>
+                {item.fixPrompt ? <CopyFixPrompt prompt={item.fixPrompt} /> : null}
               </li>
             ))}
           </ol>
         ) : (
-          <div className="mt-4 flex items-center gap-2 rounded-xl bg-emerald-50 px-3.5 py-3 text-sm text-emerald-800">
+          <div className="mt-4 flex items-center gap-2 rounded-xl bg-success-soft px-3.5 py-3 text-sm text-success-ink">
             <CircleCheck className="size-4 shrink-0" aria-hidden />
             No urgent fixes left. Nice work — keep chipping away at the rest.
           </div>
         )}
 
         {otherOpen.length > 0 ? (
-          <details className="group mt-4 rounded-xl border border-zinc-100">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3.5 py-3 text-sm font-medium text-zinc-700 [&::-webkit-details-marker]:hidden">
+          <details className="group mt-4 rounded-xl border border-border">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3.5 py-3 text-sm font-medium text-foreground/80 [&::-webkit-details-marker]:hidden">
               <span className="inline-flex items-center gap-2">
-                <ListTodo className="size-4 text-zinc-500" aria-hidden />
+                <ListTodo className="size-4 text-muted-foreground" aria-hidden />
                 {plural(otherOpen.length, 'other open task')}
               </span>
               <ChevronDown
-                className="size-4 text-zinc-500 transition-transform group-open:rotate-180"
+                className="size-4 text-muted-foreground transition-transform group-open:rotate-180"
                 aria-hidden
               />
             </summary>
-            <ul className="space-y-3 border-t border-zinc-100 px-3.5 py-3">
+            <ul className="space-y-3 border-t border-border px-3.5 py-3">
               {otherOpen.map((item, index) => (
                 <li key={`${item.title}-${index}`} className="text-sm">
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <p className="font-medium leading-6 text-zinc-800">{item.title}</p>
+                    <p className="font-medium leading-6 text-foreground/90">{item.title}</p>
                     <PriorityBadge priority={item.priority} />
+                    {item.fixPrompt ? <CopyFixPrompt prompt={item.fixPrompt} /> : null}
                   </div>
                   {item.detail ? (
-                    <p className="mt-0.5 leading-5 text-zinc-500">Next step: {item.detail}</p>
+                    <p className="mt-0.5 leading-5 text-muted-foreground">Next step: {item.detail}</p>
                   ) : null}
                 </li>
               ))}
@@ -311,12 +310,10 @@ export function MonthlyReviewPanel({
 function FirstCheckIn({
   projectId,
   currentDate,
-  nextCheckInDate,
   checkInDue,
 }: {
   projectId: string;
   currentDate: string;
-  nextCheckInDate: string | null;
   checkInDue: boolean;
 }) {
   const steps: Array<{ title: string; body: string; done: boolean }> = [
@@ -332,28 +329,26 @@ function FirstCheckIn({
     },
     {
       title: 'Run your next check-in',
-      body: nextCheckInDate
-        ? `Re-run the audit around ${nextCheckInDate}. We'll show exactly what got better, what slipped, and what's left.`
-        : "Re-run the audit next month. We'll show exactly what got better, what slipped, and what's left.",
+      body: "Re-run the audit next month. We'll show exactly what got better, what slipped, and what's left.",
       done: false,
     },
   ];
 
   return (
     <div className="space-y-4">
-      <section className="rounded-[14px] bg-gradient-to-br from-sky-50/70 to-white to-60% p-5 shadow-sm sm:p-6">
+      <section className="rounded-xl bg-gradient-to-br from-info-soft/70 to-raised to-60% p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-50 px-2.5 py-1 text-xs font-medium text-sky-700">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-info-soft px-2.5 py-1 text-xs font-medium text-info-ink">
               <Sparkles className="size-4" aria-hidden />
               Baseline set
             </span>
-            <h2 className="mt-3 text-xl font-semibold tracking-tight text-zinc-950 sm:text-2xl">
+            <h2 className="mt-3 text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
               {checkInDue
                 ? "It's time for your first monthly check-in"
                 : 'Your first month-over-month report is on its way'}
             </h2>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-zinc-500">
+            <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
               Each month we re-audit the site and compare it to the last run, so you can see
               progress in plain English instead of digging through reports.
             </p>
@@ -367,42 +362,42 @@ function FirstCheckIn({
           {steps.map((step, index) => (
             <li
               key={step.title}
-              className={`rounded-xl p-4 ${step.done ? 'bg-emerald-50/70' : 'bg-white ring-1 ring-zinc-100'}`}
+              className={`rounded-xl p-4 ${step.done ? 'bg-success-soft/70' : 'bg-raised ring-1 ring-border'}`}
             >
               <div className="flex items-center gap-2">
                 {step.done ? (
-                  <CircleCheck className="size-5 text-emerald-600" aria-hidden />
+                  <CircleCheck className="size-5 text-success-ink" aria-hidden />
                 ) : (
-                  <span className="flex size-5 items-center justify-center rounded-full bg-zinc-100 text-[11px] font-semibold text-zinc-600">
+                  <span className="flex size-5 items-center justify-center rounded-full bg-tint text-[11px] font-semibold text-foreground/70">
                     {index + 1}
                   </span>
                 )}
-                <p className="text-sm font-semibold text-zinc-900">{step.title}</p>
+                <p className="text-sm font-semibold text-foreground">{step.title}</p>
               </div>
-              <p className="mt-2 text-sm leading-6 text-zinc-600">{step.body}</p>
+              <p className="mt-2 text-sm leading-6 text-foreground/70">{step.body}</p>
             </li>
           ))}
         </ol>
       </section>
 
-      <section className="rounded-[14px] bg-white p-5 shadow-sm">
-        <p className="text-sm font-semibold text-zinc-950">What you&apos;ll see after the next audit</p>
+      <section className="rounded-xl bg-raised p-5 shadow-sm">
+        <p className="text-sm font-semibold text-foreground">What you&apos;ll see after the next audit</p>
         <div className="mt-3 grid gap-3 text-sm sm:grid-cols-3">
           <PreviewItem
             icon={<TrendingUp className="size-4" aria-hidden />}
-            iconClass="bg-emerald-50 text-emerald-700"
+            iconClass="bg-success-soft text-success-ink"
             title="What got better"
             body="New content, claims, and fewer issues."
           />
           <PreviewItem
             icon={<TrendingDown className="size-4" aria-hidden />}
-            iconClass="bg-rose-50 text-rose-700"
+            iconClass="bg-danger-soft text-danger-ink"
             title="What slipped"
             body="Anything that disappeared or got worse."
           />
           <PreviewItem
             icon={<Flag className="size-4" aria-hidden />}
-            iconClass="bg-zinc-100 text-zinc-700"
+            iconClass="bg-tint text-foreground/80"
             title="What to fix next"
             body="The highest-impact tasks still open."
           />
@@ -426,10 +421,10 @@ function MetricTile({
   // Lower is better for both issues and open tasks.
   const deltaStyle =
     diff == null || diff === 0
-      ? 'bg-zinc-100 text-zinc-600'
+      ? 'bg-tint text-foreground/70'
       : diff < 0
-        ? 'bg-emerald-50 text-emerald-700'
-        : 'bg-rose-50 text-rose-700';
+        ? 'bg-success-soft text-success-ink'
+        : 'bg-danger-soft text-danger-ink';
   const deltaText =
     diff == null
       ? null
@@ -438,11 +433,11 @@ function MetricTile({
         : `${Math.abs(diff)} ${diff < 0 ? 'fewer' : 'more'}`;
 
   return (
-    <div className="rounded-xl bg-white p-4 ring-1 ring-zinc-100">
+    <div className="rounded-xl bg-raised p-4 ring-1 ring-border">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="text-sm font-medium text-zinc-700">{label}</p>
-          <p className="text-xs text-zinc-500">{hint}</p>
+          <p className="text-sm font-medium text-foreground/80">{label}</p>
+          <p className="text-xs text-muted-foreground">{hint}</p>
         </div>
         {deltaText ? (
           <span
@@ -457,13 +452,13 @@ function MetricTile({
       <div className="mt-3 flex items-baseline gap-2">
         {previous != null ? (
           <>
-            <span className="text-lg font-medium text-zinc-500 tabular-nums line-through decoration-zinc-300">
+            <span className="text-lg font-medium text-muted-foreground tabular-nums line-through decoration-line-strong">
               {previous}
             </span>
-            <ArrowRight className="size-4 self-center text-zinc-300" aria-hidden />
+            <ArrowRight className="size-4 self-center text-line-strong" aria-hidden />
           </>
         ) : null}
-        <span className="text-3xl font-semibold tracking-tight text-zinc-950 tabular-nums">
+        <span className="text-3xl font-semibold tracking-tight text-foreground tabular-nums">
           {current}
         </span>
       </div>
@@ -472,9 +467,9 @@ function MetricTile({
 }
 
 const CARD_TONES: Record<'good' | 'bad' | 'neutral', { icon: string; bullet: string }> = {
-  good: { icon: 'bg-emerald-50 text-emerald-700', bullet: 'bg-emerald-500' },
-  bad: { icon: 'bg-rose-50 text-rose-700', bullet: 'bg-rose-500' },
-  neutral: { icon: 'bg-zinc-100 text-zinc-600', bullet: 'bg-zinc-400' },
+  good: { icon: 'bg-success-soft text-success-ink', bullet: 'bg-success' },
+  bad: { icon: 'bg-danger-soft text-danger-ink', bullet: 'bg-destructive' },
+  neutral: { icon: 'bg-tint text-foreground/70', bullet: 'bg-muted-foreground/60' },
 };
 
 function ChangeCard({
@@ -494,7 +489,7 @@ function ChangeCard({
 }) {
   const styles = CARD_TONES[tone];
   return (
-    <section className="rounded-[14px] bg-white p-5 shadow-sm">
+    <section className="rounded-xl bg-raised p-5 shadow-sm">
       <SectionHeading
         icon={icon}
         iconClass={styles.icon}
@@ -508,16 +503,16 @@ function ChangeCard({
             <li key={`${item.title}-${item.detail ?? ''}`} className="flex gap-2.5 text-sm">
               <span className={`mt-2 size-1.5 shrink-0 rounded-full ${styles.bullet}`} aria-hidden />
               <div className="min-w-0">
-                <p className="leading-6 text-zinc-800">{item.title}</p>
+                <p className="leading-6 text-foreground/90">{item.title}</p>
                 {item.detail ? (
-                  <p className="leading-5 text-zinc-500">{item.detail}</p>
+                  <p className="leading-5 text-muted-foreground">{item.detail}</p>
                 ) : null}
               </div>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="mt-4 rounded-xl bg-zinc-50 px-3.5 py-3 text-sm leading-6 text-zinc-500">
+        <p className="mt-4 rounded-xl bg-muted px-3.5 py-3 text-sm leading-6 text-muted-foreground">
           {empty}
         </p>
       )}
@@ -544,15 +539,15 @@ function SectionHeading({
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-zinc-950">
+        <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
           {title}
           {count ? (
-            <span className="rounded-full bg-zinc-100 px-1.5 py-px text-[11px] font-medium text-zinc-600 tabular-nums">
+            <span className="rounded-full bg-tint px-1.5 py-px text-[11px] font-medium text-foreground/70 tabular-nums">
               {count}
             </span>
           ) : null}
         </h3>
-        <p className="text-xs leading-5 text-zinc-500">{subtitle}</p>
+        <p className="text-xs leading-5 text-muted-foreground">{subtitle}</p>
       </div>
     </div>
   );
@@ -570,13 +565,13 @@ function PreviewItem({
   body: string;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl bg-zinc-50 p-3.5">
+    <div className="flex items-start gap-3 rounded-xl bg-muted p-3.5">
       <span className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${iconClass}`}>
         {icon}
       </span>
       <div>
-        <p className="font-medium text-zinc-900">{title}</p>
-        <p className="mt-0.5 leading-5 text-zinc-500">{body}</p>
+        <p className="font-medium text-foreground">{title}</p>
+        <p className="mt-0.5 leading-5 text-muted-foreground">{body}</p>
       </div>
     </div>
   );

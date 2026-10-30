@@ -3,15 +3,17 @@ import './site-os-home.css';
 import { AppShell } from '@/components/audit/app-shell';
 import DittoMotion from './ditto/DittoMotion';
 import HeroSection from './sections/hero-section';
-import S8kbDefaultTrackerSection from './sections/s8kb-default-tracker-section';
+// Commented out until implemented or de-duplicated:
+// import S8kbDefaultTrackerSection from './sections/s8kb-default-tracker-section';
 import ProductGridSection from './sections/product-grid-section';
+import AeoDemoSection from './sections/aeo-demo-section';
 import SeeWhenVisitorsSection from './sections/see-when-visitors-section';
-import EverythingYouNeedSection from './sections/everything-you-need-section';
-import LogoCloudSection from './sections/logo-cloud-section';
-import SeeWhereVisitorsSection from './sections/see-where-visitors-section';
-import GalleryShowcaseSection from './sections/gallery-showcase-section';
-import LogoCloudSection2 from './sections/logo-cloud-section2';
-import LogoCloudSection3 from './sections/logo-cloud-section3';
+// import EverythingYouNeedSection from './sections/everything-you-need-section';
+// import LogoCloudSection from './sections/logo-cloud-section';
+// import SeeWhereVisitorsSection from './sections/see-where-visitors-section';
+// import GalleryShowcaseSection from './sections/gallery-showcase-section';
+// import LogoCloudSection2 from './sections/logo-cloud-section2';
+// import LogoCloudSection3 from './sections/logo-cloud-section3';
 import FaqSection from './sections/faq-section';
 import Footer from './sections/footer';
 
@@ -32,15 +34,16 @@ export function SiteOsLanding({
     <div className="site-os-home">
       <main className="block isolate min-w-0 w-full grow" data-cid="n23">
         <HeroSection />
-        <S8kbDefaultTrackerSection />
+        {/* <S8kbDefaultTrackerSection /> */}
         <ProductGridSection />
+        <AeoDemoSection />
         <SeeWhenVisitorsSection />
-        <EverythingYouNeedSection />
-        <LogoCloudSection />
-        <SeeWhereVisitorsSection />
-        <GalleryShowcaseSection />
-        <LogoCloudSection2 />
-        <LogoCloudSection3 />
+        {/* <EverythingYouNeedSection /> */}
+        {/* <LogoCloudSection /> */}
+        {/* <SeeWhereVisitorsSection /> */}
+        {/* <GalleryShowcaseSection /> */}
+        {/* <LogoCloudSection2 /> */}
+        {/* <LogoCloudSection3 /> */}
         <FaqSection />
       </main>
       <Footer />

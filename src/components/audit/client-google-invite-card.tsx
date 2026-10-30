@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { Check, Copy } from 'lucide-react';
+import { useCopyClipboard } from '@/hooks/use-copy-clipboard';
 
 const copyText = [
   'Please accept the Google Ads invitation we sent to your account:',
@@ -23,30 +23,20 @@ export function ClientGoogleInviteCard({
   audience?: 'admin' | 'client';
   className?: string;
 }) {
-  const [copied, setCopied] = useState(false);
-
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(copyText);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-    }
-  }
+  const { copied, copy } = useCopyClipboard();
 
   return (
     <section
       className={
-        className ?? 'rounded-[14px] border border-zinc-200/80 bg-white px-4 py-4 shadow-sm'
+        className ?? 'rounded-xl border border-border bg-raised px-4 py-4 shadow-sm'
       }
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="text-sm font-semibold text-zinc-950">
+          <h2 className="text-sm font-semibold text-foreground">
             {audience === 'client' ? 'Accept your Google Ads invitation' : 'Client instructions'}
           </h2>
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             {audience === 'client'
               ? 'Accept the invitation we sent to your Google Ads account. It takes one click.'
               : 'Paste this to any client. Google Ads needs one click on their side.'}
@@ -55,15 +45,15 @@ export function ClientGoogleInviteCard({
         {audience === 'admin' ? (
           <button
             type="button"
-            onClick={() => void copy()}
-            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-zinc-950 px-3 text-sm font-medium text-white transition hover:bg-zinc-800"
+            onClick={() => void copy(copyText)}
+            className="inline-flex h-9 pointer-coarse:h-11 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground transition hover:bg-primary/80"
           >
             {copied ? <Check className="size-3.5" strokeWidth={2} /> : <Copy className="size-3.5" strokeWidth={2} />}
             {copied ? 'Copied' : 'Copy'}
           </button>
         ) : null}
       </div>
-      <pre className="mt-3 overflow-x-auto whitespace-pre-wrap rounded-lg bg-zinc-50 px-3 py-3 text-xs leading-5 text-zinc-700">
+      <pre className="mt-3 overflow-x-auto whitespace-pre-wrap rounded-lg bg-muted px-3 py-3 text-xs leading-5 text-foreground/80">
         {copyText}
       </pre>
     </section>

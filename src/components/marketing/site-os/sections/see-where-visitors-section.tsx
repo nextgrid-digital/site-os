@@ -36,10 +36,7 @@ export default function SeeWhereVisitorsSection({ tile4Data = Tile4_data, tile5D
           </div>
         </div>
         <div className="h-[681.5px] block relative mt-8 max-md:h-[44.9125rem]" data-cid="n1658">
-          <astro-island class="contents" data-cid="n1659">
             <div className="h-[681.5px] block max-md:h-[44.9125rem]" data-cid="n1660">
-              <astro-slot class="contents" data-cid="n1661">
-                <astro-island class="contents" data-cid="n1662">
                   <div className="block w-full" data-cid="n1663">
                     <div className="border border-solid border-surface flex mb-4 rounded-[14px] flex-col text-sm leading-5 bg-surface-3 h-auto w-full" data-cid="n1664">
                       <div className="h-[75.3px] grid pt-5 pb-4 px-4 rounded-tl-md rounded-tr-md items-start gap-1 grid-rows-[19.25px_16px] [grid-auto-rows:min-content] grid-cols-1 max-md:h-[67.3px] max-md:pt-4 max-md:pb-3 max-md:px-3" data-cid="n1665">
@@ -59,7 +56,7 @@ export default function SeeWhereVisitorsSection({ tile4Data = Tile4_data, tile5D
                             <div className="w-full block max-md:hidden" data-cid="n1726">
                               <div className="h-80 min-h-80 border-r border-solid border-r-clr-15 border-l border-l-clr-15 block relative overflow-hidden" data-cid="n1727">
                                 <Illustration3 cid={"n1728"} />
-                                <div className="w-255 min-h-80 grid relative z-10 grid-cols-3 grid-rows-1 aspect-[3.188] md:max-lg:w-167 md:max-lg:aspect-[2.088]" data-cid="n1729">
+                                <div className="w-255 min-h-80 grid relative z-10 grid-cols-3 grid-rows-1 aspect-[3.188] md:max-lg:w-full md:max-lg:aspect-[2.088]" data-cid="n1729">
                                   {tile5Data.map((d, i) => <Tile5 key={i} d={d} cids={Tile5_cids[i]} styles={Tile5_styles[i]} />)}
                                 </div>
                               </div>
@@ -104,10 +101,7 @@ export default function SeeWhereVisitorsSection({ tile4Data = Tile4_data, tile5D
                       </div>
                     </div>
                   </div>
-                </astro-island>
-              </astro-slot>
             </div>
-          </astro-island>
         </div>
       </div>
     </section>

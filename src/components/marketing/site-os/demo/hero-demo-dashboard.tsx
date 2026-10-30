@@ -43,8 +43,14 @@ const BAR_ACTIVE = 'oklch(0.205 0 0)';
 
 export function HeroDemoDashboard({
   data = DEMO_HERO_DASHBOARD,
+  showBreakdowns = true,
+  chartHint,
 }: {
   data?: HeroDashboardData;
+  /** Live dashboard shows real breakdown tables elsewhere, so it hides the demo Pages/Sources cards. */
+  showBreakdowns?: boolean;
+  /** Optional help element rendered next to the chart title (e.g. an info tooltip). */
+  chartHint?: ReactNode;
 }) {
   const metrics = data.metrics;
   const seriesByMetric = data.seriesByMetric;
@@ -176,11 +182,11 @@ export function HeroDemoDashboard({
       <div className="mt-2 block">
         <div className="mb-4 flex h-auto flex-col rounded-[14px] border border-solid border-surface bg-surface-3 text-sm leading-5">
           <div className="grid grid-cols-[1fr_auto] grid-rows-[19.25px_16px] items-start gap-1 rounded-tl-md rounded-tr-md px-4 pt-5 pb-4 [grid-auto-rows:min-content] max-md:px-3 max-md:pt-4 max-md:pb-3">
-            <div className="block font-medium leading-[1.1875rem]">{metric.chartTitle}</div>
+            <div className="flex items-center gap-2 font-medium leading-[1.1875rem]">{metric.chartTitle}{chartHint}</div>
             <div className="block text-xs font-medium leading-4 text-balance text-muted-foreground">
               {dateRangeLabel}
             </div>
-            <div className="col-start-2 row-start-1 row-end-[span_2] block self-start">
+            <div className={`col-start-2 row-start-1 row-end-[span_2] block self-start ${isLive ? 'hidden' : ''}`}>
               <button
                 type="button"
                 className="inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded-lg text-center text-muted-foreground hover:bg-surface-4"
@@ -222,8 +228,8 @@ export function HeroDemoDashboard({
                         tick={{ fontSize: 11, fill: 'oklch(0.556 0 0)' }}
                         axisLine={false}
                         tickLine={false}
-                        interval={0}
-                        minTickGap={28}
+                        interval="preserveStartEnd"
+                        minTickGap={24}
                       />
                       <YAxis
                         tick={{ fontSize: 11, fill: 'oklch(0.556 0 0)' }}
@@ -270,6 +276,7 @@ export function HeroDemoDashboard({
           </div>
         </div>
 
+        {showBreakdowns ? (
         <div className="mb-4 grid w-full grid-cols-1 items-start gap-4 md:grid-cols-2">
           <BreakdownCard
             title="Pages"
@@ -367,6 +374,7 @@ export function HeroDemoDashboard({
             </ul>
           </BreakdownCard>
         </div>
+        ) : null}
       </div>
     </div>
   );

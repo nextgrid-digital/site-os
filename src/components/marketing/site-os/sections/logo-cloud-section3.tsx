@@ -26,11 +26,9 @@ export default function LogoCloudSection3({ logos = logosContent, tile10Data = T
             </div>
           </div>
           <div className="block py-12" data-cid="n2095">
-            <astro-island class="contents" data-cid="n2096">
-              <div className="grid items-center gap-y-5 gap-x-6 justify-items-center grid-rows-2 grid-cols-11 max-md:grid-rows-4 max-md:grid-cols-6 md:max-lg:grid-rows-3 md:max-lg:grid-cols-8" data-cid="n2097" aria-label="Supported installation platforms">
-                {logos.map((d, i) => <LogoCloudItem key={i} d={d} cids={LogoCloudItem_cids[i]} styles={LogoCloudItem_styles[i]} />)}
-              </div>
-            </astro-island>
+            <div className="grid items-center gap-y-5 gap-x-6 justify-items-center grid-rows-2 grid-cols-11 max-md:grid-rows-4 max-md:grid-cols-6 md:max-lg:grid-rows-3 md:max-lg:grid-cols-8" data-cid="n2097" aria-label="Supported installation platforms">
+              {logos.map((d, i) => <LogoCloudItem key={i} d={d} cids={LogoCloudItem_cids[i]} styles={LogoCloudItem_styles[i]} />)}
+            </div>
           </div>
         </div>
         <dl className="border-t border-solid border-t-surface-4 border-b border-b-surface-4 block mx-auto max-w-2xl" data-cid="n2142">

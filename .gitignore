@@ -45,3 +45,8 @@ next-env.d.ts
 .agents/
 .claude/
 skills-lock.json
+.impeccable/
+.codex
+.github
+DESIGN.md
+PRODUCT.md

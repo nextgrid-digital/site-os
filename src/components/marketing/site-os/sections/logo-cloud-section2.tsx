@@ -35,10 +35,7 @@ export default function LogoCloudSection2({ logos = logosContent, tile9Data = Ti
           </div>
         </div>
         <div className="h-172 block relative mt-8 max-lg:h-135" data-cid="n2033">
-          <astro-island class="contents" data-cid="n2034">
             <div className="h-172 block max-lg:h-135" data-cid="n2035">
-              <astro-slot class="contents" data-cid="n2036">
-                <astro-island class="contents" data-cid="n2037">
                   <div className="border border-solid border-surface flex rounded-[14px] flex-col overflow-hidden bg-surface-3 mx-auto h-[43rem] max-lg:h-[33.75rem]" data-cid="n2038">
                     <div className="grid px-4 items-center grid-rows-[36px] text-xs leading-4 h-9 grid-cols-[1fr_auto_1fr]" data-cid="n2039">
                       <div className="flex items-center gap-1.5" data-cid="n2040">
@@ -113,10 +110,7 @@ export default function LogoCloudSection2({ logos = logosContent, tile9Data = Ti
                       </div>
                     </div>
                   </div>
-                </astro-island>
-              </astro-slot>
             </div>
-          </astro-island>
         </div>
       </div>
     </section>

@@ -1,4 +1,7 @@
+'use client';
+
 import Image from 'next/image';
+import { motion, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
 
 const ICON_SIZE = 24;
@@ -31,10 +34,14 @@ function SourceIcon({
   src: string;
 }) {
   const status = connected ? 'connected' : 'not connected';
+  const reduceMotion = useReducedMotion();
   return (
-    <div
+    <motion.div
+      whileHover={reduceMotion ? undefined : { scale: 1.15, rotate: -6 }}
+      whileTap={reduceMotion ? undefined : { scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
       className={cn(
-        'inline-flex size-9 items-center justify-center rounded-lg bg-zinc-50',
+        'inline-flex size-9 cursor-default items-center justify-center rounded-lg bg-muted',
         connected ? '' : 'pointer-events-none opacity-40 grayscale'
       )}
       title={`${label} ${status}`}
@@ -49,7 +56,7 @@ function SourceIcon({
         className="size-6"
         unoptimized
       />
-    </div>
+    </motion.div>
   );
 }
 

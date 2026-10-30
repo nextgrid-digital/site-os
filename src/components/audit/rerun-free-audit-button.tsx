@@ -64,12 +64,12 @@ export function RerunFreeAuditButton({
         type="button"
         onClick={() => (isGuest ? setWarnOpen(true) : void handleRerun())}
         disabled={loading || disabled}
-        className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-zinc-950 px-3 text-[13px] font-medium text-white shadow-sm transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex h-8 pointer-coarse:h-11 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 text-[13px] font-medium text-primary-foreground shadow-sm transition hover:bg-primary/80 disabled:cursor-not-allowed disabled:opacity-50"
       >
         <RefreshCw className={`size-3 ${loading ? 'animate-spin' : ''}`} strokeWidth={2} />
         {loading ? 'Starting…' : 'Re-run audit'}
       </button>
-      {error ? <p className="text-xs text-red-600">{error}</p> : null}
+      {error ? <p className="text-xs text-danger-ink">{error}</p> : null}
       <GuestAuditWarningDialog
         open={warnOpen}
         onOpenChange={setWarnOpen}

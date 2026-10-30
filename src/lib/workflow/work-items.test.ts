@@ -113,7 +113,7 @@ test('buildMonthlyCompare reports pending and finding deltas', () => {
   assert.equal(compare.stillPending[0]?.title, 'Weak CTA');
   assert.equal(compare.stillPending[0]?.detail, 'Rewrite homepage CTA');
   assert.equal(compare.needsFollowUp.length, 1);
-  assert.equal(compare.needsFollowUp[0]?.detail, 'Fix soon');
+  assert.equal(compare.needsFollowUp[0]?.detail, 'Rewrite homepage CTA');
   assert.deepEqual(compare.scorecard.issues, { previous: 6, current: 4 });
   assert.deepEqual(compare.scorecard.openTasks, { previous: 3, current: 1 });
 });

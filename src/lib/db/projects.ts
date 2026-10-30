@@ -64,15 +64,70 @@ export async function findOwnedProjectByDomain(domain: string, userId: string): 
   return project?.id ?? null;
 }
 
-/** Attach an anonymous (pre-signup) project to the user claiming it. No-op if already owned. */
-export async function claimProjectOwnership(projectId: string, userId: string) {
+/** Tables holding per-audit results. Moved onto the owner's existing project when a
+ *  pre-signup audit duplicates a site they already have. `audit_sessions`, `audit_runs`
+ *  and `findings` are required; the rest are best-effort (a unique constraint on the
+ *  target may refuse the move, in which case the rows are dropped with the duplicate). */
+const REQUIRED_MERGE_TABLES = ['audit_sessions', 'audit_runs', 'findings'] as const;
+const OPTIONAL_MERGE_TABLES = [
+  'architecture_recommendations',
+  'report_exports',
+  'graph_entities',
+  'graph_relationships',
+  'graph_gaps',
+  'buyer_paths',
+  'graph_work_orders',
+  'evidence_records',
+  'company_identity_fields',
+  'company_descriptions',
+  'brand_associations',
+  'brand_claims',
+  'buyer_question_coverage',
+  'content_coverage',
+  'technical_observations',
+  'brand_contradictions',
+  'external_sources',
+  'prompt_runs',
+  'competitor_observations',
+  'historical_changes',
+] as const;
+
+async function mergeProjectInto(fromProjectId: string, toProjectId: string) {
   const supabase = getSupabaseAdmin();
+  for (const table of REQUIRED_MERGE_TABLES) {
+    const { error } = await supabase.from(table).update({ project_id: toProjectId }).eq('project_id', fromProjectId);
+    if (error) throw new Error(`Failed to merge ${table}: ${error.message}`);
+  }
+  for (const table of OPTIONAL_MERGE_TABLES) {
+    await supabase.from(table).update({ project_id: toProjectId }).eq('project_id', fromProjectId);
+  }
+  // Remaining setup rows (website, Google mapping, etc.) cascade away with the duplicate.
+  await supabase.from('projects').delete().eq('id', fromProjectId);
+}
+
+/** Attach an anonymous (pre-signup) project to the user claiming it. If the user already
+ *  owns a project for the same domain, the anonymous audit is merged into that one instead
+ *  so a site never shows up twice. Returns the project the user ends up owning. */
+export async function claimProjectOwnership(projectId: string, userId: string): Promise<string> {
+  const supabase = getSupabaseAdmin();
+
+  const { data: anon } = await supabase.from('projects').select('user_id').eq('id', projectId).maybeSingle();
+  if (anon && anon.user_id === null) {
+    const { data: site } = await supabase.from('websites').select('domain').eq('project_id', projectId).maybeSingle();
+    const existingId = site?.domain ? await findOwnedProjectByDomain(site.domain, userId) : null;
+    if (existingId && existingId !== projectId) {
+      await mergeProjectInto(projectId, existingId);
+      return existingId;
+    }
+  }
+
   const { error } = await supabase
     .from('projects')
     .update({ user_id: userId, updated_at: new Date().toISOString() })
     .eq('id', projectId)
     .is('user_id', null);
   if (error) throw new Error(error.message);
+  return projectId;
 }
 
 export class ProjectAccessError extends Error {
