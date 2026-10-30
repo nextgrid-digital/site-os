@@ -1,3 +1,4 @@
+import { AuditCancelledError } from '@/lib/audit/cancel';
 import { after, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { buildTeaserSnapshot } from '@/lib/audit/teaser-snapshot';
@@ -116,6 +117,7 @@ export async function POST(request: Request) {
       await updateAuditSessionTeaser(session.id, teaser);
       await markAuditSessionFreeReady(session.id);
     } catch (error) {
+      if (error instanceof AuditCancelledError) return; // site was deleted mid-audit
       console.error('[audit/start] free audit failed', error);
       try {
         await markAuditSessionFailed(session.id);

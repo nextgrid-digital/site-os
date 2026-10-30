@@ -1,3 +1,4 @@
+import { AuditCancelledError } from '@/lib/audit/cancel';
 import * as cheerio from 'cheerio';
 import { extractAeoSignals, scoreAeoPage, type AeoPageScan } from '@/lib/aeo/page-scanner';
 import { fetchSitemapUrls } from '@/lib/crawl/sitemap';
@@ -174,7 +175,12 @@ function prioritizeQueue(links: string[], baseUrl: string) {
   }).filter((link) => isSameDomain(baseUrl, link));
 }
 
-export async function crawlWebsite(baseUrl: string, maxPages = 50): Promise<CrawlResult> {
+export async function crawlWebsite(
+  baseUrl: string,
+  maxPages = 50,
+  /** Polled before each page fetch; resolve true to abort the crawl (e.g. site deleted). */
+  shouldAbort?: () => Promise<boolean>
+): Promise<CrawlResult> {
   const origin = new URL(baseUrl).origin;
   const visited = new Set<string>();
   // Dedupe by path: http/https, www/apex and ?query variants of one page all
@@ -193,6 +199,7 @@ export async function crawlWebsite(baseUrl: string, maxPages = 50): Promise<Craw
   const queue = [baseUrl, ...seeded];
 
   while (queue.length > 0 && pages.length < maxPages) {
+    if (shouldAbort && (await shouldAbort())) throw new AuditCancelledError();
     const current = queue.shift()!;
     if (visited.has(current)) continue;
     visited.add(current);
