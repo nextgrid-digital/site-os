@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { CircleAlert } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
@@ -8,12 +8,20 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 const EASE = [0.22, 1, 0.36, 1] as const;
 const ERROR_VISIBLE_MS = 6000;
 
-// Notch geometry per state. Height follows the content (the error row animates its own height).
-const SIZE = {
-  idle: { width: 520, borderRadius: 32 },
-  error: { width: 520, borderRadius: 28 },
-  scanning: { width: 320, borderRadius: 32 },
-} as const;
+const IDLE_MAX = 520;
+const SCANNING_MAX = 320;
+const SCANNING_MIN = 200;
+
+// Notch geometry per state, derived from the space available so the morph is visible
+// at every viewport. Height follows the content (the error row animates its own height).
+function sizeFor(state: 'idle' | 'error' | 'scanning', available: number) {
+  const idle = Math.min(IDLE_MAX, available);
+  if (state === 'scanning') {
+    const w = Math.min(SCANNING_MAX, Math.max(SCANNING_MIN, available * 0.65));
+    return { width: Math.min(w, available), borderRadius: 32 };
+  }
+  return { width: idle, borderRadius: state === 'error' ? 28 : 32 };
+}
 
 function hostOf(raw: string) {
   return (
@@ -34,6 +42,19 @@ export function HeroAuditNotch() {
   const [url, setUrl] = useState('');
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState('');
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [available, setAvailable] = useState(IDLE_MAX);
+
+  // Track the container width so the pill morphs between sizes that fit it.
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const update = () => setAvailable(el.clientWidth);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   // Errors close themselves; a new error restarts the timer.
   useEffect(() => {
@@ -73,11 +94,17 @@ export function HeroAuditNotch() {
     }
   }
 
-  const size = scanning ? SIZE.scanning : error ? SIZE.error : SIZE.idle;
+  const size = sizeFor(
+    scanning ? 'scanning' : error ? 'error' : 'idle',
+    available,
+  );
   const fade = reduce ? { duration: 0 } : { duration: 0.25, ease: EASE };
 
   return (
-    <div className="mx-auto mt-6 flex w-full flex-col items-center gap-3">
+    <div
+      ref={wrapRef}
+      className="mx-auto mt-6 flex w-full flex-col items-center gap-3"
+    >
       <motion.form
         onSubmit={handleSubmit}
         noValidate
@@ -121,7 +148,7 @@ export function HeroAuditNotch() {
               transition={fade}
               className="flex flex-col"
             >
-              <div className="flex h-16 shrink-0 items-center gap-2 pr-2 pl-6">
+              <div className="flex h-16 shrink-0 items-center gap-2 pr-2 pl-5 sm:pl-6">
                 <input
                   type="text"
                   inputMode="url"
@@ -141,7 +168,8 @@ export function HeroAuditNotch() {
                   type="submit"
                   className="h-12 shrink-0 cursor-pointer rounded-full bg-background px-5 text-[15px] font-semibold whitespace-nowrap text-foreground transition-opacity hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-background max-sm:px-4"
                 >
-                  Start free audit
+                  <span className="max-sm:hidden">Start free audit</span>
+                  <span className="sm:hidden">Start audit</span>
                 </button>
               </div>
               <AnimatePresence initial={false}>
@@ -159,7 +187,7 @@ export function HeroAuditNotch() {
                     <p
                       id="hero-audit-error"
                       role="alert"
-                      className="flex items-start gap-2 px-6 pb-4 text-[13px] leading-5 font-medium text-background"
+                      className="flex items-start gap-2 px-5 pb-4 text-[13px] sm:px-6 leading-5 font-medium text-background"
                     >
                       <CircleAlert
                         className="mt-0.5 size-4 shrink-0"

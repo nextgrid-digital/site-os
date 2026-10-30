@@ -132,7 +132,7 @@ export default function HeroSection({
           <div className="block text-balance" data-cid="n27">
             <motion.h2
               variants={introItem}
-              className="block [font-family:LTRemark,_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15"
+              className="block [font-family:LTRemark,_Georgia,_serif] font-medium text-5xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15"
               data-cid="n28"
               data-component="heading"
             >
@@ -143,9 +143,7 @@ export default function HeroSection({
               className="mt-1.5 block text-muted-foreground 2xl:text-lg 2xl:leading-7"
               data-cid="n29"
             >
-              Paste a URL for a free crawl audit — no login required. See how
-              ready every page is for AI answers. Sign in to save sites, test
-              whether AI search cites you, and connect Search Console and GA4.
+              Paste a URL for a free crawl audit, no login required. See how ready every page is for AI answers.
             </motion.p>
           </div>
           <motion.div variants={introItem}>
