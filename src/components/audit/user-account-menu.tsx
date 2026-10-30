@@ -8,7 +8,7 @@ import {
   CreditCard,
   Globe,
   LayoutGrid,
-  Loader2,
+  Loader,
   LogOut,
   UserRound,
   type LucideIcon,
@@ -129,7 +129,7 @@ export function UserAccountMenu({ initials = 'SO' }: { initials?: string } = {})
             className={`${ITEM_CLASS} text-danger-ink hover:bg-danger-ink/10`}
           >
             {signingOut ? (
-              <Loader2 className="size-4 shrink-0 animate-spin" aria-hidden />
+              <Loader className="size-4 shrink-0 animate-spin" aria-hidden />
             ) : (
               <LogOut className="size-4 shrink-0" aria-hidden />
             )}
