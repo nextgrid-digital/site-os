@@ -20,6 +20,14 @@ function fmt(n: number, digits = 0) {
   });
 }
 
+function fmtCompact(n: number) {
+  if (!Number.isFinite(n)) return '—';
+  return n.toLocaleString('en-US', {
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  });
+}
+
 function pct(n: number) {
   return `${(n * 100).toFixed(1)}%`;
 }
@@ -137,7 +145,7 @@ export function buildHeroDashboardFromConnected(
           label: impressions > 0 ? 'Impressions' : 'Views proxy',
           change: impressions > 0 ? 'GSC' : 'Sessions',
           changePositive: true,
-          value: impressions > 0 ? fmt(impressions) : fmt(sessions),
+          value: impressions > 0 ? fmtCompact(impressions) : fmt(sessions),
           chartTitle: impressions > 0 ? 'Impressions by query' : 'Sessions over time',
           unit: 'count',
         },
@@ -194,7 +202,7 @@ export function buildHeroDashboardFromConnected(
           label: 'Impressions',
           change: connected?.gscConnected ? 'GSC' : '—',
           changePositive: true,
-          value: fmt(impressions),
+          value: fmtCompact(impressions),
           chartTitle: 'Impressions by query',
           unit: 'count',
         },

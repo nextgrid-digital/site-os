@@ -42,7 +42,7 @@ function SiteStatusStrip({ status }: { status: string }) {
 
   return (
     <div
-      className="flex h-16 items-center rounded-xl bg-muted px-3"
+      className="flex h-16 items-center px-3"
       aria-hidden="true"
     >
       <p className="text-xs font-medium text-muted-foreground">{label}</p>

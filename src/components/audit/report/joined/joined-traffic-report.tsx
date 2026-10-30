@@ -213,6 +213,7 @@ export function JoinedTrafficReport({
             <>
               <HeroDemoDashboard
                 data={heroData}
+                variant="landing"
                 showBreakdowns={false}
                 chartHint={
                   <InfoTip

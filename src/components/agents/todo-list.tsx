@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Circle, LoaderCircle, X } from 'lucide-react';
+import { Check, Circle, Loader, X } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -38,7 +38,7 @@ function StatusMark({ status, progress }: { status: TodoItemStatus; progress?: n
   if (status === 'in-progress') {
     return (
       <span className="relative grid size-5 shrink-0 place-items-center text-foreground">
-        <LoaderCircle className="size-5 animate-spin" />
+        <Loader className="size-5 animate-spin" />
         {typeof progress === 'number' ? (
           <span className="sr-only">{Math.round(progress)}%</span>
         ) : null}

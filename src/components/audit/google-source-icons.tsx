@@ -41,7 +41,7 @@ function SourceIcon({
       whileTap={reduceMotion ? undefined : { scale: 0.95 }}
       transition={{ type: 'spring', stiffness: 400, damping: 17 }}
       className={cn(
-        'inline-flex size-9 cursor-default items-center justify-center rounded-lg bg-muted',
+        'inline-flex size-9 cursor-default items-center justify-center rounded-lg',
         connected ? '' : 'pointer-events-none opacity-40 grayscale'
       )}
       title={`${label} ${status}`}
