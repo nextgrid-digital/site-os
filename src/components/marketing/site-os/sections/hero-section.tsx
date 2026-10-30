@@ -9,7 +9,7 @@ import ListRow3, { type ListRow3Data } from "../components/list-row3";
 import ListRow4, { type ListRow4Data } from "../components/list-row4";
 import ListRow5, { type ListRow5Data } from "../components/list-row5";
 import ListRow6, { type ListRow6Data } from "../components/list-row6";
-import { HeroAuditCtas } from "../hero-audit-ctas";
+import { HeroAuditNotch } from "../hero-audit-notch";
 import { HeroDemoDashboard } from "../demo/hero-demo-dashboard";
 import {
   TextLink2_cids3,
@@ -168,7 +168,7 @@ export default function HeroSection({
             </motion.p>
           </div>
           <motion.div variants={introItem}>
-            <HeroAuditCtas />
+            <HeroAuditNotch />
           </motion.div>
         </motion.div>
 
@@ -179,6 +179,12 @@ export default function HeroSection({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: EASE, delay: 0.3 }}
         >
+          <div className="mb-3 flex items-baseline justify-between text-xs text-muted-foreground">
+            <span className="tracking-[0.08em] uppercase">
+              What you get · sample data
+            </span>
+            <span className="text-[13px]">Pick a metric</span>
+          </div>
           <HeroDemoDashboard />
 
           <motion.div

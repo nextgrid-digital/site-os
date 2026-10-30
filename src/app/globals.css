@@ -337,3 +337,35 @@
     page-break-inside: avoid;
   }
 }
+
+/* FAQ active-card dashed guide lines */
+.faq-root {
+  --faq-line: rgb(0 0 0 / 0.22);
+}
+.dark .faq-root {
+  --faq-line: rgb(255 255 255 / 0.22);
+}
+.faq-line {
+  position: absolute;
+  pointer-events: none;
+}
+.faq-line-top,
+.faq-line-bottom {
+  left: -48px;
+  right: -48px;
+  height: 0;
+  border-top: 1px dashed var(--faq-line);
+  mask-image: linear-gradient(to right, transparent, #000 48px, #000 calc(100% - 48px), transparent);
+}
+.faq-line-left,
+.faq-line-right {
+  top: -48px;
+  bottom: -48px;
+  width: 0;
+  border-left: 1px dashed var(--faq-line);
+  mask-image: linear-gradient(to bottom, transparent, #000 48px, #000 calc(100% - 48px), transparent);
+}
+.faq-line-top { top: 0; }
+.faq-line-bottom { bottom: 0; }
+.faq-line-left { left: 0; }
+.faq-line-right { right: 0; }

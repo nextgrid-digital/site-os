@@ -1,10 +1,8 @@
-// @ts-nocheck
 "use client";
-import { Accordion } from "@base-ui/react/accordion";
-import MediaCard2, { type MediaCard2Data } from "../components/media-card2";
-import { MediaCard2_cids } from "../_cids";
-import { MediaCard2_styles } from "../_styles";
-const MediaCard2_data: MediaCard2Data[] = [
+import { useEffect, useRef, useState } from "react";
+
+type FaqItem = { id: string; title: string; description: string };
+const FAQ_ITEMS: FaqItem[] = [
     { id: "what-is-site-os", title: "What is Site-OS?", description: "Site-OS turns a website crawl into a scored, commercial audit. Paste a URL to get SEO findings, an AI answer readiness score for every page, and a buyer-moment diagnosis. Sign in to test whether AI search cites you, then connect Search Console and GA4 to fold query, session, and conversion data, including visits from AI tools, into a prioritized growth brief with AI-ready fix prompts." },
     { id: "is-free-really-free", title: "Is the free audit really free?", description: "Yes. The free crawl audit requires no credit card and doesn't expire. It scores your site, flags buyer-moment and architecture gaps, and gives you a top-priority fix list. Connecting Google for the full audit is free too." },
     // { id: "need-gsc-to-start", title: "Do I need Google Search Console to start?", description: "No. Paste any URL and Site-OS runs a full crawl without connecting Google. Search Console and GA4 are optional sources you connect later if you want query, session, and conversion depth layered on top of the crawl findings." },
@@ -29,32 +27,116 @@ const MediaCard2_data: MediaCard2Data[] = [
     // { id: "sponsor-site-os", title: "How do I sponsor Site-OS?", description: "Site-OS isn't sponsorship-funded. If you're interested in a partnership, an agency or reseller plan, or bulk audits across multiple client sites, email support@site-os.app and we'll set it up." },
     { id: "get-help", title: "Where do I get help?", description: "Email support@site-os.app for account, billing, or audit-accuracy questions, or sign in and reach support from inside Your sites." },
 ];
-/** Faq section. */
-export default function FaqSection({ mediaCard2Data = MediaCard2_data } = {}) {
+const FAQ_GROUPS: { title: string; ids: string[] }[] = [
+  { title: "Getting started", ids: ["what-is-site-os", "is-free-really-free", "free-crawl-includes", "paid-audit-adds", "save-free-report", "any-website", "upgrade-after-free"] },
+  { title: "AI search & reports", ids: ["what-is-aeo", "citation-probe", "topic-map", "ai-traffic", "hide-sections", "knowledge-graph", "fix-prompts", "what-is-growth-brief", "operators-client-work"] },
+  { title: "Data & support", ids: ["store-credentials", "crawl-slow-site", "get-help"] },
+];
+
+function FaqRow({ item, open, onToggle }: { item: FaqItem; open: boolean; onToggle: () => void }) {
+  const panelId = `faq-panel-${item.id}`;
   return (
-    <section className="block pt-8" data-cid="n2305" aria-labelledby="faq-heading" id="faq">
-      <div className="block max-w-280 mx-auto py-20 px-8" data-cid="n2306">
-        <div className="block mx-auto max-w-2xl" data-cid="n2307">
-          <div className="block text-balance" data-cid="n2308">
-            <h2 className="block [font-family:LTRemark,_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15" data-cid="n2309" data-component="heading" id="faq-heading">
-              FAQ
+    <div
+      data-open={open}
+      className={`faq-item relative rounded-xl transition-[background-color,box-shadow] duration-300 ${
+        open ? "bg-surface-3 shadow-sm ring-1 ring-border" : ""
+      }`}
+    >
+      {open && (
+        <>
+          <span aria-hidden className="faq-line faq-line-top" />
+          <span aria-hidden className="faq-line faq-line-bottom" />
+          <span aria-hidden className="faq-line faq-line-left" />
+          <span aria-hidden className="faq-line faq-line-right" />
+        </>
+      )}
+      <h3>
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={onToggle}
+          className="flex w-full cursor-pointer items-center justify-between gap-4 px-4 py-5 text-left font-medium"
+        >
+          <span>{item.title}</span>
+          <svg
+            aria-hidden
+            viewBox="0 0 24 24"
+            className={`size-5 shrink-0 text-muted-foreground transition-transform duration-300 ${open ? "rotate-45" : ""}`}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+          >
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </button>
+      </h3>
+      <div
+        id={panelId}
+        role="region"
+        className={`grid transition-[grid-template-rows] duration-300 ease-out ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+      >
+        <div className="overflow-hidden">
+          <p className="px-4 pb-5 text-sm leading-6 text-muted-foreground">{item.description}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Faq section. */
+export default function FaqSection({ items = FAQ_ITEMS } = {}) {
+  const [openId, setOpenId] = useState<string | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onDown = (e: PointerEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpenId(null);
+    };
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, []);
+
+  return (
+    <section className="block pt-8" aria-labelledby="faq-heading" id="faq">
+      <div className="mx-auto block max-w-280 px-8 py-20">
+        <div className="mx-auto block max-w-2xl">
+          <div className="block text-balance text-center">
+            <h2 className="block [font-family:LTRemark,_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15" id="faq-heading">
+              Frequently Asked Questions
             </h2>
-            <p className="block mt-1.5 text-muted-foreground 2xl:text-lg 2xl:leading-7" data-cid="n2310">
+            <p className="mt-1.5 block text-muted-foreground 2xl:text-lg 2xl:leading-7">
               Quick answers about free audits, connected audits, findings, and sign-in.
             </p>
           </div>
-          <div className="block mt-10 mx-auto w-full max-w-2xl" data-cid="n2312">
-            <Accordion.Root data-cid="n2313" className="border-t border-solid border-t-surface-4 border-b border-b-surface-4 block w-full" aria-labelledby="faq-heading">
-              {mediaCard2Data.map((d, i) => <MediaCard2 key={d.id} d={d} cids={MediaCard2_cids[i]} styles={MediaCard2_styles[i]} />)}
-            </Accordion.Root>
-            <p className="block mt-4 text-muted-foreground text-xs leading-4 text-center" data-cid="n2414">
-              {"Still have questions? "}
-              <a className="inline text-foreground cursor-pointer hover:underline" data-cid="n2415" data-component="link" href="/login">
-                Sign in to audit
-              </a>
-              .
-            </p>
+          <div ref={ref} className="faq-root mt-12 w-full space-y-10">
+            {FAQ_GROUPS.map((g) => {
+              const rows = g.ids.map((id) => items.find((i) => i.id === id)).filter(Boolean) as FaqItem[];
+              return (
+                <div key={g.title}>
+                  <h3 className="mb-2 px-1 text-lg font-medium">{g.title}</h3>
+                  <div className="space-y-1">
+                    {rows.map((item) => (
+                      <FaqRow
+                        key={item.id}
+                        item={item}
+                        open={openId === item.id}
+                        onToggle={() => setOpenId(openId === item.id ? null : item.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
+          <p className="mt-8 block text-center text-xs leading-4 text-muted-foreground">
+            {"Still have questions? "}
+            <a className="inline cursor-pointer text-foreground hover:underline" href="/login">
+              Sign in to audit
+            </a>
+            .
+          </p>
         </div>
       </div>
     </section>
