@@ -96,14 +96,19 @@ function Racer({ from, value }: { from: number; value: number }) {
 
 /** Visitors and revenue race to their numbers and draw their trend, on a loop. */
 export function CrawlFindingsDemo() {
-  const { ref, cycle } = useLoop(LOOP_MS);
+  const { ref, cycle, hold, replay, bind } = useLoop(LOOP_MS);
 
   return (
-    <div ref={ref} className="flex w-full max-w-sm gap-2">
+    <div ref={ref} {...bind} className="flex w-full max-w-sm gap-2">
       {METRICS.map((m) => (
-        <div
+        <button
+          type="button"
           key={m.id}
-          className="flex min-w-0 flex-1 flex-col justify-between gap-3 rounded-[14px] border border-solid border-surface bg-surface-3 p-2.5 text-xs leading-4"
+          onClick={() => {
+            hold();
+            replay();
+          }}
+          className="flex min-w-0 flex-1 cursor-pointer flex-col justify-between gap-3 rounded-[14px] border border-solid border-surface bg-surface-3 p-2.5 text-left text-xs leading-4 transition-colors duration-200 hover:border-primary/60 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
         >
           <span className="flex min-w-0 items-baseline justify-between gap-1 text-[0.6875rem] font-medium leading-4">
             <span className="min-w-0 truncate text-muted-foreground">{m.label}</span>
@@ -115,7 +120,7 @@ export function CrawlFindingsDemo() {
             </span>
             <Sparkline key={`spark-${cycle}`} trend={m.trend} />
           </span>
-        </div>
+        </button>
       ))}
     </div>
   );

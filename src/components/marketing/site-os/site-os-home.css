@@ -352,3 +352,8 @@
     min-width: 0;
   }
 }
+
+/* Feature demos keep the brand green in dark mode too (the page-wide primary goes near-white there). */
+.dark .site-os-home #how-it-works {
+  --primary: oklch(0.565 0.11 164.584);
+}
