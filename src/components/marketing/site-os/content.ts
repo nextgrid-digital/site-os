@@ -66,7 +66,7 @@ export const products: ProductsItem[] = [
       "Every crawled page scored on how easily an AI answer can find, trust, and quote it.",
     stat: "68",
     imgSrc: "/assets/site/images/2db9318bbc2f.png",
-    description: "AI answer readiness",
+    description: "AEO score",
     description2:
       "Score every page on schema, direct answers, and quotable structure, then see the costliest gaps first.",
     span: 2,

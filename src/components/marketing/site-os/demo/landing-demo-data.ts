@@ -26,6 +26,8 @@ export type MetricDef = {
   change: string;
   changePositive: boolean;
   value: string;
+  /** Numeric form of `value` for the animated counter; omitted -> static text. */
+  amount?: number;
   chartTitle: string;
   unit: 'count' | 'percent' | 'currency' | 'duration';
 };
@@ -37,6 +39,7 @@ export const METRICS: MetricDef[] = [
     change: '+18.4%',
     changePositive: true,
     value: '32.6K',
+    amount: 32600,
     chartTitle: 'Visitors over time',
     unit: 'count',
   },
@@ -46,6 +49,7 @@ export const METRICS: MetricDef[] = [
     change: '+15.2%',
     changePositive: true,
     value: '33.4K',
+    amount: 33400,
     chartTitle: 'Visits over time',
     unit: 'count',
   },
@@ -55,6 +59,7 @@ export const METRICS: MetricDef[] = [
     change: '+22.1%',
     changePositive: true,
     value: '68.8K',
+    amount: 68800,
     chartTitle: 'Views over time',
     unit: 'count',
   },
@@ -64,6 +69,7 @@ export const METRICS: MetricDef[] = [
     change: '−6.3%',
     changePositive: true,
     value: '29%',
+    amount: 0.29,
     chartTitle: 'Bounce rate over time',
     unit: 'percent',
   },
@@ -73,6 +79,7 @@ export const METRICS: MetricDef[] = [
     change: '+9.8%',
     changePositive: true,
     value: '1m 56s',
+    amount: 116,
     chartTitle: 'Session time over time',
     unit: 'duration',
   },
@@ -82,6 +89,7 @@ export const METRICS: MetricDef[] = [
     change: '130 paid',
     changePositive: false,
     value: '$54.4K',
+    amount: 54400,
     chartTitle: 'Revenue over time',
     unit: 'currency',
   },

@@ -11,6 +11,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { SpeedCounter } from '@/components/motion/speed-counter';
 import CardTitleIcon, { type CardTitleIconKind } from '../components/card-title-icon';
 import Icon3 from '../svgs/svg-icon3';
 import Icon4 from '../svgs/svg-icon4';
@@ -24,6 +25,7 @@ import {
   pinForPoint,
   type ChartPoint,
   type HeroDashboardData,
+  type MetricDef,
   type MetricId,
   type PagesTab,
   type PinPayload,
@@ -187,7 +189,11 @@ export function HeroDemoDashboard({
                             }`
                       }
                     >
-                      {m.value}
+                      {landing && selected && m.amount !== undefined ? (
+                        <MetricValue metric={m} />
+                      ) : (
+                        m.value
+                      )}
                     </span>
                   </div>
                 </div>
@@ -614,5 +620,38 @@ function BreakdownCard({
       </div>
       <div className="block min-w-0 px-4 pb-4 max-md:px-3 max-md:pb-3">{children}</div>
     </div>
+  );
+}
+
+const COMPACT: Intl.NumberFormatOptions = { notation: 'compact', maximumFractionDigits: 1 };
+const FORMAT_BY_UNIT: Record<MetricDef['unit'], Intl.NumberFormatOptions | undefined> = {
+  count: COMPACT,
+  percent: { style: 'percent' },
+  currency: { ...COMPACT, style: 'currency', currency: 'USD' },
+  duration: undefined,
+};
+const MINUTES: Intl.NumberFormatOptions = { style: 'unit', unit: 'minute', unitDisplay: 'narrow' };
+const SECONDS: Intl.NumberFormatOptions = { style: 'unit', unit: 'second', unitDisplay: 'narrow' };
+
+/** Only the selected tile mounts a counter, so a click races its digits and idle tiles stay plain text. */
+function MetricValue({ metric }: { metric: MetricDef }) {
+  const amount = metric.amount ?? 0;
+  if (metric.unit === 'duration') {
+    return (
+      <span className="inline-flex gap-[0.5ch]">
+        <SpeedCounter value={Math.floor(amount / 60)} format={MINUTES} locale="en-US" animateOnMount />
+        <SpeedCounter value={Math.round(amount % 60)} format={SECONDS} locale="en-US" animateOnMount />
+      </span>
+    );
+  }
+  return (
+    <SpeedCounter
+      value={amount}
+      format={FORMAT_BY_UNIT[metric.unit]}
+      locale="en-US"
+      animateOnMount
+      spins={1}
+      duration={1.2}
+    />
   );
 }

@@ -121,3 +121,52 @@ export function SitesIcon(props: SVGProps<SVGSVGElement>) {
     <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>{/* Icon from Unicons Monochrome by Iconscout - https://github.com/Iconscout/unicons/blob/master/LICENSE */}<path fill="currentColor" d="M12 12.3L3.5 7.05L12 1.8l8.5 5.25z" /><path fill="currentColor" d="M12 22.2v-9.9l8.5-5.25v9.9z" opacity=".25" /><path fill="currentColor" d="m12 22.2l-8.5-5.25v-9.9L12 12.3z" opacity=".5" /></svg>
   )
 }
+
+
+export function ChatgptIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48" {...props}>{/* Icon from Arcticons by Donnnno - https://creativecommons.org/licenses/by-sa/4.0/ */}<path fill="none" stroke="currentColor" strokeLinejoin="round" d="M18.38 27.94v-14.4l11.19-6.46c6.2-3.58 17.3 5.25 12.64 13.33" /><path fill="none" stroke="currentColor" strokeLinejoin="round" d="m18.38 20.94l12.47-7.2l11.19 6.46c6.2 3.58 4.1 17.61-5.23 17.61" /><path fill="none" stroke="currentColor" strokeLinejoin="round" d="m24.44 17.44l12.47 7.2v12.93c0 7.16-13.2 12.36-17.86 4.28" /><path fill="none" stroke="currentColor" strokeLinejoin="round" d="M30.5 21.2v14.14L19.31 41.8c-6.2 3.58-17.3-5.25-12.64-13.33" /><path fill="none" stroke="currentColor" strokeLinejoin="round" d="m30.5 27.94l-12.47 7.2l-11.19-6.46c-6.21-3.59-4.11-17.61 5.22-17.61" /><path fill="none" stroke="currentColor" strokeLinejoin="round" d="m24.44 31.44l-12.47-7.2V11.31c0-7.16 13.2-12.36 17.86-4.28" /></svg>
+  )
+}
+
+
+export function GeminiIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>{/* Icon from Remix Icon by Remix Design - https://github.com/cyberalien/RemixIcon/blob/master/License */}<path fill="currentColor" d="M24 12.024c-6.437.388-11.59 5.539-11.977 11.976h-.047C11.588 17.563 6.436 12.412 0 12.024v-.047C6.437 11.588 11.588 6.437 11.976 0h.047c.388 6.437 5.54 11.588 11.977 11.977z" /></svg>
+  )
+}
+
+
+export function ClaudeIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>{/* Icon from Meteor Icons by zkreations - https://github.com/zkreations/icons/blob/main/LICENSE */}<path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m4 6l8 6M2 12h10m-8 6l8-6m-5 8l5-8m5 8l-5-8m8 6l-8-6m10 2l-10-2m10-2l-10 2m7-8l-7 8M7 2l5 10m2-9l-2 9m0 0l-1 10" /></svg>
+  )
+}
+
+
+export function CursorIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>{/* Icon from Remix Icon by Remix Design - https://github.com/cyberalien/RemixIcon/blob/master/License */}<path fill="currentColor" d="M21.121 6.33L12.45 1.353a.9.9 0 0 0-.9 0L2.879 6.33a.75.75 0 0 0-.379.652v10.036c0 .27.144.518.379.652l8.671 4.977c.278.16.622.16.9 0l8.672-4.977a.75.75 0 0 0 .378-.652V6.982a.75.75 0 0 0-.379-.652m-.544 1.054l-8.371 14.414c-.057.097-.206.057-.206-.055v-9.438a.53.53 0 0 0-.266-.458L3.512 7.128c-.097-.056-.057-.204.056-.204H20.31c.237 0 .386.256.267.46" /></svg>
+  )
+}
+
+
+export function GlobeIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>{/* Icon from Boxicons by Boxicons - https://github.com/box-icons/boxicons-core/blob/main/LICENSE */}<path fill="currentColor" d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10s10-4.49 10-10S17.51 2 12 2m0 18c-4.41 0-8-3.59-8-8c0-.35.03-.7.08-1.04q.18.09.42.09c.83-.03 1.72.18 2 .45s.72 1.29 1 2.25s.67 1.64.88 1.5s.43-.48.5-.75c.07-.28.35-.73.62-1c.28-.28.73-.53 1.01-.57s.61.03.74.15s.27.38.33.57c.05.19.23.39.39.45c.16.05.34.39.41.74c.06.35.22.75.35.87s.36.24.51.26s.19-.18.08-.43c-.11-.26-.05-.43.13-.38s.5-.02.72-.17c.22-.14.38-.44.35-.67c-.02-.23-.15-.51-.29-.63c-.13-.12-.24-.32-.24-.45s.17-.27.37-.31s.65-.28 1.01-.55s.73-.74.82-1.06s.08-.74-.01-.95s-.13-.66-.07-1.02c.06-.35.2-.43.32-.18c.11.26.3.41.4.33c.11-.07.19-.45.18-.82s.31-1.24.71-1.91c.05-.08.08-.16.1-.24A7.98 7.98 0 0 1 20 12c0 4.41-3.59 8-8 8" /><path fill="currentColor" d="M13.48 16.93c-.2-.16-.52-.4-.72-.54c-.19-.13-.45-.24-.57-.24s-.18.11-.13.25s.2.36.34.5l.5.5c.14.14.35.28.47.32s.32.09.45.11c.13.03.26-.09.29-.27c.03-.17-.01-.32-.1-.33c-.09 0-.33-.14-.53-.31Zm4.09-7.43c-.23.56-.41 1.24-.41 1.51s.16.26.35-.03s.5-.81.68-1.16s.28-.78.2-.97s-.2-.35-.27-.35s-.32.44-.55 1m-1.17 5.9c-.14-.02-.42.14-.62.36c-.21.22-.54.51-.75.65s-.32.39-.26.56c.07.17.34.32.62.34c.28.01.65-.22.84-.51s.35-.72.38-.94c.02-.23-.07-.43-.21-.45Z" /></svg>
+  )
+}
+
+
+export function PdfIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>{/* Icon from BoxIcons v2 by Boxicons - https://github.com/box-icons/boxicons/blob/main/LICENSE */}<path d="M8.267 14.68c-.184 0-.308.018-.372.036v1.178c.076.018.171.023.302.023c.479 0 .774-.242.774-.651c0-.366-.254-.586-.704-.586zm3.487.012c-.2 0-.33.018-.407.036v2.61c.077.018.201.018.313.018c.817.006 1.349-.444 1.349-1.396c.006-.83-.479-1.268-1.255-1.268z" fill="currentColor" /><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM9.498 16.19c-.309.29-.765.42-1.296.42a2.23 2.23 0 0 1-.308-.018v1.426H7v-3.936A7.558 7.558 0 0 1 8.219 14c.557 0 .953.106 1.22.319c.254.202.426.533.426.923c-.001.392-.131.723-.367.948zm3.807 1.355c-.42.349-1.059.515-1.84.515c-.468 0-.799-.03-1.024-.06v-3.917A7.947 7.947 0 0 1 11.66 14c.757 0 1.249.136 1.633.426c.415.308.675.799.675 1.504c0 .763-.279 1.29-.663 1.615zM17 14.77h-1.532v.911H16.9v.734h-1.432v1.604h-.906V14.03H17v.74zM14 9h-1V4l5 5h-4z" fill="currentColor" /></svg>
+  )
+}
+
+
+export function MappingIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16" {...props}>{/* Icon from OpenSearch UI by OpenSearch Contributors - https://github.com/opensearch-project/oui/blob/main/LICENSE.txt */}<path fill="currentColor" d="M8 8H4.915a1.5 1.5 0 1 1 0-1H8V2.5A1.5 1.5 0 0 1 9.5 1h2.585a1.5 1.5 0 1 1 0 1H9.5a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h2.585a1.5 1.5 0 1 1 0 1H9.5A1.5 1.5 0 0 1 8 12.5zM3.5 3a1.5 1.5 0 1 1 0-3a1.5 1.5 0 0 1 0 3m0 12a1.5 1.5 0 1 1 0-3a1.5 1.5 0 0 1 0 3m10-6a1.5 1.5 0 1 1 0-3a1.5 1.5 0 0 1 0 3" /></svg>
+  )
+}

@@ -2,7 +2,11 @@ import { products as productsContent } from "../content";
 import { ProductHeader } from "../components/product-header";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 // Literal class names so Tailwind can see them.
-const SPAN_CLASS = { 2: "md:col-span-2", 3: "md:col-span-3" } as const;
+// Tablets get two columns, desktops three. A 3-wide tile fills the row at both.
+const SPAN_CLASS = {
+  2: "md:col-span-2",
+  3: "md:col-span-2 lg:col-span-3",
+} as const;
 
 /** Product Grid section. */
 export default function ProductGridSection({
@@ -32,7 +36,7 @@ export default function ProductGridSection({
         </div>
         <div className="block mt-12" data-cid="n468">
           {/* Mobile: horizontal swipe row. md+: grid. */}
-          <BentoGrid className="mx-auto">
+          <BentoGrid className="mx-auto md:grid-cols-2 md:grid-flow-dense lg:grid-cols-3">
             {products.map((item, i) => (
               <BentoGridItem
                 key={i}
@@ -40,16 +44,8 @@ export default function ProductGridSection({
                 title={item.description}
                 description={item.description2}
                 header={
-                  <div className="relative h-36 shrink-0 overflow-hidden rounded-lg bg-neutral-100 dark:bg-neutral-900">
-                    <img
-                      src={item.imgSrc}
-                      alt=""
-                      loading="lazy"
-                      className="absolute inset-0 h-full w-full object-cover [filter:blur(8px)] [scale:1.1] transition-transform duration-500 group-hover/bento:[scale:1.18]"
-                    />
-                    <div className="relative z-10 flex h-full items-center justify-center overflow-hidden px-4 py-2">
-                      <ProductHeader variant={item.variant} />
-                    </div>
+                  <div key={item.variant} className="@container relative flex min-h-44 shrink-0 items-center justify-center overflow-hidden p-3 md:h-44">
+                    <ProductHeader variant={item.variant} />
                   </div>
                 }
                 className={item.span ? SPAN_CLASS[item.span] : ""}
