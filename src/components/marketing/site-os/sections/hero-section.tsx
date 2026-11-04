@@ -6,6 +6,7 @@ import ListRow3, { type ListRow3Data } from "../components/list-row3";
 import ListRow4, { type ListRow4Data } from "../components/list-row4";
 import ListRow5, { type ListRow5Data } from "../components/list-row5";
 import ListRow6, { type ListRow6Data } from "../components/list-row6";
+import CardTitleIcon, { type CardTitleIconKind } from "../components/card-title-icon";
 import { HeroAuditNotch } from "../hero-audit-notch";
 import { HeroDemoDashboard } from "../demo/hero-demo-dashboard";
 import {
@@ -125,16 +126,19 @@ const H3_CLASS =
   "min-w-0 truncate text-[clamp(0.875rem,0.82rem+0.2vw,1rem)] font-medium leading-[1.3] tracking-[-0.005em]";
 
 /** Card header with a real heading element for correct semantics and consistent type. */
-function CardHeader({ title }: { title: string }) {
+function CardHeader({ title, icon }: { title: string; icon: CardTitleIconKind }) {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[24px] items-center gap-x-3 gap-y-2 rounded-tl-md rounded-tr-md px-4 pt-5 pb-4 [grid-auto-rows:min-content] max-md:grid-cols-1 max-md:grid-rows-[auto_24px] max-md:items-start max-md:gap-x-1 max-md:px-3 max-md:pt-4 max-md:pb-3">
-      <h3 className={H3_CLASS}>{title}</h3>
+      <div className="flex min-w-0 items-center gap-2">
+        <CardTitleIcon kind={icon} />
+        <h3 className={H3_CLASS}>{title}</h3>
+      </div>
     </div>
   );
 }
 
 const CARD_CLASS =
-  "flex h-full flex-col rounded-[14px] border border-solid border-surface bg-surface-3 text-sm leading-5";
+  "group/card flex h-full flex-col rounded-[14px] border border-solid border-surface bg-surface-3 text-sm leading-5";
 
 /** Hero section — the page's lead block. */
 export default function HeroSection({
@@ -217,7 +221,7 @@ export default function HeroSection({
               className={CARD_CLASS}
               data-cid="n261"
             >
-              <CardHeader title="Locations" />
+              <CardHeader title="Locations" icon="locations" />
               <div className="block min-w-0 px-4 pb-4 max-md:px-3 max-md:pb-3">
                 <ul className="flex h-40 list-outside flex-col [list-style-type:none]">
                   {listRow3Data.map((d, i) => (
@@ -233,7 +237,7 @@ export default function HeroSection({
             </motion.div>
 
             <motion.div variants={cardVariants} {...hoverProps} className={CARD_CLASS}>
-              <CardHeader title="Devices" />
+              <CardHeader title="Devices" icon="devices" />
               <div className="block min-w-0 px-4 pb-4 max-md:px-3 max-md:pb-3">
                 <ul className="flex list-outside flex-col [list-style-type:none]">
                   {listRow4Data.map((d, i) => (
@@ -249,7 +253,7 @@ export default function HeroSection({
             </motion.div>
 
             <motion.div variants={cardVariants} {...hoverProps} className={CARD_CLASS}>
-              <CardHeader title="Google Search" />
+              <CardHeader title="Google Search" icon="search" />
               <div className="block min-w-0 px-4 pb-4 max-md:px-3 max-md:pb-3">
                 <ul className="flex h-32 list-outside flex-col [list-style-type:none]">
                   {listRow5Data.map((d, i) => (
@@ -265,7 +269,7 @@ export default function HeroSection({
             </motion.div>
 
             <motion.div variants={cardVariants} {...hoverProps} className={CARD_CLASS}>
-              <CardHeader title="Events" />
+              <CardHeader title="Events" icon="events" />
               <div className="block min-w-0 px-4 pb-4 max-md:px-3 max-md:pb-3">
                 <ul className="flex h-32 list-outside flex-col [list-style-type:none]">
                   {listRow6Data.map((d, i) => (

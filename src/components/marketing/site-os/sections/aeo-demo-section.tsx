@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import AeoCallouts, { type DemoCallout } from "./aeo-demo-callouts";
 import { AeoScoreGauge } from "@/components/audit/report/aeo/aeo-score-gauge";
 import { bandFor, SCORE_BANDS } from "@/lib/aeo/score-bands";
 import { EASE_OUT, SPRING_LAYOUT, SPRING_PRESS } from "@/lib/ease";
@@ -29,6 +30,106 @@ const COVERAGE = {
   thin: { label: "Thin", dot: "bg-danger-ink" },
 } as const;
 
+const CALLOUTS: Record<TabId, DemoCallout[]> = {
+  readiness: [
+    {
+      id: "gauge",
+      target: "gauge",
+      side: "left",
+      dy: -48,
+      title: "One score for the site",
+      body: "The average AI readiness of every page, so you know where you stand at a glance.",
+    },
+    {
+      id: "bars",
+      target: "bars",
+      side: "left",
+      dy: 56,
+      title: "See where pages cluster",
+      body: "Pages grouped by score. Click a bar to list only those pages.",
+    },
+    {
+      id: "pages",
+      target: "pages",
+      side: "right",
+      dy: -40,
+      at: 0.4,
+      title: "Exact fixes, page by page",
+      body: "Open any page to see which checks fail and what to change.",
+    },
+    {
+      id: "selected-bar",
+      target: "selected-bar",
+      side: "left",
+      dy: 64,
+      title: "Filter applied",
+      body: "The list now shows only this band. Click the bar again to clear it.",
+    },
+    {
+      id: "checks",
+      target: "checks",
+      side: "right",
+      dy: 72,
+      title: "Every failure has a fix",
+      body: "Failed checks say exactly what to change. Passed checks show what is already working.",
+    },
+  ],
+  topics: [
+    {
+      id: "topics",
+      target: "topics",
+      side: "left",
+      dy: -48,
+      at: 0.35,
+      title: "Your topic coverage",
+      body: "Solid cards are topics you cover. Dashed cards are topics AI search expects that you miss.",
+    },
+    {
+      id: "detail",
+      target: "detail",
+      side: "right",
+      dy: 48,
+      title: "Know what to write next",
+      body: "Select a card to see its pages and score, or the page to publish for a missing topic.",
+    },
+    {
+      id: "gap",
+      target: "gap",
+      side: "left",
+      dy: 40,
+      title: "Missing topics are your opening",
+      body: "No page covers these, so AI search has nothing of yours to quote on them.",
+    },
+  ],
+  probe: [
+    {
+      id: "run",
+      target: "run",
+      side: "right",
+      dy: 64,
+      title: "Test real AI answers",
+      body: "Ask sample buyer questions and see whether AI search cites you.",
+    },
+    {
+      id: "results",
+      target: "results",
+      side: "left",
+      dy: 56,
+      at: 0.4,
+      title: "See who is cited instead",
+      body: "Every miss names the sites AI cited, so you know who to outrank.",
+    },
+    {
+      id: "summary",
+      target: "summary",
+      side: "right",
+      dy: -8,
+      title: "Your citation rate",
+      body: "The share of answers that cited your site. Re-run to see it change.",
+    },
+  ],
+};
+
 const CARD = "rounded-[14px] border border-solid border-surface bg-surface-3";
 
 function Readiness() {
@@ -50,12 +151,14 @@ function Readiness() {
   return (
     <div className="grid gap-6 lg:h-full lg:grid-cols-[16rem_1fr] lg:grid-rows-[minmax(0,1fr)]">
       <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-6 lg:mx-0 lg:w-64 lg:max-w-none">
-        <AeoScoreGauge score={avg} label="AI readiness" />
+        <div data-aeo-target="gauge">
+          <AeoScoreGauge score={avg} label="AI readiness" />
+        </div>
         <div className="w-full">
           <p className="mb-3 text-xs font-medium text-muted-foreground">
             Pages by score. Click a bar to filter.
           </p>
-          <div className="flex gap-2" role="group" aria-label="Pages by readiness score">
+          <div data-aeo-target="bars" className="flex gap-2" role="group" aria-label="Pages by readiness score">
             {counts.map((b) => {
               const selected = band === b.id;
               return (
@@ -63,6 +166,7 @@ function Readiness() {
                   key={b.id}
                   type="button"
                   aria-pressed={selected}
+                  data-aeo-target={selected ? "selected-bar" : undefined}
                   aria-label={`${b.label}: ${b.count} pages`}
                   onClick={() => setBand(selected ? null : b.id)}
                   className="flex min-w-0 flex-1 flex-col gap-1.5 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -92,7 +196,7 @@ function Readiness() {
         </div>
       </div>
 
-      <ul className="space-y-2 lg:h-full lg:overflow-y-auto lg:p-1">
+      <ul data-aeo-target="pages" data-aeo-fit className="space-y-2 lg:h-full lg:overflow-y-auto lg:p-1">
         {pages.map((p) => {
           const isOpen = open === p.path;
           const failed = p.checks.filter((c) => !c.passed);
@@ -121,7 +225,7 @@ function Readiness() {
                     transition={{ duration: reduced ? 0 : 0.28, ease: EASE_OUT }}
                     className="overflow-hidden"
                   >
-                    <ul className="space-y-1.5 px-3 pb-3 text-xs leading-5">
+                    <ul data-aeo-target="checks" className="space-y-1.5 px-3 pb-3 text-xs leading-5">
                       {p.checks.map((c) => (
                         <li key={c.label} className="flex gap-2">
                           <span
@@ -161,7 +265,7 @@ function TopicMap() {
   return (
     <div className="grid gap-4 lg:h-full lg:grid-cols-[1.4fr_1fr] lg:grid-rows-[minmax(0,1fr)]">
       <div className="lg:h-full lg:overflow-y-auto lg:p-1">
-        <ul className="grid grid-cols-2 gap-2">
+        <ul data-aeo-target="topics" className="grid grid-cols-2 gap-2">
           {DEMO_TOPICS.map((t) => {
             const size = t.paths.length >= 3 ? "col-span-2" : "";
             return (
@@ -194,8 +298,8 @@ function TopicMap() {
               </li>
             );
           })}
-          {DEMO_GAPS.map((g) => (
-            <li key={g.id}>
+          {DEMO_GAPS.map((g, i) => (
+            <li key={g.id} data-aeo-target={i === 0 ? "gap" : undefined}>
               <motion.button
                 type="button"
                 aria-pressed={isGap(g)}
@@ -216,7 +320,7 @@ function TopicMap() {
         </ul>
       </div>
 
-      <div className={cn(CARD, "min-h-48 overflow-y-auto p-4 lg:h-full")} aria-live="polite">
+      <div data-aeo-target="detail" data-aeo-fit className={cn(CARD, "min-h-48 overflow-y-auto p-4 lg:h-full")} aria-live="polite">
         <AnimatePresence mode="wait" initial={false}>
           {sel?.kind === "topic" ? (
             <motion.div
@@ -302,6 +406,7 @@ function Probe() {
         </p>
         <button
           type="button"
+          data-aeo-target="run"
           onClick={start}
           disabled={run.status === "running"}
           className="rounded-lg bg-foreground px-3.5 py-2 text-sm font-medium text-background outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
@@ -309,7 +414,7 @@ function Probe() {
           {run.status === "running" ? "Asking…" : run.status === "done" ? "Run again" : "Run sample probe"}
         </button>
       </div>
-      <ul className="mt-4 space-y-2">
+      <ul data-aeo-target="results" className="mt-4 space-y-2">
         {DEMO_PROBES.map((p, i) => {
           const revealed = i < run.shown;
           return (
@@ -340,7 +445,7 @@ function Probe() {
         })}
       </ul>
       {run.shown > 0 ? (
-        <p className="mt-4 text-sm">
+        <p data-aeo-target="summary" className="mt-4 text-sm">
           <span className="font-mono text-2xl font-semibold tabular-nums">
             {Math.round((cited / run.shown) * 100)}%
           </span>{" "}
@@ -356,6 +461,7 @@ function Probe() {
 export default function AeoDemoSection() {
   const reduced = useReducedMotion();
   const [tab, setTab] = useState<TabId>("readiness");
+  const card = useRef<HTMLDivElement>(null);
 
   return (
     <section className="block pt-8" id="aeo" aria-labelledby="aeo-heading">
@@ -373,7 +479,7 @@ export default function AeoDemoSection() {
           </p>
         </div>
 
-        <div className={cn(CARD, "mx-auto mt-10 max-w-4xl p-3 sm:p-6 md:mt-12")}>
+        <div ref={card} className={cn(CARD, "relative mx-auto mt-10 max-w-4xl p-3 sm:p-6 md:mt-12")}>
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <div role="tablist" aria-label="AEO demo" className="flex gap-1 rounded-full bg-tint p-1 max-sm:w-full">
               {TABS.map((t) => (
@@ -417,6 +523,8 @@ export default function AeoDemoSection() {
               </motion.div>
             </AnimatePresence>
           </div>
+
+          <AeoCallouts root={card} items={CALLOUTS[tab]} />
         </div>
 
         <div className="mt-8 text-center max-sm:[&>a]:w-full max-sm:[&>a]:justify-center">

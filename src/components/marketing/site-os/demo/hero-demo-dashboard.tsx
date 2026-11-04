@@ -11,6 +11,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import CardTitleIcon, { type CardTitleIconKind } from '../components/card-title-icon';
 import Icon3 from '../svgs/svg-icon3';
 import Icon4 from '../svgs/svg-icon4';
 import Icon5 from '../svgs/svg-icon5';
@@ -297,6 +298,7 @@ export function HeroDemoDashboard({
         <div className="mb-4 grid w-full grid-cols-1 items-start gap-4 md:grid-cols-2">
           <BreakdownCard
             title="Pages"
+            icon="pages"
             tabs={
               <div
                 className="flex flex-wrap items-center gap-3 text-xs font-medium leading-4"
@@ -339,6 +341,7 @@ export function HeroDemoDashboard({
 
           <BreakdownCard
             title="Sources"
+            icon="sources"
             tabs={
               <div
                 className="flex flex-wrap items-center gap-3 text-xs font-medium leading-4"
@@ -589,17 +592,22 @@ function TabButton({
 
 function BreakdownCard({
   title,
+  icon,
   tabs,
   children,
 }: {
   title: string;
+  icon: CardTitleIconKind;
   tabs: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <div className="flex flex-col rounded-[14px] border border-solid border-surface bg-surface-3 text-sm leading-5">
+    <div className="group/card flex flex-col rounded-[14px] border border-solid border-surface bg-surface-3 text-sm leading-5">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[24px] items-center gap-x-3 gap-y-2 rounded-tl-md rounded-tr-md px-4 pt-5 pb-4 [grid-auto-rows:min-content] max-md:grid-cols-1 max-md:grid-rows-[19.25px_24px] max-md:items-start max-md:gap-x-1 max-md:px-3 max-md:pt-4 max-md:pb-3">
-        <div className="block min-w-0 font-medium leading-[1.1875rem]">{title}</div>
+        <div className="flex min-w-0 items-center gap-2 font-medium leading-[1.1875rem]">
+          <CardTitleIcon kind={icon} />
+          {title}
+        </div>
         <div className="flex min-w-0 max-w-full flex-wrap items-center justify-end gap-3 max-md:justify-start max-md:gap-2">
           {tabs}
         </div>
