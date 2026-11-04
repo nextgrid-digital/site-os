@@ -123,16 +123,16 @@ export default function HeroSection({
         data-cid="n25"
       >
         <motion.div
-          className="mx-auto block max-w-2xl text-center"
+          className="mx-auto block max-w-3xl text-center"
           data-cid="n26"
           variants={introVariants}
           initial={reduce ? false : "hidden"}
           animate="show"
         >
-          <div className="block text-balance" data-cid="n27">
+          <div className="flex flex-col items-center gap-4 text-balance md:gap-5" data-cid="n27">
             <motion.h2
               variants={introItem}
-              className="block [font-family:LTRemark,_Georgia,_serif] font-medium text-5xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15"
+              className="block [font-family:LTRemark,_Georgia,_serif] text-3xl font-medium leading-[1.15] tracking-tight sm:text-4xl md:text-5xl 2xl:text-6xl"
               data-cid="n28"
               data-component="heading"
             >
@@ -140,13 +140,13 @@ export default function HeroSection({
             </motion.h2>
             <motion.p
               variants={introItem}
-              className="mt-1.5 block text-muted-foreground 2xl:text-lg 2xl:leading-7"
+              className="max-w-xl text-sm leading-6 text-muted-foreground md:text-base md:leading-7 2xl:text-lg"
               data-cid="n29"
             >
               Paste a URL for a free crawl audit, no login required. See how ready every page is for AI answers.
             </motion.p>
           </div>
-          <motion.div variants={introItem}>
+          <motion.div variants={introItem} className="mx-auto max-w-2xl">
             <HeroAuditNotch />
           </motion.div>
         </motion.div>
