@@ -14,7 +14,7 @@ export default function ProductGridSection({
         <div className="block mx-auto text-center max-w-xl" data-cid="n464">
           <div className="block text-balance" data-cid="n465">
             <h2
-              className="block [font-family:LTRemark,_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15"
+              className="block [font-family:var(--font-display),_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15"
               data-cid="n466"
               data-component="heading"
             >

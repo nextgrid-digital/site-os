@@ -11,10 +11,10 @@ import { listRow11Data as listRow11DataContent, listRow11Data2 as listRow11Data2
 export default function Footer({ listRow11Data = listRow11DataContent, listRow11Data2 = listRow11Data2Content, listRow11Data3 = listRow11Data3Content, listRow11Data4 = listRow11Data4Content, listRow11Data5 = listRow11Data5Content, listRow11Data6 = listRow11Data6Content, listRow11Data7 = listRow11Data7Content, listRow11Data8 = listRow11Data8Content, listRow11Data9 = listRow11Data9Content, listRow11Data10 = listRow11Data10Content, listRow11Data11 = listRow11Data11Content } = {}) {
   return (
     <footer className="block relative pt-20 pb-8 overflow-x-clip" data-cid="n2416">
-      <img className="block absolute right-0 bottom-0 z-0 max-w-full overflow-clip aspect-[auto_343/370] align-middle pointer-events-none h-auto w-56 max-md:w-36 md:max-lg:w-44" data-cid="n2417" data-component="image" alt="" aria-hidden="true" height="370" src="/assets/cloned/images/ed1c86b8e3c8.png" width="343" />
+      <img className="block absolute right-0 bottom-0 z-0 max-w-full overflow-clip aspect-[auto_343/370] align-middle pointer-events-none h-auto w-56 max-md:w-36 md:max-lg:w-44" data-cid="n2417" data-component="image" alt="" aria-hidden="true" height="370" src="/assets/site/images/ed1c86b8e3c8.png" width="343" />
       <div className="block relative z-10 max-w-280 mx-auto px-8" data-cid="n2418">
         <div className="block w-full" data-cid="n2455">
-          <nav className="grid gap-8 grid-rows-[120px] text-sm leading-5 grid-cols-5 max-md:grid-rows-[120px_120px_92px] max-md:grid-cols-2 md:max-lg:grid-rows-[120px_72px] md:max-lg:grid-cols-4 2xl:grid-rows-[124px]" data-cid="n2456" data-component="nav">
+          <nav className="grid gap-8 grid-rows-[120px] text-sm leading-5 grid-cols-4 max-md:grid-rows-[120px_120px_92px] max-md:grid-cols-2 md:max-lg:grid-rows-[120px] md:max-lg:grid-cols-4 2xl:grid-rows-[124px]" data-cid="n2456" data-component="nav">
             <Icon11 cid={"n2457"} />
             <div className="h-30 block 2xl:h-31" data-cid="n2458">
               <p className="block mb-3 text-xs font-semibold leading-4 uppercase 2xl:[font-size:inherit] 2xl:leading-[inherit]" data-cid="n2459">
@@ -38,23 +38,6 @@ export default function Footer({ listRow11Data = listRow11DataContent, listRow11
               </p>
               <ul className="block [list-style-type:none] list-outside" data-cid="n2480">
                 {listRow11Data3.map((d, i) => <ListRow11 key={i} d={d} cids={ListRow11_cids3[i]} styles={ListRow11_styles3[i]} />)}
-              </ul>
-            </div>
-            <div className="block" data-cid="n2489">
-              <p className="block mb-3 text-xs font-semibold leading-4 uppercase 2xl:[font-size:inherit] 2xl:leading-[inherit]" data-cid="n2490">
-                More
-              </p>
-              <ul className="block [list-style-type:none] list-outside" data-cid="n2491">
-                <li className="list-item mb-1" data-cid="n2492">
-                  <a className="inline text-muted-foreground text-xs font-medium leading-4 cursor-pointer hover:text-foreground hover:[text-decoration-color:var(--foreground)]" data-cid="n2493" data-component="link" href="https://onmy.land/" rel="noopener noreferrer" target="_blank">
-                    More than link in bio
-                  </a>
-                </li>
-                <li className="list-item" data-cid="n2494">
-                  <a className="inline text-muted-foreground text-xs font-medium leading-4 cursor-pointer hover:text-foreground hover:[text-decoration-color:var(--foreground)]" data-cid="n2495" data-component="link" href="http://lexingtonthemes.com/" rel="noopener noreferrer" target="_blank">
-                    Astro Website templates
-                  </a>
-                </li>
               </ul>
             </div>
           </nav>

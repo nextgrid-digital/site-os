@@ -39,10 +39,10 @@ const TextLink2_data6: TextLink2Data[] = [
     { ariaselected: "false", id: "_r18R_6da_-t-3", label: "AI" }
 ];
 const MediaTile2_data: MediaTile2Data[] = [
-    { label: "google.com (preview, not a link)", imgSrc: "/assets/cloned/images/4afefff04e61.png", label2: "google.com", text: "google.com", text2: "$4,120", text3: "6,140" },
-    { label: "t.co (preview, not a link)", imgSrc: "/assets/cloned/images/7da7fa93e500.png", label2: "t.co", text: "t.co", text2: "$2,860", text3: "2,284" },
-    { label: "github.com (preview, not a link)", imgSrc: "/assets/cloned/images/5a4e0f1b4609.png", label2: "github.com", text: "github.com", text2: "$1,180", text3: "1,903" },
-    { label: "producthunt.com (preview, not a link)", imgSrc: "/assets/cloned/images/32d2558b75df.png", label2: "producthunt.com", text: "producthunt.com", text2: "$2,240", text3: "1,522" },
+    { label: "google.com (preview, not a link)", imgSrc: "/assets/site/images/4afefff04e61.png", label2: "google.com", text: "google.com", text2: "$4,120", text3: "6,140" },
+    { label: "t.co (preview, not a link)", imgSrc: "/assets/site/images/7da7fa93e500.png", label2: "t.co", text: "t.co", text2: "$2,860", text3: "2,284" },
+    { label: "github.com (preview, not a link)", imgSrc: "/assets/site/images/5a4e0f1b4609.png", label2: "github.com", text: "github.com", text2: "$1,180", text3: "1,903" },
+    { label: "producthunt.com (preview, not a link)", imgSrc: "/assets/site/images/32d2558b75df.png", label2: "producthunt.com", text: "producthunt.com", text2: "$2,240", text3: "1,522" },
     { label: "direct (preview, not a link)", imgSrc: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7", label2: "direct", text: "direct", text2: "$860.00", text3: "1,177" }
 ];
 /** Logo Cloud section. */
@@ -53,7 +53,7 @@ export default function LogoCloudSection({ logos = logosContent, tile3Data = Til
         <div className="block mx-auto max-w-4xl" data-cid="n1408">
           <div className="block mx-48 text-center max-w-lg max-lg:mx-0 max-lg:[text-align:inherit]" data-cid="n1409">
             <div className="block text-balance" data-cid="n1410">
-              <h2 className="block [font-family:LTRemark,_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15" data-cid="n1411" data-component="heading">
+              <h2 className="block [font-family:var(--font-display),_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15" data-cid="n1411" data-component="heading">
                 Connected data sources
               </h2>
               <p className="block mt-1.5 text-muted-foreground 2xl:text-lg 2xl:leading-7" data-cid="n1412">

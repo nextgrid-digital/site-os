@@ -8,7 +8,7 @@ export type ListRowDataItem = {
   target?: string;
 };
 export const listRowData: ListRowDataItem[] = [
-  { href: "/", label: "How it works" },
+  { href: "/#how-it-works", label: "How it works" },
   { href: "/#faq", label: "FAQ" },
   { href: "/login", label: "Sign in" },
 ];
@@ -33,7 +33,7 @@ export const products: ProductsItem[] = [
     label:
       "Scored SEO and commercial issues from a live site crawl—titles, metas, H1s, links, and schema.",
     stat: "47",
-    imgSrc: "/assets/cloned/images/2db9318bbc2f.png",
+    imgSrc: "/assets/site/images/2db9318bbc2f.png",
     description: "Crawl findings",
     description2:
       "See what's broken on your site, ranked by what it costs you.",
@@ -44,7 +44,7 @@ export const products: ProductsItem[] = [
     title: "Revenue impact",
     label: "Severity",
     stat: "A1",
-    imgSrc: "/assets/cloned/images/914b33ffec33.png",
+    imgSrc: "/assets/site/images/914b33ffec33.png",
     description: "Revenue impact",
     description2: "Every issue scored by the sales it's likely costing.",
   },
@@ -54,7 +54,7 @@ export const products: ProductsItem[] = [
     title:
       "Commercial knowledge graph with ICP, offers, proof, and CTA chains so gaps stay tied to revenue.",
     stat: "12",
-    imgSrc: "/assets/cloned/images/3aed687c1b1f.png",
+    imgSrc: "/assets/site/images/3aed687c1b1f.png",
     description: "Knowledge graph",
     description2:
       "Find where your offer, proof, and call to action don't connect.",
@@ -65,7 +65,7 @@ export const products: ProductsItem[] = [
     title:
       "Every crawled page scored on how easily an AI answer can find, trust, and quote it.",
     stat: "68",
-    imgSrc: "/assets/cloned/images/2db9318bbc2f.png",
+    imgSrc: "/assets/site/images/2db9318bbc2f.png",
     description: "AI answer readiness",
     description2:
       "Score every page on schema, direct answers, and quotable structure, then see the costliest gaps first.",
@@ -77,7 +77,7 @@ export const products: ProductsItem[] = [
     title:
       "Ask AI search the questions your buyers ask and see whether it cites your site.",
     stat: "2/3",
-    imgSrc: "/assets/cloned/images/914b33ffec33.png",
+    imgSrc: "/assets/site/images/914b33ffec33.png",
     description: "Citation probe",
     description2:
       "Test real buyer questions and see which competitors get cited instead.",
@@ -88,7 +88,7 @@ export const products: ProductsItem[] = [
     title:
       "Your pages grouped by topic, plus the subjects buyers expect that no page answers.",
     stat: "6",
-    imgSrc: "/assets/cloned/images/3aed687c1b1f.png",
+    imgSrc: "/assets/site/images/3aed687c1b1f.png",
     description: "Topic map",
     description2:
       "See what you cover, what's thin, and which pages to write next.",
@@ -99,7 +99,7 @@ export const products: ProductsItem[] = [
     title:
       "Visits from ChatGPT, Perplexity, Gemini and other AI tools, read from your own GA4.",
     stat: "AI",
-    imgSrc: "/assets/cloned/images/3aa13c971186.png",
+    imgSrc: "/assets/site/images/3aa13c971186.png",
     description: "Visits from AI tools",
     description2:
       "Know how many real visitors AI assistants send, and where they land.",
@@ -110,7 +110,7 @@ export const products: ProductsItem[] = [
     title:
       "Every finding ships with an AI-ready prompt you can paste into Cursor or Claude.",
     stat: "AI",
-    imgSrc: "/assets/cloned/images/7a0f73293c73.png",
+    imgSrc: "/assets/site/images/7a0f73293c73.png",
     description: "Fix prompts",
     description2: "Paste a ready-made fix into Cursor or Claude.",
   },
@@ -120,7 +120,7 @@ export const products: ProductsItem[] = [
     title:
       "Connect Search Console in the full audit to tie queries and page performance to crawl findings.",
     stat: "GSC",
-    imgSrc: "/assets/cloned/images/af9128c8772f.png",
+    imgSrc: "/assets/site/images/af9128c8772f.png",
     description: "Search Console",
     description2: "See which searches reach you and which pages lose them.",
     span: 2,
@@ -130,7 +130,7 @@ export const products: ProductsItem[] = [
     eyebrow: "GA4",
     title:
       "Connect GA4 to read sessions and conversion gaps next to the free crawl report.",
-    imgSrc: "/assets/cloned/images/3aa13c971186.png",
+    imgSrc: "/assets/site/images/3aa13c971186.png",
     description: "GA4 connect",
     description2: "See where visitors drop off before they buy.",
   },
@@ -140,7 +140,7 @@ export const products: ProductsItem[] = [
     title:
       "Client-ready growth brief with findings, graph gaps, and next steps in one shareable report.",
     stat: "PDF",
-    imgSrc: "/assets/cloned/images/ddc11a1b5498.png",
+    imgSrc: "/assets/site/images/ddc11a1b5498.png",
     description: "Growth brief",
     description2: "One shareable report to send your client.",
     span: 3,
@@ -240,22 +240,22 @@ export type LogosItem = {
 export const logos: LogosItem[] = [
   {
     alt: "Stripe logo",
-    imgSrc: "/assets/cloned/svg/7f7c8d3d24a2.svg",
+    imgSrc: "/assets/site/svg/7f7c8d3d24a2.svg",
     text: "Stripe",
   },
   {
     alt: "Polar logo",
-    imgSrc: "/assets/cloned/svg/8279c34e27bd.svg",
+    imgSrc: "/assets/site/svg/8279c34e27bd.svg",
     text: "Polar",
   },
   {
     alt: "Paddle logo",
-    imgSrc: "/assets/cloned/svg/bfe72e408d0d.svg",
+    imgSrc: "/assets/site/svg/bfe72e408d0d.svg",
     text: "Paddle",
   },
   {
     alt: "Creem logo",
-    imgSrc: "/assets/cloned/svg/e0da153feedf.svg",
+    imgSrc: "/assets/site/svg/e0da153feedf.svg",
     text: "Creem",
   },
 ];
@@ -289,42 +289,42 @@ export type Logos2Item = {
 export const logos2: Logos2Item[] = [
   {
     alt: "Cursor logo",
-    imgSrc: "/assets/cloned/svg/b749a521ac36.svg",
+    imgSrc: "/assets/site/svg/b749a521ac36.svg",
     text: "Cursor",
   },
   {
     alt: "Claude Code logo",
-    imgSrc: "/assets/cloned/svg/37138e35d576.svg",
+    imgSrc: "/assets/site/svg/37138e35d576.svg",
     text: "Claude Code",
   },
   {
     alt: "Codex logo",
-    imgSrc: "/assets/cloned/svg/6ffe5df6e827.svg",
+    imgSrc: "/assets/site/svg/6ffe5df6e827.svg",
     text: "Codex",
   },
   {
     alt: "GitHub Copilot logo",
-    imgSrc: "/assets/cloned/svg/4f2d24edd8fe.svg",
+    imgSrc: "/assets/site/svg/4f2d24edd8fe.svg",
     text: "GitHub Copilot",
   },
   {
     alt: "Zed logo",
-    imgSrc: "/assets/cloned/svg/9503c1f6f6d8.svg",
+    imgSrc: "/assets/site/svg/9503c1f6f6d8.svg",
     text: "Zed",
   },
   {
     alt: "OpenCode logo",
-    imgSrc: "/assets/cloned/svg/2b966b61b5af.svg",
+    imgSrc: "/assets/site/svg/2b966b61b5af.svg",
     text: "OpenCode",
   },
   {
     alt: "Roo Code logo",
-    imgSrc: "/assets/cloned/svg/84871af8a5d9.svg",
+    imgSrc: "/assets/site/svg/84871af8a5d9.svg",
     text: "Roo Code",
   },
   {
     alt: "Windsurf logo",
-    imgSrc: "/assets/cloned/svg/30461bfc0f1a.svg",
+    imgSrc: "/assets/site/svg/30461bfc0f1a.svg",
     text: "Windsurf",
   },
 ];
@@ -344,133 +344,133 @@ export const logos3: Logos3Item[] = [
   {
     alt: "Next.js logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/118b5cc5a57a.svg",
+    imgSrc: "/assets/site/svg/118b5cc5a57a.svg",
     width: "24",
   },
   {
     alt: "React Router logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/9f6596a6b40f.svg",
+    imgSrc: "/assets/site/svg/9f6596a6b40f.svg",
     width: "24",
   },
   {
     alt: "Astro logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/a4a7fa3f8062.svg",
+    imgSrc: "/assets/site/svg/a4a7fa3f8062.svg",
     width: "24",
   },
   {
     alt: "Vue logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/99d439c05f4a.svg",
+    imgSrc: "/assets/site/svg/99d439c05f4a.svg",
     width: "24",
   },
   {
     alt: "Laravel logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/0e371db0bb52.svg",
+    imgSrc: "/assets/site/svg/0e371db0bb52.svg",
     width: "24",
   },
   {
     alt: "Django logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/40b554dad1af.svg",
+    imgSrc: "/assets/site/svg/40b554dad1af.svg",
     width: "24",
   },
   {
     alt: "WordPress logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/0b09bee614bc.svg",
+    imgSrc: "/assets/site/svg/0b09bee614bc.svg",
     width: "24",
   },
   {
     alt: "Webflow logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/4993694b316e.svg",
+    imgSrc: "/assets/site/svg/4993694b316e.svg",
     width: "24",
   },
   {
     alt: "Framer logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/3ce1177f701f.svg",
+    imgSrc: "/assets/site/svg/3ce1177f701f.svg",
     width: "24",
   },
   {
     alt: "Ghost logo",
     height: "24",
-    imgSrc: "/assets/cloned/images/e7395d6503ba.png",
+    imgSrc: "/assets/site/images/e7395d6503ba.png",
     width: "24",
   },
   {
     alt: "Shopify logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/e10e515777c3.svg",
+    imgSrc: "/assets/site/svg/e10e515777c3.svg",
     width: "24",
   },
   {
     alt: "WooCommerce logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/e2b4faed88c5.svg",
+    imgSrc: "/assets/site/svg/e2b4faed88c5.svg",
     width: "24",
   },
   {
     alt: "Bubble logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/1616973c43c6.svg",
+    imgSrc: "/assets/site/svg/1616973c43c6.svg",
     width: "24",
   },
   {
     alt: "Podia logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/d8a76cc46747.svg",
+    imgSrc: "/assets/site/svg/d8a76cc46747.svg",
     width: "24",
   },
   {
     alt: "Kajabi logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/9ee8ec0ffd37.svg",
+    imgSrc: "/assets/site/svg/9ee8ec0ffd37.svg",
     width: "24",
   },
   {
     alt: "Wix logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/2ed85df1b4cd.svg",
+    imgSrc: "/assets/site/svg/2ed85df1b4cd.svg",
     width: "24",
   },
   {
     alt: "Squarespace logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/e8ff4ead4dab.svg",
+    imgSrc: "/assets/site/svg/e8ff4ead4dab.svg",
     width: "24",
   },
   {
     alt: "Lovable logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/5d1aa372325c.svg",
+    imgSrc: "/assets/site/svg/5d1aa372325c.svg",
     width: "24",
   },
   {
     alt: "Bolt logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/2e7d3306ce05.svg",
+    imgSrc: "/assets/site/svg/2e7d3306ce05.svg",
     width: "24",
   },
   {
     alt: "Vercel v0 logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/9bafc01166f7.svg",
+    imgSrc: "/assets/site/svg/9bafc01166f7.svg",
     width: "24",
   },
   {
     alt: "Replit logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/34d1bcb4d65a.svg",
+    imgSrc: "/assets/site/svg/34d1bcb4d65a.svg",
     width: "24",
   },
   {
     alt: "Google Tag Manager logo",
     height: "24",
-    imgSrc: "/assets/cloned/svg/72b5f3b48b2f.svg",
+    imgSrc: "/assets/site/svg/72b5f3b48b2f.svg",
     width: "24",
   },
 ];

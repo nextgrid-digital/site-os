@@ -124,7 +124,7 @@ export const SERIES_BY_METRIC: Record<MetricId, ChartPoint[]> = {
   revenue: buildSeries(6, 680, 140),
 };
 
-const REFERRER_IMG = '/assets/cloned/images/690416ff916a.png';
+const REFERRER_IMG = '/assets/site/images/690416ff916a.png';
 
 export function pinForPoint(metric: MetricId, point: ChartPoint): PinPayload {
   const displayDate = new Date(point.date + 'T12:00:00Z').toLocaleDateString('en-US', {
@@ -157,7 +157,7 @@ export function pinForPoint(metric: MetricId, point: ChartPoint): PinPayload {
           name: 'google.com',
           count: 84,
           share: 'Accounted for 41% of paid conversions.',
-          imgSrc: '/assets/cloned/images/4afefff04e61.png',
+          imgSrc: '/assets/site/images/4afefff04e61.png',
         },
         notes: ['Pricing page A/B live'],
       };
@@ -222,18 +222,18 @@ export const SOURCES_BY_TAB: Record<SourcesTab, SourceRow[]> = {
     {
       name: 'google.com',
       value: '6,140',
-      imgSrc: '/assets/cloned/images/4afefff04e61.png',
+      imgSrc: '/assets/site/images/4afefff04e61.png',
     },
-    { name: 't.co', value: '2,284', imgSrc: '/assets/cloned/images/7da7fa93e500.png' },
+    { name: 't.co', value: '2,284', imgSrc: '/assets/site/images/7da7fa93e500.png' },
     {
       name: 'github.com',
       value: '1,903',
-      imgSrc: '/assets/cloned/images/5a4e0f1b4609.png',
+      imgSrc: '/assets/site/images/5a4e0f1b4609.png',
     },
     {
       name: 'producthunt.com',
       value: '1,522',
-      imgSrc: '/assets/cloned/images/32d2558b75df.png',
+      imgSrc: '/assets/site/images/32d2558b75df.png',
     },
     {
       name: 'direct',

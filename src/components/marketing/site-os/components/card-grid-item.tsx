@@ -46,7 +46,7 @@ export default function CardGridItem({ d }: { d: CardGridItemData }) {
                   <tr className="table-row align-middle [border-collapse:collapse]" data-cid="n828">
                     <td className="border-b border-solid border-b-surface-2 table-cell max-w-0 py-2 align-middle font-medium whitespace-nowrap text-nowrap [border-collapse:collapse]" data-cid="n829">
                       <span className="w-[13.3625rem] flex items-center gap-2 [border-collapse:collapse] max-md:w-[7.8375rem] md:max-lg:w-[18.425rem]" data-cid="n830">
-                        <img className="w-4 h-4 block max-w-full rounded-md shrink-0 overflow-clip object-contain aspect-[auto_16/16] align-middle bg-surface-7 [border-collapse:collapse]" data-cid="n831" data-component="image" alt="" height="16" src="/assets/cloned/images/4afefff04e61.png" title="google.com" width="16" />
+                        <img className="w-4 h-4 block max-w-full rounded-md shrink-0 overflow-clip object-contain aspect-[auto_16/16] align-middle bg-surface-7 [border-collapse:collapse]" data-cid="n831" data-component="image" alt="" height="16" src="/assets/site/images/4afefff04e61.png" title="google.com" width="16" />
                         <span className="w-20.5 block min-w-0 overflow-hidden [border-collapse:collapse]" data-cid="n832" title="google.com">
                           google.com
                         </span>
@@ -67,7 +67,7 @@ export default function CardGridItem({ d }: { d: CardGridItemData }) {
                   <tr className="table-row align-middle [border-collapse:collapse]" data-cid="n837">
                     <td className="border-b border-solid border-b-surface-2 table-cell max-w-0 py-2 align-middle font-medium whitespace-nowrap text-nowrap [border-collapse:collapse]" data-cid="n838">
                       <span className="w-[13.3625rem] flex items-center gap-2 [border-collapse:collapse] max-md:w-[7.8375rem] md:max-lg:w-[18.425rem]" data-cid="n839">
-                        <img className="w-4 h-4 block max-w-full rounded-md shrink-0 overflow-clip object-contain aspect-[auto_16/16] align-middle bg-surface-7 [border-collapse:collapse]" data-cid="n840" data-component="image" alt="" height="16" src="/assets/cloned/images/7da7fa93e500.png" title="t.co" width="16" />
+                        <img className="w-4 h-4 block max-w-full rounded-md shrink-0 overflow-clip object-contain aspect-[auto_16/16] align-middle bg-surface-7 [border-collapse:collapse]" data-cid="n840" data-component="image" alt="" height="16" src="/assets/site/images/7da7fa93e500.png" title="t.co" width="16" />
                         <span className="w-6.5 block min-w-0 overflow-hidden [border-collapse:collapse]" data-cid="n841" title="t.co">
                           t.co
                         </span>
@@ -88,7 +88,7 @@ export default function CardGridItem({ d }: { d: CardGridItemData }) {
                   <tr className="table-row align-middle [border-collapse:collapse]" data-cid="n846">
                     <td className="border-b border-solid border-b-surface-2 table-cell max-w-0 py-2 align-middle font-medium whitespace-nowrap text-nowrap [border-collapse:collapse]" data-cid="n847">
                       <span className="w-[13.3625rem] flex items-center gap-2 [border-collapse:collapse] max-md:w-[7.8375rem] md:max-lg:w-[18.425rem]" data-cid="n848">
-                        <img className="w-4 h-4 block max-w-full rounded-md shrink-0 overflow-clip object-contain aspect-[auto_16/16] align-middle bg-surface-7 [border-collapse:collapse]" data-cid="n849" data-component="image" alt="" height="16" src="/assets/cloned/images/5a4e0f1b4609.png" title="github.com" width="16" />
+                        <img className="w-4 h-4 block max-w-full rounded-md shrink-0 overflow-clip object-contain aspect-[auto_16/16] align-middle bg-surface-7 [border-collapse:collapse]" data-cid="n849" data-component="image" alt="" height="16" src="/assets/site/images/5a4e0f1b4609.png" title="github.com" width="16" />
                         <span className="w-19.5 block min-w-0 overflow-hidden [border-collapse:collapse]" data-cid="n850" title="github.com">
                           github.com
                         </span>
@@ -109,7 +109,7 @@ export default function CardGridItem({ d }: { d: CardGridItemData }) {
                   <tr className="h-[2.3125rem] table-row align-middle [border-collapse:collapse]" data-cid="n855">
                     <td className="h-[2.3125rem] border-b border-solid border-b-surface-2 table-cell max-w-0 py-2 align-middle font-medium whitespace-nowrap text-nowrap [border-collapse:collapse]" data-cid="n856">
                       <span className="w-[13.3625rem] h-5 flex items-center gap-2 [border-collapse:collapse] max-md:w-[7.8375rem] md:max-lg:w-[18.425rem]" data-cid="n857">
-                        <img className="w-4 h-4 block max-w-full rounded-md shrink-0 overflow-clip object-contain aspect-[auto_16/16] align-middle bg-surface-7 [border-collapse:collapse]" data-cid="n858" data-component="image" alt="" height="16" src="/assets/cloned/images/32d2558b75df.png" title="producthunt.com" width="16" />
+                        <img className="w-4 h-4 block max-w-full rounded-md shrink-0 overflow-clip object-contain aspect-[auto_16/16] align-middle bg-surface-7 [border-collapse:collapse]" data-cid="n858" data-component="image" alt="" height="16" src="/assets/site/images/32d2558b75df.png" title="producthunt.com" width="16" />
                         <span className="w-[7.4375rem] h-5 block min-w-0 overflow-hidden [border-collapse:collapse] max-md:w-[6.3375rem]" data-cid="n859" title="producthunt.com">
                           producthunt.com
                         </span>
@@ -253,7 +253,7 @@ export default function CardGridItem({ d }: { d: CardGridItemData }) {
                   <tr className="table-row align-middle [border-collapse:collapse]" data-cid="n916">
                     <td className="border-b border-solid border-b-surface-2 table-cell max-w-0 py-2 align-middle font-medium whitespace-nowrap text-nowrap [border-collapse:collapse]" data-cid="n917">
                       <span className="w-[13.3625rem] flex items-center gap-2 [border-collapse:collapse] max-md:w-[7.8375rem] md:max-lg:w-[18.425rem]" data-cid="n918">
-                        <div className="w-[18.7px] h-3.5 block relative rounded-xs shrink-0 overflow-hidden leading-3.5 bg-contain [background-position:50%_50%] bg-no-repeat [border-collapse:collapse] before:content-[' '] before:text-foreground before:text-sm before:font-medium before:leading-3.5" style={{ backgroundImage: "url(\"/assets/cloned/svg/ab71e3ed135f.svg\")" }} data-cid="n919" aria-hidden="true" title="ES" />
+                        <div className="w-[18.7px] h-3.5 block relative rounded-xs shrink-0 overflow-hidden leading-3.5 bg-contain [background-position:50%_50%] bg-no-repeat [border-collapse:collapse] before:content-[' '] before:text-foreground before:text-sm before:font-medium before:leading-3.5" style={{ backgroundImage: "url(\"/assets/site/svg/ab71e3ed135f.svg\")" }} data-cid="n919" aria-hidden="true" title="ES" />
                         <span className="w-10 block min-w-0 overflow-hidden [border-collapse:collapse]" data-cid="n920" title="Spain">
                           Spain
                         </span>

@@ -53,7 +53,7 @@ const ListRow3_data: ListRow3Data[] = [
     text2: "1,662",
   },
   {
-    style: { backgroundImage: 'url("/assets/cloned/svg/ab71e3ed135f.svg")' },
+    style: { backgroundImage: 'url("/assets/site/svg/ab71e3ed135f.svg")' },
     label: "ES",
     label2: "Spain",
     text: "Spain",
@@ -113,7 +113,7 @@ const cardVariants = {
  * breakpoints: size scales smoothly with viewport width between a floor and a ceiling.
  */
 const H2_CLASS =
-  "block w-full max-w-full text-balance break-words [font-family:LTRemark,_Georgia,_serif] " +
+  "block w-full max-w-full text-balance break-words [font-family:var(--font-display),_Georgia,_serif] " +
   "text-[clamp(1.75rem,1.1rem+3.2vw,3.75rem)] font-medium leading-[1.12] tracking-[-0.02em] " +
   "[overflow-wrap:anywhere] [hyphens:manual]";
 

@@ -43,7 +43,7 @@ const ListRow10_data: ListRow10Data[] = [
     { style: { backgroundImage: "url(\"data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20id='flag-icons-us'%20viewBox='0%200%20640%20480'%3e%3cpath%20fill='%23bd3d44'%20d='M0%200h640v480H0'/%3e%3cpath%20stroke='%23fff'%20stroke-width='37'%20d='M0%2055.3h640M0%20129h640M0%20203h640M0%20277h640M0%20351h640M0%20425h640'/%3e%3cpath%20fill='%23192f5d'%20d='M0%200h364.8v258.5H0'/%3e%3cmarker%20id='us-a'%20markerHeight='30'%20markerWidth='30'%3e%3cpath%20fill='%23fff'%20d='m14%200%209%2027L0%2010h28L5%2027z'/%3e%3c/marker%3e%3cpath%20fill='none'%20marker-mid='url(\"data:image/gif" }, label: "US", label2: "US", text: "US", text2: "2,400 ms", text3: "412" },
     { style: { backgroundImage: "url(\"data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20id='flag-icons-de'%20viewBox='0%200%20640%20480'%3e%3cpath%20fill='%23fc0'%20d='M0%20320h640v160H0z'/%3e%3cpath%20fill='%23000001'%20d='M0%200h640v160H0z'/%3e%3cpath%20fill='red'%20d='M0%20160h640v160H0z'/%3e%3c/svg%3e\")" }, label: "DE", label2: "DE", text: "DE", text2: "2,280 ms", text3: "180" },
     { style: { backgroundImage: "url(\"data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20id='flag-icons-gb'%20viewBox='0%200%20640%20480'%3e%3cpath%20fill='%23012169'%20d='M0%200h640v480H0z'/%3e%3cpath%20fill='%23FFF'%20d='m75%200%20244%20181L562%200h78v62L400%20241l240%20178v61h-80L320%20301%2081%20480H0v-60l239-178L0%2064V0z'/%3e%3cpath%20fill='%23C8102E'%20d='m424%20281%20216%20159v40L369%20281zm-184%2020%206%2035L54%20480H0zM640%200v3L391%20191l2-44L590%200zM0%200l239%20176h-60L0%2042z'/%3e%3cpath%20fill='%23FFF'%20d='M241%200v480h160V0zM0%20160v160h640V160z'/%3e%3cpath%20fill='%23C8102E'%20d='M0%20193v96h640v-96zM273%200v480h96V0z'/%3e%3c/svg%3e\")" }, label: "GB", label2: "GB", text: "GB", text2: "2,160 ms", text3: "166" },
-    { style: { backgroundImage: "url(\"/assets/cloned/svg/ab71e3ed135f.svg\")" }, label: "ES", label2: "ES", text: "ES", text2: "2,040 ms", text3: "121" }
+    { style: { backgroundImage: "url(\"/assets/site/svg/ab71e3ed135f.svg\")" }, label: "ES", label2: "ES", text: "ES", text2: "2,040 ms", text3: "121" }
 ];
 /** Gallery Showcase section. */
 export default function GalleryShowcaseSection({ textLink3Data = TextLink3_data, textLink4Data = TextLink4_data, tile7Data = Tile7_data, tile8Data = Tile8_data, listRow9Data = ListRow9_data, listRow10Data = ListRow10_data } = {}) {
@@ -52,7 +52,7 @@ export default function GalleryShowcaseSection({ textLink3Data = TextLink3_data,
       <div className="block max-w-280 mx-auto py-20 px-8" data-cid="n1784">
         <div className="block mx-auto text-center max-w-3xl" data-cid="n1785">
           <div className="block text-balance" data-cid="n1786">
-            <h2 className="block [font-family:LTRemark,_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15" data-cid="n1787" data-component="heading">
+            <h2 className="block [font-family:var(--font-display),_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15" data-cid="n1787" data-component="heading">
               Keep AEO beside your SEO findings.
             </h2>
             <p className="block mt-1.5 text-muted-foreground 2xl:text-lg 2xl:leading-7" data-cid="n1788">

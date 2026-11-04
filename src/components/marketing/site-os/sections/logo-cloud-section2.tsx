@@ -18,7 +18,7 @@ export default function LogoCloudSection2({ logos = logosContent, tile9Data = Ti
       <div className="block max-w-280 mx-auto py-20 px-8" data-cid="n2001">
         <div className="block mx-auto text-center max-w-4xl" data-cid="n2002">
           <div className="block text-balance" data-cid="n2003">
-            <h2 className="block [font-family:LTRemark,_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15" data-cid="n2004" data-component="heading">
+            <h2 className="block [font-family:var(--font-display),_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15" data-cid="n2004" data-component="heading">
               Agent prompts, ready for your editor.
             </h2>
             <p className="block mt-1.5 text-muted-foreground 2xl:text-lg 2xl:leading-7" data-cid="n2005">

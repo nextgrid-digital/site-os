@@ -103,7 +103,7 @@ export default function FaqSection({ items = FAQ_ITEMS } = {}) {
       <div className="mx-auto block max-w-280 px-8 py-20">
         <div className="mx-auto block max-w-2xl">
           <div className="block text-balance text-center">
-            <h2 className="block [font-family:LTRemark,_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15" id="faq-heading">
+            <h2 className="block [font-family:var(--font-display),_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15" id="faq-heading">
               Frequently Asked Questions
             </h2>
             <p className="mt-1.5 block text-muted-foreground 2xl:text-lg 2xl:leading-7">

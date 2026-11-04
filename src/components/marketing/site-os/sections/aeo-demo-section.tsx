@@ -363,7 +363,7 @@ export default function AeoDemoSection() {
         <div className="block mx-auto text-center max-w-2xl text-balance">
           <h2
             id="aeo-heading"
-            className="block [font-family:LTRemark,_Georgia,_serif] text-3xl font-medium leading-[1.15] tracking-tight sm:text-4xl md:text-5xl 2xl:text-6xl"
+            className="block [font-family:var(--font-display),_Georgia,_serif] text-3xl font-medium leading-[1.15] tracking-tight sm:text-4xl md:text-5xl 2xl:text-6xl"
           >
             See how AI answers read your site.
           </h2>

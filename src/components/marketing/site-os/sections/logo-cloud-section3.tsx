@@ -17,7 +17,7 @@ export default function LogoCloudSection3({ logos = logosContent, tile10Data = T
         <div className="block mx-auto max-w-3xl" data-cid="n2090">
           <div className="block text-center max-lg:[text-align:inherit]" data-cid="n2091">
             <div className="block text-balance" data-cid="n2092">
-              <h2 className="block [font-family:LTRemark,_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15" data-cid="n2093" data-component="heading">
+              <h2 className="block [font-family:var(--font-display),_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15" data-cid="n2093" data-component="heading">
                 From one URL to a brief you can actually share.
               </h2>
               <p className="block mt-1.5 text-muted-foreground 2xl:text-lg 2xl:leading-7" data-cid="n2094">

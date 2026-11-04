@@ -22,7 +22,7 @@ export default function EverythingYouNeedSection({ featureCard2Data = featureCar
       <div className="block max-w-280 mx-auto py-20 px-8" data-cid="n1333">
         <div className="w-full block max-w-xl" data-cid="n1334">
           <div className="block text-balance" data-cid="n1335">
-            <h2 className="block [font-family:LTRemark,_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15" data-cid="n1336" data-component="heading">
+            <h2 className="block [font-family:var(--font-display),_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15" data-cid="n1336" data-component="heading">
               Everything you need to run the audit-to-brief pipeline.
             </h2>
             <p className="block mt-1.5 text-muted-foreground 2xl:text-lg 2xl:leading-7" data-cid="n1337">
