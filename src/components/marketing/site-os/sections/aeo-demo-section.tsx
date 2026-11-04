@@ -49,7 +49,7 @@ function Readiness() {
 
   return (
     <div className="grid gap-6 lg:h-full lg:grid-cols-[16rem_1fr] lg:grid-rows-[minmax(0,1fr)]">
-      <div className="flex w-full flex-col items-center gap-6 lg:w-64">
+      <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-6 lg:mx-0 lg:w-64 lg:max-w-none">
         <AeoScoreGauge score={avg} label="AI readiness" />
         <div className="w-full">
           <p className="mb-3 text-xs font-medium text-muted-foreground">
@@ -359,23 +359,23 @@ export default function AeoDemoSection() {
 
   return (
     <section className="block pt-8" id="aeo" aria-labelledby="aeo-heading">
-      <div className="block max-w-280 mx-auto py-20 px-8">
+      <div className="block max-w-280 mx-auto px-8 py-20 max-md:py-14">
         <div className="block mx-auto text-center max-w-2xl text-balance">
           <h2
             id="aeo-heading"
-            className="block [font-family:LTRemark,_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15"
+            className="block [font-family:LTRemark,_Georgia,_serif] text-3xl font-medium leading-[1.15] tracking-tight sm:text-4xl md:text-5xl 2xl:text-6xl"
           >
             See how AI answers read your site.
           </h2>
-          <p className="block mt-1.5 text-muted-foreground 2xl:text-lg 2xl:leading-7">
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-muted-foreground md:text-base md:leading-7 2xl:text-lg">
             Score every page for AI answers, map the topics you cover and the ones you miss, and test
             whether AI search cites you. Try it on a sample site.
           </p>
         </div>
 
-        <div className={cn(CARD, "mx-auto mt-12 max-w-4xl p-4 sm:p-6")}>
+        <div className={cn(CARD, "mx-auto mt-10 max-w-4xl p-3 sm:p-6 md:mt-12")}>
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-            <div role="tablist" aria-label="AEO demo" className="flex gap-1 rounded-full bg-tint p-1">
+            <div role="tablist" aria-label="AEO demo" className="flex gap-1 rounded-full bg-tint p-1 max-sm:w-full">
               {TABS.map((t) => (
                 <button
                   key={t.id}
@@ -383,7 +383,7 @@ export default function AeoDemoSection() {
                   type="button"
                   aria-selected={tab === t.id}
                   onClick={() => setTab(t.id)}
-                  className="relative rounded-full px-3.5 py-1.5 text-xs font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="relative rounded-full px-3.5 py-1.5 text-xs font-medium outline-none max-sm:flex-1 max-sm:px-2 focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   {tab === t.id ? (
                     <motion.span
@@ -403,11 +403,11 @@ export default function AeoDemoSection() {
             </span>
           </div>
 
-          <div role="tabpanel" className="h-[30rem] overflow-hidden max-lg:overflow-y-auto max-lg:p-1">
+          <div role="tabpanel" className="lg:h-[30rem] lg:overflow-hidden">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={tab}
-                className="h-full"
+                className="lg:h-full"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -419,7 +419,7 @@ export default function AeoDemoSection() {
           </div>
         </div>
 
-        <div className="mt-8 text-center">
+        <div className="mt-8 text-center max-sm:[&>a]:w-full max-sm:[&>a]:justify-center">
           <a
             href="#audit"
             className="inline-flex rounded-lg bg-foreground px-4 py-2.5 text-sm font-medium text-background hover:opacity-90"

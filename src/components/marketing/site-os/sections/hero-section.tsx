@@ -108,6 +108,34 @@ const cardVariants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE } },
 };
 
+/**
+ * Shared heading type scale. Fluid via clamp() so there are no jumps between
+ * breakpoints: size scales smoothly with viewport width between a floor and a ceiling.
+ */
+const H2_CLASS =
+  "block w-full max-w-full text-balance break-words [font-family:LTRemark,_Georgia,_serif] " +
+  "text-[clamp(1.75rem,1.1rem+3.2vw,3.75rem)] font-medium leading-[1.12] tracking-[-0.02em] " +
+  "[overflow-wrap:anywhere] [hyphens:manual]";
+
+const LEAD_CLASS =
+  "max-w-xl text-pretty text-[clamp(0.875rem,0.8rem+0.35vw,1.125rem)] " +
+  "leading-[1.6] text-muted-foreground";
+
+const H3_CLASS =
+  "min-w-0 truncate text-[clamp(0.875rem,0.82rem+0.2vw,1rem)] font-medium leading-[1.3] tracking-[-0.005em]";
+
+/** Card header with a real heading element for correct semantics and consistent type. */
+function CardHeader({ title }: { title: string }) {
+  return (
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[24px] items-center gap-x-3 gap-y-2 rounded-tl-md rounded-tr-md px-4 pt-5 pb-4 [grid-auto-rows:min-content] max-md:grid-cols-1 max-md:grid-rows-[auto_24px] max-md:items-start max-md:gap-x-1 max-md:px-3 max-md:pt-4 max-md:pb-3">
+      <h3 className={H3_CLASS}>{title}</h3>
+    </div>
+  );
+}
+
+const CARD_CLASS =
+  "flex h-full flex-col rounded-[14px] border border-solid border-surface bg-surface-3 text-sm leading-5";
+
 /** Hero section — the page's lead block. */
 export default function HeroSection({
   listRow3Data = ListRow3_data,
@@ -116,10 +144,15 @@ export default function HeroSection({
   listRow6Data = ListRow6_data,
 } = {}) {
   const reduce = useReducedMotion();
+  const hoverProps = {
+    whileHover: reduce ? undefined : { y: -4 },
+    transition: { type: "spring", stiffness: 300, damping: 24 },
+  };
+
   return (
     <section className="block" data-cid="n24" id="audit">
       <div
-        className="mx-auto block max-w-280 px-8 pt-28 max-lg:pt-20"
+        className="mx-auto block max-w-280 px-4 pt-28 sm:px-6 md:px-8 max-lg:pt-20 max-sm:pt-14"
         data-cid="n25"
       >
         <motion.div
@@ -129,10 +162,13 @@ export default function HeroSection({
           initial={reduce ? false : "hidden"}
           animate="show"
         >
-          <div className="flex flex-col items-center gap-4 text-balance md:gap-5" data-cid="n27">
+          <div
+            className="flex flex-col items-center gap-3 sm:gap-4 md:gap-5"
+            data-cid="n27"
+          >
             <motion.h2
               variants={introItem}
-              className="block [font-family:LTRemark,_Georgia,_serif] text-3xl font-medium leading-[1.15] tracking-tight sm:text-4xl md:text-5xl 2xl:text-6xl"
+              className={H2_CLASS}
               data-cid="n28"
               data-component="heading"
             >
@@ -140,29 +176,30 @@ export default function HeroSection({
             </motion.h2>
             <motion.p
               variants={introItem}
-              className="max-w-xl text-sm leading-6 text-muted-foreground md:text-base md:leading-7 2xl:text-lg"
+              className={LEAD_CLASS}
               data-cid="n29"
             >
-              Paste a URL for a free crawl audit, no login required. See how ready every page is for AI answers.
+              Paste a URL for a free crawl audit, no login required. See how
+              ready every page is for AI answers.
             </motion.p>
           </div>
-          <motion.div variants={introItem} className="mx-auto max-w-2xl">
+          <motion.div variants={introItem} className="mx-auto mt-6 max-w-2xl sm:mt-8">
             <HeroAuditNotch />
           </motion.div>
         </motion.div>
 
         <motion.div
-          className="relative mt-12 block"
+          className="relative mt-12 block max-sm:mt-8"
           data-cid="n38"
           initial={reduce ? false : { opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: EASE, delay: 0.3 }}
         >
-          <div className="mb-3 flex items-baseline justify-between text-xs text-muted-foreground">
+          <div className="mb-3 flex items-baseline justify-between gap-3 text-xs text-muted-foreground">
             <span className="tracking-[0.08em] uppercase">
               What you get · sample data
             </span>
-            <span className="text-[13px]">Pick a metric</span>
+            <span className="text-[13px] max-sm:hidden">Pick a metric</span>
           </div>
           <HeroDemoDashboard variant="landing" />
 
@@ -176,16 +213,11 @@ export default function HeroSection({
           >
             <motion.div
               variants={cardVariants}
-              whileHover={reduce ? undefined : { y: -4 }}
-              transition={{ type: "spring", stiffness: 300, damping: 24 }}
-              className="flex h-full flex-col rounded-[14px] border border-solid border-surface bg-surface-3 text-sm leading-5"
+              {...hoverProps}
+              className={CARD_CLASS}
               data-cid="n261"
             >
-              <div className="grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[24px] items-center gap-x-3 gap-y-2 rounded-tl-md rounded-tr-md px-4 pt-5 pb-4 [grid-auto-rows:min-content] max-md:grid-cols-1 max-md:grid-rows-[19.25px_24px] max-md:items-start max-md:gap-x-1 max-md:px-3 max-md:pt-4 max-md:pb-3">
-                <div className="block min-w-0 font-medium leading-[1.1875rem]">
-                  Locations
-                </div>
-              </div>
+              <CardHeader title="Locations" />
               <div className="block min-w-0 px-4 pb-4 max-md:px-3 max-md:pb-3">
                 <ul className="flex h-40 list-outside flex-col [list-style-type:none]">
                   {listRow3Data.map((d, i) => (
@@ -200,17 +232,8 @@ export default function HeroSection({
               </div>
             </motion.div>
 
-            <motion.div
-              variants={cardVariants}
-              whileHover={reduce ? undefined : { y: -4 }}
-              transition={{ type: "spring", stiffness: 300, damping: 24 }}
-              className="flex h-full flex-col rounded-[14px] border border-solid border-surface bg-surface-3 text-sm leading-5"
-            >
-              <div className="grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[24px] items-center gap-x-3 gap-y-2 rounded-tl-md rounded-tr-md px-4 pt-5 pb-4 [grid-auto-rows:min-content] max-md:grid-cols-1 max-md:grid-rows-[19.25px_24px] max-md:items-start max-md:gap-x-1 max-md:px-3 max-md:pt-4 max-md:pb-3">
-                <div className="block min-w-0 font-medium leading-[1.1875rem]">
-                  Devices
-                </div>
-              </div>
+            <motion.div variants={cardVariants} {...hoverProps} className={CARD_CLASS}>
+              <CardHeader title="Devices" />
               <div className="block min-w-0 px-4 pb-4 max-md:px-3 max-md:pb-3">
                 <ul className="flex list-outside flex-col [list-style-type:none]">
                   {listRow4Data.map((d, i) => (
@@ -225,17 +248,8 @@ export default function HeroSection({
               </div>
             </motion.div>
 
-            <motion.div
-              variants={cardVariants}
-              whileHover={reduce ? undefined : { y: -4 }}
-              transition={{ type: "spring", stiffness: 300, damping: 24 }}
-              className="flex h-full flex-col rounded-[14px] border border-solid border-surface bg-surface-3 text-sm leading-5"
-            >
-              <div className="grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[24px] items-center gap-x-3 gap-y-2 rounded-tl-md rounded-tr-md px-4 pt-5 pb-4 [grid-auto-rows:min-content] max-md:grid-cols-1 max-md:grid-rows-[19.25px_24px] max-md:items-start max-md:gap-x-1 max-md:px-3 max-md:pt-4 max-md:pb-3">
-                <div className="block min-w-0 font-medium leading-[1.1875rem]">
-                  Google Search
-                </div>
-              </div>
+            <motion.div variants={cardVariants} {...hoverProps} className={CARD_CLASS}>
+              <CardHeader title="Google Search" />
               <div className="block min-w-0 px-4 pb-4 max-md:px-3 max-md:pb-3">
                 <ul className="flex h-32 list-outside flex-col [list-style-type:none]">
                   {listRow5Data.map((d, i) => (
@@ -250,17 +264,8 @@ export default function HeroSection({
               </div>
             </motion.div>
 
-            <motion.div
-              variants={cardVariants}
-              whileHover={reduce ? undefined : { y: -4 }}
-              transition={{ type: "spring", stiffness: 300, damping: 24 }}
-              className="flex h-full flex-col rounded-[14px] border border-solid border-surface bg-surface-3 text-sm leading-5"
-            >
-              <div className="grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[24px] items-center gap-x-3 gap-y-2 rounded-tl-md rounded-tr-md px-4 pt-5 pb-4 [grid-auto-rows:min-content] max-md:grid-cols-1 max-md:grid-rows-[19.25px_24px] max-md:items-start max-md:gap-x-1 max-md:px-3 max-md:pt-4 max-md:pb-3">
-                <div className="block min-w-0 font-medium leading-[1.1875rem]">
-                  Events
-                </div>
-              </div>
+            <motion.div variants={cardVariants} {...hoverProps} className={CARD_CLASS}>
+              <CardHeader title="Events" />
               <div className="block min-w-0 px-4 pb-4 max-md:px-3 max-md:pb-3">
                 <ul className="flex h-32 list-outside flex-col [list-style-type:none]">
                   {listRow6Data.map((d, i) => (

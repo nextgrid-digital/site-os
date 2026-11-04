@@ -76,7 +76,7 @@ export function SiteNav({
           <div className="justify-self-center" aria-hidden="true" />
         )}
 
-        <div className="justify-self-end flex shrink-0 items-center gap-2 sm:gap-3">
+        <div className="col-start-3 justify-self-end flex shrink-0 items-center gap-2 sm:gap-3">
           {rightSlot}
           {shouldShowSignIn ? (
             <Link
