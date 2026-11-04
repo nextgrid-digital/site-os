@@ -152,7 +152,7 @@ function Readiness() {
     <div className="grid gap-6 lg:h-full lg:grid-cols-[16rem_1fr] lg:grid-rows-[minmax(0,1fr)]">
       <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-6 lg:mx-0 lg:w-64 lg:max-w-none">
         <div data-aeo-target="gauge">
-          <AeoScoreGauge score={avg} label="AI readiness" />
+          <AeoScoreGauge score={avg} label="Score" />
         </div>
         <div className="w-full">
           <p className="mb-3 text-xs font-medium text-muted-foreground">
@@ -469,7 +469,7 @@ export default function AeoDemoSection() {
         <div className="block mx-auto text-center max-w-2xl text-balance">
           <h2
             id="aeo-heading"
-            className="block [font-family:var(--font-display),_Georgia,_serif] text-3xl font-medium leading-[1.15] tracking-tight sm:text-4xl md:text-5xl 2xl:text-6xl"
+            className="block [font-family:var(--font-display),_Georgia,_serif] text-4xl leading-10 max-md:text-2xl max-md:leading-8 md:max-lg:text-3xl md:max-lg:leading-9 2xl:text-6xl 2xl:leading-15"
           >
             See how AI answers read your site.
           </h2>

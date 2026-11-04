@@ -57,7 +57,7 @@ function boxOf(t: Element): DOMRect | null {
   return new DOMRect(left, top, right - left, bottom - top);
 }
 
-function useLayout(root: RefObject<HTMLElement | null>, items: DemoCallout[]) {
+function useLayout(root: RefObject<HTMLElement | null>, items: DemoCallout[], noteW: number) {
   const [layout, setLayout] = useState<Layout>({ w: 0, h: 0, fits: false, rects: {} });
 
   useEffect(() => {
@@ -76,7 +76,7 @@ function useLayout(root: RefObject<HTMLElement | null>, items: DemoCallout[]) {
         const r = t && boxOf(t);
         if (r) rects[it.id] = { x: r.left - ox, y: r.top - oy, w: r.width, h: r.height };
       }
-      const room = NOTE_W + GAP + 4;
+      const room = noteW + GAP + 4;
       const fits = base.left >= room && document.documentElement.clientWidth - base.right >= room;
       const next = { w: el.clientWidth, h: el.clientHeight, fits, rects };
       setLayout((prev) => (sameLayout(prev, next) ? prev : next));
@@ -107,7 +107,7 @@ function useLayout(root: RefObject<HTMLElement | null>, items: DemoCallout[]) {
       window.removeEventListener("resize", schedule);
       el.removeEventListener("scroll", schedule, true);
     };
-  }, [root, items]);
+  }, [root, items, noteW]);
 
   return layout;
 }
@@ -145,7 +145,21 @@ function place(items: DemoCallout[], layout: Layout): Placed[] {
   return placed;
 }
 
-function Connector({ p, hot, reduced, maskId }: { p: Placed; hot: boolean; reduced: boolean | null; maskId: string }) {
+function Connector({
+  p,
+  hot,
+  reduced,
+  maskId,
+  noteW,
+  outline,
+}: {
+  p: Placed;
+  hot: boolean;
+  reduced: boolean | null;
+  maskId: string;
+  noteW: number;
+  outline: boolean;
+}) {
   const { rect: r, tx, ty, sx, sy } = p;
   const mx = (sx + tx) / 2;
   const d = `M ${sx} ${sy} C ${mx} ${sy}, ${mx} ${ty}, ${tx} ${ty}`;
@@ -154,7 +168,7 @@ function Connector({ p, hot, reduced, maskId }: { p: Placed; hot: boolean; reduc
   return (
     <motion.g exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
       <defs>
-        <mask id={maskId} maskUnits="userSpaceOnUse" x={-NOTE_W - GAP * 2} y={-60} width={9999} height={9999}>
+        <mask id={maskId} maskUnits="userSpaceOnUse" x={-noteW - GAP * 2} y={-60} width={9999} height={9999}>
           <motion.path
             d={d}
             fill="none"
@@ -167,37 +181,41 @@ function Connector({ p, hot, reduced, maskId }: { p: Placed; hot: boolean; reduc
         </mask>
       </defs>
 
-      {/* Outline of the target: flashes once when the line lands, then again on hover. */}
-      <motion.rect
-        x={r.x - 4}
-        y={r.y - 4}
-        width={r.w + 8}
-        height={r.h + 8}
-        rx={16}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.5}
-        strokeDasharray="2 6"
-        strokeLinecap="round"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: hot ? 0.9 : 0 }}
-        transition={{ duration: 0.2 }}
-      />
-      {reduced ? null : (
-        <motion.rect
-          x={r.x - 4}
-          y={r.y - 4}
-          width={r.w + 8}
-          height={r.h + 8}
-          rx={16}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.5}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 0.8, 0] }}
-          transition={{ duration: 1, delay: delay + 0.6, ease: "easeOut" }}
-        />
-      )}
+      {outline ? (
+        <>
+          {/* Outline of the target: flashes once when the line lands, then again on hover. */}
+          <motion.rect
+            x={r.x - 4}
+            y={r.y - 4}
+            width={r.w + 8}
+            height={r.h + 8}
+            rx={16}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            strokeDasharray="2 6"
+            strokeLinecap="round"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: hot ? 0.9 : 0 }}
+            transition={{ duration: 0.2 }}
+          />
+          {reduced ? null : (
+            <motion.rect
+              x={r.x - 4}
+              y={r.y - 4}
+              width={r.w + 8}
+              height={r.h + 8}
+              rx={16}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 0.8, 0] }}
+              transition={{ duration: 1, delay: delay + 0.6, ease: "easeOut" }}
+            />
+          )}
+        </>
+      ) : null}
 
       <g mask={`url(#${maskId})`}>
         <motion.path
@@ -239,16 +257,18 @@ function Note({
   p,
   reduced,
   onHover,
+  noteW,
 }: {
   p: Placed;
   reduced: boolean | null;
   onHover: (id: string | null) => void;
+  noteW: number;
 }) {
   const left = p.side === "left";
   return (
     <motion.div
       className="absolute"
-      style={{ top: p.sy, width: NOTE_W, ...(left ? { left: -(NOTE_W + GAP) } : { right: -(NOTE_W + GAP) }) }}
+      style={{ top: p.sy, width: noteW, ...(left ? { left: -(noteW + GAP) } : { right: -(noteW + GAP) }) }}
       initial={false}
       animate={{ top: p.sy }}
       transition={{ type: "spring", stiffness: 360, damping: 32, mass: 0.6 }}
@@ -278,14 +298,20 @@ function Note({
 export default function AeoCallouts({
   root,
   items,
+  noteWidth = NOTE_W,
+  outline = true,
 }: {
   root: RefObject<HTMLElement | null>;
   items: DemoCallout[];
+  /** Width of each note beside the card. */
+  noteWidth?: number;
+  /** Draw the dashed outline around the target. Off when the target should stay unframed. */
+  outline?: boolean;
 }) {
   const reduced = useReducedMotion();
   const maskBase = useId().replace(/:/g, "");
   const [hot, setHot] = useState<string | null>(null);
-  const layout = useLayout(root, items);
+  const layout = useLayout(root, items, noteWidth);
   const placed = place(items, layout);
 
   if (!layout.fits) {
@@ -328,13 +354,21 @@ export default function AeoCallouts({
       >
         <AnimatePresence>
           {placed.map((p) => (
-            <Connector key={p.id} p={p} hot={hot === p.id} reduced={reduced} maskId={`${maskBase}-${p.id}`} />
+            <Connector
+              key={p.id}
+              p={p}
+              hot={hot === p.id}
+              reduced={reduced}
+              maskId={`${maskBase}-${p.id}`}
+              noteW={noteWidth}
+              outline={outline}
+            />
           ))}
         </AnimatePresence>
       </svg>
       <AnimatePresence>
         {placed.map((p) => (
-          <Note key={p.id} p={p} reduced={reduced} onHover={setHot} />
+          <Note key={p.id} p={p} reduced={reduced} onHover={setHot} noteW={noteWidth} />
         ))}
       </AnimatePresence>
     </div>

@@ -11,7 +11,10 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { motion } from 'motion/react';
+import { ChatgptIcon, ClaudeIcon, GeminiIcon, PerplexityIcon } from '@/components/icons';
 import { SpeedCounter } from '@/components/motion/speed-counter';
+import { ShareList } from './breakdown-list';
 import CardTitleIcon, { type CardTitleIconKind } from '../components/card-title-icon';
 import Icon3 from '../svgs/svg-icon3';
 import Icon4 from '../svgs/svg-icon4';
@@ -20,7 +23,6 @@ import {
   DEMO_HERO_DASHBOARD,
   PAGES_TABS,
   SOURCES_TABS,
-  barWidthForIndex,
   pinForLivePoint,
   pinForPoint,
   type ChartPoint,
@@ -36,6 +38,31 @@ import {
   METRIC_TILE_GRID,
   METRIC_TILE_IDLE,
 } from '@/components/audit/report/metric-tile-styles';
+
+const AI_SOURCE_ICONS: Record<string, typeof ChatgptIcon> = {
+  ChatGPT: ChatgptIcon,
+  Perplexity: PerplexityIcon,
+  Claude: ClaudeIcon,
+  Gemini: GeminiIcon,
+};
+
+/** Brand icon for known AI sources, otherwise the row's favicon image. */
+function SourceMark({ name, imgSrc }: { name: string; imgSrc: string }) {
+  const BrandIcon = AI_SOURCE_ICONS[name];
+  if (BrandIcon) return <BrandIcon aria-hidden className="block size-4 shrink-0" />;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      className="block h-4 w-4 max-w-full shrink-0 overflow-clip rounded-md bg-surface-7 object-contain"
+      alt=""
+      height={16}
+      width={16}
+      src={imgSrc}
+      title={name}
+    />
+  );
+}
+
 
 const TILE_IDLE = METRIC_TILE_IDLE;
 const TILE_ACTIVE = METRIC_TILE_ACTIVE;
@@ -301,48 +328,30 @@ export function HeroDemoDashboard({
         </div>
 
         {showBreakdowns ? (
-        <div className="mb-4 grid w-full grid-cols-1 items-start gap-4 md:grid-cols-2">
+        <div className="mb-4 grid w-full grid-cols-1 items-stretch gap-4 md:grid-cols-2">
           <BreakdownCard
             title="Pages"
             icon="pages"
             tabs={
               <div
-                className="flex flex-wrap items-center gap-3 text-xs font-medium leading-4"
+                className="flex flex-wrap items-center gap-0.5 text-xs font-medium leading-4"
                 role="tablist"
                 aria-label="Page breakdown"
               >
                 {pagesTabs.map((tab) => (
-                  <TabButton key={tab} active={pagesTab === tab} onClick={() => setPagesTab(tab)}>
+                  <TabButton key={tab} group="pages" active={pagesTab === tab} onClick={() => setPagesTab(tab)}>
                     {tab}
                   </TabButton>
                 ))}
               </div>
             }
           >
-            <ul className="flex list-outside flex-col [list-style-type:none]">
-              {(pagesByTab[pagesTab] ?? []).map((row, i, arr) => (
-                <li key={`${row.path}-${i}`} className="list-item">
-                  <div className="relative block w-full overflow-hidden rounded-lg">
-                    <div
-                      className="pointer-events-none absolute top-1 left-0 block h-6 rounded-md bg-color-001"
-                      style={{ width: barWidthForIndex(i, arr.length) }}
-                      aria-hidden
-                    />
-                    <div className="relative z-10 flex items-center justify-between gap-3 px-2.5 py-2">
-                      <span
-                        className="min-w-0 flex-1 overflow-hidden text-xs leading-4 whitespace-nowrap"
-                        title={row.path}
-                      >
-                        {row.path}
-                      </span>
-                      <p className="w-14 shrink-0 text-right text-[0.6875rem] leading-[0.6875rem] text-muted-foreground max-md:w-12">
-                        {row.value}
-                      </p>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <ShareList
+              rows={(pagesByTab[pagesTab] ?? []).map((row) => ({
+                label: row.path,
+                value: row.value,
+              }))}
+            />
           </BreakdownCard>
 
           <BreakdownCard
@@ -350,13 +359,14 @@ export function HeroDemoDashboard({
             icon="sources"
             tabs={
               <div
-                className="flex flex-wrap items-center gap-3 text-xs font-medium leading-4"
+                className="flex flex-wrap items-center gap-0.5 text-xs font-medium leading-4"
                 role="tablist"
                 aria-label="Traffic sources"
               >
                 {sourcesTabs.map((tab) => (
                   <TabButton
                     key={tab}
+                    group="sources"
                     active={sourcesTab === tab}
                     onClick={() => setSourcesTab(tab)}
                   >
@@ -366,38 +376,13 @@ export function HeroDemoDashboard({
               </div>
             }
           >
-            <ul className="flex list-outside flex-col [list-style-type:none]">
-              {(sourcesByTab[sourcesTab] ?? []).map((row, i, arr) => (
-                <li key={`${row.name}-${i}`} className="list-item">
-                  <div className="relative block w-full overflow-hidden rounded-lg">
-                    <div
-                      className="pointer-events-none absolute top-1 left-0 block h-6 rounded-md bg-color-001"
-                      style={{ width: barWidthForIndex(i, arr.length) }}
-                      aria-hidden
-                    />
-                    <div className="relative z-10 flex items-center justify-between gap-3 px-2.5 py-2">
-                      <span className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden rounded-md">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          className="block h-4 w-4 max-w-full shrink-0 overflow-clip rounded-md bg-surface-7 object-contain"
-                          alt=""
-                          height={16}
-                          width={16}
-                          src={row.imgSrc}
-                          title={row.name}
-                        />
-                        <span className="min-w-0 flex-1 overflow-hidden text-xs leading-4 whitespace-nowrap">
-                          {row.name}
-                        </span>
-                      </span>
-                      <span className="w-14 shrink-0 text-right text-[0.6875rem] leading-[0.6875rem] text-muted-foreground max-md:w-12">
-                        {row.value}
-                      </span>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <ShareList
+              rows={(sourcesByTab[sourcesTab] ?? []).map((row) => ({
+                label: row.name,
+                value: row.value,
+                leading: <SourceMark name={row.name} imgSrc={row.imgSrc} />,
+              }))}
+            />
           </BreakdownCard>
         </div>
         ) : null}
@@ -489,22 +474,14 @@ function PinnedPopover({
             </div>
             <div className="flex h-4 items-center justify-between gap-3 leading-3">
               <span className="flex h-4 min-w-0 items-center gap-1.5 text-color-006">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  className="block h-4 w-4 max-w-full shrink-0 overflow-clip rounded-md bg-surface-7 object-contain"
-                  alt=""
-                  height={16}
-                  width={16}
-                  src={payload.referrer.imgSrc}
-                  title={payload.referrer.name}
-                />
+                <SourceMark name={payload.referrer.name} imgSrc={payload.referrer.imgSrc} />
                 <span className="block overflow-hidden whitespace-nowrap">{payload.referrer.name}</span>
               </span>
               <span className="block shrink-0 font-medium [font-family:ui-monospace,_SFMono-Regular,_Menlo,_Monaco,_Consolas,_'Liberation_Mono',_'Courier_New',_monospace]">
                 {payload.referrer.count}
               </span>
             </div>
-            <p className="block text-[0.6875rem] leading-[0.9375rem] whitespace-nowrap text-clr-5">
+            <p className="block text-[0.6875rem] leading-[0.9375rem] whitespace-nowrap text-muted">
               {payload.referrer.share}
             </p>
           </div>
@@ -573,10 +550,13 @@ function LegendDot({
 function TabButton({
   active,
   onClick,
+  group,
   children,
 }: {
   active: boolean;
   onClick: () => void;
+  /** Tabs sharing a group share one sliding highlight. */
+  group: string;
   children: ReactNode;
 }) {
   return (
@@ -585,13 +565,18 @@ function TabButton({
       role="tab"
       aria-selected={active}
       onClick={onClick}
-      className={
-        active
-          ? 'block cursor-pointer rounded-sm text-center'
-          : 'block cursor-pointer rounded-sm text-center text-muted-foreground hover:text-clr-26'
-      }
+      className={`relative block cursor-pointer rounded-md px-2 py-1 text-center transition-colors ${
+        active ? '' : 'text-muted-foreground hover:text-clr-26'
+      }`}
     >
-      {children}
+      {active ? (
+        <motion.span
+          layoutId={`tab-pill-${group}`}
+          className="absolute inset-0 rounded-md bg-tint"
+          transition={{ type: 'spring', stiffness: 700, damping: 38 }}
+        />
+      ) : null}
+      <span className="relative">{children}</span>
     </button>
   );
 }
@@ -608,7 +593,7 @@ function BreakdownCard({
   children: ReactNode;
 }) {
   return (
-    <div className="group/card flex flex-col rounded-[14px] border border-solid border-surface bg-surface-3 text-sm leading-5">
+    <div className="group/card flex h-full flex-col rounded-[14px] border border-solid border-surface bg-surface-3 text-sm leading-5">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[24px] items-center gap-x-3 gap-y-2 rounded-tl-md rounded-tr-md px-4 pt-5 pb-4 [grid-auto-rows:min-content] max-md:grid-cols-1 max-md:grid-rows-[19.25px_24px] max-md:items-start max-md:gap-x-1 max-md:px-3 max-md:pt-4 max-md:pb-3">
         <div className="flex min-w-0 items-center gap-2 font-medium leading-[1.1875rem]">
           <CardTitleIcon kind={icon} />

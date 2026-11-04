@@ -151,6 +151,13 @@ export function CursorIcon(props: SVGProps<SVGSVGElement>) {
 }
 
 
+export function PerplexityIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>{/* Icon from MingCute Icon by MingCute Design - https://github.com/Richard9394/MingCute/blob/main/LICENSE */}<g fill="none"><path d="m12.594 23.258l-.012.002l-.071.035l-.02.004l-.014-.004l-.071-.036q-.016-.004-.024.006l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.016-.018m.264-.113l-.014.002l-.184.093l-.01.01l-.003.011l.018.43l.005.012l.008.008l.201.092q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.003-.011l.018-.43l-.003-.012l-.01-.01z" /><path fill="currentColor" d="M11 21v-4.086l-3.793 3.793A1 1 0 0 1 5.5 20v-3H4a1 1 0 0 1-1-1V8.5a1 1 0 0 1 1-1h1.5V4a1 1 0 0 1 1.633-.774L11 6.39V3a1 1 0 1 1 2 0v3.39l3.867-3.164A1 1 0 0 1 18.5 4v3.5H20a1 1 0 0 1 1 1V16a1 1 0 0 1-1 1h-1.5v3a1 1 0 0 1-1.707.707L13 16.914V21a1 1 0 1 1-2 0m-3.5-6.586v3.172l3.5-3.5v-3.172zm5.5-.328l3.5 3.5v-3.172l-3.5-3.5zm5.207-.793A1 1 0 0 1 18.5 14v1h.5V9.5h-4.586zM5 15h.5v-1a1 1 0 0 1 .293-.707L9.586 9.5H5zm9.802-7.5H16.5V6.11zM7.5 7.5h1.698L7.5 6.11z" /></g></svg>
+  )
+}
+
+
 export function GlobeIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>{/* Icon from Boxicons by Boxicons - https://github.com/box-icons/boxicons-core/blob/main/LICENSE */}<path fill="currentColor" d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10s10-4.49 10-10S17.51 2 12 2m0 18c-4.41 0-8-3.59-8-8c0-.35.03-.7.08-1.04q.18.09.42.09c.83-.03 1.72.18 2 .45s.72 1.29 1 2.25s.67 1.64.88 1.5s.43-.48.5-.75c.07-.28.35-.73.62-1c.28-.28.73-.53 1.01-.57s.61.03.74.15s.27.38.33.57c.05.19.23.39.39.45c.16.05.34.39.41.74c.06.35.22.75.35.87s.36.24.51.26s.19-.18.08-.43c-.11-.26-.05-.43.13-.38s.5-.02.72-.17c.22-.14.38-.44.35-.67c-.02-.23-.15-.51-.29-.63c-.13-.12-.24-.32-.24-.45s.17-.27.37-.31s.65-.28 1.01-.55s.73-.74.82-1.06s.08-.74-.01-.95s-.13-.66-.07-1.02c.06-.35.2-.43.32-.18c.11.26.3.41.4.33c.11-.07.19-.45.18-.82s.31-1.24.71-1.91c.05-.08.08-.16.1-.24A7.98 7.98 0 0 1 20 12c0 4.41-3.59 8-8 8" /><path fill="currentColor" d="M13.48 16.93c-.2-.16-.52-.4-.72-.54c-.19-.13-.45-.24-.57-.24s-.18.11-.13.25s.2.36.34.5l.5.5c.14.14.35.28.47.32s.32.09.45.11c.13.03.26-.09.29-.27c.03-.17-.01-.32-.1-.33c-.09 0-.33-.14-.53-.31Zm4.09-7.43c-.23.56-.41 1.24-.41 1.51s.16.26.35-.03s.5-.81.68-1.16s.28-.78.2-.97s-.2-.35-.27-.35s-.32.44-.55 1m-1.17 5.9c-.14-.02-.42.14-.62.36c-.21.22-.54.51-.75.65s-.32.39-.26.56c.07.17.34.32.62.34c.28.01.65-.22.84-.51s.35-.72.38-.94c.02-.23-.07-.43-.21-.45Z" /></svg>
@@ -168,5 +175,18 @@ export function PdfIcon(props: SVGProps<SVGSVGElement>) {
 export function MappingIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16" {...props}>{/* Icon from OpenSearch UI by OpenSearch Contributors - https://github.com/opensearch-project/oui/blob/main/LICENSE.txt */}<path fill="currentColor" d="M8 8H4.915a1.5 1.5 0 1 1 0-1H8V2.5A1.5 1.5 0 0 1 9.5 1h2.585a1.5 1.5 0 1 1 0 1H9.5a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h2.585a1.5 1.5 0 1 1 0 1H9.5A1.5 1.5 0 0 1 8 12.5zM3.5 3a1.5 1.5 0 1 1 0-3a1.5 1.5 0 0 1 0 3m0 12a1.5 1.5 0 1 1 0-3a1.5 1.5 0 0 1 0 3m10-6a1.5 1.5 0 1 1 0-3a1.5 1.5 0 0 1 0 3" /></svg>
+  )
+}
+
+
+export function DevicesIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>{/* Icon from Google Material Icons by Material Design Authors - https://github.com/material-icons/material-icons/blob/master/LICENSE */}<path fill="currentColor" d="M4 6h18V4H4c-1.1 0-2 .9-2 2v11H0v3h14v-3H4zm19 2h-6c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h6c.55 0 1-.45 1-1V9c0-.55-.45-1-1-1m-1 9h-4v-7h4z" /></svg>
+  )
+}
+
+export function PageRouteIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>{/* Icon from Google Material Icons by Material Design Authors - https://github.com/material-icons/material-icons/blob/master/LICENSE */}<path fill="currentColor" d="m9.78 11.16l-1.42 1.42a7.3 7.3 0 0 1-1.79-2.94l1.94-.49c.32.89.77 1.5 1.27 2.01m.37-6.01l-2.8-2.8c-.2-.2-.51-.2-.71 0l-2.79 2.8a.5.5 0 0 0 .36.85h1.81c.02.81.08 1.54.19 2.17l1.94-.49C8.08 7.2 8.03 6.63 8.02 6H9.8a.5.5 0 0 0 .35-.85m10 0l-2.79-2.79c-.2-.2-.51-.2-.71 0l-2.79 2.79c-.32.31-.1.85.35.85h1.78c-.1 3.68-1.28 4.75-2.54 5.88c-.5.44-1.01.92-1.45 1.55c-.34-.49-.73-.88-1.13-1.24L9.46 13.6c.93.85 1.54 1.54 1.54 3.4v4c0 .55.45 1 1 1s1-.45 1-1v-4c0-2.02.71-2.66 1.79-3.63c1.38-1.24 3.08-2.78 3.2-7.37h1.8a.5.5 0 0 0 .36-.85" /></svg>
   )
 }
