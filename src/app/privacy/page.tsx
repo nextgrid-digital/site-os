@@ -32,8 +32,8 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-lg font-semibold">1. Information we collect</h2>
           <ul className="mt-2 list-disc space-y-1 pl-5">
             <li>
-              <strong>Account information:</strong> email address and a securely hashed password
-              (or your Google account identifier if you sign in with Google), managed via
+              <strong>Account information:</strong> email address (we sign you in with a one-time
+              code sent to it, or with your Google account identifier if you sign in with Google), managed via
               Supabase Auth.
             </li>
             <li>

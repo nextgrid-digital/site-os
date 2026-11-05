@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Loader2Icon } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { AUDIT_SESSION_COOKIE } from '@/lib/audit/session-cookie';
@@ -9,7 +9,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const SESSION_COOKIE = AUDIT_SESSION_COOKIE;
 
@@ -18,26 +17,28 @@ interface AuthSignInGateProps {
   onUnlocked: () => void;
 }
 
-type Mode = 'signin' | 'signup' | 'forgot';
+type Step = 'email' | 'code';
+
+const RESEND_COOLDOWN_SECONDS = 30;
 
 export function AuthSignInGate({
   sessionId,
   onUnlocked,
 }: AuthSignInGateProps) {
-  const [mode, setMode] = useState<Mode>('signin');
+  const [step, setStep] = useState<Step>('email');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
 
-  function switchMode(next: Mode) {
-    setMode(next);
-    setError('');
-    setMessage('');
-  }
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
 
   async function handleGoogle() {
     setGoogleLoading(true);
@@ -69,30 +70,26 @@ export function AuthSignInGate({
     }
   }
 
-  async function handleForgotSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function sendCode(): Promise<boolean> {
     setLoading(true);
     setError('');
     setMessage('');
-
     try {
-      const res = await fetch('/api/auth/forgot-password', {
+      const res = await fetch('/api/auth/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(typeof data.error === 'string' ? data.error : 'Could not send reset link');
-        return;
+        setError(typeof data.error === 'string' ? data.error : 'Could not send a code');
+        return false;
       }
-      setMessage(
-        typeof data.message === 'string'
-          ? data.message
-          : 'If an account exists for that email, a reset link is on the way.'
-      );
+      setCooldown(RESEND_COOLDOWN_SECONDS);
+      return true;
     } catch {
       setError('Something went wrong. Please try again.');
+      return false;
     } finally {
       setLoading(false);
     }
@@ -100,32 +97,31 @@ export function AuthSignInGate({
 
   async function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (await sendCode()) {
+      setCode('');
+      setStep('code');
+    }
+  }
+
+  async function handleResend() {
+    if (cooldown > 0 || loading) return;
+    if (await sendCode()) setMessage('A new code is on the way.');
+  }
+
+  async function handleVerifySubmit(e: React.FormEvent) {
+    e.preventDefault();
     setLoading(true);
     setError('');
     setMessage('');
-
-    if (mode === 'signup' && password !== confirmPassword) {
-      setError('Passwords do not match');
-      setLoading(false);
-      return;
-    }
-
-    if (mode === 'signup' && password.length < 8) {
-      setError('Password must be at least 8 characters');
-      setLoading(false);
-      return;
-    }
-
     try {
-      const endpoint = mode === 'signup' ? '/api/auth/signup' : '/api/auth/login';
-      const res = await fetch(endpoint, {
+      const res = await fetch('/api/auth/otp/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, sessionId: sessionId || undefined }),
+        body: JSON.stringify({ email, token: code, sessionId: sessionId || undefined }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error || 'Authentication failed');
+        setError(typeof data.error === 'string' ? data.error : 'Verification failed');
         return;
       }
       onUnlocked();
@@ -136,23 +132,33 @@ export function AuthSignInGate({
     }
   }
 
-  if (mode === 'forgot') {
-    return (
-      <Card className="w-full gap-5 rounded-xl bg-raised p-6 shadow-sm ring-1 ring-border sm:p-8">
-        <CardHeader className="gap-1 px-0">
-          <CardTitle className="font-sans text-2xl font-semibold tracking-tight text-foreground">
-            Reset your password
-          </CardTitle>
-          <CardDescription className="text-sm text-muted-foreground">
-            Enter your email and we&apos;ll send a link to choose a new password.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4 px-0">
-          <form onSubmit={handleForgotSubmit} className="space-y-3">
+  function backToEmail() {
+    setStep('email');
+    setCode('');
+    setError('');
+    setMessage('');
+  }
+
+  return (
+    <Card className="w-full gap-5 rounded-xl bg-raised p-6 shadow-sm ring-1 ring-border sm:p-8">
+      <CardHeader className="gap-1 px-0">
+        <CardTitle className="font-sans text-2xl font-semibold tracking-tight text-foreground">
+          {step === 'code' ? 'Check your email' : 'Sign in or sign up'}
+        </CardTitle>
+        <CardDescription className="text-sm text-muted-foreground">
+          {step === 'code'
+            ? `We sent a code to ${email}. Enter it below to continue.`
+            : "Enter your email and we'll send you a one-time code. No password needed."}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4 px-0">
+        {step === 'email' ? (
+          <form onSubmit={handleEmailSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="forgot-email">Email</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="forgot-email"
+                className="h-10 rounded-xl"
+                id="email"
                 type="email"
                 placeholder="you@company.com"
                 value={email}
@@ -161,130 +167,81 @@ export function AuthSignInGate({
                 autoComplete="email"
               />
             </div>
-            <Button type="submit" disabled={loading} className="w-full">
+            <Button type="submit" disabled={loading || googleLoading} className="mt-2 h-11 w-full cursor-pointer rounded-xl">
               {loading ? <Loader2Icon className="size-4 animate-spin" /> : null}
-              {loading ? 'Sending…' : 'Send reset link'}
-            </Button>
-            <Button type="button" variant="ghost" onClick={() => switchMode('signin')} className="w-full">
-              Back to sign in
+              {loading ? 'Sending code…' : 'Continue with email'}
             </Button>
           </form>
-
-          {message ? <p className="text-sm text-success">{message}</p> : null}
-          {error ? <p className="text-sm text-danger-ink">{error}</p> : null}
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Card className="w-full gap-5 rounded-xl bg-raised p-6 shadow-sm ring-1 ring-border sm:p-8">
-      <CardHeader className="gap-1 px-0">
-        <CardTitle className="font-sans text-2xl font-semibold tracking-tight text-foreground">
-          {mode === 'signup' ? 'Create your account' : 'Sign in'}
-        </CardTitle>
-        <CardDescription className="text-sm text-muted-foreground">
-          {mode === 'signup' ? 'Set up your Site-OS account to continue.' : 'Sign in to continue to Site-OS.'}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4 px-0">
-        <Tabs value={mode} onValueChange={(value) => switchMode(value as Mode)}>
-          <TabsList className="w-full rounded-xl bg-tint group-data-horizontal/tabs:h-10">
-            <TabsTrigger className="rounded-lg" value="signin">Sign in</TabsTrigger>
-            <TabsTrigger className="rounded-lg" value="signup">Sign up</TabsTrigger>
-          </TabsList>
-        </Tabs>
-
-        <form onSubmit={handleEmailSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              className="h-10 rounded-xl"
-              id="email"
-              type="email"
-              placeholder="you@company.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
-              {mode === 'signin' ? (
-                <button
-                  type="button"
-                  onClick={() => switchMode('forgot')}
-                  className="text-xs font-medium text-muted-foreground transition hover:text-foreground"
-                >
-                  Forgot password?
-                </button>
-              ) : null}
-            </div>
-            <Input
-              id="password"
-              type="password"
-              className="h-10 rounded-xl"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={mode === 'signup' ? 8 : undefined}
-              autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-            />
-          </div>
-
-          {mode === 'signup' ? (
+        ) : (
+          <form onSubmit={handleVerifySubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="confirm-password">Confirm password</Label>
+              <Label htmlFor="otp-code">Verification code</Label>
               <Input
-                className="h-10 rounded-xl"
-                id="confirm-password"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="h-11 rounded-xl text-center text-lg tracking-[0.4em]"
+                id="otp-code"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={8}
+                placeholder="123456"
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
                 required
-                minLength={8}
-                autoComplete="new-password"
+                autoFocus
+                autoComplete="one-time-code"
               />
             </div>
-          ) : null}
+            <Button
+              type="submit"
+              disabled={loading || code.length < 6}
+              className="mt-2 h-11 w-full cursor-pointer rounded-xl"
+            >
+              {loading ? <Loader2Icon className="size-4 animate-spin" /> : null}
+              {loading ? 'Verifying…' : 'Verify and continue'}
+            </Button>
+            <div className="flex items-center justify-between text-xs">
+              <button
+                type="button"
+                onClick={backToEmail}
+                className="font-medium text-muted-foreground transition hover:text-foreground"
+              >
+                Use a different email
+              </button>
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={cooldown > 0 || loading}
+                className="font-medium text-muted-foreground transition hover:text-foreground disabled:opacity-50"
+              >
+                {cooldown > 0 ? `Resend code in ${cooldown}s` : 'Resend code'}
+              </button>
+            </div>
+          </form>
+        )}
 
-          <Button type="submit" disabled={loading || googleLoading} className="mt-2 h-11 w-full cursor-pointer rounded-xl">
-            {loading ? <Loader2Icon className="size-4 animate-spin" /> : null}
-            {loading
-              ? mode === 'signup'
-                ? 'Creating account…'
-                : 'Signing in…'
-              : mode === 'signup'
-                ? 'Create account'
-                : 'Sign in'}
-          </Button>
-        </form>
-
+        {message ? <p className="text-sm text-success">{message}</p> : null}
         {error ? <p className="text-sm text-danger-ink">{error}</p> : null}
 
-        <div className="flex items-center gap-3">
-          <Separator className="flex-1" />
-          <span className="text-xs text-muted-foreground">or Google</span>
-          <Separator className="flex-1" />
-        </div>
+        {step === 'email' ? (
+          <>
+            <div className="flex items-center gap-3">
+              <Separator className="flex-1" />
+              <span className="text-xs text-muted-foreground">or</span>
+              <Separator className="flex-1" />
+            </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleGoogle}
-          disabled={googleLoading || loading}
-          className="h-11 w-full cursor-pointer gap-2 rounded-xl hover:bg-tint"
-        >
-          <GoogleIcon />
-          {googleLoading
-            ? 'Redirecting…'
-            : mode === 'signup'
-              ? 'Sign up with Google'
-              : 'Continue with Google'}
-        </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleGoogle}
+              disabled={googleLoading || loading}
+              className="h-11 w-full cursor-pointer gap-2 rounded-xl hover:bg-tint"
+            >
+              <GoogleIcon />
+              {googleLoading ? 'Redirecting…' : 'Continue with Google'}
+            </Button>
+          </>
+        ) : null}
       </CardContent>
     </Card>
   );

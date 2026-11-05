@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 
 const items = [
   { label: 'Account information', href: '/account' },
-  { label: 'Password', href: '/account/password' },
   { label: 'Billing', href: '/account/billing' },
 ] as const;
 

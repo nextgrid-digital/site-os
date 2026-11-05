@@ -6,8 +6,6 @@ import { unlockAuditSession } from '@/lib/db/audit-sessions';
 import { claimProjectOwnership } from '@/lib/db/projects';
 import { fetchWithSupabaseRetry } from '@/lib/supabase/fetch-retry';
 
-const UPDATE_PASSWORD_PATH = '/auth/update-password';
-
 function safeNextPath(raw: string | null): string | null {
   if (!raw || !raw.startsWith('/') || raw.startsWith('//')) return null;
   return raw;
@@ -20,12 +18,10 @@ export async function GET(request: Request) {
   const sessionId =
     url.searchParams.get('sessionId') || cookieStore.get(AUDIT_SESSION_COOKIE)?.value || null;
   const nextParam = safeNextPath(url.searchParams.get('next'));
-  const isRecovery =
-    url.searchParams.get('type') === 'recovery' || nextParam === UPDATE_PASSWORD_PATH;
   const defaultNext = sessionId
     ? `/app?session=${encodeURIComponent(sessionId)}`
     : '/app';
-  const next = isRecovery ? UPDATE_PASSWORD_PATH : (nextParam ?? defaultNext);
+  const next = nextParam ?? defaultNext;
   const fail = new URL(
     `/login?error=auth${sessionId ? `&sessionId=${encodeURIComponent(sessionId)}` : ''}`,
     url.origin

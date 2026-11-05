@@ -8,29 +8,29 @@ import { createClient } from '@/utils/supabase/server';
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
-  const password = typeof body.password === 'string' ? body.password : '';
+  const token = typeof body.token === 'string' ? body.token.replace(/\s+/g, '') : '';
   const sessionId = typeof body.sessionId === 'string' ? body.sessionId.trim() : '';
 
-  if (!email || !email.includes('@') || !password) {
-    return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
+  if (!email || !email.includes('@') || !/^\d{6,8}$/.test(token)) {
+    return NextResponse.json({ error: 'Enter the code from your email' }, { status: 400 });
   }
 
   const ip = getClientIp(request);
-  const ipLimit = rateLimit(`login:ip:${ip}`, 15, 15 * 60 * 1000);
+  const ipLimit = rateLimit(`otp-verify:ip:${ip}`, 30, 15 * 60 * 1000);
   if (!ipLimit.allowed) return rateLimitResponse(ipLimit.retryAfterMs);
-  const emailLimit = rateLimit(`login:email:${email}`, 6, 15 * 60 * 1000);
+  const emailLimit = rateLimit(`otp-verify:email:${email}`, 8, 15 * 60 * 1000);
   if (!emailLimit.allowed) return rateLimitResponse(emailLimit.retryAfterMs);
 
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  const { data, error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
 
   if (error || !data.user) {
-    return NextResponse.json({ error: error?.message ?? 'Sign in failed' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'That code is invalid or has expired. Request a new one.' },
+      { status: 400 }
+    );
   }
 
   if (sessionId) {

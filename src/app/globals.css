@@ -181,7 +181,7 @@
   --priority-foreground: oklch(0.99 0 0);
   --aeo: oklch(0.78 0.12 85);
   --aeo-foreground: oklch(0.15 0 0);
-  --success: oklch(0.5 0.12 155);
+  --success: #0b7643;
   --success-foreground: oklch(0.99 0 0);
   --warning: oklch(0.72 0.14 75);
   --warning-foreground: oklch(0.15 0 0);

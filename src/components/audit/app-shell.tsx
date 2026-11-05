@@ -42,7 +42,13 @@ export function AppShell({
             <div
               className={`${SITE_CONTENT_CLASS} flex flex-wrap items-center justify-between gap-3`}
             >
-              <p className="text-xs text-muted-foreground">Site-OS</p>
+              <p className="flex items-center gap-2 text-xs text-muted-foreground">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo-mark-on-light.svg" alt="" className="size-5 dark:hidden" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo-mark-on-dark.svg" alt="" className="hidden size-5 dark:block" />
+                Site-OS
+              </p>
               <ThemeModeToggle />
             </div>
           </AutoHideFooter>
