@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { SITE_CONFIG } from "@/lib/site-config";
 
 type FaqItem = { id: string; title: string; description: string };
 const FAQ_ITEMS: FaqItem[] = [
@@ -25,7 +26,7 @@ const FAQ_ITEMS: FaqItem[] = [
     { id: "crawl-slow-site", title: "Will the crawl slow down my site?", description: "No. The crawl behaves like a normal visitor requesting your public pages at a moderate rate. It doesn't hammer your server or run any load testing." },
     // { id: "share-with-client", title: "Can I share the report with a client?", description: "Yes. Export a growth brief as a shareable link — recipients can view findings and priorities without needing a Site-OS account." },
     // { id: "sponsor-site-os", title: "How do I sponsor Site-OS?", description: "Site-OS isn't sponsorship-funded. If you're interested in a partnership, an agency or reseller plan, or bulk audits across multiple client sites, email support@site-os.app and we'll set it up." },
-    { id: "get-help", title: "Where do I get help?", description: "Email support@site-os.app for account, billing, or audit-accuracy questions, or sign in and reach support from inside Your sites." },
+    { id: "get-help", title: "Where do I get help?", description: `Email ${SITE_CONFIG.supportEmail} for account or audit-accuracy questions.` },
 ];
 const FAQ_GROUPS: { title: string; ids: string[] }[] = [
   { title: "Getting started", ids: ["what-is-site-os", "is-free-really-free", "free-crawl-includes", "paid-audit-adds", "save-free-report", "any-website", "upgrade-after-free"] },

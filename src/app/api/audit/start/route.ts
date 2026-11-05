@@ -1,3 +1,4 @@
+import { AGE_RESTRICTED_MESSAGE, isAgeRestrictedSite } from '@/lib/audit/age-restricted';
 import { AuditCancelledError } from '@/lib/audit/cancel';
 import { after, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
@@ -47,6 +48,11 @@ export async function POST(request: Request) {
   const {
     data: { user },
   } = await authClient.auth.getUser();
+
+  // Anonymous visitors may be minors; signed-in users confirmed they are 18+ at sign-in.
+  if (!user?.id && (await isAgeRestrictedSite(websiteUrl, domain))) {
+    return NextResponse.json({ error: AGE_RESTRICTED_MESSAGE, code: 'age_restricted' }, { status: 403 });
+  }
 
   const supabase = getSupabaseAdmin();
 

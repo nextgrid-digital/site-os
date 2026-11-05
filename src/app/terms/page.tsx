@@ -70,12 +70,12 @@ export default function TermsOfServicePage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold">5. Billing</h2>
+          <h2 className="text-lg font-semibold">5. Age requirement and free service</h2>
           <p className="mt-2">
-            Certain features require a paid subscription. Paid plans, pricing, and billing terms
-            (including renewal and cancellation) will be presented at checkout and are
-            incorporated into these Terms by reference. Fees are non-refundable except where
-            required by law.
+            Site-OS is for adults. You must be at least 18 years old to use the Service. We do
+            not knowingly allow anyone under 18 to use it. Age-restricted websites (for example
+            adult content or gambling sites) can only be audited by signed-in users who have
+            confirmed they are 18 or older. If you are under 18, do not use the Service. The Service is currently provided free of charge.
           </p>
         </section>
 

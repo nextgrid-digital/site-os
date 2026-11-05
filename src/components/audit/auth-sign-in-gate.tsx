@@ -20,6 +20,7 @@ interface AuthSignInGateProps {
 type Step = 'email' | 'code';
 
 const RESEND_COOLDOWN_SECONDS = 30;
+const AGE_ERROR = 'Please confirm you are 18 or older to continue.';
 
 export function AuthSignInGate({
   sessionId,
@@ -32,6 +33,7 @@ export function AuthSignInGate({
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
@@ -41,6 +43,10 @@ export function AuthSignInGate({
   }, [cooldown]);
 
   async function handleGoogle() {
+    if (!ageConfirmed) {
+      setError(AGE_ERROR);
+      return;
+    }
     setGoogleLoading(true);
     setError('');
     setMessage('');
@@ -78,7 +84,7 @@ export function AuthSignInGate({
       const res = await fetch('/api/auth/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, ageConfirmed }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -167,7 +173,8 @@ export function AuthSignInGate({
                 autoComplete="email"
               />
             </div>
-            <Button type="submit" disabled={loading || googleLoading} className="mt-2 h-11 w-full cursor-pointer rounded-xl">
+            <AgeCheckbox checked={ageConfirmed} onChange={setAgeConfirmed} />
+            <Button type="submit" disabled={loading || googleLoading || !ageConfirmed} className="mt-2 h-11 w-full cursor-pointer rounded-xl">
               {loading ? <Loader2Icon className="size-4 animate-spin" /> : null}
               {loading ? 'Sending code…' : 'Continue with email'}
             </Button>
@@ -234,7 +241,7 @@ export function AuthSignInGate({
               type="button"
               variant="outline"
               onClick={handleGoogle}
-              disabled={googleLoading || loading}
+              disabled={googleLoading || loading || !ageConfirmed}
               className="h-11 w-full cursor-pointer gap-2 rounded-xl hover:bg-tint"
             >
               <GoogleIcon />
@@ -244,6 +251,30 @@ export function AuthSignInGate({
         ) : null}
       </CardContent>
     </Card>
+  );
+}
+
+function AgeCheckbox({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <label className="flex cursor-pointer items-start gap-2 text-xs text-muted-foreground">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="mt-0.5 size-4 shrink-0 cursor-pointer"
+      />
+      <span>
+        I am 18 or older and agree to the{' '}
+        <a href="/terms" target="_blank" rel="noreferrer" className="underline">
+          Terms
+        </a>{' '}
+        and{' '}
+        <a href="/privacy" target="_blank" rel="noreferrer" className="underline">
+          Privacy Policy
+        </a>
+        .
+      </span>
+    </label>
   );
 }
 

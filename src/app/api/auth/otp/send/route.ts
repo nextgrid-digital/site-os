@@ -11,6 +11,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'A valid email is required' }, { status: 400 });
   }
 
+  if (body.ageConfirmed !== true) {
+    return NextResponse.json(
+      { error: 'You must confirm that you are 18 or older to use Site-OS.' },
+      { status: 400 }
+    );
+  }
+
   const ip = getClientIp(request);
   const ipLimit = rateLimit(`otp-send:ip:${ip}`, 15, 60 * 60 * 1000);
   if (!ipLimit.allowed) return rateLimitResponse(ipLimit.retryAfterMs);

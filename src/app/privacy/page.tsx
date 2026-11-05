@@ -61,7 +61,6 @@ export default function PrivacyPolicyPage() {
             <li>To authenticate you and maintain your account and project data.</li>
             <li>To operate, maintain, and improve Site-OS.</li>
             <li>To communicate with you about your account or audits (e.g. transactional email).</li>
-            <li>To process payments once billing is enabled, via our payment processor.</li>
           </ul>
           <p className="mt-2">
             We do not sell your data or Google account data to third parties, and we do not use
@@ -140,7 +139,16 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold">8. Changes to this policy</h2>
+          <h2 className="text-lg font-semibold">8. Children</h2>
+          <p className="mt-2">
+            Site-OS is not intended for anyone under 18, and we do not knowingly collect personal
+            data from children. If you believe a child has created an account, contact us and we
+            will delete it.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-semibold">9. Changes to this policy</h2>
           <p className="mt-2">
             We may update this policy from time to time. Material changes will be reflected by
             updating the &quot;Last updated&quot; date above.
@@ -148,7 +156,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold">9. Contact</h2>
+          <h2 className="text-lg font-semibold">10. Contact</h2>
           <p className="mt-2">
             Questions about this policy or your data? Contact us at{' '}
             <a href={`mailto:${SITE_CONFIG.supportEmail}`} className="underline">
