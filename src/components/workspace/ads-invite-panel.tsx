@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import type { AdsInvite } from '@/lib/db/ads-invites';
 
 const fieldClass =
-  'h-9 pointer-coarse:h-11 w-full rounded-md border border-field bg-raised px-3 text-sm text-foreground outline-none focus-visible:border-foreground focus-visible:ring-3 focus-visible:ring-foreground/15';
+  'h-9 pointer-coarse:h-11 w-full rounded-md border border-field bg-raised px-3 text-sm text-foreground outline-none autofill:bg-raised autofill:shadow-[inset_0_0_0_1000px_var(--raised)] autofill:[-webkit-text-fill-color:var(--foreground)] focus-visible:border-foreground focus-visible:ring-3 focus-visible:ring-foreground/15';
 const buttonClass =
   'inline-flex h-9 pointer-coarse:h-11 shrink-0 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/80 disabled:opacity-50';
 

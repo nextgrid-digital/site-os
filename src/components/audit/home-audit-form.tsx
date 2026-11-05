@@ -81,7 +81,7 @@ export function HomeAuditForm({
           aria-label="Website URL"
           className={
             inputClassName ??
-            'min-w-0 flex-1 rounded-xl border border-field bg-raised px-4 py-3.5 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-foreground/15'
+            'min-w-0 flex-1 rounded-xl border border-field bg-raised px-4 py-3.5 text-sm text-foreground shadow-sm placeholder:text-muted-foreground autofill:bg-raised autofill:shadow-[inset_0_0_0_1000px_var(--raised)] autofill:[-webkit-text-fill-color:var(--foreground)] focus-visible:border-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-foreground/15'
           }
         />
         <button

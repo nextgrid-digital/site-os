@@ -162,7 +162,7 @@ export function HeroAuditNotch() {
                   aria-label="Website URL"
                   aria-invalid={Boolean(error)}
                   aria-describedby={error ? 'hero-audit-error' : undefined}
-                  className="h-12 min-w-0 flex-1 bg-transparent text-base text-background placeholder:text-background/70 focus:outline-none"
+                  className="h-12 min-w-0 flex-1 bg-transparent text-base text-background placeholder:text-background/70 autofill:shadow-[inset_0_0_0_1000px_var(--foreground)] autofill:[-webkit-text-fill-color:var(--background)] focus:outline-none"
                 />
                 <button
                   type="submit"
