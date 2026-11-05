@@ -3,16 +3,21 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useCallback, useMemo, useSyncExternalStore } from 'react';
+import { CITATION_PROBE_ENABLED } from '@/lib/aeo/citation-probe';
+import { TOPIC_MAP_ENABLED } from '@/lib/aeo/topic-map';
 import { EASE_OUT, SPRING_PRESS, SPRING_SWAP } from '@/lib/ease';
 import { cn } from '@/lib/utils';
 
-export const AEO_SECTIONS = [
-  { id: 'ai-traffic', label: 'AI traffic' },
-  { id: 'topic-map', label: 'Topic map' },
-  { id: 'citation-probe', label: 'Citation probe' },
+const ALL_AEO_SECTIONS = [
+  { id: 'ai-traffic', label: 'AI traffic', enabled: true },
+  { id: 'topic-map', label: 'Topic map', enabled: TOPIC_MAP_ENABLED },
+  { id: 'citation-probe', label: 'Citation probe', enabled: CITATION_PROBE_ENABLED },
 ] as const;
 
-export type AeoSectionId = (typeof AEO_SECTIONS)[number]['id'];
+export type AeoSectionId = (typeof ALL_AEO_SECTIONS)[number]['id'];
+
+/** Sections that are released. Locked ones get no card and no toggle. */
+export const AEO_SECTIONS = ALL_AEO_SECTIONS.filter((section) => section.enabled);
 
 // One preference per browser, shared by all of the customer's projects.
 const STORAGE_KEY = 'siteos.aeo.hidden-sections';

@@ -26,7 +26,8 @@ import {
 } from '@/components/audit/report/aeo/aeo-sections';
 import { AiReferralsCard, type AiReferralsPayload } from '@/components/audit/report/aeo/ai-referrals-card';
 import { TopicMapCard } from '@/components/audit/report/aeo/topic-map-card';
-import type { TopicMap } from '@/lib/aeo/topic-map';
+import { CITATION_PROBE_ENABLED } from '@/lib/aeo/citation-probe';
+import { TOPIC_MAP_ENABLED, type TopicMap } from '@/lib/aeo/topic-map';
 import { StatusBadge } from '@/components/ui/status-badge';
 import type { AeoAnalysis } from '@/lib/aeo/schema';
 import type { AeoScanSummary } from '@/lib/aeo/summarize-scans';
@@ -479,10 +480,12 @@ export function AeoScanner({
               />
             </AeoSection>
           ) : null}
-          <AeoSection visible={!hidden.has('topic-map')}>
-            <TopicMapCard projectId={projectId} initial={data.topicMap ?? null} />
-          </AeoSection>
-          {domain ? (
+          {TOPIC_MAP_ENABLED ? (
+            <AeoSection visible={!hidden.has('topic-map')}>
+              <TopicMapCard projectId={projectId} initial={data.topicMap ?? null} />
+            </AeoSection>
+          ) : null}
+          {domain && CITATION_PROBE_ENABLED ? (
             <AeoSection visible={!hidden.has('citation-probe')}>
               <CitationProbeCard projectId={projectId} domain={domain} analysis={data.analysis} />
             </AeoSection>

@@ -49,6 +49,12 @@ function errorResponse(error: unknown) {
 
 export async function GET(_request: Request, context: RouteContext) {
   try {
+    if (!CITATION_PROBE_ENABLED) {
+      return NextResponse.json(
+        { code: 'disabled', error: 'The citation probe is not available yet.' },
+        { status: 503 }
+      );
+    }
     if (!hasSupabaseConfig()) {
       return NextResponse.json({ error: 'Supabase is not configured.' }, { status: 500 });
     }

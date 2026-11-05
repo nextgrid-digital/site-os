@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { buildTopicMapPrompt, parseTopicMap } from '@/lib/aeo/topic-map';
+import { buildTopicMapPrompt, parseTopicMap, TOPIC_MAP_ENABLED } from '@/lib/aeo/topic-map';
 import { generateGeminiJson, hasGeminiConfig, toPlainError } from '@/lib/ai/gemini';
 import {
   loadAeoAnalysis,
@@ -24,6 +24,12 @@ type RouteContext = { params: Promise<{ projectId: string }> };
 
 export async function POST(_request: Request, context: RouteContext) {
   try {
+    if (!TOPIC_MAP_ENABLED) {
+      return NextResponse.json(
+        { code: 'disabled', error: 'The topic map is not available yet.' },
+        { status: 503 }
+      );
+    }
     if (!hasSupabaseConfig()) {
       return NextResponse.json({ error: 'Supabase is not configured.' }, { status: 500 });
     }

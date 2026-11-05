@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { summarizeAeoScans } from '@/lib/aeo/summarize-scans';
+import { TOPIC_MAP_ENABLED } from '@/lib/aeo/topic-map';
 import {
   getSelectedGa4Property,
   loadAeoAnalysis,
@@ -160,7 +161,7 @@ export async function GET(request: Request, context: RouteContext) {
         const [pages, analysis, topicMap] = await Promise.all([
           loadAeoPageScans(runId),
           loadAeoAnalysis(runId),
-          loadTopicMap(runId),
+          TOPIC_MAP_ENABLED ? loadTopicMap(runId) : Promise.resolve(null),
         ]);
         // Traffic data is Google-backed, so it follows the same signed-in rule as `connect`.
         const [ga4Property, aiReferrals] = userId

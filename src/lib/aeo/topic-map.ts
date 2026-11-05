@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+/** Not released yet. While false, the API, saved data and card are all locked. */
+export const TOPIC_MAP_ENABLED = false;
+
 export const MAX_TOPIC_PAGES = 60;
 const MAX_TOPICS = 8;
 const MAX_GAPS = 6;
