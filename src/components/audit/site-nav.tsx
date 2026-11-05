@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { UserAccountMenu } from "@/components/audit/user-account-menu";
 
 /** Shared content width with marketing sections (`max-w-280 px-8`). */
-export const SITE_CONTENT_CLASS = "mx-auto w-full max-w-280 px-8";
+export const SITE_CONTENT_CLASS = "mx-auto w-full max-w-280 px-8 ";
 
 export const SITE_NAV_LINKS = [
   { href: "/#how-it-works", label: "How it works" },
