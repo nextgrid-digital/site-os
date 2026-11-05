@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { UserAccountMenu } from "@/components/audit/user-account-menu";
+import { ThemeModeToggle } from "@/components/theme-mode-toggle";
 
 /** Shared content width with marketing sections (`max-w-280 px-8`). */
 export const SITE_CONTENT_CLASS = "mx-auto w-full max-w-280 px-8 ";
@@ -78,15 +79,18 @@ export function SiteNav({
 
         <div className="col-start-3 justify-self-end flex shrink-0 items-center gap-2 sm:gap-3">
           {rightSlot}
-          {shouldShowSignIn ? (
-            <Link
-              href="/login?next=/app"
-              className="rounded-lg bg-card px-3 py-1.5 text-sm font-medium text-card-foreground shadow-sm transition hover:bg-muted"
-            >
-              Sign in
-            </Link>
-          ) : null}
-          {isSignedIn ? <UserAccountMenu initials={menuInitials} /> : null}
+          <div className="flex items-center gap-1 sm:gap-2">
+            <ThemeModeToggle />
+            {shouldShowSignIn ? (
+              <Link
+                href="/login?next=/app"
+                className="rounded-lg bg-card px-3 py-1.5 text-sm font-medium text-card-foreground shadow-sm transition hover:bg-muted"
+              >
+                Sign in
+              </Link>
+            ) : null}
+            {isSignedIn ? <UserAccountMenu initials={menuInitials} /> : null}
+          </div>
         </div>
       </div>
     </header>

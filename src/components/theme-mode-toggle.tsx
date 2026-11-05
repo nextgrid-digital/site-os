@@ -1,59 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Monitor, Moon, Sun } from 'lucide-react';
+
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
+import { AnimatedMoonIcon, AnimatedSunIcon } from '@/components/icons';
 
-const MODES = [
-  { value: 'system', label: 'System', icon: Monitor },
-  { value: 'light', label: 'Light', icon: Sun },
-  { value: 'dark', label: 'Dark', icon: Moon },
-] as const;
-
+/** One icon button that flips between light and dark. The icon follows the `dark` class, so it never flashes the wrong one on load. */
 export function ThemeModeToggle({ className }: { className?: string }) {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const active = mounted ? (theme ?? 'system') : 'system';
+  const { resolvedTheme, setTheme } = useTheme();
 
   return (
-    <div
-      role="group"
-      aria-label="Color theme"
+    <button
+      type="button"
+      aria-label="Toggle light and dark mode"
+      title="Toggle light and dark mode"
+      onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
       className={cn(
-        'inline-flex items-center gap-0.5 rounded-lg bg-muted/10 p-0.5',
+        'inline-flex size-8 pointer-coarse:size-11 items-center justify-center rounded-lg text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring',
         className
       )}
     >
-      {MODES.map(({ value, label, icon: Icon }) => {
-        const isActive = active === value;
-        return (
-          <button
-            key={value}
-            type="button"
-            disabled={!mounted}
-            aria-pressed={isActive}
-            aria-label={label}
-            title={label}
-            onClick={() => setTheme(value)}
-            className={cn(
-              'inline-flex h-7 pointer-coarse:h-10 items-center gap-1.5 rounded-md px-2 text-xs font-medium transition-colors',
-              isActive
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground',
-              !mounted && 'opacity-60'
-            )}
-          >
-            <Icon className="size-3.5 shrink-0" aria-hidden />
-            <span className="hidden sm:inline">{label}</span>
-          </button>
-        );
-      })}
-    </div>
+      <AnimatedSunIcon className="size-4 dark:hidden" aria-hidden />
+      <AnimatedMoonIcon className="hidden size-4 dark:block" aria-hidden />
+    </button>
   );
 }

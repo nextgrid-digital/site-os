@@ -57,6 +57,33 @@ function boxOf(t: Element): DOMRect | null {
   return new DOMRect(left, top, right - left, bottom - top);
 }
 
+const MIN_VISIBLE = 12;
+
+/** `boxOf`, cut down to what its scrolling or clipping ancestors still show. Null once it has scrolled out of view. */
+function visibleBox(t: Element, root: Element): DOMRect | null {
+  const box = boxOf(t);
+  if (!box) return null;
+  let left = box.left;
+  let right = box.right;
+  let top = box.top;
+  let bottom = box.bottom;
+  for (let a = t.parentElement; a && a !== root; a = a.parentElement) {
+    const { overflowX, overflowY } = getComputedStyle(a);
+    if (overflowX === "visible" && overflowY === "visible") continue;
+    const ar = a.getBoundingClientRect();
+    if (overflowX !== "visible") {
+      left = Math.max(left, ar.left);
+      right = Math.min(right, ar.right);
+    }
+    if (overflowY !== "visible") {
+      top = Math.max(top, ar.top);
+      bottom = Math.min(bottom, ar.bottom);
+    }
+  }
+  if (right - left < MIN_VISIBLE || bottom - top < MIN_VISIBLE) return null;
+  return new DOMRect(left, top, right - left, bottom - top);
+}
+
 function useLayout(root: RefObject<HTMLElement | null>, items: DemoCallout[], noteW: number) {
   const [layout, setLayout] = useState<Layout>({ w: 0, h: 0, fits: false, rects: {} });
 
@@ -73,7 +100,7 @@ function useLayout(root: RefObject<HTMLElement | null>, items: DemoCallout[], no
       const rects: Record<string, Rect> = {};
       for (const it of items) {
         const t = el.querySelector(`[data-aeo-target="${it.target}"]`);
-        const r = t && boxOf(t);
+        const r = t && visibleBox(t, el);
         if (r) rects[it.id] = { x: r.left - ox, y: r.top - oy, w: r.width, h: r.height };
       }
       const room = noteW + GAP + 4;
@@ -281,7 +308,7 @@ function Note({
         transition={{ duration: reduced ? 0 : 0.45, delay: reduced ? 0 : 0.2 + Math.min(p.index, 2) * 0.15, ease: EASE_OUT }}
         onHoverStart={() => onHover(p.id)}
         onHoverEnd={() => onHover(null)}
-        className="pointer-events-auto -translate-y-1/2 cursor-default rounded-[14px] border border-solid border-surface bg-tint p-3"
+        className="pointer-events-auto -translate-y-1/2 cursor-default rounded-[14px] border border-solid border-border bg-raised p-3 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_10px_28px_-8px_rgba(0,0,0,0.16)] dark:bg-tint dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_12px_32px_-8px_rgba(0,0,0,0.75)]"
       >
         <p className="text-xs font-semibold">{p.title}</p>
         <p className="mt-1 text-xs leading-5 text-muted-foreground">{p.body}</p>

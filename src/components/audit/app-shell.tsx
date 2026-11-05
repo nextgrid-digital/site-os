@@ -1,7 +1,5 @@
 import type { ReactNode } from "react";
 import { SITE_CONTENT_CLASS, SiteNav } from "@/components/audit/site-nav";
-import { AutoHideFooter } from "@/components/audit/auto-hide-footer";
-import { ThemeModeToggle } from "@/components/theme-mode-toggle";
 
 interface AppShellProps {
   children: ReactNode;
@@ -36,18 +34,7 @@ export function AppShell({
       {fullBleed ? (
         children
       ) : (
-        <>
-          <main className={`${SITE_CONTENT_CLASS} flex-1 py-6`}>
-            {children}
-          </main>
-          <AutoHideFooter>
-            <div
-              className={`${SITE_CONTENT_CLASS} flex flex-wrap items-center justify-end gap-3`}
-            >
-              <ThemeModeToggle />
-            </div>
-          </AutoHideFooter>
-        </>
+        <main className={`${SITE_CONTENT_CLASS} flex-1 py-6`}>{children}</main>
       )}
     </div>
   );

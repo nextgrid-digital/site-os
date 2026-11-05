@@ -1,76 +1,57 @@
-/** Fictional sample data for the landing-page AEO demo. Not customer data. */
+/** Real audit data for nextgrid.digital (the maker's own site), shown in the landing-page AEO demo. */
 
 export type DemoCheck = { label: string; passed: boolean; fix: string };
 export type DemoPage = { path: string; score: number; checks: DemoCheck[] };
 
-export const DEMO_SITE = 'northwind-crm.com';
+export const DEMO_SITE = 'nextgrid.digital';
 
-const c = (label: string, passed: boolean, fix: string): DemoCheck => ({ label, passed, fix });
+/** One fix per check, as the scanner words it. */
+const FIX: Record<string, string> = {
+  "Published and updated dates": "Expose datePublished and dateModified in both the page and its schema so engines can judge freshness.",
+  "Question-style headings": "Rephrase at least two H2/H3s as the question a buyer would ask, then answer it in the first sentence below.",
+  "Opens with a direct answer (20–80 words)": "Lead with a 20–80 word paragraph that states plainly what this page answers, before any marketing copy.",
+  "Enough substance (300+ words)": "Cover the topic and its likely follow-up questions on this page rather than leaving gaps for another source.",
+};
+
+const c = (label: string, passed: boolean): DemoCheck => ({ label, passed, fix: passed ? '' : (FIX[label] ?? '') });
 
 export const DEMO_PAGES: DemoPage[] = [
-  {
-    path: '/',
-    score: 82,
-    checks: [
-      c('Structured data', true, ''),
-      c('Direct answer', true, ''),
-      c('FAQ schema', false, 'Add FAQ markup for the five questions buyers ask most.'),
-    ],
-  },
-  {
-    path: '/pricing',
-    score: 54,
-    checks: [
-      c('Structured data', false, 'Add Product and Offer schema so plans can be quoted.'),
-      c('Direct answer', false, 'Lead with the price of the starter plan in the first sentence.'),
-      c('Author and date', true, ''),
-    ],
-  },
-  {
-    path: '/integrations',
-    score: 71,
-    checks: [
-      c('Structured data', true, ''),
-      c('Question headings', false, 'Turn section headings into the questions people ask.'),
-      c('Extractable structure', true, ''),
-    ],
-  },
-  {
-    path: '/blog/agency-crm-guide',
-    score: 88,
-    checks: [
-      c('Direct answer', true, ''),
-      c('Author and date', true, ''),
-      c('Extractable structure', true, ''),
-    ],
-  },
-  {
-    path: '/case-studies',
-    score: 36,
-    checks: [
-      c('Structured data', false, 'Mark up each story as an Article with author and date.'),
-      c('Content depth', false, 'Add the numbers and the buyer quote that prove the result.'),
-      c('Direct answer', false, 'State the outcome in one sentence before the story.'),
-    ],
-  },
-  {
-    path: '/security',
-    score: 47,
-    checks: [
-      c('Direct answer', false, 'Answer "is my data safe?" in the opening paragraph.'),
-      c('Freshness', false, 'Show a last-updated date on the page.'),
-      c('Structured data', true, ''),
-    ],
-  },
-  {
-    path: '/about',
-    score: 63,
-    checks: [
-      c('Entity schema', false, 'Add Organization schema with founders and location.'),
-      c('Author and date', true, ''),
-      c('Content depth', true, ''),
-    ],
-  },
+  { path: "/field-notes", score: 100, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/mvp-design-for-startups", score: 90, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/doorstep-ai-delivery-accuracy-platform", score: 90, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/every-company-is-becoming-a-software-company", score: 90, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/spacture-retail-loss-prevention-platform", score: 90, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/gtm-sift-mark", score: 90, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/investor-ready-startup-website", score: 90, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/nykaa", score: 90, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/logical-digital-solutions", score: 90, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/preskale-product-redesign-before-acquisition", score: 90, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/solutionexec-executive-community-operating-system", score: 90, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/what-a-product-operator-does", score: 90, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/startup-website-redesign", score: 90, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/quaychain-logistics-intelligence-system", score: 90, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/agency-vs-embedded-operator", score: 90, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/ai-adoption-is-a-design-problem", score: 90, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/axitrust-digital-surety-bond-platform", score: 90, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/beyond-seo-preparing-for-the-agent-readable-web", score: 90, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/dexicon-engineering-context-for-coding-agents", score: 90, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/vieu-business-relationship-graph", score: 73, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", false), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/osfin-financial-operations", score: 73, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", false), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/event-planet", score: 73, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", false), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/machine", score: 69, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", false), c("Question-style headings", true), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/about", score: 69, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", true), c("Question-style headings", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", false)] },
+  { path: "/field-notes/dbot-construction-digital-twin-platform", score: 65, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", false), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", true)] },
+  { path: "/field-notes/revcollect-accounts-receivable-intelligence", score: 57, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", false), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", false)] },
+  { path: "/field-notes/echo-investment-intelligence", score: 57, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", false), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", false)] },
+  { path: "/field-notes/siteos-website-operating-system", score: 57, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", false), c("Question-style headings", true), c("Author or byline visible", true), c("Published and updated dates", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", false)] },
+  { path: "/explore", score: 48, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", false)] },
+  { path: "/", score: 47, checks: [c("Valid JSON-LD present", true), c("Business entity declared in schema", true), c("Opens with a direct answer (20–80 words)", false), c("Question-style headings", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", false)] },
+  { path: "/work", score: 38, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", false), c("Question-style headings", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", false)] },
+  { path: "/services", score: 38, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", false), c("Question-style headings", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", false)] },
+  { path: "/privacy", score: 38, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", false), c("Question-style headings", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", false)] },
+  { path: "/sitemap", score: 38, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", false), c("Question-style headings", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", false)] },
+  { path: "/terms", score: 38, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", false), c("Question-style headings", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", false)] },
+  { path: "/contact", score: 38, checks: [c("Valid JSON-LD present", true), c("Opens with a direct answer (20–80 words)", false), c("Question-style headings", false), c("Lists or tables an engine can lift", true), c("Enough substance (300+ words)", false)] },
 ];
 
 export type DemoTopic = {
@@ -83,75 +64,19 @@ export type DemoTopic = {
 };
 
 export const DEMO_TOPICS: DemoTopic[] = [
-  {
-    id: 'pricing',
-    name: 'Pricing and plans',
-    description: 'What it costs and what each plan includes.',
-    coverage: 'developing',
-    avgScore: 54,
-    paths: ['/pricing', '/pricing/agencies'],
-  },
-  {
-    id: 'crm-guides',
-    name: 'Agency CRM guides',
-    description: 'How agencies choose and set up a CRM.',
-    coverage: 'strong',
-    avgScore: 80,
-    paths: ['/blog/agency-crm-guide', '/blog/client-reporting', '/blog/pipeline-stages'],
-  },
-  {
-    id: 'integrations',
-    name: 'Integrations',
-    description: 'Tools it connects to.',
-    coverage: 'developing',
-    avgScore: 71,
-    paths: ['/integrations', '/integrations/slack'],
-  },
-  {
-    id: 'proof',
-    name: 'Customer proof',
-    description: 'Stories and results from real customers.',
-    coverage: 'thin',
-    avgScore: 36,
-    paths: ['/case-studies'],
-  },
-  {
-    id: 'security',
-    name: 'Security',
-    description: 'How customer data is protected.',
-    coverage: 'thin',
-    avgScore: 47,
-    paths: ['/security'],
-  },
+  { id: "digital-product-case-studies", name: "Digital Product Case Studies", description: "Real-world examples of product design, platform development, and business repositioning.", coverage: "strong", avgScore: 77, paths: ["/work","/field-notes/siteos-website-operating-system","/field-notes/revcollect-accounts-receivable-intelligence","/field-notes/echo-investment-intelligence","/field-notes/dbot-construction-digital-twin-platform","/field-notes/event-planet","/field-notes/vieu-business-relationship-graph","/field-notes/osfin-financial-operations","/field-notes/gtm-sift-mark","/field-notes/nykaa","/field-notes/quaychain-logistics-intelligence-system","/field-notes/spacture-retail-loss-prevention-platform","/field-notes/solutionexec-executive-community-operating-system","/field-notes/doorstep-ai-delivery-accuracy-platform","/field-notes/axitrust-digital-surety-bond-platform","/field-notes/preskale-product-redesign-before-acquisition","/field-notes/logical-digital-solutions"] },
+  { id: "company-information", name: "Company Information", description: "General business and administrative pages.", coverage: "strong", avgScore: 48, paths: ["/contact","/terms","/privacy","/sitemap","/about","/explore","/field-notes/feed.xml","/field-notes"] },
+  { id: "product-and-gtm-operations", name: "Product and GTM Operations", description: "Strategic services covering product development, market strategy, and operational design.", coverage: "strong", avgScore: 71, paths: ["/services","/","/field-notes/what-a-product-operator-does","/field-notes/every-company-is-becoming-a-software-company","/field-notes/agency-vs-embedded-operator"] },
+  { id: "ai-and-agentic-web-strategy", name: "AI and Agentic Web Strategy", description: "Insights into designing for AI adoption and preparing content for AI-readable web agents.", coverage: "strong", avgScore: 68, paths: ["/machine","/llms.txt","/field-notes/dexicon-engineering-context-for-coding-agents","/field-notes/ai-adoption-is-a-design-problem","/field-notes/beyond-seo-preparing-for-the-agent-readable-web"] },
+  { id: "startup-website-guidance", name: "Startup Website Guidance", description: "Tactical advice on building websites that serve as effective business tools.", coverage: "strong", avgScore: 90, paths: ["/field-notes/investor-ready-startup-website","/field-notes/mvp-design-for-startups","/field-notes/startup-website-redesign"] },
 ];
 
 export type DemoGap = { id: string; topic: string; why: string; suggestedPage: string };
 
 export const DEMO_GAPS: DemoGap[] = [
-  {
-    id: 'migration',
-    topic: 'Switching from a spreadsheet',
-    why: 'Buyers ask how hard it is to move their data in before they ask about price.',
-    suggestedPage: 'How to move your agency from spreadsheets to a CRM',
-  },
-  {
-    id: 'compare',
-    topic: 'Comparisons with alternatives',
-    why: 'AI answers lean on comparison pages when someone asks which tool to pick.',
-    suggestedPage: 'Northwind vs the other CRMs agencies consider',
-  },
-];
-
-export type DemoProbe = {
-  id: string;
-  question: string;
-  cited: boolean;
-  citedInstead: string[];
-};
-
-export const DEMO_PROBES: DemoProbe[] = [
-  { id: 'q1', question: 'best crm for small agencies', cited: true, citedInstead: [] },
-  { id: 'q2', question: 'crm with client reporting built in', cited: false, citedInstead: ['hubspot.com', 'pipedrive.com'] },
-  { id: 'q3', question: 'how do agencies track leads', cited: true, citedInstead: [] },
-  { id: 'q4', question: 'is northwind crm secure', cited: false, citedInstead: ['g2.com', 'capterra.com'] },
+  { id: "pricing-models", topic: "Pricing Models", why: "Prospective clients need to understand how the engagement is structured, whether hourly, retainer, or project-based.", suggestedPage: "How we engage and pricing philosophy" },
+  { id: "client-onboarding-process", topic: "Client Onboarding Process", why: "Buyers need to know what the initiation phase looks like when hiring an embedded product operator.", suggestedPage: "The NextGrid onboarding process" },
+  { id: "technical-stack-expertise", topic: "Technical Stack Expertise", why: "Technical buyers need transparency regarding the tools and technology environments the studio specializes in.", suggestedPage: "Our technology and development stack" },
+  { id: "industry-specializations", topic: "Industry Specializations", why: "Potential clients need to see if the firm has experience in their specific sector beyond a few examples.", suggestedPage: "Industries we serve" },
+  { id: "common-faq", topic: "Common FAQ", why: "Answering common questions quickly helps move leads through the consideration phase without friction.", suggestedPage: "Frequently Asked Questions" },
 ];

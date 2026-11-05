@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import AeoCallouts, { type DemoCallout } from "./aeo-demo-callouts";
 import { AeoScoreGauge } from "@/components/audit/report/aeo/aeo-score-gauge";
 import { bandFor, SCORE_BANDS } from "@/lib/aeo/score-bands";
@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import {
   DEMO_GAPS,
   DEMO_PAGES,
-  DEMO_PROBES,
   DEMO_SITE,
   DEMO_TOPICS,
   type DemoGap,
@@ -20,7 +19,7 @@ import {
 const TABS = [
   { id: "readiness", label: "Readiness" },
   { id: "topics", label: "Topic map" },
-  { id: "probe", label: "Citation probe" },
+  { id: "probe", label: "Citation probe", soon: true },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
 
@@ -101,33 +100,7 @@ const CALLOUTS: Record<TabId, DemoCallout[]> = {
       body: "No page covers these, so AI search has nothing of yours to quote on them.",
     },
   ],
-  probe: [
-    {
-      id: "run",
-      target: "run",
-      side: "right",
-      dy: 64,
-      title: "Test real AI answers",
-      body: "Ask sample buyer questions and see whether AI search cites you.",
-    },
-    {
-      id: "results",
-      target: "results",
-      side: "left",
-      dy: 56,
-      at: 0.4,
-      title: "See who is cited instead",
-      body: "Every miss names the sites AI cited, so you know who to outrank.",
-    },
-    {
-      id: "summary",
-      target: "summary",
-      side: "right",
-      dy: -8,
-      title: "Your citation rate",
-      body: "The share of answers that cited your site. Re-run to see it change.",
-    },
-  ],
+  probe: [],
 };
 
 const CARD = "rounded-[14px] border border-solid border-surface bg-surface-3";
@@ -135,7 +108,7 @@ const CARD = "rounded-[14px] border border-solid border-surface bg-surface-3";
 function Readiness() {
   const reduced = useReducedMotion();
   const [band, setBand] = useState<string | null>(null);
-  const [open, setOpen] = useState<string | null>("/pricing");
+  const [open, setOpen] = useState<string | null>(DEMO_PAGES.toSorted((a, b) => a.score - b.score)[0].path);
 
   const avg = Math.round(DEMO_PAGES.reduce((a, p) => a + p.score, 0) / DEMO_PAGES.length);
   const counts = SCORE_BANDS.map((b) => ({
@@ -258,7 +231,7 @@ type Selection = { kind: "topic"; topic: DemoTopic } | { kind: "gap"; gap: DemoG
 
 function TopicMap() {
   const reduced = useReducedMotion();
-  const [sel, setSel] = useState<Selection>({ kind: "topic", topic: DEMO_TOPICS[3] });
+  const [sel, setSel] = useState<Selection>({ kind: "topic", topic: DEMO_TOPICS.toSorted((a, b) => a.avgScore - b.avgScore)[0] });
   const isTopic = (t: DemoTopic) => sel?.kind === "topic" && sel.topic.id === t.id;
   const isGap = (g: DemoGap) => sel?.kind === "gap" && sel.gap.id === g.id;
 
@@ -371,93 +344,20 @@ function TopicMap() {
   );
 }
 
-type RunState = { status: "idle" | "running" | "done"; shown: number };
-
-function Probe() {
-  const reduced = useReducedMotion();
-  const [run, setRun] = useState<RunState>({ status: "idle", shown: 0 });
-  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => () => {
-    if (timer.current) clearInterval(timer.current);
-  }, []);
-
-  function start() {
-    if (timer.current) clearInterval(timer.current);
-    if (reduced) {
-      setRun({ status: "done", shown: DEMO_PROBES.length });
-      return;
-    }
-    setRun({ status: "running", shown: 0 });
-    let n = 0;
-    timer.current = setInterval(() => {
-      n += 1;
-      setRun({ status: n >= DEMO_PROBES.length ? "done" : "running", shown: n });
-      if (n >= DEMO_PROBES.length && timer.current) clearInterval(timer.current);
-    }, 650);
-  }
-
-  const cited = DEMO_PROBES.slice(0, run.shown).filter((p) => p.cited).length;
+function ProbeComingSoon() {
   return (
-    <div>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
-          Sample questions a buyer might ask an AI search engine.
-        </p>
-        <button
-          type="button"
-          data-aeo-target="run"
-          onClick={start}
-          disabled={run.status === "running"}
-          className="rounded-lg bg-foreground px-3.5 py-2 text-sm font-medium text-background outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
-        >
-          {run.status === "running" ? "Asking…" : run.status === "done" ? "Run again" : "Run sample probe"}
-        </button>
-      </div>
-      <ul data-aeo-target="results" className="mt-4 space-y-2">
-        {DEMO_PROBES.map((p, i) => {
-          const revealed = i < run.shown;
-          return (
-            <li key={p.id} className={cn(CARD, "flex items-start gap-3 px-3 py-2.5")}>
-              <motion.span
-                aria-hidden
-                animate={{ scale: revealed ? 1 : 0.8, opacity: revealed ? 1 : 0.35 }}
-                transition={SPRING_LAYOUT}
-                className={cn(
-                  "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[0.625rem] font-semibold",
-                  revealed && p.cited ? "bg-success-ink text-background" : "bg-tint text-muted-foreground",
-                )}
-              >
-                {revealed ? (p.cited ? "✓" : "×") : "?"}
-              </motion.span>
-              <div className="min-w-0 text-sm leading-6">
-                <p className="font-medium">{p.question}</p>
-                <p className="text-xs text-muted-foreground">
-                  {!revealed
-                    ? "Not asked yet"
-                    : p.cited
-                      ? `${DEMO_SITE} was cited as a source.`
-                      : `Not cited. Cited instead: ${p.citedInstead.join(", ")}`}
-                </p>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-      {run.shown > 0 ? (
-        <p data-aeo-target="summary" className="mt-4 text-sm">
-          <span className="font-mono text-2xl font-semibold tabular-nums">
-            {Math.round((cited / run.shown) * 100)}%
-          </span>{" "}
-          cited in <span className="font-mono tabular-nums">{cited}</span> of{" "}
-          <span className="font-mono tabular-nums">{run.shown}</span> answers
-        </p>
-      ) : null}
+    <div className="flex h-full min-h-72 flex-col items-center justify-center gap-3 text-center">
+      <span className="rounded-full bg-tint px-3 py-1 text-xs font-medium text-muted-foreground">Coming soon</span>
+      <p className="text-lg font-semibold">Citation probe</p>
+      <p className="max-w-sm text-sm leading-6 text-muted-foreground text-pretty">
+        Ask AI search the questions your buyers ask and see whether it cites your site. We are finishing this
+        and will open it up soon.
+      </p>
     </div>
   );
 }
 
-/** Interactive sample of the AEO tools, on fictional data. */
+/** Interactive demo of the AEO tools: real audit data for the readiness and topic map tabs, a fictional probe. */
 export default function AeoDemoSection() {
   const reduced = useReducedMotion();
   const [tab, setTab] = useState<TabId>("readiness");
@@ -475,7 +375,7 @@ export default function AeoDemoSection() {
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-muted-foreground md:text-base md:leading-7 2xl:text-lg">
             Score every page for AI answers, map the topics you cover and the ones you miss, and test
-            whether AI search cites you. Try it on a sample site.
+            whether AI search cites you. Try it on a real audit.
           </p>
         </div>
 
@@ -500,12 +400,21 @@ export default function AeoDemoSection() {
                   ) : null}
                   <span className={cn("relative", tab === t.id ? "text-background" : "text-muted-foreground")}>
                     {t.label}
+                    {"soon" in t ? (
+                      <span className="ml-1.5 rounded-full bg-tint-strong px-1.5 py-0.5 text-[0.625rem] font-semibold text-muted-foreground">
+                        Soon
+                      </span>
+                    ) : null}
                   </span>
                 </button>
               ))}
             </div>
             <span className="text-xs text-muted-foreground">
-              Sample data for <span className="font-mono">{DEMO_SITE}</span>, a fictional site
+              {tab === "probe" ? null : (
+                <>
+                  Real audit of <span className="font-mono">{DEMO_SITE}</span>
+                </>
+              )}
             </span>
           </div>
 
@@ -519,7 +428,7 @@ export default function AeoDemoSection() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: reduced ? 0 : 0.22, ease: EASE_OUT }}
               >
-                {tab === "readiness" ? <Readiness /> : tab === "topics" ? <TopicMap /> : <Probe />}
+                {tab === "readiness" ? <Readiness /> : tab === "topics" ? <TopicMap /> : <ProbeComingSoon />}
               </motion.div>
             </AnimatePresence>
           </div>
