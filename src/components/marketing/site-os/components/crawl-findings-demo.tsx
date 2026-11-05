@@ -35,6 +35,11 @@ const DOWN: [number, number][] = UP.map(([x, y]) => [x, 24 - y]);
 const toLine = (pts: [number, number][]) => pts.map(([x, y], i) => `${i ? "L" : "M"}${x} ${y}`).join(" ");
 
 const TONE: Record<Trend, string> = { up: "text-emerald-400", down: "text-red-400" };
+/** Both tiles keep their border on hover and glow in their trend colour with a shadow instead. */
+const HOVER: Record<Trend, string> = {
+  up: "hover:shadow-[0_0_0_1px_rgb(52_211_153/0.45),0_6px_20px_-6px_rgb(52_211_153/0.4)]",
+  down: "hover:shadow-[0_0_0_1px_rgb(248_113_113/0.45),0_6px_20px_-6px_rgb(248_113_113/0.4)]",
+};
 
 function Sparkline({ trend }: { trend: Trend }) {
   const reduce = useReducedMotion();
@@ -108,7 +113,10 @@ export function CrawlFindingsDemo() {
             hold();
             replay();
           }}
-          className="flex min-w-0 flex-1 cursor-pointer flex-col justify-between gap-3 rounded-[14px] border border-solid border-surface bg-surface-3 p-2.5 text-left text-xs leading-4 transition-colors duration-200 hover:border-primary/60 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
+          className={cn(
+            "flex min-w-0 flex-1 cursor-pointer flex-col justify-between gap-3 rounded-[14px] border border-solid border-surface bg-surface-3 p-2.5 text-left text-xs leading-4 transition-[color,background-color,border-color,box-shadow] duration-200 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none",
+            HOVER[m.trend],
+          )}
         >
           <span className="flex min-w-0 items-baseline justify-between gap-1 text-[0.6875rem] font-medium leading-4">
             <span className="min-w-0 truncate text-muted-foreground">{m.label}</span>
