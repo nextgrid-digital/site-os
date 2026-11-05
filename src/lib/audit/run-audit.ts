@@ -164,6 +164,7 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
     .eq('is_selected', true)
     .maybeSingle();
 
+  const googleErrors: string[] = [];
   const needsGoogle =
     runType === 'full' && Boolean(gscProperty || ga4Property || adsAccount);
   let connection: {
@@ -175,17 +176,20 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
   } | null = null;
 
   if (needsGoogle) {
-    const connectionId =
-      gscProperty?.connection_id ?? ga4Property?.connection_id ?? adsAccount?.connection_id;
-    if (!connectionId) throw new Error('Google connection is missing for the selected property.');
-
+    // Always use this project's own connection. A property row can still point at an
+    // old connection (null project, long-expired token) from before per-project connections.
     const { data: connectionRow } = await supabase
       .from('google_connections')
       .select('*')
-      .eq('id', connectionId)
-      .single();
-    if (!connectionRow) throw new Error('Google connection not found.');
-    connection = connectionRow;
+      .eq('project_id', projectId)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (connectionRow) {
+      connection = connectionRow;
+    } else {
+      googleErrors.push('Google is not connected for this project. Reconnect Google in Setup.');
+    }
   }
 
   const { data: architectureInput } = await supabase
@@ -315,6 +319,7 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
           gscConnected = Boolean(gscMapped);
         } else {
           console.error('[runAudit] GSC fetch failed', gscSettled.reason);
+          googleErrors.push(`Search Console: ${errorText(gscSettled.reason)}`);
         }
 
         if (ga4Settled.status === 'fulfilled') {
@@ -322,6 +327,7 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
           ga4Connected = Boolean(ga4Mapped);
         } else {
           console.error('[runAudit] GA4 landing fetch failed', ga4Settled.reason);
+          googleErrors.push(`GA4: ${errorText(ga4Settled.reason)}`);
         }
 
         if (ga4AnalyticsSettled.status === 'fulfilled') {
@@ -329,6 +335,9 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
           if (ga4Mapped) ga4Connected = true;
         } else {
           console.error('[runAudit] GA4 analytics fetch failed', ga4AnalyticsSettled.reason);
+          if (ga4Settled.status === 'fulfilled') {
+            googleErrors.push(`GA4: ${errorText(ga4AnalyticsSettled.reason)}`);
+          }
         }
 
         if (adsSettled.status === 'fulfilled') {
@@ -336,6 +345,7 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
           adsConnected = Boolean(adsMapped);
         } else {
           console.error('[runAudit] Ads fetch failed', adsSettled.reason);
+          googleErrors.push(`Google Ads: ${errorText(adsSettled.reason)}`);
         }
 
         return await finalizeAuditRun({
@@ -355,6 +365,7 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
           adsBundle,
           crawlResult,
           goalCategory,
+          googleErrors,
         });
       } catch (googleError) {
         console.error('[runAudit] Google fetch failed; continuing crawl-only', googleError);
@@ -376,6 +387,7 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
           adsBundle,
           crawlResult,
           goalCategory,
+          googleErrors: [...googleErrors, `Google: ${errorText(googleError)}`],
         });
       }
     }
@@ -398,6 +410,7 @@ export async function runAudit(projectId: string, runType: 'mini' | 'free' | 'fu
       adsBundle,
       crawlResult,
       goalCategory,
+      googleErrors,
     });
   } catch (error) {
     if (error instanceof AuditCancelledError) throw error;
@@ -431,6 +444,7 @@ async function finalizeAuditRun(input: {
   adsBundle: GoogleAdsBundle;
   crawlResult: Awaited<ReturnType<typeof crawlWebsite>>;
   goalCategory?: string | null;
+  googleErrors?: string[];
 }): Promise<AuditRunResult> {
   const {
     supabase,
@@ -449,6 +463,7 @@ async function finalizeAuditRun(input: {
     adsBundle,
     crawlResult,
     goalCategory,
+    googleErrors = [],
   } = input;
 
   await assertAuditActive(auditRunId);
@@ -956,7 +971,7 @@ async function finalizeAuditRun(input: {
       status: 'completed',
       completed_at: new Date().toISOString(),
       audit_readiness: readiness,
-      data_availability: dataAvailability,
+      data_availability: googleErrors.length ? { ...dataAvailability, googleErrors } : dataAvailability,
       site_only_analysis: siteOnlyAnalysis,
       confidence_score: confidenceScore,
     })
@@ -971,6 +986,10 @@ async function finalizeAuditRun(input: {
     pageMetrics: pageMetrics ?? [],
     queryMetrics: queryMetrics ?? [],
   };
+}
+
+function errorText(reason: unknown): string {
+  return reason instanceof Error ? reason.message : String(reason);
 }
 
 function selectTeaserFindings(scored: ScoredFinding[]): ScoredFinding[] {

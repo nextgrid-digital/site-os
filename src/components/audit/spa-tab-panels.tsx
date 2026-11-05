@@ -26,29 +26,36 @@ import type { ConnectorStatus } from "@/lib/connectors/types";
 import type { ConnectionStatus } from "@/lib/google/connection-status";
 import type { WorkItemView } from "@/lib/workflow/work-items";
 import type { MonthlyCompareSection } from "@/lib/workflow/monthly-compare";
-import { Spinner } from "../ui/spinner";
+import { TodoList, type TodoItem } from "@/components/agents/todo-list";
 import { DashboardSkeleton } from "@/components/audit/dashboard/dashboard-skeleton";
+
+const FREE_AUDIT_STEPS = [
+  "Crawl your pages",
+  "Check structure and content",
+  "Write your brief",
+] as const;
+const FREE_STEP_MS = 7000;
 
 function FreeAuditProgress({
   domain,
   status,
+  error = null,
 }: {
   domain: string;
   status: FreeAuditStatus | null;
+  error?: string | null;
 }) {
-  if (status === "failed") {
-    return (
-      <div className="rounded-xl bg-raised px-6 py-12 text-center shadow-sm">
-        <p className="text-base font-semibold text-foreground">
-          The audit didn&apos;t finish
-        </p>
-        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-          We couldn&apos;t complete the audit for {domain}. Run it again from
-          the home page.
-        </p>
-      </div>
-    );
-  }
+  const [step, setStep] = useState(0);
+  const ready = status === "ready";
+  const failed = status === "failed";
+
+  useEffect(() => {
+    // Pace the checklist; the last step stays in progress until the audit really finishes.
+    if (ready || failed || step >= FREE_AUDIT_STEPS.length - 1) return;
+    const t = window.setTimeout(() => setStep((v) => v + 1), FREE_STEP_MS);
+    return () => window.clearTimeout(t);
+  }, [step, ready, failed]);
+
   if (status === "none") {
     return (
       <div className="rounded-xl bg-raised px-6 py-12 text-center shadow-sm">
@@ -59,22 +66,71 @@ function FreeAuditProgress({
       </div>
     );
   }
+
+  const items: TodoItem[] = FREE_AUDIT_STEPS.map((title, i) => {
+    let itemStatus: TodoItem["status"] = "pending";
+    if (ready || i < step) itemStatus = "completed";
+    else if (i === step) itemStatus = failed ? "cancelled" : "in-progress";
+    return { id: `free-audit-${i}`, title, status: itemStatus };
+  });
+
+  const heading = failed
+    ? "The audit didn’t finish"
+    : ready
+      ? "Audit complete"
+      : `Auditing ${domain}`;
+  const body = failed
+    ? `We couldn’t complete the audit for ${domain}. Run it again from the home page.`
+    : ready
+      ? "Loading your results…"
+      : "This usually takes a minute or two. This page updates by itself when it’s ready.";
+
   return (
     <div
-      className="rounded-xl bg-raised px-6 py-12 text-center shadow-sm"
+      className="mx-auto flex w-full max-w-md flex-col gap-4 py-8"
       role="status"
+      aria-live="polite"
     >
-      <p className="text-base font-semibold text-foreground inline-flex items-center gap-2">
-        {" "}
-        <Spinner className="inline-block h-4 w-4" />{" "}
-        <span className="shimmer shimmer-color-blue-500 shimmer-duration-4000 shimmer-spread-32">
-          Auditing {domain}
-        </span>{" "} 
+      <div className="text-center">
+        <p className="text-base font-semibold text-foreground">{heading}</p>
+        <p className="mt-1 text-sm leading-6 text-muted-foreground">{body}</p>
+      </div>
+      <TodoList items={items} title="Audit steps" dotted compact />
+      {failed && error ? (
+        <p role="alert" className="text-center text-sm text-danger-ink">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+/** A slice failed to load and there is nothing cached: say so, with a way to retry. */
+function SliceError({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void;
+}) {
+  return (
+    <div
+      role="alert"
+      className="rounded-xl bg-raised px-6 py-12 text-center shadow-sm"
+    >
+      <p className="text-base font-semibold text-foreground">
+        We couldn&apos;t load this page
       </p>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-        We&apos;re crawling the site and writing your brief. This usually takes
-        a minute or two. This page updates by itself when it&apos;s ready.
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-danger-ink">
+        {message}
       </p>
+      <button
+        type="button"
+        onClick={onRetry}
+        className="mt-4 inline-flex h-9 items-center rounded-lg bg-muted px-3.5 text-sm font-medium text-foreground/90 shadow-sm hover:bg-muted/80"
+      >
+        Try again
+      </button>
     </div>
   );
 }
@@ -103,6 +159,21 @@ export function SpaDashboardPanel({
   const connected = ctx?.bundle?.connected ?? null;
 
   if (!connected && ctx?.sliceLoading.dashboard) return <PanelPulse tiles />;
+  if (!connected && ctx?.error) {
+    return <SliceError message={ctx.error} onRetry={() => void ctx.refresh()} />;
+  }
+
+  // No audit run yet (first free audit still crawling): show progress, not a dashboard of zeros.
+  if (ctx?.bundle && !ctx.bundle.auditRunId) {
+    return (
+      <AuditWorkspacePanel
+        title="Dashboard"
+        description="Search, analytics and funnel results for your site."
+      >
+        <FreeAuditProgress domain={domain} status={ctx.auditStatus} error={ctx.auditError} />
+      </AuditWorkspacePanel>
+    );
+  }
 
   return (
     <div className="space-y-3">
@@ -132,6 +203,9 @@ export function SpaBriefPanel({
   }, [ensureSlice]);
 
   if (!ctx?.bundle?.brief && ctx?.sliceLoading.brief) return <PanelPulse />;
+  if (!ctx?.bundle?.brief && ctx?.error && ctx.bundle?.auditRunId) {
+    return <SliceError message={ctx.error} onRetry={() => void ctx.refresh()} />;
+  }
 
   // No audit run yet: say so, instead of an empty brief that reads as "all caught up".
   if (ctx?.bundle && !ctx.bundle.auditRunId) {
@@ -140,7 +214,7 @@ export function SpaBriefPanel({
         title="Brief"
         description="Client-ready action memo — plain English, ready to send or discuss."
       >
-        <FreeAuditProgress domain={domain} status={ctx.auditStatus} />
+        <FreeAuditProgress domain={domain} status={ctx.auditStatus} error={ctx.auditError} />
       </AuditWorkspacePanel>
     );
   }
@@ -239,7 +313,7 @@ export function SpaAeoPanel({ domain }: { domain: string }) {
   if (ctx?.bundle && !ctx.bundle.auditRunId) {
     return (
       <AuditWorkspacePanel title={title} description={description}>
-        <FreeAuditProgress domain={domain} status={ctx.auditStatus} />
+        <FreeAuditProgress domain={domain} status={ctx.auditStatus} error={ctx.auditError} />
       </AuditWorkspacePanel>
     );
   }

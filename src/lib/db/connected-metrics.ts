@@ -64,6 +64,8 @@ export type ConnectedAuditMetrics = {
   gscByCountry: GscDimensionRow[];
   gscByDevice: GscDimensionRow[];
   googleAds: ConnectedAdsMetrics | null;
+  /** Selected Google sources the latest audit could not read (empty when all synced). */
+  googleSyncErrors?: string[];
 };
 
 const EMPTY_ANALYTICS = {
@@ -369,7 +371,7 @@ export const loadDashboardMetricsForProject = cache(async function loadDashboard
   const supabase = getSupabaseAdmin();
   const { data: runs } = await supabase
     .from('audit_runs')
-    .select('id, run_type, completed_at')
+    .select('id, run_type, completed_at, data_availability')
     .eq('project_id', projectId)
     .eq('status', 'completed')
     .order('completed_at', { ascending: false })
@@ -398,6 +400,12 @@ export const loadDashboardMetricsForProject = cache(async function loadDashboard
   const connected = await loadConnectedMetricsForAuditRun(projectId, preferred.id, {
     snapshot,
   });
+  const availability = preferred.data_availability as { googleErrors?: unknown } | null;
+  if (Array.isArray(availability?.googleErrors)) {
+    connected.googleSyncErrors = availability.googleErrors.filter(
+      (e): e is string => typeof e === 'string'
+    );
+  }
   const growthBrief =
     isRecord(snapshot) && 'growthBrief' in snapshot ? snapshot.growthBrief ?? null : null;
 

@@ -214,7 +214,8 @@ export async function selectProperties(
       const { error } = await supabase
         .from(table)
         .update({ is_selected: true })
-        .eq('id', selectedId);
+        .eq('id', selectedId)
+        .eq('project_id', projectId);
       if (error) throw new Error(error.message);
     }
     const clear = supabase

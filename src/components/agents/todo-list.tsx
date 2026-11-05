@@ -18,6 +18,10 @@ export type TodoListProps = {
   items: TodoItem[];
   title?: ReactNode;
   className?: string;
+  /** Draw a dotted path between the marks; segments after a completed step turn green. */
+  dotted?: boolean;
+  /** Hide the "x of y tasks completed" counter and keep the list compact. */
+  compact?: boolean;
 };
 
 function StatusMark({ status, progress }: { status: TodoItemStatus; progress?: number }) {
@@ -52,7 +56,7 @@ function StatusMark({ status, progress }: { status: TodoItemStatus; progress?: n
   );
 }
 
-export function TodoList({ items, title = 'To-dos', className }: TodoListProps) {
+export function TodoList({ items, title = 'To-dos', className, dotted = false, compact = false }: TodoListProps) {
   const completed = items.filter((item) => (item.status ?? 'pending') === 'completed').length;
 
   return (
@@ -73,13 +77,21 @@ export function TodoList({ items, title = 'To-dos', className }: TodoListProps) 
         </p>
       </div>
       <ul className="space-y-0.5 px-2 py-2">
-        {items.map((item) => {
+        {items.map((item, index) => {
           const status = item.status ?? 'pending';
           return (
             <li
               key={item.id}
-              className="flex min-h-9 items-center gap-2.5 rounded-xl px-2 py-1.5"
+              className={cn('relative flex items-center gap-2.5 rounded-xl px-2 py-1.5', compact ? 'min-h-8' : 'min-h-9')}
             >
+              {dotted && index < items.length - 1 ? (
+                <span
+                  aria-hidden
+                  className={cn('absolute left-[17px] top-[calc(50%+12px)] h-[calc(100%-22px)] border-l-2 border-dotted',
+                    status === 'completed' ? 'border-success' : 'border-line-strong'
+                  )}
+                />
+              ) : null}
               <StatusMark status={status} progress={item.progress} />
               <div className="min-w-0 flex-1">
                 <p

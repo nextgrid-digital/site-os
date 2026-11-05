@@ -178,6 +178,27 @@ export function JoinedTrafficReport({
             why: "Read left to right. The step where the number shrinks the most is where you are losing people.",
           }}
         >
+          {connectedMetrics?.googleSyncErrors?.length ? (
+            <div
+              role="alert"
+              className="rounded-lg bg-tint px-3 py-2 text-sm text-foreground/80"
+            >
+              <p className="font-medium text-foreground">
+                Google data couldn&apos;t be read in the last audit, so these numbers are not real zeros.
+              </p>
+              <ul className="mt-1 list-disc pl-5 text-muted-foreground">
+                {connectedMetrics.googleSyncErrors.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
+              <a
+                href={connectHref}
+                className="mt-1 inline-block underline underline-offset-2"
+              >
+                Reconnect Google, then re-run the audit
+              </a>
+            </div>
+          ) : null}
           <ChainKpis
             impressions={impressions}
             clicks={story.status.searchClicks}

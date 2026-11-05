@@ -101,6 +101,8 @@ export interface DataAvailability {
   ga4Sessions: number;
   adsSpend?: number;
   basedOn: Array<'crawl' | 'intake' | 'search_console' | 'ga4' | 'google_ads' | 'gemini'>;
+  /** Google sources that were selected but could not be read during this run. */
+  googleErrors?: string[];
 }
 
 export interface AuditRun {

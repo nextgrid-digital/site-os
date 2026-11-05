@@ -37,6 +37,8 @@ type WorkspaceAuditContextValue = {
   loading: boolean;
   error: string | null;
   auditStatus: FreeAuditStatus | null;
+  /** Why the first audit failed (or why progress could not be checked), for display. */
+  auditError: string | null;
   refresh: () => Promise<void>;
   invalidate: () => void;
   seed: (bundle: Partial<WorkspaceAuditBundle> & { projectId: string }) => void;
@@ -102,6 +104,7 @@ export function WorkspaceAuditProvider({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [auditStatus, setAuditStatus] = useState<FreeAuditStatus | null>(null);
+  const [auditError, setAuditError] = useState<string | null>(null);
   const [sliceLoading, setSliceLoading] = useState<Record<string, boolean>>({});
   const inFlight = useRef<Set<string>>(new Set());
   const bundleRef = useRef(bundle);
@@ -212,6 +215,12 @@ export function WorkspaceAuditProvider({
     if (!bundleLoaded || hasAuditRun) return;
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    let failures = 0;
+    const MAX_POLL_FAILURES = 5;
+    const giveUp = (message: string) => {
+      setAuditError(message);
+      setAuditStatus('failed');
+    };
 
     const poll = async () => {
       try {
@@ -222,13 +231,20 @@ export function WorkspaceAuditProvider({
           return;
         }
         if (!res.ok) {
-          // Server error: keep polling rather than claim there is no audit.
+          // Server error: keep retrying a few times, then say so instead of spinning forever.
+          failures += 1;
+          if (failures >= MAX_POLL_FAILURES) {
+            giveUp(`We can't check audit progress (server returned ${res.status}). Refresh the page to try again.`);
+            return;
+          }
           if (!cancelled) timer = setTimeout(poll, AUDIT_STATUS_POLL_MS);
           return;
         }
-        const data = (await res.json()) as { status: string; ready: boolean };
+        failures = 0;
+        const data = (await res.json()) as { status: string; ready: boolean; error?: string | null };
         if (cancelled) return;
         if (data.status === 'failed') {
+          setAuditError(data.error ?? null);
           setAuditStatus('failed');
           return;
         }
@@ -240,7 +256,12 @@ export function WorkspaceAuditProvider({
           setAuditStatus('analyzing');
         }
       } catch {
-        // Transient network error: keep polling.
+        // Network error: retry a few times, then surface it.
+        failures += 1;
+        if (failures >= MAX_POLL_FAILURES) {
+          giveUp("We can't reach the server to check audit progress. Check your connection and refresh the page.");
+          return;
+        }
       }
       if (!cancelled) timer = setTimeout(poll, AUDIT_STATUS_POLL_MS);
     };
@@ -258,13 +279,14 @@ export function WorkspaceAuditProvider({
       loading,
       error,
       auditStatus,
+      auditError,
       refresh,
       invalidate,
       seed,
       ensureSlice,
       sliceLoading,
     }),
-    [bundle, loading, error, auditStatus, refresh, invalidate, seed, ensureSlice, sliceLoading]
+    [bundle, loading, error, auditStatus, auditError, refresh, invalidate, seed, ensureSlice, sliceLoading]
   );
 
   return (

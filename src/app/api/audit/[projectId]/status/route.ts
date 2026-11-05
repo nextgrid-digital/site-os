@@ -49,7 +49,7 @@ export async function GET(
   const supabase = getSupabaseAdmin();
   const { data: latestRun } = await supabase
     .from('audit_runs')
-    .select('id, status, run_type')
+    .select('id, status, run_type, error_message')
     .eq('project_id', projectId)
     .order('created_at', { ascending: false })
     .limit(1)
@@ -72,5 +72,6 @@ export async function GET(
     runStatus,
     analyzing,
     ready,
+    error: typeof latestRun?.error_message === 'string' ? latestRun.error_message : null,
   });
 }
