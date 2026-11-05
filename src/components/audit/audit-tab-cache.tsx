@@ -100,7 +100,8 @@ export function AuditSpaTabProvider({
     const canonical = `/audit/${workspaceId}${suffix}`;
     if (typeof window === 'undefined') return;
     if (window.location.pathname !== canonical) {
-      window.history.replaceState(window.history.state, '', canonical);
+      const { search, hash } = window.location;
+      window.history.replaceState(window.history.state, '', `${canonical}${search}${hash}`);
     }
   }, [workspaceId, activeSuffix]);
 

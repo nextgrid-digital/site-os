@@ -14,9 +14,9 @@ import { DashboardSkeleton } from "@/components/audit/dashboard/dashboard-skelet
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { InfoTip } from "@/components/audit/dashboard/info-tip";
 import { PagesQueriesPanel } from "@/components/audit/dashboard/pages-queries-panel";
-import { AnalyticsPathFunnel } from "@/components/audit/report/analytics/analytics-path-funnel";
 import { ConnectedAnalyticsSuite } from "@/components/audit/report/analytics/connected-analytics-suite";
 import { BrandAdsSection } from "@/components/audit/report/brand/brand-ads-section";
+import { DashboardMobileTabs } from "@/components/audit/report/brand/dashboard-mobile-tabs";
 import { JoinedChainBreaks } from "@/components/audit/report/joined/joined-chain-breaks";
 import { FunnelHealthStrip } from "@/components/audit/dashboard/funnel-health-strip";
 import {
@@ -26,7 +26,6 @@ import {
 import {
   buildConversionPeakCells,
   buildDetailTables,
-  buildPathFunnelView,
   hasAnyTrafficData,
 } from "@/lib/audit/connected-analytics";
 import { buildHeroDashboardFromConnected } from "@/lib/audit/connected-hero-dashboard";
@@ -79,10 +78,6 @@ export function JoinedTrafficReport({
   );
   const peakCells = useMemo(
     () => buildConversionPeakCells(connectedMetrics?.ga4ConversionPeak),
-    [connectedMetrics],
-  );
-  const funnelSteps = useMemo(
-    () => buildPathFunnelView(connectedMetrics?.ga4FunnelSteps),
     [connectedMetrics],
   );
   const heroData = useMemo(
@@ -141,6 +136,7 @@ export function JoinedTrafficReport({
     <TooltipProvider delay={80} closeDelay={60}>
       <div className="site-os-home site-os-home--flush -mx-8">
         <BrandSectionNav />
+        <DashboardMobileTabs />
 
         <section className="block">
           <div className="mx-auto max-w-280 px-8 py-8">
@@ -293,7 +289,6 @@ export function JoinedTrafficReport({
           {funnelAssessment.hasData ? (
             <>
               <DashboardFunnelViews assessment={funnelAssessment} />
-              <AnalyticsPathFunnel steps={funnelSteps} />
               {funnelHealth ? (
                 <FunnelHealthStrip
                   health={funnelHealth}

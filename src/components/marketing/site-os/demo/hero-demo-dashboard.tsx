@@ -1,12 +1,15 @@
 'use client';
 
-import { useMemo, useState, type ReactNode } from 'react';
+import { useId, useMemo, useState, type ReactNode } from 'react';
 import {
-  Bar,
-  BarChart,
+  Area,
+  AreaChart,
   CartesianGrid,
-  Cell,
+  ReferenceDot,
+  ReferenceLine,
   ResponsiveContainer,
+  useChartWidth,
+  useOffset,
   Tooltip,
   XAxis,
   YAxis,
@@ -17,20 +20,15 @@ import { SpeedCounter } from '@/components/motion/speed-counter';
 import { ShareList } from './breakdown-list';
 import CardTitleIcon, { type CardTitleIconKind } from '../components/card-title-icon';
 import Icon3 from '../svgs/svg-icon3';
-import Icon4 from '../svgs/svg-icon4';
-import Icon5 from '../svgs/svg-icon5';
 import {
   DEMO_HERO_DASHBOARD,
   PAGES_TABS,
   SOURCES_TABS,
-  pinForLivePoint,
-  pinForPoint,
   type ChartPoint,
   type HeroDashboardData,
   type MetricDef,
   type MetricId,
   type PagesTab,
-  type PinPayload,
   type SourcesTab,
 } from './landing-demo-data';
 import {
@@ -67,8 +65,8 @@ function SourceMark({ name, imgSrc }: { name: string; imgSrc: string }) {
 const TILE_IDLE = METRIC_TILE_IDLE;
 const TILE_ACTIVE = METRIC_TILE_ACTIVE;
 
-const BAR_FILL = 'oklch(0.565 0.11 164.584)';
-const BAR_ACTIVE = 'oklch(0.205 0 0)';
+/** Brand green, lifted slightly in dark mode for contrast. */
+const AREA_STROKE = 'var(--chart-area, oklch(0.56 0.14 160))';
 
 export function HeroDemoDashboard({
   data = DEMO_HERO_DASHBOARD,
@@ -97,58 +95,27 @@ export function HeroDemoDashboard({
       : (metrics[0]?.id ?? 'visitors');
 
   const [activeMetric, setActiveMetric] = useState<MetricId>(initialMetric);
-  const [pinnedIndex, setPinnedIndex] = useState<number | null>(
-    Math.min(3, (seriesByMetric[initialMetric]?.length ?? 1) - 1)
-  );
-  const [extraNotes, setExtraNotes] = useState<Record<string, string[]>>({});
   const [pagesTab, setPagesTab] = useState<PagesTab>('Top');
   const [sourcesTab, setSourcesTab] = useState<SourcesTab>(
     isLive ? 'Channels' : 'Referrers'
   );
 
   const metric = metrics.find((m) => m.id === activeMetric) ?? metrics[0];
-  const series = seriesByMetric[activeMetric] ?? [];
+  const series = useMemo(
+    () => seriesByMetric[activeMetric] ?? [],
+    [seriesByMetric, activeMetric]
+  );
 
-  const pinned = useMemo(() => {
-    if (!metric || pinnedIndex == null || !series[pinnedIndex]) return null;
-    const point = series[pinnedIndex];
-    const base = isLive
-      ? pinForLivePoint(metric, point)
-      : pinForPoint(activeMetric, point);
-    const key = `${activeMetric}:${point.date}`;
-    const added = isLive ? [] : (extraNotes[key] ?? []);
-    return { point, payload: { ...base, notes: [...base.notes, ...added] }, index: pinnedIndex };
-  }, [activeMetric, pinnedIndex, series, extraNotes, isLive, metric]);
+  const gradientId = useId();
+  const [pinnedIndex, setPinnedIndex] = useState<number | null>(null);
+  const pinnedPoint = pinnedIndex != null ? (series[pinnedIndex] ?? null) : null;
+  // Landing series leave most labels empty, so the axis keys on the index instead.
+  const chartData = useMemo(() => series.map((p, i) => ({ ...p, idx: i })), [series]);
 
   function selectMetric(id: MetricId) {
     setActiveMetric(id);
-    const next = seriesByMetric[id] ?? [];
-    setPinnedIndex(Math.min(3, Math.max(0, next.length - 1)));
+    setPinnedIndex(null);
   }
-
-  function addNote() {
-    if (isLive || !pinned) return;
-    const key = `${activeMetric}:${pinned.point.date}`;
-    const label = `Note ${((extraNotes[key]?.length ?? 0) + pinned.payload.notes.length) + 1}`;
-    setExtraNotes((prev) => ({
-      ...prev,
-      [key]: [...(prev[key] ?? []), label],
-    }));
-  }
-
-  function removeNote(note: string) {
-    if (isLive || !pinned) return;
-    const key = `${activeMetric}:${pinned.point.date}`;
-    const base = pinForPoint(activeMetric, pinned.point).notes;
-    if (base.includes(note)) return;
-    setExtraNotes((prev) => ({
-      ...prev,
-      [key]: (prev[key] ?? []).filter((n) => n !== note),
-    }));
-  }
-
-  const pinLeftPct =
-    pinned && series.length > 1 ? (pinned.index / (series.length - 1)) * 100 : 12;
 
   if (!metric) return null;
 
@@ -249,79 +216,111 @@ export function HeroDemoDashboard({
           </div>
 
           <div className="block h-auto w-full min-w-0 pb-5 max-md:pb-4">
-            <div className="relative block w-full px-4 max-md:px-3">
-              <div className="relative h-72 w-full text-xs leading-4 max-md:h-64">
+            <div className="relative block w-full px-2 max-md:px-1">
+              <p className="mb-2 px-2 text-xs text-muted-foreground">
+                {pinnedPoint ? 'Click the pinned day again to unpin' : 'Click a day to pin its value'}
+              </p>
+              <div className="relative h-80 w-full text-xs leading-4 max-md:h-64 [&_*]:outline-none">
                 {series.every((b) => b.value === 0) ? (
                   <p className="flex h-full items-center justify-center text-sm text-muted-foreground">
                     No chart data for this metric yet.
                   </p>
                 ) : (
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={series}
-                      margin={{ top: 8, right: 8, left: 0, bottom: 8 }}
+                    <AreaChart
+                      data={chartData}
+                      margin={{ top: 12, right: 12, left: 0, bottom: 4 }}
+                      accessibilityLayer={false}
+                      style={{ cursor: 'pointer', outline: 'none' }}
                       onClick={(state) => {
-                        if (state?.activeTooltipIndex == null) return;
-                        const idx =
-                          typeof state.activeTooltipIndex === 'number'
-                            ? state.activeTooltipIndex
-                            : Number(state.activeTooltipIndex);
-                        if (Number.isFinite(idx)) setPinnedIndex(idx);
+                        const idx = Number(state?.activeTooltipIndex);
+                        if (!Number.isFinite(idx) || !series[idx]) return;
+                        setPinnedIndex((cur) => (cur === idx ? null : idx));
                       }}
                     >
+                      <defs>
+                        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={AREA_STROKE} stopOpacity={0.32} />
+                          <stop offset="100%" stopColor={AREA_STROKE} stopOpacity={0.02} />
+                        </linearGradient>
+                      </defs>
                       <CartesianGrid
-                        strokeDasharray="3 3"
+                        strokeDasharray="3 4"
                         vertical={false}
-                        stroke="oklab(0.922 0 0 / 0.7)"
+                        stroke="var(--foreground)"
+                        strokeOpacity={0.1}
                       />
                       <XAxis
-                        dataKey="label"
-                        tick={{ fontSize: 11, fill: 'oklch(0.556 0 0)' }}
+                        dataKey="idx"
+                        tickFormatter={(i) => series[Number(i)]?.label ?? ''}
+                        tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
                         axisLine={false}
                         tickLine={false}
                         interval="preserveStartEnd"
-                        minTickGap={24}
+                        minTickGap={16}
+                        tickMargin={10}
                       />
                       <YAxis
-                        tick={{ fontSize: 11, fill: 'oklch(0.556 0 0)' }}
+                        tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
                         axisLine={false}
                         tickLine={false}
-                        width={32}
+                        width={36}
                         tickFormatter={(v) => formatAxis(metric.id, Number(v))}
                       />
                       <Tooltip
-                        cursor={{ fill: 'oklab(0.145 0 0 / 0.04)' }}
-                        content={<HoverTooltip metricId={activeMetric} />}
+                        isAnimationActive={false}
+                        allowEscapeViewBox={{ x: false, y: true }}
+                        wrapperStyle={{ zIndex: 20, outline: 'none' }}
+                        cursor={{
+                          stroke: 'var(--foreground)',
+                          strokeOpacity: 0.25,
+                          strokeDasharray: '3 3',
+                        }}
+                        content={<HoverTooltip metricId={activeMetric} metricLabel={metric.label} />}
                       />
-                      <Bar dataKey="value" radius={[2, 2, 0, 0]} maxBarSize={10} cursor="pointer">
-                        {series.map((entry, index) => (
-                          <Cell
-                            key={entry.date}
-                            fill={index === pinnedIndex ? BAR_ACTIVE : BAR_FILL}
+                      <Area
+                        type="monotone"
+                        dataKey="value"
+                        stroke={AREA_STROKE}
+                        strokeWidth={2.5}
+                        fill={`url(#${gradientId})`}
+                        activeDot={{
+                          r: 5,
+                          fill: AREA_STROKE,
+                          stroke: 'var(--card)',
+                          strokeWidth: 2,
+                        }}
+                        isAnimationActive={false}
+                      />
+                      {pinnedPoint ? (
+                        <>
+                          <ReferenceLine
+                            x={pinnedIndex ?? undefined}
+                            stroke={AREA_STROKE}
+                            strokeOpacity={0.6}
                           />
-                        ))}
-                      </Bar>
-                    </BarChart>
+                          <ReferenceDot
+                            x={pinnedIndex ?? undefined}
+                            y={pinnedPoint.value}
+                            r={6}
+                            shape={
+                              <PinnedMarker
+                                date={formatPointDate(pinnedPoint)}
+                                metricLabel={metric.label}
+                                value={formatHover(activeMetric, pinnedPoint.value)}
+                              />
+                            }
+                          />
+                        </>
+                      ) : null}
+                    </AreaChart>
                   </ResponsiveContainer>
                 )}
 
-                {pinned && !series.every((b) => b.value === 0) ? (
-                  <PinnedPopover
-                    payload={pinned.payload}
-                    leftPct={pinLeftPct}
-                    onAddNote={addNote}
-                    onRemoveNote={removeNote}
-                    allowNotes={!isLive}
-                  />
-                ) : null}
               </div>
 
               <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 px-1 text-[0.6875rem] leading-[1.125rem] text-muted-foreground">
-                <LegendDot className="bg-color-002" label={metric.label} />
-                {!isLive ? <LegendDot className="bg-accent" label="Revenue" /> : null}
-                {!isLive ? (
-                  <LegendDot className="bg-muted-foreground" label="Notes" square />
-                ) : null}
+                <LegendDot className="bg-[var(--chart-area,oklch(0.56_0.14_160))]" label={metric.label} />
               </div>
             </div>
           </div>
@@ -406,122 +405,86 @@ function formatHover(metric: MetricId, value: number) {
   }
 }
 
+/** Time series carry an ISO date; categorical series (queries, pages) fall back to their label. */
+function PinnedMarker({
+  cx,
+  cy,
+  date,
+  metricLabel,
+  value,
+}: {
+  cx?: number;
+  cy?: number;
+  date: string;
+  metricLabel: string;
+  value: string;
+}) {
+  const chartWidth = useChartWidth() ?? 0;
+  const offset = useOffset();
+  if (cx == null || cy == null) return null;
+  const w = 168;
+  const h = 62;
+  // Keep the card inside the plot area so it never covers the Y-axis labels.
+  const minX = (offset?.left ?? 0) + 8;
+  const maxX = chartWidth - (offset?.right ?? 0) - w - 4;
+  const x = Math.min(Math.max(cx - w / 2, minX), Math.max(minX, maxX));
+  const y = cy - h - 16 >= 0 ? cy - h - 16 : cy + 16;
+  return (
+    <g pointerEvents="none">
+      <circle cx={cx} cy={cy} r={6} fill={AREA_STROKE} stroke="var(--card)" strokeWidth={2} />
+      <foreignObject x={x} y={y} width={w} height={h} overflow="visible">
+        <div className="rounded-[10px] border border-solid border-surface bg-surface-3 px-3 py-2 text-xs shadow-lg ">
+          <p className="text-[0.625rem] font-medium uppercase tracking-wide text-muted-foreground">
+            Pinned
+          </p>
+          <p className="font-medium text-foreground">{date}</p>
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-muted-foreground">{metricLabel}</span>
+            <span className="font-mono font-semibold text-foreground">{value}</span>
+          </div>
+        </div>
+      </foreignObject>
+    </g>
+  );
+}
+
+function formatPointDate(point: ChartPoint) {
+  if (/^\d{4}-\d{2}-\d{2}/.test(point.date)) {
+    const d = new Date(point.date.slice(0, 10) + 'T12:00:00Z');
+    if (!Number.isNaN(d.getTime())) {
+      return d.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        timeZone: 'UTC',
+      });
+    }
+  }
+  return point.label || point.date;
+}
+
 function HoverTooltip({
   active,
   payload,
   metricId,
+  metricLabel,
 }: {
   active?: boolean;
   payload?: Array<{ payload: ChartPoint }>;
   metricId: MetricId;
+  metricLabel: string;
 }) {
   if (!active || !payload?.[0]) return null;
   const point = payload[0].payload;
-  const date =
-    point.date.includes('-') && point.date.length >= 10
-      ? new Date(point.date.slice(0, 10) + 'T12:00:00Z').toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric',
-          timeZone: 'UTC',
-        })
-      : point.label || point.date;
+  const date = formatPointDate(point);
   return (
-    <div className="rounded-[10px] border border-solid border-surface bg-surface-3 px-2.5 py-1.5 text-xs shadow-sm">
-      <p className="font-medium">{date}</p>
-      <p className="text-muted-foreground">{formatHover(metricId, point.value)}</p>
-    </div>
-  );
-}
-
-function PinnedPopover({
-  payload,
-  leftPct,
-  onAddNote,
-  onRemoveNote,
-  allowNotes,
-}: {
-  payload: PinPayload;
-  leftPct: number;
-  onAddNote: () => void;
-  onRemoveNote: (note: string) => void;
-  allowNotes: boolean;
-}) {
-  const clamped = Math.min(78, Math.max(4, leftPct - 8));
-  return (
-    <div
-      className="pointer-events-auto absolute top-8 z-20 w-60 max-w-xs"
-      style={{ left: `${clamped}%` }}
-    >
-      <div className="grid min-w-60 grid-cols-1 gap-1.5 rounded-[10px] border border-solid border-surface-8 bg-foreground px-2.5 pt-1.5 pb-2 text-xs leading-4 text-surface-3 shadow-[var(--clr-1)_0px_12px_36px_0px,var(--clr-2)_0px_18px_24px_-8px,var(--clr-3)_0px_0px_2px_0px,var(--clr-3)_0px_2px_4px_0px]">
-        <div className="block text-[0.625rem] font-medium leading-[0.8125rem] tracking-[0.25px] text-color-004 uppercase">
-          Pinned
-        </div>
-        <div className="block font-medium">{payload.date}</div>
-        <div className="flex w-full flex-wrap items-center gap-2">
-          <div className="flex flex-1 items-center justify-between gap-4 leading-3">
-            <span className="block text-color-004">{payload.valueLabel}</span>
-            <span className="block font-medium [font-family:ui-monospace,_SFMono-Regular,_Menlo,_Monaco,_Consolas,_'Liberation_Mono',_'Courier_New',_monospace]">
-              {payload.valueDisplay}
-            </span>
-          </div>
-        </div>
-
-        {payload.referrer ? (
-          <div className="grid grid-cols-1 grid-rows-[13.3281px_16px_15.125px] gap-1.5 border-t border-solid border-t-clr-4 pt-1.5">
-            <div className="block text-[0.625rem] font-medium leading-[0.8125rem] tracking-[0.25px] text-color-004 uppercase">
-              Top referrer
-            </div>
-            <div className="flex h-4 items-center justify-between gap-3 leading-3">
-              <span className="flex h-4 min-w-0 items-center gap-1.5 text-color-006">
-                <SourceMark name={payload.referrer.name} imgSrc={payload.referrer.imgSrc} />
-                <span className="block overflow-hidden whitespace-nowrap">{payload.referrer.name}</span>
-              </span>
-              <span className="block shrink-0 font-medium [font-family:ui-monospace,_SFMono-Regular,_Menlo,_Monaco,_Consolas,_'Liberation_Mono',_'Courier_New',_monospace]">
-                {payload.referrer.count}
-              </span>
-            </div>
-            <p className="block text-[0.6875rem] leading-[0.9375rem] whitespace-nowrap text-muted">
-              {payload.referrer.share}
-            </p>
-          </div>
-        ) : null}
-
-        {allowNotes ? (
-          <div className="grid min-w-0 grid-cols-1 gap-1.5 border-t border-solid border-t-clr-4 pt-1.5">
-            <ul className="grid min-w-0 list-outside grid-cols-1 gap-1 [list-style-type:none]">
-              {payload.notes.map((note) => (
-                <li key={note} className="flex min-w-0 items-center gap-1.5 text-color-006">
-                  <span className="block h-2 w-2 shrink-0 rounded-xs bg-clr-6" aria-hidden />
-                  <span className="min-w-0 flex-1 overflow-hidden whitespace-nowrap">{note}</span>
-                  <button
-                    type="button"
-                    className="cursor-pointer rounded-sm p-0.5 text-center text-color-009 opacity-50 hover:bg-surface-8 hover:text-surface-3 hover:opacity-100"
-                    aria-label={`Delete note "${note}"`}
-                    onClick={() => onRemoveNote(note)}
-                  >
-                    <Icon5 cid="demo-del" />
-                  </button>
-                  <button
-                    type="button"
-                    className="cursor-default rounded-sm p-0.5 text-center text-color-009 opacity-50"
-                    aria-label={`Edit note "${note}"`}
-                    disabled
-                  >
-                    <Icon4 cid="demo-edit" />
-                  </button>
-                </li>
-              ))}
-            </ul>
-            <button
-              type="button"
-              onClick={onAddNote}
-              className="w-full cursor-pointer rounded-sm bg-surface-8 px-2 py-1.5 text-center font-medium hover:bg-clr-4"
-            >
-              Add a note
-            </button>
-          </div>
-        ) : null}
+    <div className="min-w-36 rounded-[10px] border border-solid border-surface bg-surface-3 px-3 py-2 text-xs shadow-lg">
+      <p className="font-medium text-foreground">{date}</p>
+      <div className="mt-1 flex items-center justify-between gap-4">
+        <span className="text-muted-foreground">{metricLabel}</span>
+        <span className="font-mono font-semibold text-foreground">
+          {formatHover(metricId, point.value)}
+        </span>
       </div>
     </div>
   );

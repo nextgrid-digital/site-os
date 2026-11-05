@@ -163,7 +163,7 @@ export function PreviewRail({
                   isHorizontal
                     ? "h-12 w-0.5 origin-bottom"
                     : "h-0.5 w-12 origin-left",
-                  highlighted ? "text-white" : undefined,
+                  highlighted ? "text-foreground" : undefined,
                 )}
               />
             </>

@@ -1,7 +1,5 @@
 import {
-  buildPathFunnelView,
   hasAnyTrafficData,
-  type AnalyticsFunnelStepView,
 } from '@/lib/audit/connected-analytics';
 import type { ConnectedAuditMetrics } from '@/lib/db/connected-metrics';
 import type { ChannelTrafficRow, PageMetric, QueryMetric } from '@/lib/supabase/types';
@@ -151,27 +149,12 @@ function totals(connected: ConnectedAuditMetrics) {
 }
 
 function buildSteps(
-  connected: ConnectedAuditMetrics,
   sessions: number,
   engaged: number,
   conversions: number
 ): FunnelStepInsight[] {
-  const pathView = buildPathFunnelView(connected.ga4FunnelSteps);
-  if (pathView.length >= 2) {
-    return pathView.map((step: AnalyticsFunnelStepView, index) => ({
-      step: step.step,
-      label: step.path || `Step ${step.step}`,
-      visitors: step.visitors,
-      dropOffPct: step.dropOffPct,
-      meaning:
-        index === 0
-          ? 'People start here — the busiest path in this window.'
-          : step.dropOffPct != null && step.dropOffPct >= 40
-            ? `Many people leave before reaching this step (${pct(step.dropOffPct / 100)} drop-off from the previous step).`
-            : 'Fewer people reach this step than the one before it.',
-    }));
-  }
-
+  // Steps come from whole-site totals, not top pages: GA4 top-page rows are a popularity
+  // ranking, so their gaps are not real step-to-step drop-off.
   if (sessions <= 0) return [];
 
   const engagedDrop =
@@ -570,7 +553,7 @@ export function buildFunnelAssessment(
   }
 
   const { sessions, engaged, conversions, searchClicks, impressions } = totals(connected);
-  const steps = buildSteps(connected, sessions, engaged, conversions);
+  const steps = buildSteps(sessions, engaged, conversions);
   const channels = rankChannels(connected.trafficByChannel ?? [], sessions);
   const landings = rankLandings(connected.pageMetrics ?? []);
   const intentMismatches = buildIntentMismatches(
