@@ -91,7 +91,7 @@ export function JoinedChainBreaks({ breaks }: { breaks: JoinedChainBreak[] }) {
                         {item.statement}
                       </p>
                       {open ? (
-                        <div className="mt-3 rounded-xl bg-muted px-3 py-2 text-muted-foreground">
+                        <div className="mt-3 rounded-xl bg-muted py-2 text-muted-foreground">
                           <p>{FIX_GUIDANCE[item.id] ?? DEFAULT_GUIDANCE}</p>
                           <div className="mt-2 flex items-center gap-3 text-xs">
                             <span aria-live="polite">
@@ -113,7 +113,7 @@ export function JoinedChainBreaks({ breaks }: { breaks: JoinedChainBreak[] }) {
                         type="button"
                         onClick={() => handleFix(item)}
                         aria-expanded={open}
-                        className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-background px-6 text-sm font-medium transition-colors hover:bg-raised"
+                        className="cursor-pointer inline-flex h-10 items-center gap-2 rounded-full border border-border bg-background px-6 text-sm font-medium transition-colors hover:bg-raised"
                       >
                         {open && copied ? (
                           <CheckIcon className="size-4" />

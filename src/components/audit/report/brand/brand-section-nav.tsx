@@ -19,7 +19,7 @@ export function BrandSectionNav() {
       className="pointer-events-none fixed top-1/2 z-40 hidden -translate-y-1/2 xl:block"
       style={{ left: 'max(0.75rem, calc(50vw - 35rem - 3.5rem))' }}
     >
-      <div className="pointer-events-auto">
+      <div className="pointer-events-none [&_nav]:pointer-events-auto">
         <PreviewRail
           items={DASHBOARD_RAIL_ITEMS}
           orientation="vertical"
