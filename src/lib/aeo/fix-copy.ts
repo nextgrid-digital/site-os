@@ -3,13 +3,13 @@ import type { AeoCheckId } from '@/lib/aeo/page-scanner';
 /** Plain-language reason each check matters, shown in the "Fix these first" list. */
 export const WHY_IT_HELPS: Record<AeoCheckId, string> = {
   structured_data:
-    'JSON-LD labels the page for machines (article, product, service, FAQ). AI engines quote pages they can classify with confidence, so labelled pages are chosen more often.',
+    'JSON-LD labels the page for machines (article, product, service, FAQ). Clear markup helps engines understand what a page is. It does not guarantee citations; the visible content still has to answer the question.',
   entity_schema:
     'Organization schema tells engines who you are, so they can attach your name to the answers they quote.',
   faq_schema:
-    'FAQPage markup turns each question and answer into a separate, quotable unit an engine can lift as-is.',
+    'FAQPage markup labels each question and answer for machines. Google no longer shows FAQ rich results for most sites, so treat this as a small, optional help for AI engines, not a ranking lever.',
   direct_answer:
-    'Engines lift the first clear paragraph. A plain 20–80 word answer at the top is the easiest thing for them to quote.',
+    'A short, plain answer near the top is easy for engines and readers to extract. The 20–80 word range is a rule of thumb, not a published requirement.',
   question_headings:
     'Buyers ask AI questions. Headings phrased as those questions match the query and point straight at the answer below.',
   authorship:

@@ -15,6 +15,8 @@ export interface AeoCheckRollup {
 
 export interface AeoScanSummary {
   pageCount: number;
+  /** Pages whose HTML looks client-rendered, so their scores are likely understated. */
+  jsRenderedPages: number;
   averageScore: number;
   /** Count of pages in each score band, for the distribution chart. */
   bands: { label: string; min: number; max: number; count: number }[];
@@ -56,6 +58,7 @@ export function summarizeAeoScans(scans: AeoPageScanRow[]): AeoScanSummary {
 
   return {
     pageCount: scans.length,
+    jsRenderedPages: scans.filter((s) => s.signals?.likelyJsRendered).length,
     averageScore,
     bands: BANDS.map((band) => ({
       ...band,

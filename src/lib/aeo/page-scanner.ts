@@ -22,6 +22,8 @@ export interface AeoPageSignals {
   hasList: boolean;
   hasTable: boolean;
   wordCount: number;
+  /** Page HTML has almost no text but loads scripts/app root: content is probably rendered client-side and invisible to this scan. Absent on older saved scans. */
+  likelyJsRendered?: boolean;
 }
 
 export type AeoCheckId =
@@ -164,6 +166,9 @@ export function extractAeoSignals($: cheerio.CheerioAPI): AeoPageSignals {
     hasList: $('main ul li, main ol li, body ul li').length >= 3,
     hasTable: $('table').length > 0,
     wordCount,
+    likelyJsRendered:
+      wordCount < 50 &&
+      ($('script[src]').length >= 3 || $('#root, #app, #__next, [data-reactroot]').length > 0),
   };
 }
 
@@ -215,7 +220,7 @@ export function scoreAeoPage(path: string, signals: AeoPageSignals): AeoPageScan
       applicable: signals.hasFaqContent,
       passed: has('FAQPage'),
       detail: has('FAQPage') ? 'FAQPage schema present.' : 'FAQ content found without FAQPage schema.',
-      fix: 'Wrap the visible Q&A pairs in FAQPage JSON-LD so each answer is individually quotable.',
+      fix: 'Optional: mark up the visible Q&A pairs with FAQPage JSON-LD. Only do this for questions actually answered on the page.',
     },
     {
       id: 'direct_answer',

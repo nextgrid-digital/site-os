@@ -35,10 +35,18 @@ export function generatePromptForFinding(
       : finding.type === 'weak_title' || finding.type === 'weak_meta_description'
         ? 'Rewrite the SERP snippet to improve clarity, intent match, and click appeal.'
         : finding.type === 'missing_faq'
-          ? 'Add a concise FAQ section and FAQ schema for the highest-intent objections on this page.'
+          ? 'Add a concise FAQ section answering the questions customers actually ask before buying (use sales calls, support tickets, and Search Console queries as the source). Do not pad it with generic questions.'
           : finding.type === 'thin_internal_links'
             ? 'Add contextual internal links from related pages to strengthen crawl paths and conversion routes.'
-            : 'Improve the page to better match search demand and buyer intent.';
+            : finding.type === 'search_ctr_gap' || finding.type === 'page_ctr_gap'
+              ? 'Rewrite the title tag and meta description so they contain the searched query wording and a concrete reason to click (specific outcome, number, or differentiator). Make sure the page actually delivers what the new snippet promises.'
+              : finding.type === 'search_position_gap'
+                ? 'Make this page the best answer to the query: cover it in a dedicated H2 with the query wording, add the missing detail competitors cover, and link to it from related pages.'
+                : finding.type === 'low_engagement_landing_page'
+                  ? 'Check the page against the traffic source that lands on it: the first screen must match the promise that brought the visitor, with one clear next step. Check load speed and mobile layout before rewriting copy.'
+                  : finding.type === 'no_conversion_support'
+                    ? 'First confirm the conversion event fires correctly in GA4 for this page. If tracking is fine, put one clear call to action above the fold and remove competing asks.'
+                    : 'Improve the page to better match search demand and buyer intent.';
 
   const copyGuidance =
     finding.category === 'search'
@@ -49,12 +57,12 @@ export function generatePromptForFinding(
 
   const internalLinks =
     finding.page_path && finding.page_path !== '/'
-      ? `Link to pricing, proof, and the most relevant solution page from ${finding.page_path}.`
-      : 'Link homepage sections to product, solution, proof, and pricing pages.';
+      ? `Link from ${finding.page_path} to the most relevant offer, proof, or pricing pages that already exist on the site. Do not link to pages that do not exist.`
+      : 'Link homepage sections to the offer, proof, and pricing pages that already exist on the site.';
 
   const faqSchemaGuidance =
     finding.type === 'missing_faq'
-      ? 'Add 4-6 buyer objections as FAQ items and implement FAQPage schema.'
+      ? 'Add the real buyer objections as visible FAQ items. FAQPage schema is optional: Google only shows FAQ rich results for well-known government and health sites, so do not expect a SERP benefit.'
       : 'Only add FAQ/schema where it supports a real buyer objection on this page.';
 
   const constraints =

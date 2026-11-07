@@ -468,19 +468,6 @@ async function finalizeAuditRun(input: {
 
   await assertAuditActive(auditRunId);
 
-  const draftFindings = generateFindings({
-    crawledPages: crawlResult.pages,
-    gscQueries: gscData.queryRows,
-    gscPages: gscData.pageRows,
-    ga4Pages: ga4Data,
-    architectureNotes: {
-      icp: intake?.icp_notes,
-      product: intake?.product_notes,
-      offer: intake?.offer_notes,
-      proof: intake?.proof_notes,
-    },
-  });
-
   let siteOnlyAnalysis;
   try {
     siteOnlyAnalysis = await buildSiteOnlyAnalysis({
@@ -499,6 +486,20 @@ async function finalizeAuditRun(input: {
   }
 
   await assertAuditActive(auditRunId);
+
+  const draftFindings = generateFindings({
+    crawledPages: crawlResult.pages,
+    gscQueries: gscData.queryRows,
+    gscPages: gscData.pageRows,
+    ga4Pages: ga4Data,
+    category: siteOnlyAnalysis.classification?.category ?? null,
+    architectureNotes: {
+      icp: intake?.icp_notes,
+      product: intake?.product_notes,
+      offer: intake?.offer_notes,
+      proof: intake?.proof_notes,
+    },
+  });
 
   const detectedCategory = siteOnlyAnalysis.classification?.category ?? null;
 

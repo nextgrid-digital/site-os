@@ -245,6 +245,10 @@ function ScoreCard({ summary }: { summary: AeoScanSummary }) {
           );
         })}
       </ul>
+      <p className="text-xs leading-relaxed text-muted-foreground">
+        This is a readiness checklist built from rules of thumb, not a measured prediction of AI citations.
+        Use it to find gaps, then confirm with real prompts.
+      </p>
     </Card>
   );
 }
@@ -718,6 +722,16 @@ export function AeoScanner({
   return (
     <div className="space-y-9">
       <WhatIsAeo />
+      {data.summary.jsRenderedPages > 0 ? (
+        <p
+          role="note"
+          className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-[13px] leading-relaxed text-foreground"
+        >
+          {data.summary.jsRenderedPages} of {data.summary.pageCount} pages look client-rendered: their HTML
+          holds almost no text, so this scan can’t see their content, schema or headings. Their scores are
+          probably too low. Server-render or pre-render those pages, then re-run the audit.
+        </p>
+      ) : null}
       <div className="grid gap-5 lg:grid-cols-[380px_1fr]">
         <ScoreCard summary={data.summary} />
         <Verdict data={data} />
