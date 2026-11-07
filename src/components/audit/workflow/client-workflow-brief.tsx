@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import {
   ArrowRight,
+  ChevronRight,
+  CircleAlert,
   Compass,
   Eye,
   InfoIcon,
@@ -10,17 +12,18 @@ import {
   Target,
   TrendingDown,
   TrendingUp,
+  TriangleAlert,
   Wrench,
+  MoveRight,
 } from "lucide-react";
 import { CalendarIcon, IssuesListIcon } from "@/components/icons";
 import { SiteCardFavicon } from "@/components/audit/site-card-favicon";
 import { SoftAuditTabLink } from "@/components/audit/soft-audit-tab-link";
 import {
-  PageChip,
   PriorityBadge,
 } from "@/components/audit/workflow/workflow-badges";
+import { PriorityFixButton } from "@/components/audit/workflow/priority-fix-button";
 import { CopyFixPrompt } from "@/components/audit/workflow/copy-fix-prompt";
-import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Tooltip,
   TooltipContent,
@@ -38,6 +41,154 @@ import type {
 import { buildFixPrompt, type WorkItemView } from "@/lib/workflow/work-items";
 
 const MAX_TASKS = 8;
+const ISSUES_PREVIEW = 4;
+
+type PriorityItem = GrowthBrief['priorityStack'][number];
+
+/** Which data source surfaced the issue. */
+function issueSource(item: PriorityItem) {
+  switch (item.category) {
+    case 'search':
+      return 'GSC';
+    case 'conversion':
+      return 'GA4';
+    default:
+      return 'Crawl';
+  }
+}
+
+function buildIssuePrompt(item: PriorityItem, domain: string) {
+  return [
+    `You are helping me fix an issue on my website ${domain}.`,
+    item.page_path ? `Page: ${item.page_path}` : null,
+    `Issue: ${item.title}`,
+    item.summary ? `Details: ${item.summary}` : null,
+    item.estimated_value ? `Expected result: ${item.estimated_value}` : null,
+    'Make the smallest change that fixes it, show me the exact code or copy to use, and tell me how to check that it worked.',
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
+function StepCard({
+  icon,
+  label,
+  title,
+  body,
+  highlight,
+}: {
+  icon: ReactNode;
+  label: string;
+  title: string | null;
+  body: string | null;
+  highlight?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-[18px] p-5 ${
+        highlight
+          ? 'border-2 border-success-ink/50 bg-success-soft dark:border-[#4fa574] dark:bg-[#1f3d2b]'
+          : 'border border-success-ink/20 bg-success-soft/40 dark:border-[#2f5a40] dark:bg-[#1b2f22]'
+      }`}
+    >
+      <p className="flex items-center gap-2 text-[11px] font-bold tracking-[0.12em] text-success-ink uppercase dark:text-[#8fddaa]">
+        {icon}
+        {label}
+      </p>
+      {title ? (
+        <p className="mt-4 text-lg leading-[25px] font-semibold text-foreground dark:text-[#f1fbf4]">
+          {title}
+        </p>
+      ) : null}
+      {body ? (
+        <p className="mt-3 text-sm leading-[21px] text-foreground/70 dark:text-[#b6e3c5]">
+          {body}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function StepArrow() {
+  return (
+    <span
+      className="hidden items-center text-success-ink/60 md:flex print:hidden dark:text-[#4f8a67]"
+      aria-hidden
+    >
+      <ChevronRight className="size-4" />
+    </span>
+  );
+}
+
+function IssueList({
+  items,
+  domain,
+  start,
+}: {
+  items: PriorityItem[];
+  domain: string;
+  start: number;
+}) {
+  return (
+    <ol className="divide-y divide-border">
+      {items.map((item, i) => {
+        const index = start + i;
+        return (
+          <li key={item.title} className="flex items-center gap-4 py-4">
+            <span
+              className={`flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
+                index === 0
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-tint text-foreground/80'
+              }`}
+            >
+              {index + 1}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-base font-semibold text-foreground">
+                {item.title}
+              </p>
+              {item.summary ? (
+                <p className="text-sm leading-6 text-muted-foreground">
+                  {item.summary}
+                </p>
+              ) : null}
+            </div>
+            <span className="hidden shrink-0 rounded-full bg-tint px-2.5 py-1 text-[11px] font-bold tracking-wide text-foreground/80 uppercase sm:inline">
+              {issueSource(item)}
+            </span>
+            <PriorityFixButton prompt={buildIssuePrompt(item, domain)} />
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+const BUSINESS_TYPES = [
+  'studio',
+  'agency',
+  'consulting',
+  'consultancy',
+  'platform',
+  'software',
+  'marketplace',
+  'shop',
+  'store',
+];
+
+/** Flags when the headline and the AI reading name different kinds of business. */
+function findBusinessTypeMismatch(headline: string, aiText: string) {
+  const find = (text: string) => {
+    const lower = text.toLowerCase();
+    return BUSINESS_TYPES.find((type) =>
+      new RegExp(`\\b${type}\\b`).test(lower),
+    );
+  };
+  const site = find(headline);
+  const ai = find(aiText);
+  return site && ai && site !== ai ? { site, ai } : null;
+}
 
 function TaskList({
   items,
@@ -86,12 +237,26 @@ export function ClientWorkflowBrief({
   const facts = parseBriefFacts(happening);
   const aiReading = facts.find((fact) => fact.label === 'AI inference') ?? null;
   const otherFacts = facts.filter((fact) => fact !== aiReading);
+  const headline =
+    otherFacts.find(
+      (fact) => fact.label && displayFactLabel(fact.label) === 'Main headline',
+    )?.value ?? null;
+  const mismatch =
+    aiReading && headline ? findBusinessTypeMismatch(headline, aiReading.value) : null;
 
-  const broken = brief?.priorityStack.slice(0, 6) ?? [];
+  const broken = brief?.priorityStack.slice(0, 10) ?? [];
   const verdict = brief?.auditVerdict.verdict?.trim() || null;
   const mainIssue = brief?.auditVerdict.mainIssue?.trim() || null;
   const firstFix = brief?.auditVerdict.firstFix?.trim() || null;
   const firstBrief = brief?.executionBriefs?.[0] ?? null;
+  const topIssue =
+    brief?.priorityStack.find((item) => item.title === firstBrief?.title) ??
+    brief?.priorityStack[0] ??
+    null;
+  // First sentence is the heading, the rest is the body.
+  const [fixHead, ...fixRest] = (firstBrief?.whatToChange ?? '').split(/(?<=\.)\s+/);
+  const fixTitle = fixHead.replace(/\.$/, '').trim() || null;
+  const fixBody = fixRest.join(' ').trim() || null;
   const recommends =
     brief?.siteOnlySummary?.recommendedNextSteps.slice(0, 5) ??
     (brief?.offerRecommendation.nextgridAction
@@ -156,7 +321,7 @@ export function ClientWorkflowBrief({
             The bottom line
           </p>
           {verdict ? (
-            <p className="mt-2 text-lg leading-7 font-semibold text-foreground">
+            <p className="mt-2 text-2xl font-semibold text-foreground font-display">
               {verdict}
             </p>
           ) : (
@@ -195,31 +360,38 @@ export function ClientWorkflowBrief({
         {firstFix || firstBrief ? (
           <section className="rounded-xl border border-success-ink/20 bg-success-soft/60 p-5">
             <div className="flex items-start gap-3">
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-success text-success-foreground">
+              <span className="mt-1.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-success text-success-foreground">
                 <Target className="size-4" aria-hidden />
               </span>
-              <div className="min-w-0 space-y-2">
-                <p className="text-sm font-semibold text-success-ink">
-                  Start here
+              <div className="flex flex-col">
+                <p className="text-xl font-bold text-success-ink">Start here</p>
+                <p className="text-sm text-success-ink">
+                  {firstFix ?? "The one change that matters most right now"}
                 </p>
-                {firstFix ? (
-                  <p className="text-sm leading-6 text-success-ink">
-                    {firstFix}
-                  </p>
-                ) : null}
-                {firstBrief?.whatToChange ? (
-                  <p className="text-sm leading-6 text-success-ink/80">
-                    <span className="font-medium">What to change:</span>{" "}
-                    {firstBrief.whatToChange}
-                  </p>
-                ) : null}
-                {firstBrief?.expectedEffect ? (
-                  <p className="text-sm leading-6 text-success-ink/80">
-                    <span className="font-medium">Expected result:</span>{" "}
-                    {firstBrief.expectedEffect}
-                  </p>
-                ) : null}
               </div>
+            </div>
+            <div className="mt-5 grid items-stretch gap-3 md:grid-cols-[1fr_auto_1fr_auto_1fr]">
+              <StepCard
+                icon={<TriangleAlert className="size-3.5" aria-hidden />}
+                label="The problem"
+                title={topIssue?.title ?? firstBrief?.title ?? null}
+                body={topIssue?.summary ?? null}
+              />
+              <StepArrow />
+              <StepCard
+                highlight
+                icon={<Wrench className="size-3.5" aria-hidden />}
+                label="The fix"
+                title={fixTitle}
+                body={fixBody}
+              />
+              <StepArrow />
+              <StepCard
+                icon={<TrendingUp className="size-3.5" aria-hidden />}
+                label="The payoff"
+                title={firstBrief?.expectedEffect ?? null}
+                body={null}
+              />
             </div>
           </section>
         ) : null}
@@ -227,12 +399,12 @@ export function ClientWorkflowBrief({
         <BriefSection
           icon={<Eye className="size-4" aria-hidden />}
           title="What we're seeing"
-          subtitle="How the site comes across today."
+          subtitle="How the site comes across today, to people and to AI."
         >
           {facts.length > 0 ? (
-            <div className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-[1.15fr_1fr]">
               {aiReading ? (
-                <div className="rounded-xl bg-tint p-4 ml-[1.5em]">
+                <div className="rounded-xl bg-tint p-5">
                   <p className="inline-flex items-center gap-1.5 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                     How an AI would describe you
                     <TooltipProvider>
@@ -250,25 +422,52 @@ export function ClientWorkflowBrief({
                       </Tooltip>
                     </TooltipProvider>
                   </p>
-                  <p className="mt-1.5 text-base leading-7 text-foreground">{aiReading.value}</p>
+                  <p className="mt-3 font-display text-xl leading-8 text-foreground">
+                    &ldquo;{aiReading.value}&rdquo;
+                  </p>
                 </div>
               ) : null}
-              {otherFacts.length > 0 ? (
-                <ul className="space-y-3">
-                  {otherFacts.map((fact, index) => (
-                    <li
-                      key={`${fact.label ?? 'note'}-${index}`}
-                      className="grid gap-x-4 gap-y-0.5 text-sm leading-6 sm:grid-cols-[9.5rem_1fr] items-center"
-                    >
-                      {fact.label ? (
-                        <div className="font-semibold text-foreground">{displayFactLabel(fact.label)}</div>
-                      ) : null}
-                      <div className={`min-w-0 break-words text-foreground/80 ${fact.label ? '' : 'sm:col-span-2'}`}>
-                        {fact.value}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+              {otherFacts.length > 0 || mismatch ? (
+                <div
+                  className={`rounded-xl bg-tint p-5 ${aiReading ? '' : 'md:col-span-2'}`}
+                >
+                  <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+                    What your site says
+                  </p>
+                  <ul className="mt-3 space-y-3">
+                    {otherFacts.map((fact, index) => (
+                      <li
+                        key={`${fact.label ?? 'note'}-${index}`}
+                        className="text-sm leading-6"
+                      >
+                        {fact.label ? (
+                          <div className="text-muted-foreground">
+                            {displayFactLabel(fact.label)}
+                          </div>
+                        ) : null}
+                        <div className="min-w-0 break-words text-foreground">
+                          {fact.value}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  {mismatch ? (
+                    <div className="mt-4 flex gap-2.5 rounded-lg bg-raised p-3.5 text-sm leading-6 text-foreground/80">
+                      <CircleAlert
+                        className="mt-1.25 size-4 shrink-0 text-warning-ink"
+                        aria-hidden
+                      />
+                      <p>
+                        <span className="font-semibold text-foreground">
+                          Worth checking:
+                        </span>{' '}
+                        your headline says &ldquo;{mismatch.site}&rdquo;, the AI
+                        says &ldquo;{mismatch.ai}&rdquo;. Is that the first
+                        impression you want?
+                      </p>
+                    </div>
+                  ) : null}
+                </div>
               ) : null}
             </div>
           ) : (
@@ -282,54 +481,22 @@ export function ClientWorkflowBrief({
           subtitle="Ranked by business impact. The top one matters most."
         >
           {broken.length > 0 ? (
-            <ol className="space-y-2.5">
-              {broken.map((item, index) => (
-                <li
-                  key={item.title}
-                  className="flex gap-3 rounded-xl bg-tint px-4 py-3.5"
-                >
-                  <span
-                    className={`mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
-                      index === 0
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-raised text-foreground/80 shadow-sm"
-                    }`}
-                  >
-                    {index + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-foreground">
-                      {item.title}
-                    </p>
-                    {item.summary ? (
-                      <p className="mt-1 text-sm leading-6 text-foreground/70">
-                        {item.summary}
-                      </p>
-                    ) : null}
-                    {item.whyFirst ? (
-                      <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                        <span className="font-medium text-foreground/70">
-                          Why it matters:
-                        </span>{" "}
-                        {item.whyFirst}
-                      </p>
-                    ) : null}
-                    {item.page_path || item.estimated_value ? (
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {item.page_path ? (
-                          <PageChip path={item.page_path} />
-                        ) : null}
-                        {item.estimated_value ? (
-                          <StatusBadge tone="success">
-                            {item.estimated_value}
-                          </StatusBadge>
-                        ) : null}
-                      </div>
-                    ) : null}
-                  </div>
-                </li>
-              ))}
-            </ol>
+            <>
+              <IssueList items={broken.slice(0, ISSUES_PREVIEW)} domain={domain} start={0} />
+              {broken.length > ISSUES_PREVIEW ? (
+                <details className="group mt-1">
+                  <summary className="flex cursor-pointer list-none items-center gap-1.5 border-t border-border pt-4 text-sm font-medium text-foreground/90 print:hidden group-open:hidden hover:underline hover:underline-offset-2">
+                    Show all {broken.length} issues
+                    <MoveRight className="size-3.5" aria-hidden />
+                  </summary>
+                  <IssueList
+                    items={broken.slice(ISSUES_PREVIEW)}
+                    domain={domain}
+                    start={ISSUES_PREVIEW}
+                  />
+                </details>
+              ) : null}
+            </>
           ) : (
             <Empty>No prioritized issues in this audit yet.</Empty>
           )}
@@ -346,8 +513,8 @@ export function ClientWorkflowBrief({
               <TaskList items={pending.slice(0, MAX_TASKS)} domain={domain} />
               {pending.length > MAX_TASKS ? (
                 <details className="group mt-3">
-                  <summary className="cursor-pointer list-none text-sm font-medium text-foreground/90 underline-offset-2 hover:underline print:hidden group-open:hidden">
-                    Show {pending.length - MAX_TASKS} more tasks
+                  <summary className="inline-flex gap-2 items-center cursor-pointer list-none text-sm font-semibold text-foreground/90 underline-offset-2 hover:underline print:hidden group-open:hidden">
+                    Show {pending.length - MAX_TASKS} more tasks <MoveRight className="size-3.5" aria-hidden />
                   </summary>
                   <TaskList
                     items={pending.slice(MAX_TASKS)}
@@ -427,7 +594,7 @@ export function ClientWorkflowBrief({
               className="inline-flex items-center gap-1 font-medium text-foreground/90 underline-offset-2 hover:underline"
             >
               See the full data in Dashboard
-              <ArrowRight className="size-3.5" aria-hidden />
+              <MoveRight className="size-3.5" aria-hidden />
             </SoftAuditTabLink>
           </p>
         </BriefSection>
@@ -456,8 +623,8 @@ function BriefSection({
           {icon}
         </span>
         <div className="min-w-0 flex-1">
-          <div className="text-base font-semibold text-foreground">{title}</div>
-          <div className="text-xs leading-5 text-muted-foreground">
+          <div className="text-base font-bold text-foreground">{title}</div>
+          <div className="text-sm leading-5 text-muted-foreground">
             {subtitle}
           </div>
         </div>
@@ -521,7 +688,7 @@ function StatTile({
         ) : null}
         {label}
       </p>
-      <div className="mt-2 text-2xl font-bold leading-7 text-foreground font-mono">
+      <div className="my-4 text-4xl font-bold leading-7 text-foreground font-mono">
         {value}
       </div>
       <p className="mt-1 text-sm leading-6 text-muted-foreground">{hint}</p>

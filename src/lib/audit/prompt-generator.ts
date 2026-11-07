@@ -31,7 +31,7 @@ export function generatePromptForFinding(
 
   const exactChange =
     finding.type === 'missing_page_type'
-      ? `Create or expand a dedicated page for ${finding.title.toLowerCase()} with clear positioning, proof, and CTA.`
+      ? `Create or expand a dedicated ${finding.title.replace(/^missing\s+/i, '').toLowerCase()}. State who it is for and what you offer, back it up with real proof such as customer results, logos, or testimonials, and end with one clear call to action.`
       : finding.type === 'weak_title' || finding.type === 'weak_meta_description'
         ? 'Rewrite the SERP snippet to improve clarity, intent match, and click appeal.'
         : finding.type === 'missing_faq'
