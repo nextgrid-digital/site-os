@@ -158,7 +158,7 @@ const AEO_STEPS = [
 ] as const;
 
 function WhatIsAeo() {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   return (
     <Card className="print:hidden">
       <div className="flex items-start justify-between gap-4">
