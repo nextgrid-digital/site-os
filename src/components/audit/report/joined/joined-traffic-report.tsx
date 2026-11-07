@@ -18,6 +18,8 @@ import { ConnectedAnalyticsSuite } from "@/components/audit/report/analytics/con
 import { BrandAdsSection } from "@/components/audit/report/brand/brand-ads-section";
 import { DashboardMobileTabs } from "@/components/audit/report/brand/dashboard-mobile-tabs";
 import { JoinedChainBreaks } from "@/components/audit/report/joined/joined-chain-breaks";
+import { OpportunityVerdict } from "@/components/audit/report/joined/opportunity-verdict";
+import { useValueSettings } from "@/components/audit/report/joined/use-fix-tracking";
 import { FunnelHealthStrip } from "@/components/audit/dashboard/funnel-health-strip";
 import {
   BrandEmptyState,
@@ -32,6 +34,7 @@ import { buildHeroDashboardFromConnected } from "@/lib/audit/connected-hero-dash
 import { buildFunnelAssessment } from "@/lib/audit/funnel-assessment";
 import { buildFunnelHealth } from "@/lib/audit/funnel-health";
 import { buildJoinedTrafficStory } from "@/lib/audit/joined-traffic-story";
+import { buildOpportunityVerdict } from "@/lib/audit/opportunity";
 import type { ConnectedAuditMetrics } from "@/lib/db/connected-metrics";
 
 const HeroDemoDashboard = dynamic(
@@ -63,6 +66,11 @@ export function JoinedTrafficReport({
   const story = useMemo(
     () => buildJoinedTrafficStory(connectedMetrics),
     [connectedMetrics],
+  );
+  const valueSettings = useValueSettings(projectId);
+  const opportunity = useMemo(
+    () => buildOpportunityVerdict(connectedMetrics, valueSettings.settings),
+    [connectedMetrics, valueSettings.settings],
   );
   const funnelAssessment = useMemo(
     () => buildFunnelAssessment(connectedMetrics),
@@ -162,6 +170,17 @@ export function JoinedTrafficReport({
                 connectHref={connectHref}
               />
             </div>
+            {opportunity.hasEstimate ? (
+              <div className="mt-6">
+                <OpportunityVerdict
+                  verdict={opportunity}
+                  domain={domain}
+                  saving={valueSettings.saving}
+                  error={valueSettings.error}
+                  onSaveValue={valueSettings.save}
+                />
+              </div>
+            ) : null}
           </div>
         </section>
 
@@ -180,7 +199,8 @@ export function JoinedTrafficReport({
               className="rounded-lg bg-tint px-3 py-2 text-sm text-foreground/80"
             >
               <p className="font-medium text-foreground">
-                Google data couldn&apos;t be read in the last audit, so these numbers are not real zeros.
+                Google data couldn&apos;t be read in the last audit, so these
+                numbers are not real zeros.
               </p>
               <ul className="mt-1 list-disc pl-5 text-muted-foreground">
                 {connectedMetrics.googleSyncErrors.map((e) => (
@@ -311,13 +331,13 @@ export function JoinedTrafficReport({
         <DashboardSection
           id="issues"
           title="Issues"
-          lead="Chain breaks and paid mismatches"
+          lead="What to fix, step by step, and proof it worked"
           tip={{
             what: "Places where the chain from search to conversion is broken, e.g. clicks that never become sessions.",
             why: "Each issue is a concrete thing to fix, ordered by impact.",
           }}
         >
-          <JoinedChainBreaks breaks={story.breaks} />
+          <JoinedChainBreaks projectId={projectId} breaks={story.breaks} />
           {funnelAssessment.paidMismatches.length > 0 ? (
             <ul className="space-y-2">
               {funnelAssessment.paidMismatches.slice(0, 4).map((p) => (

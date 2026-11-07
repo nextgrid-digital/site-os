@@ -179,7 +179,8 @@ export function SpaDashboardPanel({
     <div className="space-y-3">
       <LastAuditLabel lastAuditAt={lastAuditAt} />
       <JoinedTrafficReport
-        projectId={workspaceId}
+        // `workspaceId` can be an audit session id; the APIs need the project UUID.
+        projectId={ctx?.bundle?.projectId ?? workspaceId}
         connectedMetrics={connected}
         domain={domain || undefined}
         websiteConnected={Boolean(websiteUrl)}

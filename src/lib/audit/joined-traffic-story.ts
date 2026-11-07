@@ -1,4 +1,5 @@
 import type { ConnectedAuditMetrics } from '@/lib/db/connected-metrics';
+import { estimateMissedClicks } from '@/lib/audit/opportunity';
 import type { PageMetric, QueryMetric } from '@/lib/supabase/types';
 
 export type JoinedSourceTag = 'GSC' | 'GA4' | 'Crawl';
@@ -55,11 +56,28 @@ export type JoinedQueryBridge = {
   sources: JoinedSourceTag[];
 };
 
+/** What the page currently says in search, so a fix can start from real text. */
+export type JoinedBreakPageContext = {
+  title: string | null;
+  metaDescription: string | null;
+  h1: string | null;
+  /** Queries that already bring this page impressions, highest first. */
+  topQueries: string[];
+};
+
 export type JoinedChainBreak = {
   id: string;
   title: string;
   statement: string;
   sources: JoinedSourceTag[];
+  /** The page path or query this break is about; used to track the fix. */
+  target: string;
+  targetKind: 'page' | 'query';
+  /** Estimated extra clicks per 28 days if fixed; null when it can't be sized. */
+  missedClicks: number | null;
+  /** Monthly clicks now vs. with a listing that earns a typical CTR; null when it can't be sized. */
+  projection: { impressions: number; ctr: number; clicksNow: number; clicksPotential: number } | null;
+  pageContext: JoinedBreakPageContext | null;
 };
 
 export type JoinedTrafficStory = {
@@ -81,11 +99,49 @@ function pct(rate: number) {
   return `${value.toFixed(1)}%`;
 }
 
-function normalizePath(path: string | null | undefined) {
+export function normalizePath(path: string | null | undefined) {
   if (!path) return '/';
   const trimmed = path.trim() || '/';
   if (trimmed === '/') return '/';
   return trimmed.endsWith('/') ? trimmed.slice(0, -1) || '/' : trimmed;
+}
+
+function projectionFor(input: {
+  impressions: number;
+  clicks: number;
+  ctr: number;
+  position: number;
+}): JoinedChainBreak['projection'] {
+  const { missedClicks } = estimateMissedClicks(input);
+  if (missedClicks <= 0) return null;
+  return {
+    impressions: input.impressions,
+    ctr: input.ctr,
+    clicksNow: input.clicks,
+    clicksPotential: input.clicks + missedClicks,
+  };
+}
+
+function pageContextFor(
+  path: string | null,
+  pageByPath: Map<string, PageMetric>,
+  queries: QueryMetric[]
+): JoinedBreakPageContext | null {
+  if (!path) return null;
+  const key = normalizePath(path);
+  const page = pageByPath.get(key);
+  const topQueries = queries
+    .filter((q) => q.page_path && normalizePath(q.page_path) === key)
+    .toSorted((a, b) => b.impressions - a.impressions)
+    .slice(0, 5)
+    .map((q) => q.query);
+  if (!page && topQueries.length === 0) return null;
+  return {
+    title: page?.title ?? null,
+    metaDescription: page?.meta_description ?? null,
+    h1: page?.h1 ?? null,
+    topQueries,
+  };
 }
 
 function pageProblem(p: {
@@ -355,6 +411,20 @@ export function buildJoinedTrafficStory(
       title: 'Demand without clicks',
       statement: `${top.path} had ${fmt(top.impressions)} impressions at ${pct(top.ctr)} CTR — visible in search, few clicks.`,
       sources: ['GSC'],
+      target: top.path,
+      targetKind: 'page',
+      missedClicks: estimateMissedClicks({
+        impressions: top.impressions,
+        clicks: top.searchClicks,
+        position: top.position,
+      }).missedClicks,
+      projection: projectionFor({
+        impressions: top.impressions,
+        clicks: top.searchClicks,
+        ctr: top.ctr,
+        position: top.position,
+      }),
+      pageContext: pageContextFor(top.path, pageByPath, queries),
     });
   }
 
@@ -368,6 +438,11 @@ export function buildJoinedTrafficStory(
       title: 'Clicks without sessions',
       statement: `${top.path} recorded ${fmt(top.searchClicks)} search clicks but only ${fmt(top.sessions)} sessions — clicks may not be becoming visits.`,
       sources: ['GSC', 'GA4'],
+      target: top.path,
+      targetKind: 'page',
+      missedClicks: null,
+      projection: null,
+      pageContext: pageContextFor(top.path, pageByPath, queries),
     });
   }
 
@@ -379,6 +454,11 @@ export function buildJoinedTrafficStory(
       title: 'Sessions without conversions',
       statement: `${top.path} had ${fmt(top.sessions)} sessions and 0 measured conversions in this audit window.`,
       sources: ['GA4'],
+      target: top.path,
+      targetKind: 'page',
+      missedClicks: null,
+      projection: null,
+      pageContext: pageContextFor(top.path, pageByPath, queries),
     });
   }
 
@@ -392,6 +472,11 @@ export function buildJoinedTrafficStory(
       title: 'Converting pages with little search demand',
       statement: `${top.path} drove ${fmt(top.conversions)} conversions with only ${fmt(top.searchClicks)} search clicks — outcomes mostly outside organic search on this path.`,
       sources: ['GA4', 'GSC'],
+      target: top.path,
+      targetKind: 'page',
+      missedClicks: null,
+      projection: null,
+      pageContext: pageContextFor(top.path, pageByPath, queries),
     });
   }
 
@@ -405,6 +490,20 @@ export function buildJoinedTrafficStory(
         top.pagePath ? ` on ${top.pagePath}` : ''
       }.`,
       sources: ['GSC'],
+      target: top.query,
+      targetKind: 'query',
+      missedClicks: estimateMissedClicks({
+        impressions: top.impressions,
+        clicks: top.clicks,
+        position: top.position,
+      }).missedClicks,
+      projection: projectionFor({
+        impressions: top.impressions,
+        clicks: top.clicks,
+        ctr: top.ctr,
+        position: top.position,
+      }),
+      pageContext: pageContextFor(top.pagePath, pageByPath, queries),
     });
   }
 
