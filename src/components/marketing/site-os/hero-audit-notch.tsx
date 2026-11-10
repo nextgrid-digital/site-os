@@ -1,9 +1,17 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type MouseEvent,
+} from 'react';
+import { createPortal } from 'react-dom';
 import { CircleAlert } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { GlobeIcon } from '@/components/icons';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 const ERROR_VISIBLE_MS = 6000;
@@ -11,6 +19,9 @@ const ERROR_VISIBLE_MS = 6000;
 const IDLE_MAX = 520;
 const SCANNING_MAX = 320;
 const SCANNING_MIN = 200;
+
+type DustParticle = { dx: number; dy: number; size: number; duration: number };
+type DustBurst = { id: number; x: number; y: number; particles: DustParticle[] };
 
 // Notch geometry per state, derived from the space available so the morph is visible
 // at every viewport. Height follows the content (the error row animates its own height).
@@ -42,6 +53,8 @@ export function HeroAuditNotch() {
   const [url, setUrl] = useState('');
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState('');
+  const [dust, setDust] = useState<DustBurst[]>([]);
+  const dustId = useRef(0);
   const wrapRef = useRef<HTMLDivElement>(null);
   const [available, setAvailable] = useState(IDLE_MAX);
 
@@ -92,6 +105,26 @@ export function HeroAuditNotch() {
       setError('Failed to start audit. Please try again.');
       setScanning(false);
     }
+  }
+
+  function burstDust(e: MouseEvent<HTMLButtonElement>) {
+    if (reduce) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const id = dustId.current++;
+    const particles: DustParticle[] = Array.from({ length: 20 }, (_, i) => {
+      const angle = (Math.PI * 2 * i) / 16 + Math.random() * 0.6;
+      const distance = 24 + Math.random() * 40;
+      return {
+        dx: Math.cos(angle) * distance,
+        dy: Math.sin(angle) * distance - 8,
+        size: 2 + Math.random() * 3,
+        duration: 0.7 + Math.random() * 0.5,
+      };
+    });
+    setDust((d) => [...d, { id, x, y, particles }]);
+    setTimeout(() => setDust((d) => d.filter((b) => b.id !== id)), 1400);
   }
 
   const size = sizeFor(
@@ -149,6 +182,16 @@ export function HeroAuditNotch() {
               className="flex flex-col"
             >
               <div className="flex h-16 shrink-0 items-center gap-2 pr-2 pl-5 sm:pl-6">
+                <button
+                  type="button"
+                  onClick={burstDust}
+                  tabIndex={-1}
+                  aria-hidden
+                  className="shrink-0 cursor-pointer rounded-full"
+                >
+                  <GlobeIcon className="size-8" aria-hidden />
+                </button>
+                <span className="sr-only">Website URL</span>
                 <input
                   type="text"
                   inputMode="url"
@@ -162,7 +205,7 @@ export function HeroAuditNotch() {
                   aria-label="Website URL"
                   aria-invalid={Boolean(error)}
                   aria-describedby={error ? 'hero-audit-error' : undefined}
-                  className="h-12 min-w-0 flex-1 bg-transparent text-base text-background placeholder:text-background/70 autofill:shadow-[inset_0_0_0_1000px_var(--foreground)] autofill:[-webkit-text-fill-color:var(--background)] focus:outline-none"
+                  className="h-12 min-w-0 flex-1 bg-transparent text-base text-background placeholder:text-background/70 autofill:shadow-[inset_0_0_0_1000px_var(--foreground)] autofill:[-webkit-text-fill-color:var(--background)] focus:outline-none "
                 />
                 <button
                   type="submit"
@@ -202,6 +245,40 @@ export function HeroAuditNotch() {
           )}
         </AnimatePresence>
       </motion.form>
+      {dust.length > 0 &&
+        createPortal(
+          <div aria-hidden className="pointer-events-none fixed inset-0 z-50">
+            {dust.map((burst) => (
+              <div
+                key={burst.id}
+                className="absolute top-0 left-0"
+                style={{ transform: `translate(${burst.x}px, ${burst.y}px)` }}
+              >
+                {burst.particles.map((p, i) => (
+                  <motion.span
+                    key={i}
+                    initial={{
+                      x: -p.size / 2,
+                      y: -p.size / 2,
+                      opacity: 0.9,
+                      scale: 1,
+                    }}
+                    animate={{
+                      x: p.dx - p.size / 2,
+                      y: p.dy - p.size / 2,
+                      opacity: 0,
+                      scale: 0.3,
+                    }}
+                    transition={{ duration: p.duration, ease: 'easeOut' }}
+                    className="absolute top-0 left-0 rounded-full bg-foreground/70"
+                    style={{ width: p.size, height: p.size }}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
