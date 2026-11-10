@@ -1,17 +1,12 @@
 'use client';
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  type FormEvent,
-  type MouseEvent,
-} from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { CircleAlert } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { GlobeIcon } from '@/components/icons';
+import { useBurstDust } from '@/components/marketing/site-os/burst-dust';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 const ERROR_VISIBLE_MS = 6000;
@@ -20,8 +15,6 @@ const IDLE_MAX = 520;
 const SCANNING_MAX = 320;
 const SCANNING_MIN = 200;
 
-type DustParticle = { dx: number; dy: number; size: number; duration: number };
-type DustBurst = { id: number; x: number; y: number; particles: DustParticle[] };
 
 // Notch geometry per state, derived from the space available so the morph is visible
 // at every viewport. Height follows the content (the error row animates its own height).
@@ -53,8 +46,7 @@ export function HeroAuditNotch() {
   const [url, setUrl] = useState('');
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState('');
-  const [dust, setDust] = useState<DustBurst[]>([]);
-  const dustId = useRef(0);
+  const { dust, handleBurstDust: burstDust } = useBurstDust();
   const wrapRef = useRef<HTMLDivElement>(null);
   const [available, setAvailable] = useState(IDLE_MAX);
 
@@ -105,26 +97,6 @@ export function HeroAuditNotch() {
       setError('Failed to start audit. Please try again.');
       setScanning(false);
     }
-  }
-
-  function burstDust(e: MouseEvent<HTMLButtonElement>) {
-    if (reduce) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
-    const id = dustId.current++;
-    const particles: DustParticle[] = Array.from({ length: 20 }, (_, i) => {
-      const angle = (Math.PI * 2 * i) / 16 + Math.random() * 0.6;
-      const distance = 24 + Math.random() * 40;
-      return {
-        dx: Math.cos(angle) * distance,
-        dy: Math.sin(angle) * distance - 8,
-        size: 2 + Math.random() * 3,
-        duration: 0.7 + Math.random() * 0.5,
-      };
-    });
-    setDust((d) => [...d, { id, x, y, particles }]);
-    setTimeout(() => setDust((d) => d.filter((b) => b.id !== id)), 1400);
   }
 
   const size = sizeFor(
