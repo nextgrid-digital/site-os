@@ -256,7 +256,7 @@ export function AuthSignInGate({
 
 function AgeCheckbox({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
-    <label className="flex cursor-pointer items-start gap-2 text-xs text-muted-foreground">
+    <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
       <input
         type="checkbox"
         checked={checked}
