@@ -30,7 +30,7 @@ export function getAppUrl(request?: Request): string {
 
   if (isVercelRuntime()) {
     throw new Error(
-      'Missing NEXT_PUBLIC_APP_URL in production. Set it to your production origin (e.g. https://site-os-opal.vercel.app).'
+      'Missing NEXT_PUBLIC_APP_URL in production. Set it to your production origin (e.g. https://openaex.nextgrid.digital).'
     );
   }
 

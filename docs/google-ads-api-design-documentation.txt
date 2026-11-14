@@ -1,4 +1,4 @@
-# Site-OS — Google Ads API Design Documentation
+# OpenAEX — Google Ads API Design Documentation
 NextGrid Digital · Internal agency tooling
 
 Note: This tool is for internal NextGrid operators only. It is not a public self-serve multi-tenant Ads product. Screenshots of the Brand dashboard Ads section can be attached separately if requested.
@@ -19,7 +19,7 @@ hello@nextgrid.digital
 ## Business model
 NextGrid Digital is a digital agency. We help client brands improve acquisition and conversion performance across website, search, analytics, and paid media.
 
-We are building an internal operating system called **Site-OS**. Site-OS is used by NextGrid operators to audit a client brand in one place. It connects:
+We are building an internal operating system called **OpenAEX**. OpenAEX is used by NextGrid operators to audit a client brand in one place. It connects:
 
 - Website crawl data
 - Google Analytics 4 (read-only)
@@ -54,9 +54,9 @@ Clients grant access to our operator Google account (`hello@nextgrid.digital`). 
 
 ## Tool design
 1. Operator connects Google OAuth (Search Console + Analytics + Ads readonly scopes) using the NextGrid operator account.
-2. Operator maps one Google Ads customer account to a Site-OS project (alongside optional GA4 and Search Console properties).
-3. During a full audit run, Site-OS calls the Google Ads API to fetch approximately the last 28 days of performance for the mapped account.
-4. Results are stored in Site-OS audit snapshots / project data.
+2. Operator maps one Google Ads customer account to a OpenAEX project (alongside optional GA4 and Search Console properties).
+3. During a full audit run, OpenAEX calls the Google Ads API to fetch approximately the last 28 days of performance for the mapped account.
+4. Results are stored in OpenAEX audit snapshots / project data.
 5. The Brand dashboard Ads section reads that stored data and displays:
    - Account-level spend and conversions
    - Campaign table
@@ -69,10 +69,10 @@ If Ads is not connected, the dashboard shows an empty state and continues using 
 
 ## Internal logic
 - Auth: Google OAuth 2.0 with Ads readonly scope; tokens stored for the single NextGrid operator connection.
-- Developer token: NextGrid manager-account developer token used only by Site-OS server-side code.
+- Developer token: NextGrid manager-account developer token used only by OpenAEX server-side code.
 - Sync model: on-demand during full audit (not continuous bidding automation).
-- Access control: internal Site-OS workspace only; operators must already have Google Ads UI access to the client account.
-- Failure handling: if Ads API access is missing or partial, Site-OS continues the audit with website / GSC / GA4 and marks Ads as disconnected or partial.
+- Access control: internal OpenAEX workspace only; operators must already have Google Ads UI access to the client account.
+- Failure handling: if Ads API access is missing or partial, OpenAEX continues the audit with website / GSC / GA4 and marks Ads as disconnected or partial.
 
 ---
 

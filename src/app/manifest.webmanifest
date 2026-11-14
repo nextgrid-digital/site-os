@@ -1,6 +1,6 @@
 {
-  "name": "Site-OS",
-  "short_name": "Site-OS",
+  "name": "OpenAEX",
+  "short_name": "OpenAEX",
   "description": "Free website audit that turns crawl data into commercial action.",
   "start_url": "/",
   "display": "standalone",

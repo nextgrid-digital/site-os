@@ -20,8 +20,8 @@ export type AeoSectionId = (typeof ALL_AEO_SECTIONS)[number]['id'];
 export const AEO_SECTIONS = ALL_AEO_SECTIONS.filter((section) => section.enabled);
 
 // One preference per browser, shared by all of the customer's projects.
-const STORAGE_KEY = 'siteos.aeo.hidden-sections';
-const CHANGE_EVENT = 'siteos:aeo-hidden-change';
+const STORAGE_KEY = 'openaex.aeo.hidden-sections';
+const CHANGE_EVENT = 'openaex:aeo-hidden-change';
 
 function subscribe(onChange: () => void) {
   window.addEventListener('storage', onChange);

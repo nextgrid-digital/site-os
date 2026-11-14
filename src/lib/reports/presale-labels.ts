@@ -81,4 +81,4 @@ export function filterLeadFitOpportunities<
 }
 
 export const PRODUCT_STATEMENT =
-  'Site-OS finds the blockers stopping a website from generating leads, sales conversations, or signups before the sale.';
+  'OpenAEX finds the blockers stopping a website from generating leads, sales conversations, or signups before the sale.';

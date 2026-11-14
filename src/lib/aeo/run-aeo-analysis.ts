@@ -114,7 +114,7 @@ function intakePayload(intake: ArchitectureInput | null) {
 }
 
 function schemaPreamble() {
-  return `You are an AEO (Answer Engine Optimization) analyst for Site-OS.
+  return `You are an AEO (Answer Engine Optimization) analyst for OpenAEX.
 Return ONLY valid JSON matching this schema:
 {
   "observed_inputs_summary": string,

@@ -1,8 +1,8 @@
-# Site-OS — Product Requirements Document
+# OpenAEX — Product Requirements Document
 
 ## Overview
 
-**Site-OS** is a private, internal SEO audit operating system built for **Nextgrid Digital**. It enables operators to connect client websites to Google Search Console and GA4, run automated crawl-based audits, build a commercial knowledge graph, generate AI-powered findings, and produce client-ready growth briefs with pricing recommendations.
+**OpenAEX** is a private, internal SEO audit operating system built for **Nextgrid Digital**. It enables operators to connect client websites to Google Search Console and GA4, run automated crawl-based audits, build a commercial knowledge graph, generate AI-powered findings, and produce client-ready growth briefs with pricing recommendations.
 
 **Target user:** Internal SEO operators/consultants at Nextgrid Digital (no client-facing login).
 
@@ -12,7 +12,7 @@
 
 SEO audits are time-intensive, fragmented across tools, and inconsistent between operators. Producing a client-ready report with actionable findings, pricing guidance, and a clear growth strategy requires manually stitching together crawler output, Google property data, and subjective analysis.
 
-Site-OS consolidates the entire audit-to-report pipeline into a single operator workflow, augmented by AI for analysis and content recommendations.
+OpenAEX consolidates the entire audit-to-report pipeline into a single operator workflow, augmented by AI for analysis and content recommendations.
 
 ---
 

@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { SITE_CONFIG } from '@/lib/site-config';
 
 export const metadata = {
-  title: 'Terms of Service | Site-OS',
-  description: 'The terms that govern your use of Site-OS.',
+  title: 'Terms of Service | OpenAEX',
+  description: 'The terms that govern your use of OpenAEX.',
 };
 
 const LAST_UPDATED = 'September 16, 2026';
@@ -12,7 +12,7 @@ export default function TermsOfServicePage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
       <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
-        &larr; Back to Site-OS
+        &larr; Back to OpenAEX
       </Link>
 
       <h1 className="mt-6 text-3xl font-semibold">Terms of Service</h1>
@@ -21,7 +21,7 @@ export default function TermsOfServicePage() {
       <div className="mt-8 space-y-8 text-sm leading-6 text-foreground/90">
         <section>
           <p>
-            These Terms of Service (&quot;Terms&quot;) govern your access to and use of Site-OS
+            These Terms of Service (&quot;Terms&quot;) govern your access to and use of OpenAEX
             (the &quot;Service&quot;). By creating an account or using the Service, you agree to
             these Terms. If you do not agree, do not use the Service.
           </p>
@@ -30,7 +30,7 @@ export default function TermsOfServicePage() {
         <section>
           <h2 className="text-lg font-semibold">1. The Service</h2>
           <p className="mt-2">
-            Site-OS crawls websites you submit and, optionally, connects to Google Search
+            OpenAEX crawls websites you submit and, optionally, connects to Google Search
             Console, Google Analytics (GA4), and Google Ads accounts you authorize, in order to
             generate audits, findings, and reports about a website&apos;s performance.
           </p>
@@ -58,10 +58,10 @@ export default function TermsOfServicePage() {
         <section>
           <h2 className="text-lg font-semibold">4. Google account connections</h2>
           <p className="mt-2">
-            When you connect a Google account, you authorize Site-OS to access the specific
+            When you connect a Google account, you authorize OpenAEX to access the specific
             Search Console, GA4, or Google Ads data you select, using read-only access, solely to
             provide the Service. You may disconnect your Google account at any time from within
-            Site-OS or from your Google Account permissions. See our{' '}
+            OpenAEX or from your Google Account permissions. See our{' '}
             <Link href="/privacy" className="underline">
               Privacy Policy
             </Link>{' '}
@@ -72,7 +72,7 @@ export default function TermsOfServicePage() {
         <section>
           <h2 className="text-lg font-semibold">5. Age requirement and free service</h2>
           <p className="mt-2">
-            Site-OS is for adults. You must be at least 18 years old to use the Service. We do
+            OpenAEX is for adults. You must be at least 18 years old to use the Service. We do
             not knowingly allow anyone under 18 to use it. Age-restricted websites (for example
             adult content or gambling sites) can only be audited by signed-in users who have
             confirmed they are 18 or older. If you are under 18, do not use the Service. The Service is currently provided free of charge.
@@ -82,7 +82,7 @@ export default function TermsOfServicePage() {
         <section>
           <h2 className="text-lg font-semibold">6. Intellectual property</h2>
           <p className="mt-2">
-            Site-OS and its underlying technology are owned by us. You retain ownership of the
+            OpenAEX and its underlying technology are owned by us. You retain ownership of the
             website content and data you submit. You grant us a limited license to process that
             data solely to provide the Service to you.
           </p>
@@ -100,7 +100,7 @@ export default function TermsOfServicePage() {
         <section>
           <h2 className="text-lg font-semibold">8. Limitation of liability</h2>
           <p className="mt-2">
-            To the maximum extent permitted by law, Site-OS will not be liable for any indirect,
+            To the maximum extent permitted by law, OpenAEX will not be liable for any indirect,
             incidental, or consequential damages arising from your use of the Service.
           </p>
         </section>

@@ -1,6 +1,6 @@
 # Google OAuth verification checklist
 
-Site-OS requests sensitive/restricted Google API scopes (Search Console, GA4, Google Ads). Until
+OpenAEX requests sensitive/restricted Google API scopes (Search Console, GA4, Google Ads). Until
 the OAuth consent screen is verified by Google, the app is capped at 100 test users and shows an
 "unverified app" warning during sign-in/connect — unacceptable for open self-serve signup. Start
 this process early; review (and CASA security assessment, if required for the `adwords` /

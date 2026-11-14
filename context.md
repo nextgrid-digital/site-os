@@ -1,4 +1,4 @@
-# Site-OS: Google connect flow context
+# OpenAEX: Google connect flow context
 
 Hand-off doc for a fresh session. Describes the current state of the Google connect flow (GA4, Search Console, Google Ads), the decisions behind it, what is verified, and what is still open. Written against branch `feature/product`.
 

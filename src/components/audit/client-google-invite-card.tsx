@@ -8,7 +8,7 @@ const copyText = [
   '',
   '• Google Ads → Access and security → Managers → Accept',
   '',
-  'Search Console and GA4: click "Connect Google" on your Site-OS dashboard and sign in with your Google account.',
+  'Search Console and GA4: click "Connect Google" on your OpenAEX dashboard and sign in with your Google account.',
 ].join('\n');
 
 /**

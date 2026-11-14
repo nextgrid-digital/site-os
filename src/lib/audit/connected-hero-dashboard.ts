@@ -7,7 +7,7 @@ import type {
   MetricId,
   PageRow,
   SourceRow,
-} from '@/components/marketing/site-os/demo/landing-demo-data';
+} from '@/components/marketing/openaex/demo/landing-demo-data';
 
 const TRANSPARENT =
   'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';

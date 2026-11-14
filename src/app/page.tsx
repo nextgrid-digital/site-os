@@ -1,6 +1,6 @@
-// Homepage must stay on the Site-OS visual shell — do not restore the old slate form.
+// Homepage must stay on the OpenAEX visual shell — do not restore the old slate form.
 import { cookies } from 'next/headers';
-import { SiteOsLanding } from '@/components/marketing/site-os/site-os-landing';
+import { OpenAexLanding } from '@/components/marketing/openaex/openaex-landing';
 import { hasSupabaseConfig } from '@/lib/supabase/server';
 import { createClient } from '@/utils/supabase/server';
 
@@ -28,5 +28,5 @@ export default async function HomePage() {
     }
   }
 
-  return <SiteOsLanding userInitials={userInitials} signedIn={isSignedIn} />;
+  return <OpenAexLanding userInitials={userInitials} signedIn={isSignedIn} />;
 }

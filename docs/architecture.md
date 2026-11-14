@@ -1,10 +1,10 @@
-# Site-OS Architecture
+# OpenAEX Architecture
 
 Last reviewed: 2026-10-19. This describes the code as it stands after the pricing, paywall, Leads and Work removal.
 
 ## 1. What the app does
 
-Site-OS audits a company website and, when the owner connects Google, the site's own analytics:
+OpenAEX audits a company website and, when the owner connects Google, the site's own analytics:
 
 1. **Free audit (crawl-only).** The owner enters a website. The crawler reads the public site, and the AI layer scores it and produces findings and a teaser report.
 2. **Connected audit (full).** The owner connects Google (Search Console, GA4, and Google Ads through the agency MCC). Findings are joined with real search and traffic data, and a growth brief is produced.

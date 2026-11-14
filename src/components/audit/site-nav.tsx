@@ -41,7 +41,7 @@ export function SiteNav({
         <Link
           href="/"
           className="justify-self-start flex shrink-0 items-center gap-2 font-semibold tracking-tight text-foreground"
-          aria-label="Site-OS home"
+          aria-label="OpenAEX home"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

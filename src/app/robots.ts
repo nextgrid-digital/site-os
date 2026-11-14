@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL?.startsWith('https://')
   ? process.env.NEXT_PUBLIC_APP_URL
-  : 'https://site-os-opal.vercel.app';
+  : 'https://openaex.nextgrid.digital';
 
 export default function robots(): MetadataRoute.Robots {
   return {

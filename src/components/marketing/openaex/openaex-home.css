@@ -1,8 +1,8 @@
-/* Site-OS homepage styles — scoped under .site-os-home */
+/* OpenAEX homepage styles — scoped under .openaex-home */
 @import "./ditto.css";
 
 /* Design tokens (values). */
-.site-os-home {
+.openaex-home {
   --background: oklch(0.97 0 0);
   --foreground: oklch(0.145 0 0);
   --primary: oklch(0.565 0.11 164.584);
@@ -131,7 +131,7 @@
 }
 
 /* Dark mode — marketing homepage tokens follow html.dark (neutral black) */
-.dark .site-os-home {
+.dark .openaex-home {
   --background: #151515;
   --foreground: oklch(0.96 0 0);
   --primary: oklch(0.96 0 0);
@@ -201,17 +201,17 @@
 }
 
 @layer base {
-  .site-os-home,
-  .site-os-home *,
-  .site-os-home *::before,
-  .site-os-home *::after {
+  .openaex-home,
+  .openaex-home *,
+  .openaex-home *::before,
+  .openaex-home *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
     border: 0 solid currentColor;
   }
 
-  .site-os-home {
+  .openaex-home {
     -webkit-text-size-adjust: 100%;
     line-height: normal;
     margin: 0;
@@ -222,26 +222,26 @@
   }
 
   /* Audit Evidence / Journey embeds — inherit page #F3F3F3, no second wash */
-  .site-os-home.site-os-home--flush {
+  .openaex-home.openaex-home--flush {
     background: transparent;
   }
 
-  .site-os-home ul,
-  .site-os-home ol,
-  .site-os-home menu {
+  .openaex-home ul,
+  .openaex-home ol,
+  .openaex-home menu {
     list-style: none;
   }
 
-  .site-os-home a {
+  .openaex-home a {
     color: inherit;
     text-decoration: none;
   }
 
-  .site-os-home button,
-  .site-os-home input,
-  .site-os-home select,
-  .site-os-home textarea,
-  .site-os-home optgroup {
+  .openaex-home button,
+  .openaex-home input,
+  .openaex-home select,
+  .openaex-home textarea,
+  .openaex-home optgroup {
     font: inherit;
     color: inherit;
     background: transparent;
@@ -252,108 +252,108 @@
     letter-spacing: inherit;
   }
 
-  .site-os-home button {
+  .openaex-home button {
     cursor: pointer;
   }
 
-  .site-os-home table {
+  .openaex-home table {
     border-collapse: separate;
     border-spacing: 0;
   }
 
-  .site-os-home img,
-  .site-os-home picture,
-  .site-os-home video,
-  .site-os-home canvas,
-  .site-os-home svg {
+  .openaex-home img,
+  .openaex-home picture,
+  .openaex-home video,
+  .openaex-home canvas,
+  .openaex-home svg {
     display: inline-block;
   }
 
-  .site-os-home [data-ditto-lottie] > div > svg,
-  .site-os-home [data-ditto-lottie] > div > canvas {
+  .openaex-home [data-ditto-lottie] > div > svg,
+  .openaex-home [data-ditto-lottie] > div > canvas {
     width: 100%;
     height: 100%;
     display: block;
   }
 
-  .site-os-home h1,
-  .site-os-home h2,
-  .site-os-home h3,
-  .site-os-home h4,
-  .site-os-home h5,
-  .site-os-home h6,
-  .site-os-home p,
-  .site-os-home figure,
-  .site-os-home blockquote,
-  .site-os-home dl,
-  .site-os-home dd {
+  .openaex-home h1,
+  .openaex-home h2,
+  .openaex-home h3,
+  .openaex-home h4,
+  .openaex-home h5,
+  .openaex-home h6,
+  .openaex-home p,
+  .openaex-home figure,
+  .openaex-home blockquote,
+  .openaex-home dl,
+  .openaex-home dd {
     margin: 0;
   }
 
-  .site-os-home h1,
-  .site-os-home h2,
-  .site-os-home h3,
-  .site-os-home h4,
-  .site-os-home h5,
-  .site-os-home h6 {
+  .openaex-home h1,
+  .openaex-home h2,
+  .openaex-home h3,
+  .openaex-home h4,
+  .openaex-home h5,
+  .openaex-home h6 {
     font-size: inherit;
     font-weight: inherit;
   }
 
-  .site-os-home b,
-  .site-os-home strong,
-  .site-os-home th {
+  .openaex-home b,
+  .openaex-home strong,
+  .openaex-home th {
     font-weight: inherit;
   }
 
-  .site-os-home em,
-  .site-os-home i,
-  .site-os-home cite,
-  .site-os-home var,
-  .site-os-home dfn,
-  .site-os-home address,
-  .site-os-home q {
+  .openaex-home em,
+  .openaex-home i,
+  .openaex-home cite,
+  .openaex-home var,
+  .openaex-home dfn,
+  .openaex-home address,
+  .openaex-home q {
     font-style: inherit;
   }
 
-  .site-os-home small,
-  .site-os-home big,
-  .site-os-home sub,
-  .site-os-home sup {
+  .openaex-home small,
+  .openaex-home big,
+  .openaex-home sub,
+  .openaex-home sup {
     font-size: inherit;
   }
 
-  .site-os-home sub,
-  .site-os-home sup {
+  .openaex-home sub,
+  .openaex-home sup {
     vertical-align: inherit;
   }
 
-  .site-os-home code,
-  .site-os-home kbd,
-  .site-os-home samp,
-  .site-os-home pre,
-  .site-os-home tt,
-  .site-os-home var {
+  .openaex-home code,
+  .openaex-home kbd,
+  .openaex-home samp,
+  .openaex-home pre,
+  .openaex-home tt,
+  .openaex-home var {
     font-family: inherit;
     font-size: inherit;
   }
 
-  .site-os-home mark {
+  .openaex-home mark {
     background-color: transparent;
     color: inherit;
   }
 
-  .site-os-home abbr[title] {
+  .openaex-home abbr[title] {
     text-decoration: none;
   }
 
-  .site-os-home fieldset,
-  .site-os-home legend {
+  .openaex-home fieldset,
+  .openaex-home legend {
     min-width: 0;
   }
 }
 
 /* Feature demos keep the brand green in dark mode too (the page-wide primary goes near-white there). */
-.dark .site-os-home #how-it-works {
+.dark .openaex-home #how-it-works {
   --primary: oklch(0.565 0.11 164.584);
 }

@@ -4,7 +4,7 @@ import * as cheerio from 'cheerio';
 import { extractAeoSignals, scoreAeoPage } from '@/lib/aeo/page-scanner';
 
 const answer =
-  'Site-OS audits your website and connected analytics to show which pages AI answer engines can quote, and which fixes would earn you more citations this month.';
+  'OpenAEX audits your website and connected analytics to show which pages AI answer engines can quote, and which fixes would earn you more citations this month.';
 
 function scan(path: string, html: string) {
   return scoreAeoPage(path, extractAeoSignals(cheerio.load(html)));

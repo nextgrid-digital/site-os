@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { SITE_CONFIG } from '@/lib/site-config';
 
 export const metadata = {
-  title: 'Privacy Policy | Site-OS',
-  description: 'How Site-OS collects, uses, and protects your data.',
+  title: 'Privacy Policy | OpenAEX',
+  description: 'How OpenAEX collects, uses, and protects your data.',
 };
 
 const LAST_UPDATED = 'September 16, 2026';
@@ -12,7 +12,7 @@ export default function PrivacyPolicyPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
       <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
-        &larr; Back to Site-OS
+        &larr; Back to OpenAEX
       </Link>
 
       <h1 className="mt-6 text-3xl font-semibold">Privacy Policy</h1>
@@ -21,7 +21,7 @@ export default function PrivacyPolicyPage() {
       <div className="mt-8 space-y-8 text-sm leading-6 text-foreground/90">
         <section>
           <p>
-            Site-OS (&quot;Site-OS&quot;, &quot;we&quot;, &quot;us&quot;) provides a website audit and
+            OpenAEX (&quot;OpenAEX&quot;, &quot;we&quot;, &quot;us&quot;) provides a website audit and
             reporting tool. This policy explains what data we collect, why we collect it, and how
             it is used when you create an account, run an audit, or connect a third-party account
             such as Google.
@@ -49,7 +49,7 @@ export default function PrivacyPolicyPage() {
             </li>
             <li>
               <strong>Usage data:</strong> basic product analytics (pages viewed, features used)
-              to improve Site-OS.
+              to improve OpenAEX.
             </li>
           </ul>
         </section>
@@ -59,7 +59,7 @@ export default function PrivacyPolicyPage() {
           <ul className="mt-2 list-disc space-y-1 pl-5">
             <li>To generate your website audit, findings, and reports.</li>
             <li>To authenticate you and maintain your account and project data.</li>
-            <li>To operate, maintain, and improve Site-OS.</li>
+            <li>To operate, maintain, and improve OpenAEX.</li>
             <li>To communicate with you about your account or audits (e.g. transactional email).</li>
           </ul>
           <p className="mt-2">
@@ -71,7 +71,7 @@ export default function PrivacyPolicyPage() {
         <section>
           <h2 className="text-lg font-semibold">3. Google user data &amp; Limited Use</h2>
           <p className="mt-2">
-            Site-OS&apos;s use and transfer of information received from Google APIs to any other
+            OpenAEX&apos;s use and transfer of information received from Google APIs to any other
             app will adhere to the{' '}
             <a
               href="https://developers.google.com/terms/api-services-user-data-policy"
@@ -83,11 +83,11 @@ export default function PrivacyPolicyPage() {
             </a>
             , including the Limited Use requirements. Google account data (Search Console, GA4,
             Google Ads) is used solely to generate the audit and reporting features you request
-            inside Site-OS, is scoped per project/account, and is never used for advertising or
+            inside OpenAEX, is scoped per project/account, and is never used for advertising or
             sold to third parties.
           </p>
           <p className="mt-2">
-            You can revoke Site-OS&apos;s access to your Google account at any time from your{' '}
+            You can revoke OpenAEX&apos;s access to your Google account at any time from your{' '}
             <a
               href="https://myaccount.google.com/permissions"
               target="_blank"
@@ -96,7 +96,7 @@ export default function PrivacyPolicyPage() {
             >
               Google Account permissions
             </a>{' '}
-            page, or by disconnecting the account inside Site-OS.
+            page, or by disconnecting the account inside OpenAEX.
           </p>
         </section>
 
@@ -123,7 +123,7 @@ export default function PrivacyPolicyPage() {
         <section>
           <h2 className="text-lg font-semibold">6. Third-party services</h2>
           <p className="mt-2">
-            We use third-party providers to operate Site-OS, including Supabase (authentication
+            We use third-party providers to operate OpenAEX, including Supabase (authentication
             and database), Google APIs (Search Console, GA4, Ads, sign-in), and Google Gemini
             (report generation). These providers process data on our behalf under their own
             privacy and data-processing terms.
@@ -141,7 +141,7 @@ export default function PrivacyPolicyPage() {
         <section>
           <h2 className="text-lg font-semibold">8. Children</h2>
           <p className="mt-2">
-            Site-OS is not intended for anyone under 18, and we do not knowingly collect personal
+            OpenAEX is not intended for anyone under 18, and we do not knowingly collect personal
             data from children. If you believe a child has created an account, contact us and we
             will delete it.
           </p>

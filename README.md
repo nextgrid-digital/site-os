@@ -1,6 +1,6 @@
-# Site-OS
+# OpenAEX
 
-Site-OS is a self-serve website audit product. Anyone can paste a URL for a free crawl-based
+OpenAEX is a self-serve website audit product. Anyone can paste a URL for a free crawl-based
 audit; signing in unlocks the full report, and connecting Google Search Console, GA4, and Google
 Ads unlocks a connected audit with real performance data, findings, next steps, and
 universal agent prompts for client-ready reports. An internal `/operator` console also exists for

@@ -51,18 +51,18 @@ The NOT WORKING count has two parts. Two items are hard failures (404 after clic
 |---|---|---|---|
 | src/components/operator/site-card.tsx:58 | Operator site card (whole card) | `Link href=/audit/${site.id}/overview` | `app/(product)/audit/[projectId]/overview/page.tsx` was deleted. No other route matches, so it 404s. This is the only way into a project from `/operator`. |
 | src/components/operator/add-site-dialog.tsx:54 | "Add website" submit (operator) | `router.push(/audit/${id}/overview)` after `POST /api/projects` | The POST works, but the redirect target `/overview` no longer exists, so the admin lands on a 404 right after creating a site. |
-| src/components/marketing/site-os/content.ts:178 | Footer "Sign in" | `/audit` | `app/(product)/audit/page.tsx:5` does `redirect('/')`. The click returns to the home page and never reaches a sign-in form. |
-| src/components/marketing/site-os/content.ts:186 | Footer "Sign in" | `/audit` | Same as above. |
-| src/components/marketing/site-os/content.ts:240 | Footer "Sign in" | `/audit` | Same as above. |
-| src/components/marketing/site-os/content.ts:266 | Footer "Get help" | `/audit` | Same redirect to `/`. It is not a help page. |
-| src/components/marketing/site-os/content.ts:275 | Footer "Sign in for full report" | `/audit` | Same redirect to `/`. |
-| src/components/marketing/site-os/content.ts:289 | Footer "Sign in" | `/audit` | Same redirect to `/`. |
-| src/components/marketing/site-os/sections/faq-section.tsx:48 | FAQ "Sign in to audit" | `href="/audit"` | Same redirect to `/`. |
-| src/components/marketing/site-os/content.ts:188 | Footer "Start free audit" | `/#` | Empty hash. It only scrolls to the top (see "Unsure"). |
-| src/components/marketing/site-os/content.ts:239 | Footer "Start free audit" | `/#` | Same. |
-| src/components/marketing/site-os/content.ts:274 | Footer "Paste a URL" | `/#` | Same. |
-| src/components/marketing/site-os/content.ts:290 | Footer "Start free audit" | `/#` | Same. |
-| src/components/marketing/site-os/sections/footer.tsx:35 | Footer banner CTA "Start free audit" | `href="/#"` | Same. |
+| src/components/marketing/openaex/content.ts:178 | Footer "Sign in" | `/audit` | `app/(product)/audit/page.tsx:5` does `redirect('/')`. The click returns to the home page and never reaches a sign-in form. |
+| src/components/marketing/openaex/content.ts:186 | Footer "Sign in" | `/audit` | Same as above. |
+| src/components/marketing/openaex/content.ts:240 | Footer "Sign in" | `/audit` | Same as above. |
+| src/components/marketing/openaex/content.ts:266 | Footer "Get help" | `/audit` | Same redirect to `/`. It is not a help page. |
+| src/components/marketing/openaex/content.ts:275 | Footer "Sign in for full report" | `/audit` | Same redirect to `/`. |
+| src/components/marketing/openaex/content.ts:289 | Footer "Sign in" | `/audit` | Same redirect to `/`. |
+| src/components/marketing/openaex/sections/faq-section.tsx:48 | FAQ "Sign in to audit" | `href="/audit"` | Same redirect to `/`. |
+| src/components/marketing/openaex/content.ts:188 | Footer "Start free audit" | `/#` | Empty hash. It only scrolls to the top (see "Unsure"). |
+| src/components/marketing/openaex/content.ts:239 | Footer "Start free audit" | `/#` | Same. |
+| src/components/marketing/openaex/content.ts:274 | Footer "Paste a URL" | `/#` | Same. |
+| src/components/marketing/openaex/content.ts:290 | Footer "Start free audit" | `/#` | Same. |
+| src/components/marketing/openaex/sections/footer.tsx:35 | Footer banner CTA "Start free audit" | `href="/#"` | Same. |
 
 Dead items (not counted): `content.ts:12` and `content.ts:10-13` (`listRowData`, including a `/audit` "Sign in") fed `sections/navbar.tsx`, which has been deleted. Nothing imports `listRowData` now.
 
@@ -78,11 +78,11 @@ Status is WORKING unless marked scheduled-removal (SR).
 | src/components/audit/site-nav.tsx:70 | "FAQ" | `/#faq` (id at `sections/faq-section.tsx:31`) | WORKING |
 | src/components/audit/site-nav.tsx:87 | "Sign in" | `/login?next=/app` | WORKING |
 | src/components/audit/home-audit-form.tsx:71 (via `hero-audit-ctas.tsx`) | Hero "Start free audit" form | `POST /api/audit/start` then `router.push(/audit/{id})` | WORKING |
-| src/components/marketing/site-os/content.ts:69-72 (rendered by `everything-you-need-section.tsx`) | 4 feature-card links | `/#how-it-works`, `/login?next=/app`, `/#audit` (hero id at `hero-section.tsx:116`), `/#faq` | WORKING x4 |
-| src/components/marketing/site-os/content.ts:176-177, 187, 206-208, 216-220, 228, 230-231, 241-242, 250-252, 260-265, 276-281, 291-293 (minus the `/#` and `/audit` rows above) | Footer column links | `/#how-it-works`, `/#faq` | WORKING x34 |
-| src/components/marketing/site-os/content.ts:196-198 | Privacy / Terms / Refund | `/privacy`, `/terms`, `/refund-policy` | WORKING x3 |
-| src/components/marketing/site-os/sections/footer.tsx:126, 131 | External credits | onmy.land, lexingtonthemes.com (not fetched) | WORKING x2 |
-| src/components/marketing/site-os/content.ts:229, 293 | Footer "Work orders" (x2) | `/#how-it-works` | SR (label names the Work feature; link itself resolves) |
+| src/components/marketing/openaex/content.ts:69-72 (rendered by `everything-you-need-section.tsx`) | 4 feature-card links | `/#how-it-works`, `/login?next=/app`, `/#audit` (hero id at `hero-section.tsx:116`), `/#faq` | WORKING x4 |
+| src/components/marketing/openaex/content.ts:176-177, 187, 206-208, 216-220, 228, 230-231, 241-242, 250-252, 260-265, 276-281, 291-293 (minus the `/#` and `/audit` rows above) | Footer column links | `/#how-it-works`, `/#faq` | WORKING x34 |
+| src/components/marketing/openaex/content.ts:196-198 | Privacy / Terms / Refund | `/privacy`, `/terms`, `/refund-policy` | WORKING x3 |
+| src/components/marketing/openaex/sections/footer.tsx:126, 131 | External credits | onmy.land, lexingtonthemes.com (not fetched) | WORKING x2 |
+| src/components/marketing/openaex/content.ts:229, 293 | Footer "Work orders" (x2) | `/#how-it-works` | SR (label names the Work feature; link itself resolves) |
 
 The footer counts above rely on `content.ts` row numbers. All `/#how-it-works`, `/#faq` and `/#audit` anchors have a matching element id on the home page.
 

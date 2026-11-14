@@ -116,7 +116,7 @@ function extractTextExcerpt($: cheerio.CheerioAPI): string | null {
 async function fetchPage(url: string): Promise<{ html: string; status: number } | null> {
   try {
     const response = await fetch(url, {
-      headers: { 'User-Agent': 'Site-OS-AuditBot/1.0 (+internal)' },
+      headers: { 'User-Agent': 'OpenAEX-AuditBot/1.0 (+internal)' },
       redirect: 'follow',
       signal: AbortSignal.timeout(15000),
     });

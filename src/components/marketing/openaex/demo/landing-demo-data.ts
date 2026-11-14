@@ -204,12 +204,12 @@ export const PAGES_BY_TAB: Record<PagesTab, PageRow[]> = {
     { path: '/pricing', value: '4,118' },
     { path: '/docs/install-astro', value: '2,906' },
     { path: '/docs/overview', value: '2,442' },
-    { path: '/demo/site-os', value: '1,885' },
+    { path: '/demo/openaex', value: '1,885' },
   ],
   Entered: [
     { path: '/', value: '7,210' },
     { path: '/pricing', value: '2,640' },
-    { path: '/demo/site-os', value: '1,902' },
+    { path: '/demo/openaex', value: '1,902' },
     { path: '/docs/overview', value: '1,114' },
     { path: '/blog', value: '886' },
   ],
@@ -217,7 +217,7 @@ export const PAGES_BY_TAB: Record<PagesTab, PageRow[]> = {
     { path: '/pricing', value: '3,404' },
     { path: '/', value: '2,918' },
     { path: '/docs/install-astro', value: '1,552' },
-    { path: '/demo/site-os', value: '1,208' },
+    { path: '/demo/openaex', value: '1,208' },
     { path: '/contact', value: '974' },
   ],
 };
@@ -251,17 +251,17 @@ export const SOURCES_BY_TAB: Record<SourcesTab, SourceRow[]> = {
   ],
   Hostnames: [
     {
-      name: 'site-os.com',
+      name: 'openaex.com',
       value: '18,420',
       imgSrc: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
     },
     {
-      name: 'docs.site-os.com',
+      name: 'docs.openaex.com',
       value: '4,812',
       imgSrc: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
     },
     {
-      name: 'app.site-os.com',
+      name: 'app.openaex.com',
       value: '3,104',
       imgSrc: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
     },

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import './site-os-home.css';
+import './openaex-home.css';
 import { AppShell } from '@/components/audit/app-shell';
 import DittoMotion from './ditto/DittoMotion';
 import HeroSection from './sections/hero-section';
@@ -17,7 +17,7 @@ import SeeWhenVisitorsSection from './sections/see-when-visitors-section';
 import FaqSection from './sections/faq-section';
 import Footer from './sections/footer';
 
-export function SiteOsLanding({
+export function OpenAexLanding({
   userInitials = null,
   signedIn = false,
 }: {
@@ -31,7 +31,7 @@ export function SiteOsLanding({
       signedIn={signedIn}
       showSignIn={!signedIn}
     >
-    <div className="site-os-home">
+    <div className="openaex-home">
       <main className="block isolate min-w-0 w-full grow" data-cid="n23">
         <HeroSection />
         {/* <S8kbDefaultTrackerSection /> */}

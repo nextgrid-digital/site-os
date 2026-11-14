@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import ConversionPeakHeatmap from "@/components/marketing/site-os/components/conversion-peak-heatmap";
+import ConversionPeakHeatmap from "@/components/marketing/openaex/components/conversion-peak-heatmap";
 import { InfoTip } from "@/components/audit/dashboard/info-tip";
 import type { AnalyticsPeakCell } from "@/lib/audit/connected-analytics";
 

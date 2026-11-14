@@ -3,7 +3,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@source "../components/marketing/site-os";
+@source "../components/marketing/openaex";
 
 .typeset-docs {
   --typeset-font-body: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
@@ -83,7 +83,7 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
-  /* Site-OS homepage capture tokens + breakpoints */
+  /* OpenAEX homepage capture tokens + breakpoints */
   --breakpoint-vp375: 375px;
   --breakpoint-vp768: 768px;
   --breakpoint-vp1280: 1280px;
@@ -277,13 +277,13 @@
   html {
     @apply font-sans;
   }
-  /* Site-OS marketing homepage only — not nested audit report embeds */
-  body:has(.site-os-home):not(:has([data-audit-app])) {
+  /* OpenAEX marketing homepage only — not nested audit report embeds */
+  body:has(.openaex-home):not(:has([data-audit-app])) {
     background: oklch(0.99 0 0);
     background-image: none;
     color: oklch(0.15 0 0);
   }
-  html.dark body:has(.site-os-home):not(:has([data-audit-app])) {
+  html.dark body:has(.openaex-home):not(:has([data-audit-app])) {
     background: #151515;
     background-image: none;
     color: oklch(0.96 0 0);

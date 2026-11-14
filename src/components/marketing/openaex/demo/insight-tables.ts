@@ -144,7 +144,7 @@ export const INSIGHT_TABLES: InsightTable[] = [
       { label: "/pricing", views: 4118, revenue: 6240 },
       { label: "/docs/install-astro", views: 2906, revenue: 1820 },
       { label: "/docs/overview", views: 2442, revenue: 940 },
-      { label: "/demo/site-os", views: 1885, revenue: 1560 },
+      { label: "/demo/openaex", views: 1885, revenue: 1560 },
     ],
     explainer: {
       title: "Which pages earn",

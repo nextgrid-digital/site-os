@@ -1,6 +1,6 @@
 # End-user auth (public audit gate)
 
-Site-OS unlocks the full free audit with **Supabase Auth**:
+OpenAEX unlocks the full free audit with **Supabase Auth**:
 
 - Google OAuth (`signInWithOAuth`)
 - Email + password (`signUp` / `signInWithPassword`)
@@ -9,7 +9,7 @@ Operator GSC/GA4 Google OAuth (`GOOGLE_*` env + `/api/google/oauth/*`) is separa
 
 ## Required Supabase dashboard settings
 
-Project: SiteOS (`dpdgvrbadkceghevxpae`)
+Project: OpenAEX (`dpdgvrbadkceghevxpae`)
 
 ### 1. Google provider
 
@@ -22,10 +22,10 @@ Project: SiteOS (`dpdgvrbadkceghevxpae`)
 
 Authentication → URL configuration:
 
-- **Site URL:** production origin — currently `https://site-os-opal.vercel.app` (not `http://localhost:3000`)
+- **Site URL:** production origin — currently `https://openaex.nextgrid.digital` (not `http://localhost:3000`)
 - **Redirect URLs** allow list (keep local + prod):
   - `http://localhost:3000/auth/callback`
-  - `https://site-os-opal.vercel.app/auth/callback`
+  - `https://openaex.nextgrid.digital/auth/callback`
   - `https://*.vercel.app/auth/callback` (preview deploys)
 
 Query strings on `/auth/callback` (e.g. `?next=/auth/update-password`) are allowed once the base path is on the list.
@@ -50,14 +50,14 @@ Do **not** create a second signup with the same email — that does not merge in
 
 ## Production checklist
 
-1. Supabase Site URL = `https://site-os-opal.vercel.app`
-2. Supabase Redirect URLs include `https://site-os-opal.vercel.app/auth/callback`
+1. Supabase Site URL = `https://openaex.nextgrid.digital`
+2. Supabase Redirect URLs include `https://openaex.nextgrid.digital/auth/callback`
 3. Vercel Production env:
-   - `NEXT_PUBLIC_APP_URL=https://site-os-opal.vercel.app`
-   - `GOOGLE_REDIRECT_URI=https://site-os-opal.vercel.app/api/google/oauth/callback`
+   - `NEXT_PUBLIC_APP_URL=https://openaex.nextgrid.digital`
+   - `GOOGLE_REDIRECT_URI=https://openaex.nextgrid.digital/api/google/oauth/callback`
 4. Google Cloud OAuth client Authorized redirect URIs include:
    - `https://dpdgvrbadkceghevxpae.supabase.co/auth/v1/callback` (account sign-in)
-   - `https://site-os-opal.vercel.app/api/google/oauth/callback` (GSC/GA4 Connect)
+   - `https://openaex.nextgrid.digital/api/google/oauth/callback` (GSC/GA4 Connect)
 5. Redeploy after changing Vercel env (especially `NEXT_PUBLIC_*`)
 
 Local `.env` may keep localhost values; production must not.

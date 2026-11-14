@@ -14,7 +14,7 @@ export default function MediaTile2({ d, cids, styles }: { d: MediaTile2Data; cid
   return (
     <li data-cid={cids[0]} className={cn("list-item", styles.className)}>
       <div data-cid={cids[1]} className={cn("block relative rounded-lg overflow-hidden w-full", styles.className2)}>
-        <div data-cid={cids[2]} className={cn("h-6 block absolute top-1 left-0 rounded-md bg-color-001 [animation-name:siteOsBreakdownBarGrow] [animation-duration:0.72s] [animation-timing-function:ease-out] [animation-fill-mode:both] pointer-events-none", styles.className3)} aria-hidden="true" />
+        <div data-cid={cids[2]} className={cn("h-6 block absolute top-1 left-0 rounded-md bg-color-001 [animation-name:openAexBreakdownBarGrow] [animation-duration:0.72s] [animation-timing-function:ease-out] [animation-fill-mode:both] pointer-events-none", styles.className3)} aria-hidden="true" />
         <div data-cid={cids[3]} className={cn("w-121.5 flex relative z-10 py-2 px-2.5 justify-between items-center gap-3 max-md:w-[17.8125rem] max-md:px-2 md:max-lg:w-77.5", styles.className4)}>
           <span data-cid={cids[4]} className={cn("w-79.5 flex min-w-0 rounded-md items-center flex-1 gap-2 cursor-default max-md:w-[9.0625rem] md:max-lg:w-35.5", styles.className5)} title={d.label}>
             <img data-cid={cids[5]} className="w-4 h-4 block max-w-full rounded-md shrink-0 overflow-clip object-contain aspect-[auto_16/16] align-middle bg-surface-7" data-component="image" alt="" height="16" src={d.imgSrc} title={d.label2} width="16" />

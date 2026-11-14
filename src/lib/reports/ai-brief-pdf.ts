@@ -33,7 +33,7 @@ export function buildAiBriefReport(input: {
 
   return {
     title: `Website fix brief: ${domain}`,
-    subtitle: `Generated ${generated} by Site-OS. Audit readiness: ${brief?.readinessLabel ?? 'n/a'}.`,
+    subtitle: `Generated ${generated} by OpenAEX. Audit readiness: ${brief?.readinessLabel ?? 'n/a'}.`,
     sections: [
       {
         heading: 'Instructions for the AI assistant reading this file',

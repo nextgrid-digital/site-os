@@ -48,7 +48,7 @@ export default function LogoCloudSection2({ logos = logosContent, tile9Data = Ti
                       </span>
                       <span className="flex justify-end items-center gap-1.5 text-muted-foreground font-medium" data-cid="n2045">
                         <span className="w-1.5 h-1.5 block opacity-[0.518714] rounded-full bg-primary [animation-name:pulse] [animation-duration:2s] [animation-timing-function:cubic-bezier(0.4,_0,_0.6,_1)] [animation-iteration-count:infinite] max-md:w-[3.7px]" data-cid="n2046" aria-hidden="true" />
-                        site-os prompt
+                        openaex prompt
                       </span>
                     </div>
                     <div className="h-162.5 border-t border-solid border-t-surface-6 flex p-4 justify-center items-stretch flex-1 bg-surface-3 max-lg:h-125.5" data-cid="n2047">
@@ -62,7 +62,7 @@ export default function LogoCloudSection2({ logos = logosContent, tile9Data = Ti
                               <p className="hidden max-lg:block max-lg:mb-2 2xl:block 2xl:mb-2" data-cid="n2053">
                                 Calling tools on the
                                 <span className="hidden max-lg:inline max-lg:text-foreground max-lg:[font-family:ui-monospace,_SFMono-Regular,_Menlo,_Monaco,_Consolas,_'Liberation_Mono',_'Courier_New',_monospace] 2xl:inline 2xl:text-foreground 2xl:[font-family:ui-monospace,_SFMono-Regular,_Menlo,_Monaco,_Consolas,_'Liberation_Mono',_'Courier_New',_monospace]" data-cid="n2054">
-                                  site-os
+                                  openaex
                                 </span>
                                 {" MCP server..."}
                               </p>

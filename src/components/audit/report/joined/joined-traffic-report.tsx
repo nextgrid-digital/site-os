@@ -39,7 +39,7 @@ import type { ConnectedAuditMetrics } from "@/lib/db/connected-metrics";
 
 const HeroDemoDashboard = dynamic(
   () =>
-    import("@/components/marketing/site-os/demo/hero-demo-dashboard").then(
+    import("@/components/marketing/openaex/demo/hero-demo-dashboard").then(
       (mod) => mod.HeroDemoDashboard,
     ),
   { ssr: false, loading: () => <DashboardSkeleton blocks={2} /> },
@@ -142,7 +142,7 @@ export function JoinedTrafficReport({
 
   return (
     <TooltipProvider delay={80} closeDelay={60}>
-      <div className="site-os-home site-os-home--flush -mx-8">
+      <div className="openaex-home openaex-home--flush -mx-8">
         <BrandSectionNav />
         <DashboardMobileTabs />
 

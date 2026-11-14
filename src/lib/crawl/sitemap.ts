@@ -1,6 +1,6 @@
 import { resolveInternalUrl } from '@/lib/utils/urls';
 
-const UA = 'Site-OS-AuditBot/1.0 (+internal)';
+const UA = 'OpenAEX-AuditBot/1.0 (+internal)';
 const FETCH_TIMEOUT_MS = 15_000;
 const MAX_CHILD_SITEMAPS = 10;
 const MAX_SITEMAP_URLS = 500;

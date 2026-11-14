@@ -11,7 +11,7 @@ export default function ListRow6({ d, cids, styles }: { d: ListRow6Data; cids: s
   return (
     <li data-cid={cids[0]} className="h-8 list-item">
       <div data-cid={cids[1]} className="h-8 block relative rounded-lg overflow-hidden w-full">
-        <div data-cid={cids[2]} className={cn("h-6 block absolute top-1 left-0 rounded-md bg-color-001 [animation-name:siteOsBreakdownBarGrow] [animation-duration:0.72s] [animation-timing-function:ease-out] [animation-fill-mode:both] pointer-events-none", styles.className)} aria-hidden="true" />
+        <div data-cid={cids[2]} className={cn("h-6 block absolute top-1 left-0 rounded-md bg-color-001 [animation-name:openAexBreakdownBarGrow] [animation-duration:0.72s] [animation-timing-function:ease-out] [animation-fill-mode:both] pointer-events-none", styles.className)} aria-hidden="true" />
         <div data-cid={cids[3]} className="w-121.5 h-8 flex relative z-10 py-2 px-2.5 justify-between items-center gap-3 max-md:w-[17.8125rem] max-md:px-2 md:max-lg:w-77.5">
           <span data-cid={cids[4]} className="w-81.5 h-4 block min-w-0 flex-1 overflow-hidden text-xs leading-4 whitespace-nowrap text-nowrap max-md:w-[9.5625rem] md:max-lg:w-37.5">
             {d.text}

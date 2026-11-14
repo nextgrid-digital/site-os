@@ -111,7 +111,7 @@ export default function Footer({ listRow11Data = listRow11DataContent, listRow11
            
             <div className="flex flex-wrap items-center gap-3 normal-case tracking-normal">
               <p className="block uppercase tracking-wider" data-cid="n2603">
-                © 2026 Site-OS. All rights reserved.
+                © 2026 OpenAEX. All rights reserved.
               </p>
             </div>
           </div>

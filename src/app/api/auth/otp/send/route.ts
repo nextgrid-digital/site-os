@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
   if (body.ageConfirmed !== true) {
     return NextResponse.json(
-      { error: 'You must confirm that you are 18 or older to use Site-OS.' },
+      { error: 'You must confirm that you are 18 or older to use OpenAEX.' },
       { status: 400 }
     );
   }

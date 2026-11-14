@@ -21,16 +21,16 @@ const newsreader = Newsreader({
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL?.startsWith('https://')
   ? process.env.NEXT_PUBLIC_APP_URL
-  : 'https://site-os-opal.vercel.app';
+  : 'https://openaex.nextgrid.digital';
 
 const DESCRIPTION =
   'Paste a URL for a free crawl audit, including AI answer readiness. Sign in to save sites, test whether AI search cites you, and connect Search Console and GA4.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: 'Site-OS | Free website audit', template: '%s | Site-OS' },
+  title: { default: 'OpenAEX | Free website audit', template: '%s | OpenAEX' },
   description: DESCRIPTION,
-  applicationName: 'Site-OS',
+  applicationName: 'OpenAEX',
   alternates: { canonical: '/' },
   icons: {
     icon: [
@@ -42,14 +42,14 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    siteName: 'Site-OS',
-    title: 'Site-OS | Free website audit',
+    siteName: 'OpenAEX',
+    title: 'OpenAEX | Free website audit',
     description: DESCRIPTION,
     url: '/',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Site-OS | Free website audit',
+    title: 'OpenAEX | Free website audit',
     description: DESCRIPTION,
   },
 };
@@ -59,7 +59,7 @@ export const viewport: Viewport = { themeColor: '#000000' };
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'Site-OS',
+  name: 'OpenAEX',
   url: SITE_URL,
   logo: `${SITE_URL}/icon-512.png`,
 };

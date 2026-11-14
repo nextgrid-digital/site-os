@@ -289,7 +289,7 @@ export function ClientWorkflowBrief({
             <SiteCardFavicon domain={domain} name={domain} />
             <div className="min-w-0">
               <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
-                NextGrid · Site-OS brief
+                NextGrid · OpenAEX brief
               </p>
               <h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground hover:shimmer shimmer-duration-2000">
                 <a

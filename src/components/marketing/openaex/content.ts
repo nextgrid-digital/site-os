@@ -586,12 +586,12 @@ export type ListRow11Data9Item = {
   label: string;
 };
 export const listRow11Data9: ListRow11Data9Item[] = [
-  { href: "/#faq", label: "What is Site-OS" },
+  { href: "/#faq", label: "What is OpenAEX" },
   { href: "/#faq", label: "Is free really free" },
   { href: "/#faq", label: "Do I need GSC to start" },
   { href: "/#faq", label: "Credentials" },
   { href: "/#faq", label: "Share with clients" },
-  { href: "/#faq", label: "Sponsor Site-OS" },
+  { href: "/#faq", label: "Sponsor OpenAEX" },
   { href: `mailto:${SITE_CONFIG.supportEmail}`, label: "Get help" },
 ];
 

@@ -6,7 +6,7 @@ import { CircleAlert } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { GlobeIcon } from '@/components/icons';
-import { useBurstDust } from '@/components/marketing/site-os/burst-dust';
+import { useBurstDust } from '@/components/marketing/openaex/burst-dust';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 const ERROR_VISIBLE_MS = 6000;

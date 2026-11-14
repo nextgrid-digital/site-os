@@ -56,7 +56,7 @@ export async function isAgeRestrictedSite(websiteUrl: string, domain: string): P
     const res = await fetch(websiteUrl, {
       redirect: 'follow',
       signal: AbortSignal.timeout(5000),
-      headers: { 'User-Agent': 'Site-OS-AgeCheck/1.0' },
+      headers: { 'User-Agent': 'OpenAEX-AgeCheck/1.0' },
     });
     const type = res.headers.get('content-type') ?? '';
     if (!type.includes('text/html')) return false;

@@ -1,5 +1,5 @@
 /* Report-only design tokens — no marketing @font-face payloads. */
-.site-os-home {
+.openaex-home {
   --background: oklch(0.97 0 0);
   --foreground: oklch(0.145 0 0);
   --primary: oklch(0.565 0.11 164.584);
@@ -35,7 +35,7 @@
 }
 
 /* Neutral black dark mode — product Dashboard imports this file only */
-.dark .site-os-home {
+.dark .openaex-home {
   --background: #151515;
   --foreground: oklch(0.96 0 0);
   --primary: oklch(0.96 0 0);
@@ -71,6 +71,6 @@
   color-scheme: dark;
 }
 
-.site-os-home.site-os-home--flush {
+.openaex-home.openaex-home--flush {
   background: transparent;
 }
