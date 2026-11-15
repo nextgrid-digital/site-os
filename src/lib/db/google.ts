@@ -232,3 +232,74 @@ export async function selectProperties(
   await swap('ga4_properties', ga4PropertyId);
   await swap('google_ads_accounts', adsAccountId);
 }
+
+export type UserGoogleConnectionSummary = {
+  connectedEmail: string;
+  projectCount: number;
+  sources: { gsc: boolean; ga4: boolean; ads: boolean };
+};
+
+async function listUserConnections(userId: string) {
+  const supabase = getSupabaseAdmin();
+  const { data: projects } = await supabase.from('projects').select('id').eq('user_id', userId);
+  const projectIds = (projects ?? []).map((project) => project.id as string);
+  if (projectIds.length === 0) return { projectIds, connections: [] };
+  const { data: connections } = await supabase
+    .from('google_connections')
+    .select('id, project_id, connected_email, access_token, refresh_token, scopes')
+    .in('project_id', projectIds);
+  return { projectIds, connections: connections ?? [] };
+}
+
+export async function getUserGoogleConnectionSummary(
+  userId: string
+): Promise<UserGoogleConnectionSummary | null> {
+  const { connections } = await listUserConnections(userId);
+  if (connections.length === 0) return null;
+  const scopes = new Set(connections.flatMap((c) => (Array.isArray(c.scopes) ? c.scopes : [])));
+  return {
+    connectedEmail: connections.find((c) => c.connected_email)?.connected_email ?? '',
+    projectCount: connections.length,
+    sources: {
+      gsc: scopes.has(GOOGLE_SEARCH_CONSOLE_SCOPE),
+      ga4: scopes.has(GOOGLE_ANALYTICS_SCOPE),
+      ads: scopes.has(GOOGLE_ADS_SCOPE),
+    },
+  };
+}
+
+/**
+ * Disconnect the user's Google account from every project: revoke the grant at
+ * Google (best effort), then delete stored tokens and synced property lists.
+ */
+export async function disconnectUserGoogle(userId: string) {
+  const supabase = getSupabaseAdmin();
+  const { projectIds, connections } = await listUserConnections(userId);
+  if (connections.length === 0) return { disconnected: 0 };
+
+  const tokens = new Set<string>();
+  for (const c of connections) {
+    const token = c.refresh_token ?? c.access_token;
+    if (token) tokens.add(token as string);
+  }
+  await Promise.all(
+    [...tokens].map((token) =>
+      fetch('https://oauth2.googleapis.com/revoke', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ token }),
+      }).catch((error) => console.error('[google] token revoke failed', error))
+    )
+  );
+
+  for (const table of ['search_console_properties', 'ga4_properties', 'google_ads_accounts']) {
+    const { error } = await supabase.from(table).delete().in('project_id', projectIds);
+    if (error) throw new Error(error.message);
+  }
+  const { error } = await supabase
+    .from('google_connections')
+    .delete()
+    .in('id', connections.map((c) => c.id as string));
+  if (error) throw new Error(error.message);
+  return { disconnected: connections.length };
+}
