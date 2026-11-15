@@ -13,7 +13,6 @@ export async function GET(
     await requireProjectOwner(projectId);
     const properties = await listPropertyOptions(projectId);
 
-    console.log(properties); // Log the properties for debugging
     return NextResponse.json({ properties });
   } catch (error) {
     if (error instanceof ProjectAccessError) {
@@ -36,12 +35,14 @@ export async function POST(
     const body = await request.json();
 
     if (body.action === 'sync') {
-      const sync = await syncPropertyOptions(projectId);
-      try {
-        await syncGoogleConnectionInventory(userId);
-      } catch (inventoryError) {
-        console.error('[properties] inventory sync failed', inventoryError);
-      }
+      // The property sync and inventory sync are independent Google round-trips: run together.
+      const [sync] = await Promise.all([
+        syncPropertyOptions(projectId),
+        syncGoogleConnectionInventory(userId).catch((inventoryError) => {
+          console.error('[properties] inventory sync failed', inventoryError);
+        }),
+      ]);
+      // Reads the Ads accounts the sync just wrote, so it must follow it.
       try {
         await refreshAdsInvite(projectId);
       } catch (inviteError) {

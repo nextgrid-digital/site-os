@@ -123,8 +123,10 @@ function SourceField({
   help,
   count,
   chosen,
+  busy,
   children,
 }: {
+  busy: boolean;
   id: string;
   icon: ReactNode;
   label: string;
@@ -152,6 +154,11 @@ function SourceField({
             <CheckCircle2 strokeWidth={2} />
             Selected
           </StatusBadge>
+        ) : busy && count === 0 ? (
+          <span className="inline-flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground">
+            <RefreshCw className="size-3 animate-spin" strokeWidth={2} />
+            Loading…
+          </span>
         ) : (
           <span className="shrink-0 text-[11px] text-muted-foreground">{count} found</span>
         )}
@@ -177,9 +184,12 @@ export function ConnectFlow({
   connectionStatus = 'not_granted',
   clientAccessConfirmedAt = null,
   viewerSignedIn = false,
+  refreshing = false,
   workspaceBase,
   domain = null,
 }: {
+  /** True while workspace data is being refetched in the background. */
+  refreshing?: boolean;
   projectId: string;
   googleConnected: boolean;
   gscProperties: SearchConsoleProperty[];
@@ -227,6 +237,7 @@ export function ConnectFlow({
   const [messageTone, setMessageTone] = useState<'success' | 'error'>('success');
   const [loading, setLoading] = useState(false);
   const [mappingSaved, setMappingSaved] = useState(false);
+  const busy = loading || refreshing;
   const base = workspaceBase ?? `/audit/${projectId}`;
   const reportHref = `${base}/brief`;
   const oauthHref = `/api/google/oauth/start?projectId=${projectId}`;
@@ -550,18 +561,30 @@ export function ConnectFlow({
             <button
               type="button"
               onClick={syncProperties}
-              disabled={!googleConnected || loading}
+              disabled={!googleConnected || busy}
               className={outlineBtnClass}
               title="Re-load the list of properties from Google"
             >
-              <RefreshCw className={`size-3.5 ${loading ? 'animate-spin' : ''}`} strokeWidth={2} />
-              Refresh list
+              <RefreshCw className={`size-3.5 ${busy ? 'animate-spin' : ''}`} strokeWidth={2} />
+              {busy ? 'Loading…' : 'Refresh list'}
             </button>
           </div>
 
           {!googleConnected ? (
             <p className="mt-4 rounded-lg bg-muted px-3 py-2.5 text-sm text-muted-foreground">
               Connect Google first — your properties will show up here.
+            </p>
+          ) : busy ? (
+            <p
+              role="status"
+              aria-live="polite"
+              className="mt-4 flex items-start gap-2 rounded-lg bg-tint px-3 py-2.5 text-sm text-muted-foreground"
+            >
+              <RefreshCw className="mt-0.5 size-3.5 shrink-0 animate-spin" strokeWidth={2} />
+              <span>
+                Fetching your sites and accounts from Google. This can take up to a minute —
+                the lists and Save button unlock when it finishes.
+              </span>
             </p>
           ) : null}
 
@@ -573,6 +596,7 @@ export function ConnectFlow({
               help="How people find you on Google — searches, clicks, rankings."
               count={gscProperties.length}
               chosen={Boolean(selectedGsc)}
+              busy={busy}
             >
               <Select
                 items={gscProperties.map((item) => ({ value: item.id, label: item.site_url }))}
@@ -581,13 +605,13 @@ export function ConnectFlow({
                 onValueChange={(value) => setSelectedGsc(value ?? '')}
               >
                 <SelectTrigger id="gsc" className="w-full">
-                  <SelectValue placeholder={gscProperties.length === 0 ? 'No sites found' : 'Select a site'} />
+                  <SelectValue placeholder={gscProperties.length === 0 ? (busy ? 'Loading from Google…' : 'No sites found') : 'Select a site'} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     {gscProperties.length === 0 ? (
                       <SelectItem value="" disabled>
-                        No sites found
+                        {busy ? 'Loading from Google…' : 'No sites found'}
                       </SelectItem>
                     ) : null}
                     {gscProperties.map((item) => (
@@ -607,6 +631,7 @@ export function ConnectFlow({
               help="What visitors do on your site — traffic, engagement, conversions."
               count={ga4Properties.length}
               chosen={Boolean(selectedGa4)}
+              busy={busy}
             >
               <Select
                 items={ga4Properties.map((item) => ({ value: item.id, label: `${item.property_name} (${item.account_name})` }))}
@@ -615,13 +640,13 @@ export function ConnectFlow({
                 onValueChange={(value) => setSelectedGa4(value ?? '')}
               >
                 <SelectTrigger id="ga4" className="w-full">
-                  <SelectValue placeholder={ga4Properties.length === 0 ? 'No properties found' : 'Select a property'} />
+                  <SelectValue placeholder={ga4Properties.length === 0 ? (busy ? 'Loading from Google…' : 'No properties found') : 'Select a property'} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     {ga4Properties.length === 0 ? (
                       <SelectItem value="" disabled>
-                        No properties found
+                        {busy ? 'Loading from Google…' : 'No properties found'}
                       </SelectItem>
                     ) : null}
                     {ga4Properties.map((item) => (
@@ -641,6 +666,7 @@ export function ConnectFlow({
               help="Paid campaign spend and results. Optional."
               count={adsAccounts.length}
               chosen={Boolean(selectedAds)}
+              busy={busy}
             >
               <Select
                 items={adsAccounts.map((item) => ({ value: item.id, label: `${item.descriptive_name} (${item.customer_id})` }))}
@@ -649,13 +675,13 @@ export function ConnectFlow({
                 onValueChange={(value) => setSelectedAds(value ?? '')}
               >
                 <SelectTrigger id="ads" className="w-full">
-                  <SelectValue placeholder={adsAccounts.length === 0 ? 'No accounts found' : 'Select an account'} />
+                  <SelectValue placeholder={adsAccounts.length === 0 ? (busy ? 'Loading from Google…' : 'No accounts found') : 'Select an account'} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     {adsAccounts.length === 0 ? (
                       <SelectItem value="" disabled>
-                        No accounts found
+                        {busy ? 'Loading from Google…' : 'No accounts found'}
                       </SelectItem>
                     ) : null}
                     {adsAccounts.map((item) => (
@@ -714,7 +740,7 @@ export function ConnectFlow({
             <button
               type="button"
               onClick={saveMapping}
-              disabled={!googleConnected || loading}
+              disabled={!googleConnected || busy}
               className={primaryBtnClass}
             >
               <Save className="size-3.5 shrink-0" strokeWidth={2} />

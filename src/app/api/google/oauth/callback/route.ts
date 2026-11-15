@@ -1,10 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { cookies } from 'next/headers';
 import { getAppUrl } from '@/lib/app-url';
-import { upsertGoogleConnection } from '@/lib/db/google';
+import { syncPropertyOptions, upsertGoogleConnection } from '@/lib/db/google';
 import { syncGoogleConnectionInventory } from '@/lib/db/google-inventory';
 import { exchangeCodeForTokens, fetchGoogleAccountEmail } from '@/lib/google/oauth';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
+
+// `after` work (the inventory sync) may run this long once the redirect is sent.
+export const maxDuration = 60;
 
 function connectErrorRedirect(appUrl: string, projectId: string | null, returnTo: string, message: string) {
   if (projectId) {
@@ -97,18 +100,28 @@ export async function GET(request: Request) {
       ? await fetchGoogleAccountEmail(tokens.access_token)
       : null;
     await upsertGoogleConnection(projectId, tokens, accountEmail);
-    try {
-      const { data: project } = await getSupabaseAdmin()
-        .from('projects')
-        .select('user_id')
-        .eq('id', projectId)
-        .maybeSingle();
-      if (project?.user_id) {
-        await syncGoogleConnectionInventory(project.user_id);
-      }
-    } catch (inventoryError) {
-      console.error('[google/oauth/callback] inventory sync failed', inventoryError);
-    }
+    // Listing every GSC/GA4/Ads property is slow. Redirect now; the Setup page
+    // shows a loading state and polls until the lists arrive.
+    after(async () => {
+      // The Setup pickers read the per-project property lists; the inventory is a
+      // separate per-user cache. Run both, and let one fail without blocking the other.
+      const projectSync = syncPropertyOptions(projectId).catch((syncError) => {
+        console.error('[google/oauth/callback] property sync failed', syncError);
+      });
+      const inventorySync = (async () => {
+        const { data: project } = await getSupabaseAdmin()
+          .from('projects')
+          .select('user_id')
+          .eq('id', projectId)
+          .maybeSingle();
+        if (project?.user_id) {
+          await syncGoogleConnectionInventory(project.user_id);
+        }
+      })().catch((inventoryError) => {
+        console.error('[google/oauth/callback] inventory sync failed', inventoryError);
+      });
+      await Promise.all([projectSync, inventorySync]);
+    });
 
     if (projectId) {
       return NextResponse.redirect(`${appUrl}/audit/${projectId}/connect?connected=1`);

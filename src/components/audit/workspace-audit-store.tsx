@@ -198,6 +198,10 @@ export function WorkspaceAuditProvider({
     void refresh();
   }, [refresh]);
 
+  // Polling can see "ready" on several ticks before the bundle reports the run.
+  // Only one full refetch may be in flight, otherwise Setup reloads over and over.
+  const readyRefreshing = useRef(false);
+
   useEffect(() => {
     if (!tab) return;
     if (tab.dataEpoch === 0 || tab.dataEpoch === lastEpoch.current) return;
@@ -250,8 +254,17 @@ export function WorkspaceAuditProvider({
         }
         if (data.ready) {
           setAuditStatus('ready');
-          // Keep polling until the bundle actually reports the run (hasAuditRun flips).
-          void refresh();
+          // Keep polling until the bundle actually reports the run (hasAuditRun flips),
+          // but wait for each refetch to finish instead of stacking new ones every tick.
+          if (!readyRefreshing.current) {
+            readyRefreshing.current = true;
+            try {
+              await refresh();
+            } finally {
+              readyRefreshing.current = false;
+            }
+            if (cancelled) return;
+          }
         } else {
           setAuditStatus('analyzing');
         }

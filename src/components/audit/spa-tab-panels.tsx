@@ -362,6 +362,7 @@ export function SpaConnectPanel({
   const ensureSlice = ctx?.ensureSlice;
   const [message, setMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [waitingForProperties, setWaitingForProperties] = useState(false);
 
   useEffect(() => {
     void ensureSlice?.("connect");
@@ -371,6 +372,7 @@ export function SpaConnectPanel({
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("connected")) {
+      setWaitingForProperties(true);
       setMessage(
         "Google connected. Next, pick which site and accounts to track below.",
       );
@@ -396,6 +398,29 @@ export function SpaConnectPanel({
     connectionStatus: ConnectionStatus;
     clientAccessConfirmedAt: string | null;
   } | null;
+
+  // Right after the Google redirect, the property lists are still loading in the
+  // background. Re-check every few seconds (up to ~1 min) until something arrives.
+  const refreshBundle = ctx?.refresh;
+  const propertyTotal =
+    (connect?.gscProperties.length ?? 0) +
+    (connect?.ga4Properties.length ?? 0) +
+    (connect?.adsAccounts.length ?? 0);
+
+  useEffect(() => {
+    if (!waitingForProperties || propertyTotal > 0) return;
+    let attempts = 0;
+    const timer = setInterval(() => {
+      attempts += 1;
+      if (attempts > 15) {
+        clearInterval(timer);
+        setWaitingForProperties(false);
+        return;
+      }
+      void refreshBundle?.();
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [waitingForProperties, propertyTotal, refreshBundle]);
 
   if (!connect && ctx?.sliceLoading.connect) return <PanelPulse />;
 
@@ -430,6 +455,7 @@ export function SpaConnectPanel({
         connectionStatus={connect?.connectionStatus ?? "not_granted"}
         clientAccessConfirmedAt={connect?.clientAccessConfirmedAt ?? null}
         viewerSignedIn={Boolean(connect)}
+        refreshing={Boolean(ctx?.loading || ctx?.sliceLoading.connect || (waitingForProperties && propertyTotal === 0))}
         workspaceBase={workspaceBase}
         domain={domain}
       />
