@@ -310,7 +310,7 @@ export function ConnectFlow({
 
   const steps: SetupStep[] = [
     {
-      title: 'Connect Google',
+      title: 'Connect Google Analytics, Search Console, and Ads',
       body: needsRefresh
         ? 'Access expired — reconnect to keep data flowing.'
         : 'Sign in once so we can read your search and visitor data.',
