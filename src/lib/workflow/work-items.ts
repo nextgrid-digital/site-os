@@ -1,3 +1,4 @@
+import { readCredibility, type FindingCredibility } from '@/lib/audit/finding-credibility';
 import type { AgentPrompt, Finding, GraphWorkOrder } from '@/lib/supabase/types';
 
 export type WorkItemPriority = 'critical' | 'high' | 'medium' | 'low';
@@ -19,6 +20,8 @@ export type WorkItemView = {
   findingId: string | null;
   /** Ready-to-paste instruction for an AI coding assistant (Cursor, Claude, ChatGPT). */
   fixPrompt?: string | null;
+  /** Credibility detail for findings; absent for graph work orders and pre-credibility audits. */
+  credibility?: FindingCredibility | null;
 };
 
 function severityToPriority(severity: Finding['severity']): WorkItemPriority {
@@ -102,11 +105,11 @@ export function findingToWorkItem(
     prompt?.exact_change?.trim() ||
     prompt?.problem?.trim() ||
     finding.estimated_value ||
-    'Review the finding and apply the recommended change.';
+    'Evaluate this opportunity and decide whether to test the change.';
   const nextAction =
     finding.next_action?.trim() ||
     prompt?.exact_change?.trim() ||
-    `Fix: ${finding.title}`;
+    `Evaluate: ${finding.title}`;
 
   return {
     id: finding.id,
@@ -122,6 +125,7 @@ export function findingToWorkItem(
     pagePath: finding.page_path,
     findingId: finding.id,
     fixPrompt: prompt?.full_prompt?.trim() || null,
+    credibility: readCredibility(finding.evidence),
   };
 }
 

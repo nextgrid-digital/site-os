@@ -14,15 +14,11 @@ import {
   MoveRight,
   Cuboid,
 } from "lucide-react";
-import { CalendarIcon, IssuesListIcon } from "@/components/icons";
+import { CalendarIcon } from "@/components/icons";
 import { SiteCardFavicon } from "@/components/audit/site-card-favicon";
 import { SoftAuditTabLink } from "@/components/audit/soft-audit-tab-link";
-import {
-  PriorityBadge,
-} from "@/components/audit/workflow/workflow-badges";
-import { PriorityFixButton } from "@/components/audit/workflow/priority-fix-button";
 import { StartCopyButton } from "@/components/audit/workflow/start-copy-button";
-import { CopyFixPrompt } from "@/components/audit/workflow/copy-fix-prompt";
+import { FindingTaskList } from "@/components/audit/workflow/finding-task-list";
 import {
   Tooltip,
   TooltipContent,
@@ -39,23 +35,9 @@ import type {
 } from "@/lib/workflow/monthly-compare";
 import { buildFixPrompt, type WorkItemView } from "@/lib/workflow/work-items";
 
-const MAX_TASKS = 8;
-const ISSUES_PREVIEW = 4;
-
 type PriorityItem = GrowthBrief['priorityStack'][number];
 
 /** Which data source surfaced the issue. */
-function issueSource(item: PriorityItem) {
-  switch (item.category) {
-    case 'search':
-      return 'GSC';
-    case 'conversion':
-      return 'GA4';
-    default:
-      return 'Crawl';
-  }
-}
-
 function buildIssuePrompt(item: PriorityItem, domain: string) {
   return [
     `You are helping me fix an issue on my website ${domain}.`,
@@ -87,51 +69,6 @@ function splitFixSteps(text: string) {
       detail: detail ? capitalize(detail.replace(/,\s+or\s+/i, ' or ')) : null,
     };
   });
-}
-
-function IssueList({
-  items,
-  domain,
-  start,
-}: {
-  items: PriorityItem[];
-  domain: string;
-  start: number;
-}) {
-  return (
-    <ol className="divide-y divide-border">
-      {items.map((item, i) => {
-        const index = start + i;
-        return (
-          <li key={item.title} className="flex items-start gap-4 py-4">
-            <span
-              className={`flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
-                index === 0
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-tint text-foreground/80'
-              }`}
-            >
-              {index + 1}
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-base font-semibold text-foreground">
-                {item.title}
-              </p>
-              {item.summary ? (
-                <p className="text-sm leading-6 text-muted-foreground">
-                  {item.summary}
-                </p>
-              ) : null}
-            </div>
-            <span className="hidden shrink-0 rounded-full bg-tint px-2.5 py-1 text-[11px] font-bold tracking-wide text-foreground/80 uppercase sm:inline">
-              {issueSource(item)}
-            </span>
-            <PriorityFixButton prompt={buildIssuePrompt(item, domain)} />
-          </li>
-        );
-      })}
-    </ol>
-  );
 }
 
 const BUSINESS_TYPES = [
@@ -167,22 +104,9 @@ function TaskList({
   domain: string;
 }) {
   return (
-    <ul className="divide-y divide-border rounded-xl ring-1 ring-border">
-      {items.map((item) => (
-        <li key={item.id} className="px-4 py-3">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <p className="text-sm font-medium text-foreground">{item.issue}</p>
-            <PriorityBadge priority={item.priority} />
-            <CopyFixPrompt prompt={buildFixPrompt(item, domain)} />
-          </div>
-          {item.nextAction && item.nextAction.trim() !== item.issue.trim() ? (
-            <p className="mt-0.5 text-sm leading-6 text-muted-foreground">
-              Next step: {item.nextAction}
-            </p>
-          ) : null}
-        </li>
-      ))}
-    </ul>
+    <FindingTaskList
+      rows={items.map((item) => ({ item, fixPrompt: buildFixPrompt(item, domain) }))}
+    />
   );
 }
 
@@ -213,7 +137,6 @@ export function ClientWorkflowBrief({
   const mismatch =
     aiReading && headline ? findBusinessTypeMismatch(headline, aiReading.value) : null;
 
-  const broken = brief?.priorityStack.slice(0, 10) ?? [];
   const verdict = brief?.auditVerdict.verdict?.trim() || null;
   const mainIssue = brief?.auditVerdict.mainIssue?.trim() || null;
   const firstFix = brief?.auditVerdict.firstFix?.trim() || null;
@@ -300,18 +223,15 @@ export function ClientWorkflowBrief({
             </p>
           )}
           {mainIssue && mainIssue !== verdict ? (
-            <p className="mt-2 text-sm leading-6 text-foreground/70">
+            <p
+              title={mainIssue}
+              className="mt-2 line-clamp-3 text-sm leading-6 text-foreground/70"
+            >
               {mainIssue}
             </p>
           ) : null}
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
-            <StatTile
-              icon={<IssuesListIcon />}
-              label="Issues to fix"
-              value={brief?.priorityStack.length ?? 0}
-              hint="Problems the audit flagged"
-            />
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <StatTile
               icon={<ListTodo className="size-4" />}
               label="Open tasks"
@@ -342,8 +262,9 @@ export function ClientWorkflowBrief({
                   {topIssue?.summary ?? fixBody}
                 </p>
               ) : null}
-              <div className="mt-auto flex flex-wrap items-center gap-3 pt-8">
-                <a
+              <div className="mt-auto flex flex-col gap-3 pt-8">
+                <div className="flex flex-wrap items-center gap-3">
+                   <a
                   href="#open-tasks"
                   className="inline-flex items-center rounded-lg bg-success px-4 py-2.5 text-sm font-semibold text-success-foreground no-underline print:hidden"
                 >
@@ -354,6 +275,7 @@ export function ClientWorkflowBrief({
                     prompt={buildIssuePrompt(topIssue, domain)}
                   />
                 ) : null}
+                </div>
                 {firstBrief?.expectedEffect ? (
                   <p className="min-w-40 flex-1 text-sm leading-5 text-muted-foreground">
                     Result: {firstBrief.expectedEffect}
@@ -366,11 +288,11 @@ export function ClientWorkflowBrief({
                 <p className="text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
                   What the page needs
                 </p>
-                <ol className="mt-4 divide-y divide-border padding-line-">
+                <ol className="mt-4 divide-y divide-border px-0">
                   {fixSteps.map((step, index) => (
                     <li
                       key={step.title}
-                      className="flex gap-4 py-4 first:pt-0 last:pb-0"
+                      className="flex gap-2 py-4 first:pt-0 last:pb-0"
                     >
                       <span className="w-4 shrink-0 pt-0.5 text-sm font-semibold text-muted-foreground">
                         {index + 1}
@@ -473,54 +395,14 @@ export function ClientWorkflowBrief({
         </BriefSection>
 
         <BriefSection
-          icon={<IssuesListIcon className="size-4" aria-hidden />}
-          title="What's holding the site back"
-          subtitle="Ranked by business impact. The top one matters most."
-        >
-          {broken.length > 0 ? (
-            <>
-              <IssueList items={broken.slice(0, ISSUES_PREVIEW)} domain={domain} start={0} />
-              {broken.length > ISSUES_PREVIEW ? (
-                <details className="group mt-1">
-                  <summary className="flex cursor-pointer list-none items-center gap-1.5 border-t border-border pt-4 text-sm font-medium text-foreground/90 print:hidden group-open:hidden hover:underline hover:underline-offset-2">
-                    Show all {broken.length} issues
-                    <MoveRight className="size-3.5" aria-hidden />
-                  </summary>
-                  <IssueList
-                    items={broken.slice(ISSUES_PREVIEW)}
-                    domain={domain}
-                    start={ISSUES_PREVIEW}
-                  />
-                </details>
-              ) : null}
-            </>
-          ) : (
-            <Empty>No prioritized issues in this audit yet.</Empty>
-          )}
-        </BriefSection>
-
-        <BriefSection
           icon={<ListTodo className="size-4" aria-hidden />}
           id="open-tasks"
           title="Open tasks"
           action={pending.length > 0 ? <LockedCopyAll /> : undefined}
-          subtitle="Fixes the audit found that haven't been done yet. Copy a ready-made prompt for each and paste it into your AI assistant."
+          subtitle="What's still open, most important first."
         >
           {pending.length > 0 ? (
-            <>
-              <TaskList items={pending.slice(0, MAX_TASKS)} domain={domain} />
-              {pending.length > MAX_TASKS ? (
-                <details className="group mt-3">
-                  <summary className="inline-flex gap-2 items-center cursor-pointer list-none text-sm font-semibold text-foreground/90 underline-offset-2 hover:underline print:hidden group-open:hidden">
-                    Show {pending.length - MAX_TASKS} more tasks <MoveRight className="size-3.5" aria-hidden />
-                  </summary>
-                  <TaskList
-                    items={pending.slice(MAX_TASKS)}
-                    domain={domain}
-                  />
-                </details>
-              ) : null}
-            </>
+            <TaskList items={pending} domain={domain} />
           ) : (
             <Empty>
               All caught up — no open tasks. Re-run the audit next month to

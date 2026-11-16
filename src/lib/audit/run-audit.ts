@@ -694,7 +694,7 @@ async function finalizeAuditRun(input: {
     aeo_value: finding.aeo_value,
     priority_score: finding.priority_score,
     status: 'open',
-    next_action: `Fix: ${finding.title}`,
+    next_action: `Evaluate: ${finding.title}`,
   }));
 
   const { data: findings } =

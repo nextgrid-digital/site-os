@@ -7,7 +7,7 @@ const PRIORITY_STYLES: Record<
   { label: string; tone: 'danger' | 'warning' | 'neutral' | 'muted' }
 > = {
   critical: { label: 'Critical', tone: 'danger' },
-  high: { label: 'High impact', tone: 'warning' },
+  high: { label: 'High priority', tone: 'warning' },
   medium: { label: 'Medium', tone: 'neutral' },
   low: { label: 'Low', tone: 'muted' },
 };

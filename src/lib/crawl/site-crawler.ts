@@ -19,6 +19,8 @@ export interface CrawledPage {
   hasFaqSchema: boolean;
   statusCode: number;
   textExcerpt: string | null;
+  /** Non-empty image alt texts (capped), used to spot client logos as proof signals. */
+  imageAlts?: string[];
   /** Per-page AEO scan; optional so hand-built fixtures stay valid. */
   aeo?: AeoPageScan;
 }
@@ -102,6 +104,15 @@ function detectFaqSchema($: cheerio.CheerioAPI): boolean {
     });
 }
 
+function extractImageAlts($: cheerio.CheerioAPI): string[] {
+  const alts = new Set<string>();
+  $('img[alt]').each((_, el) => {
+    const alt = ($(el).attr('alt') ?? '').replace(/\s+/g, ' ').trim();
+    if (alt.length >= 2 && alt.length <= 120) alts.add(alt);
+  });
+  return [...alts].slice(0, 60);
+}
+
 function extractTextExcerpt($: cheerio.CheerioAPI): string | null {
   const clone = $.root().clone();
   clone.find('script, style, noscript, svg, nav, footer, iframe').remove();
@@ -161,6 +172,7 @@ function parsePage(url: string, html: string, statusCode: number, baseUrl: strin
     hasFaqSchema: detectFaqSchema($),
     statusCode,
     textExcerpt: extractTextExcerpt($),
+    imageAlts: extractImageAlts($),
     aeo: scoreAeoPage(path, extractAeoSignals($)),
   };
 }

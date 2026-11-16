@@ -239,8 +239,8 @@ export function MonthlyReviewPanel({
         <SectionHeading
           icon={<Flag className="size-4" aria-hidden />}
           iconClass="bg-primary text-primary-foreground"
-          title="Fix these before the next check-in"
-          subtitle="High-impact tasks still open — knocking these out moves next month's numbers most."
+          title="Review these before the next check-in"
+          subtitle="Highest-priority tasks still open. Review each as an experiment before the next check-in."
         />
 
         {compare.needsFollowUp.length > 0 ? (
