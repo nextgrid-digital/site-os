@@ -13,6 +13,7 @@ import {
   UserRound,
   type LucideIcon,
 } from 'lucide-react';
+import { GlobeIcon, IssuesListIcon } from '../icons';
 
 const ITEM_CLASS =
   'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] transition hover:bg-foreground/8 focus-visible:bg-foreground/8 focus-visible:outline-none disabled:opacity-50';
@@ -20,7 +21,7 @@ const ITEM_CLASS =
 interface MenuLink {
   href: string;
   label: string;
-  icon: LucideIcon;
+  icon: LucideIcon | typeof GlobeIcon | typeof IssuesListIcon;
 }
 
 export function UserAccountMenu({ initials = 'SO' }: { initials?: string } = {}) {
@@ -28,9 +29,9 @@ export function UserAccountMenu({ initials = 'SO' }: { initials?: string } = {})
   const pathname = usePathname();
   const auditId = /^\/audit\/([^/]+)/.exec(pathname)?.[1];
   const primary: MenuLink[] = [
-    { href: '/app', label: 'Projects', icon: LayoutGrid },
+    { href: '/app', label: 'Projects', icon: IssuesListIcon },
     ...(auditId
-      ? [{ href: `/audit/${auditId}`, label: 'Site audit', icon: Globe }]
+      ? [{ href: `/audit/${auditId}`, label: 'Site audit', icon: GlobeIcon }]
       : []),
   ];
   const secondary: MenuLink[] = [
