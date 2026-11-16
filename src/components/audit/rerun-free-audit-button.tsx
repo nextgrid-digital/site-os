@@ -49,7 +49,7 @@ export function RerunFreeAuditButton({
         return;
       }
       tabCache?.invalidateAll();
-      router.push(`/audit/${sessionId}`);
+      router.push(`/audit/${sessionId}/brief`);
       router.refresh();
     } catch {
       setError('Failed to re-run audit');

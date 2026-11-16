@@ -79,7 +79,7 @@ export function AddSiteAuditDialog({
       setOpen(false);
       setConfirmingGuest(false);
       setUrl('');
-      router.push(`/audit/${sessionId}`);
+      router.push(`/audit/${sessionId}/brief`);
     } catch {
       setError('Failed to start audit. Please try again.');
     } finally {

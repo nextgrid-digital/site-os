@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import {
   ArrowRight,
-  ChevronRight,
   CircleAlert,
   Compass,
   Eye,
@@ -9,12 +8,11 @@ import {
   Lightbulb,
   Lock,
   ListTodo,
-  Target,
   TrendingDown,
   TrendingUp,
-  TriangleAlert,
   Wrench,
   MoveRight,
+  Cuboid,
 } from "lucide-react";
 import { CalendarIcon, IssuesListIcon } from "@/components/icons";
 import { SiteCardFavicon } from "@/components/audit/site-card-favicon";
@@ -23,6 +21,7 @@ import {
   PriorityBadge,
 } from "@/components/audit/workflow/workflow-badges";
 import { PriorityFixButton } from "@/components/audit/workflow/priority-fix-button";
+import { StartCopyButton } from "@/components/audit/workflow/start-copy-button";
 import { CopyFixPrompt } from "@/components/audit/workflow/copy-fix-prompt";
 import {
   Tooltip,
@@ -70,54 +69,24 @@ function buildIssuePrompt(item: PriorityItem, domain: string) {
     .join('\n');
 }
 
-function StepCard({
-  icon,
-  label,
-  title,
-  body,
-  highlight,
-}: {
-  icon: ReactNode;
-  label: string;
-  title: string | null;
-  body: string | null;
-  highlight?: boolean;
-}) {
-  return (
-    <div
-      className={`rounded-[18px] p-5 ${
-        highlight
-          ? 'border-2 border-success-ink/50 bg-success-soft dark:border-[#4fa574] dark:bg-[#1f3d2b]'
-          : 'border border-success-ink/20 bg-success-soft/40 dark:border-[#2f5a40] dark:bg-[#1b2f22]'
-      }`}
-    >
-      <p className="flex items-center gap-2 text-[11px] font-bold tracking-[0.12em] text-success-ink uppercase dark:text-[#8fddaa]">
-        {icon}
-        {label}
-      </p>
-      {title ? (
-        <p className="mt-4 text-lg leading-[25px] font-semibold text-foreground dark:text-[#f1fbf4]">
-          {title}
-        </p>
-      ) : null}
-      {body ? (
-        <p className="mt-3 text-sm leading-[21px] text-foreground/70 dark:text-[#b6e3c5]">
-          {body}
-        </p>
-      ) : null}
-    </div>
-  );
-}
+const capitalize = (text: string) =>
+  text.charAt(0).toUpperCase() + text.slice(1);
 
-function StepArrow() {
-  return (
-    <span
-      className="hidden items-center text-success-ink/60 md:flex print:hidden dark:text-[#4f8a67]"
-      aria-hidden
-    >
-      <ChevronRight className="size-4" />
-    </span>
-  );
+/** Turns a run-on instruction into short steps, moving "such as ..." examples into a detail line. */
+function splitFixSteps(text: string) {
+  const parts = text
+    .replace(/(such as [^;]*?)(?=,\s+and\s|$)/gi, (m) => m.replace(/,/g, '\u0000'))
+    .split(/,\s+(?:and\s+)?|\.\s+|;\s+/)
+    .map((part) => part.replace(/\u0000/g, ',').replace(/\.$/, '').trim())
+    .filter(Boolean)
+    .slice(0, 4);
+  return parts.map((part) => {
+    const [title, detail] = part.split(/\s+(?:such as|like)\s+/i);
+    return {
+      title: capitalize(title.trim()),
+      detail: detail ? capitalize(detail.replace(/,\s+or\s+/i, ' or ')) : null,
+    };
+  });
 }
 
 function IssueList({
@@ -134,7 +103,7 @@ function IssueList({
       {items.map((item, i) => {
         const index = start + i;
         return (
-          <li key={item.title} className="flex items-center gap-4 py-4">
+          <li key={item.title} className="flex items-start gap-4 py-4">
             <span
               className={`flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
                 index === 0
@@ -257,6 +226,7 @@ export function ClientWorkflowBrief({
   const [fixHead, ...fixRest] = (firstBrief?.whatToChange ?? '').split(/(?<=\.)\s+/);
   const fixTitle = fixHead.replace(/\.$/, '').trim() || null;
   const fixBody = fixRest.join(' ').trim() || null;
+  const fixSteps = splitFixSteps(fixRest.join(' '));
   const recommends =
     brief?.siteOnlySummary?.recommendedNextSteps.slice(0, 5) ??
     (brief?.offerRecommendation.nextgridAction
@@ -358,41 +328,68 @@ export function ClientWorkflowBrief({
 
         {/* Start here */}
         {firstFix || firstBrief ? (
-          <section className="rounded-xl border border-success-ink/20 bg-success-soft/60 p-5">
-            <div className="flex items-start gap-3">
-              <span className="mt-1.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-success text-success-foreground">
-                <Target className="size-4" aria-hidden />
-              </span>
-              <div className="flex flex-col">
-                <p className="text-xl font-bold text-success-ink">Start here</p>
-                <p className="text-sm text-success-ink">
-                  {firstFix ?? "The one change that matters most right now"}
+          <section className="grid gap-6 rounded-2xl bg-tint p-6 ring-1 ring-border sm:p-8 lg:grid-cols-[1.1fr_1fr]">
+            <div className="flex min-w-0 flex-col">
+              <p className="text-sm font-semibold text-success-ink">
+                Start here
+              </p>
+              <h2 className="mt-3 font-display text-4xl leading-tighter font-normal text-foreground">
+                {fixTitle ?? topIssue?.title ?? firstFix}
+                {fixTitle ? '.' : ''}
+              </h2>
+              {(topIssue?.summary ?? fixBody) ? (
+                <p className="mt-4 text-base leading-7 text-foreground/70">
+                  {topIssue?.summary ?? fixBody}
                 </p>
+              ) : null}
+              <div className="mt-auto flex flex-wrap items-center gap-3 pt-8">
+                <a
+                  href="#open-tasks"
+                  className="inline-flex items-center rounded-lg bg-success px-4 py-2.5 text-sm font-semibold text-success-foreground no-underline print:hidden"
+                >
+                  See the fix steps
+                </a>
+                {topIssue ? (
+                  <StartCopyButton
+                    prompt={buildIssuePrompt(topIssue, domain)}
+                  />
+                ) : null}
+                {firstBrief?.expectedEffect ? (
+                  <p className="min-w-40 flex-1 text-sm leading-5 text-muted-foreground">
+                    Result: {firstBrief.expectedEffect}
+                  </p>
+                ) : null}
               </div>
             </div>
-            <div className="mt-5 grid items-stretch gap-3 md:grid-cols-[1fr_auto_1fr_auto_1fr]">
-              <StepCard
-                icon={<TriangleAlert className="size-3.5" aria-hidden />}
-                label="The problem"
-                title={topIssue?.title ?? firstBrief?.title ?? null}
-                body={topIssue?.summary ?? null}
-              />
-              <StepArrow />
-              <StepCard
-                highlight
-                icon={<Wrench className="size-3.5" aria-hidden />}
-                label="The fix"
-                title={fixTitle}
-                body={fixBody}
-              />
-              <StepArrow />
-              <StepCard
-                icon={<TrendingUp className="size-3.5" aria-hidden />}
-                label="The payoff"
-                title={firstBrief?.expectedEffect ?? null}
-                body={null}
-              />
-            </div>
+            {fixSteps.length > 0 ? (
+              <div className="rounded-2xl bg-raised p-6">
+                <p className="text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                  What the page needs
+                </p>
+                <ol className="mt-4 divide-y divide-border padding-line-">
+                  {fixSteps.map((step, index) => (
+                    <li
+                      key={step.title}
+                      className="flex gap-4 py-4 first:pt-0 last:pb-0"
+                    >
+                      <span className="w-4 shrink-0 pt-0.5 text-sm font-semibold text-muted-foreground">
+                        {index + 1}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-base leading-6 font-medium text-foreground">
+                          {step.title}.
+                        </p>
+                        {step.detail ? (
+                          <p className="text-sm leading-6 text-muted-foreground">
+                            {step.detail}.
+                          </p>
+                        ) : null}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ) : null}
           </section>
         ) : null}
 
@@ -476,7 +473,7 @@ export function ClientWorkflowBrief({
         </BriefSection>
 
         <BriefSection
-          icon={<Wrench className="size-4" aria-hidden />}
+          icon={<IssuesListIcon className="size-4" aria-hidden />}
           title="What's holding the site back"
           subtitle="Ranked by business impact. The top one matters most."
         >
@@ -504,6 +501,7 @@ export function ClientWorkflowBrief({
 
         <BriefSection
           icon={<ListTodo className="size-4" aria-hidden />}
+          id="open-tasks"
           title="Open tasks"
           action={pending.length > 0 ? <LockedCopyAll /> : undefined}
           subtitle="Fixes the audit found that haven't been done yet. Copy a ready-made prompt for each and paste it into your AI assistant."
@@ -608,8 +606,10 @@ function BriefSection({
   title,
   subtitle,
   action,
+  id,
   children,
 }: {
+  id?: string;
   icon: ReactNode;
   title: string;
   subtitle: string;
@@ -617,7 +617,7 @@ function BriefSection({
   children: ReactNode;
 }) {
   return (
-    <section className="space-y-4">
+    <section id={id} className="scroll-mt-6 space-y-4">
       <div className="flex items-start gap-3">
         <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-tint text-foreground/80">
           {icon}

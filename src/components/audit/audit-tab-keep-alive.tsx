@@ -6,9 +6,11 @@ import {
   AuditWorkspaceTabs,
   type WorkspaceConnectionStatus,
 } from '@/components/audit/audit-workspace-tabs';
+import { dashboardLockReason } from '@/lib/audit/dashboard-lock';
 import { AuditRunProvider, useAuditRun } from '@/components/audit/audit-run-context';
 import { AuditRunningPanel } from '@/components/audit/audit-running-panel';
 import {
+  useWorkspaceAudit,
   WorkspaceAuditProvider,
   type WorkspaceAuditBundle,
 } from '@/components/audit/workspace-audit-store';
@@ -101,6 +103,18 @@ function AuditWorkspaceShell({
   const showRunningUi = running || Boolean(error);
   const tab = useAuditTabCache();
   const active = (tab?.activeSuffix ?? '/workflow') as AuditPrimaryTabSuffix;
+  const audit = useWorkspaceAudit();
+  const liveConnected = audit?.bundle?.connected ?? null;
+  const dashboardLock = dashboardLockReason({
+    signedIn,
+    gscConnected: liveConnected?.gscConnected ?? connection.gscConnected,
+    ga4Connected: liveConnected?.ga4Connected ?? connection.ga4Connected,
+  });
+  const setTab = tab?.setTab;
+  // A locked Dashboard (deep link, back button, or crawl just finished) lands on the Brief.
+  useEffect(() => {
+    if (dashboardLock && active === '/workflow') setTab?.('/brief');
+  }, [dashboardLock, active, setTab]);
   const [mounted, setMounted] = useState<Set<AuditPrimaryTabSuffix>>(
     () => new Set([active])
   );
@@ -126,12 +140,13 @@ function AuditWorkspaceShell({
         connection={connection}
         navigationDisabled={showRunningUi}
         signedIn={signedIn}
+        dashboardLock={dashboardLock}
       />
       {showRunningUi ? (
         <AuditRunningPanel />
       ) : (
         <div>
-          {mounted.has('/workflow') ? (
+          {mounted.has('/workflow') && !dashboardLock ? (
             <div
               hidden={active !== '/workflow'}
               {...(active !== '/workflow' ? { inert: true } : {})}

@@ -92,7 +92,7 @@ export function HeroAuditNotch() {
         return;
       }
       // Stay in the scanning state until the route changes.
-      router.push(`/audit/${sessionId}`);
+      router.push(`/audit/${sessionId}/brief`);
     } catch {
       setError('Failed to start audit. Please try again.');
       setScanning(false);

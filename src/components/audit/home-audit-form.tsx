@@ -59,7 +59,7 @@ export function HomeAuditForm({
       }
 
       // Free audit is public — go straight to the report (no login gate).
-      router.push(`/audit/${sessionId}`);
+      router.push(`/audit/${sessionId}/brief`);
     } catch {
       setError('Failed to start audit. Please try again.');
     } finally {

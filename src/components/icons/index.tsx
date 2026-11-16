@@ -218,3 +218,10 @@ export function MouseClickIcon(props: SVGProps<SVGSVGElement>) {
     <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>{/* Icon from Sargam Icons by Abhimanyu Rana - https://github.com/planetabhi/sargam-icons/blob/main/LICENSE.txt */}<path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" strokeWidth="1.5" d="M12 2v3m-6.995 6.995h-3m2.926-7.063l2.12 2.122m12.022-2.129L16.95 7.047m-9.9 9.9l-2.12 2.12M11 11l10 4.4l-4.437 1.163L15.4 21z" /></svg>
   )
 }
+
+
+export function LockIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>{/* Icon from Griddy Icons by Zuzana Benova - https://github.com/griddy-icons/griddy-icons/blob/main/LICENSE */}<path fill="currentColor" d="M18 10.605V8c0-3.31-2.69-6-6-6S6 4.69 6 8v2.605c-1.15.33-2 1.385-2 2.645v6A2.755 2.755 0 0 0 6.75 22h10.5A2.755 2.755 0 0 0 20 19.25v-6c0-1.255-.85-2.315-2-2.645m-5.25 6.185v1.71h-1.5v-1.71c-.445-.26-.75-.74-.75-1.29c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5c0 .555-.305 1.03-.75 1.29m3.75-6.29h-9V8c0-2.48 2.02-4.5 4.5-4.5s4.5 2.02 4.5 4.5z" /></svg>
+  )
+}
