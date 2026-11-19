@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
-  GOOGLE_ADS_SCOPE,
   GOOGLE_ANALYTICS_SCOPE,
   GOOGLE_SEARCH_CONSOLE_SCOPE,
 } from '@/lib/google/oauth';
@@ -37,7 +36,7 @@ test('buildConnectorStatuses marks website connected from URL', () => {
   assert.equal(website?.usedInAudit, true);
 });
 
-test('buildConnectorStatuses treats missing Ads scope as partial', () => {
+test('Google Ads is coming_soon while Ads scope is deferred', () => {
   const statuses = buildConnectorStatuses({
     websiteUrl: 'https://example.com',
     googleConnected: true,
@@ -52,34 +51,10 @@ test('buildConnectorStatuses treats missing Ads scope as partial', () => {
     usedInLatestAudit: { search_console: true, ga4: true },
     dataFlags: { gscHasData: true, ga4HasData: true },
   });
-  const ads = statuses.find((s) => s.connectorId === 'google_ads');
-  assert.equal(ads?.state, 'partial');
-  assert.match(ads?.message ?? '', /Reconnect Google|Ads/);
-});
-
-test('buildConnectorStatuses connects Ads when scope + account mapped', () => {
-  const statuses = buildConnectorStatuses({
-    websiteUrl: 'https://example.com',
-    googleConnected: true,
-    googleScopes: [
-      GOOGLE_SEARCH_CONSOLE_SCOPE,
-      GOOGLE_ANALYTICS_SCOPE,
-      GOOGLE_ADS_SCOPE,
-    ],
-    gscSelected: true,
-    gscLabel: 'sc-domain:example.com',
-    ga4Selected: true,
-    ga4Label: 'Example',
-    adsSelected: true,
-    adsLabel: 'Brand Ads',
-    lastAuditAt: '2026-08-01T00:00:00.000Z',
-    usedInLatestAudit: { google_ads: true },
-    dataFlags: { adsHasData: true },
-  });
-  const ads = statuses.find((s) => s.connectorId === 'google_ads');
-  assert.equal(ads?.state, 'connected');
-  assert.equal(ads?.resourceLabel, 'Brand Ads');
-  assert.equal(ads?.usedInAudit, true);
+  assert.equal(statuses.find((s) => s.connectorId === 'google_ads')?.state, 'coming_soon');
+  // Missing Ads must not make the Google connection look partial.
+  const ga4 = statuses.find((s) => s.connectorId === 'ga4');
+  assert.equal(ga4?.partialReason, null);
 });
 
 test('phase 2/3 connectors are coming_soon', () => {

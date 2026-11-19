@@ -42,10 +42,10 @@ export default function PrivacyPolicyPage() {
               findings.
             </li>
             <li>
-              <strong>Connected Google data:</strong> if you connect Google Search Console,
-              Google Analytics (GA4), or Google Ads, we access performance data (e.g. clicks,
-              impressions, sessions, conversions, campaign metrics) scoped to the properties you
-              explicitly select, using read-only OAuth scopes.
+              <strong>Connected Google data:</strong> if you connect Google Search Console or
+              Google Analytics (GA4), we read performance data (e.g. clicks, impressions, sessions,
+              conversions) scoped to the properties you explicitly select, using read-only OAuth
+              scopes. We do not request access to Google Ads.
             </li>
             <li>
               <strong>Usage data:</strong> basic product analytics (pages viewed, features used)
@@ -81,10 +81,10 @@ export default function PrivacyPolicyPage() {
             >
               Google API Services User Data Policy
             </a>
-            , including the Limited Use requirements. Google account data (Search Console, GA4,
-            Google Ads) is used solely to generate the audit and reporting features you request
-            inside OpenAEX, is scoped per project/account, and is never used for advertising or
-            sold to third parties.
+            , including the Limited Use requirements. Google account data (Search Console and
+            GA4) is used solely to generate the audit and reporting features you request inside
+            OpenAEX, is scoped per project/account, and is never used for advertising or sold to
+            third parties.
           </p>
           <p className="mt-2">
             You can revoke OpenAEX&apos;s access to your Google account at any time from your{' '}
@@ -96,7 +96,9 @@ export default function PrivacyPolicyPage() {
             >
               Google Account permissions
             </a>{' '}
-            page, or by disconnecting the account inside OpenAEX.
+            page, or by disconnecting the account inside OpenAEX. Disconnecting revokes the grant
+            at Google where possible and deletes the Google tokens and synced property lists we
+            stored for your projects.
           </p>
         </section>
 
@@ -124,7 +126,7 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-lg font-semibold">6. Third-party services</h2>
           <p className="mt-2">
             We use third-party providers to operate OpenAEX, including Supabase (authentication
-            and database), Google APIs (Search Console, GA4, Ads, sign-in), and Google Gemini
+            and database), Google APIs (Search Console, GA4, sign-in), and Google Gemini
             (report generation). These providers process data on our behalf under their own
             privacy and data-processing terms.
           </p>

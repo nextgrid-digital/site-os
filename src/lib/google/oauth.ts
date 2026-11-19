@@ -13,15 +13,13 @@ export const GOOGLE_EMAIL_SCOPE = 'https://www.googleapis.com/auth/userinfo.emai
 export const GOOGLE_SCOPES = [
   GOOGLE_SEARCH_CONSOLE_SCOPE,
   GOOGLE_ANALYTICS_SCOPE,
-  GOOGLE_ADS_SCOPE,
   GOOGLE_EMAIL_SCOPE,
 ];
 
-/** The three features an audit reads from. Clients can untick any of them on the consent screen. */
+/** The features an audit reads from. Google Ads is deferred to a later verification round. */
 export const GOOGLE_FEATURES = [
   { key: 'search_console', label: 'Search Console', scope: GOOGLE_SEARCH_CONSOLE_SCOPE },
   { key: 'ga4', label: 'GA4', scope: GOOGLE_ANALYTICS_SCOPE },
-  { key: 'google_ads', label: 'Google Ads', scope: GOOGLE_ADS_SCOPE },
 ] as const;
 
 export type GoogleFeatureKey = (typeof GOOGLE_FEATURES)[number]['key'];

@@ -5,7 +5,6 @@ import type {
   ConnectorStatus,
 } from '@/lib/connectors/types';
 import {
-  GOOGLE_ADS_SCOPE,
   GOOGLE_ANALYTICS_SCOPE,
   GOOGLE_SEARCH_CONSOLE_SCOPE,
 } from '@/lib/google/oauth';
@@ -40,7 +39,6 @@ function googlePartialReason(scopes: string[]): string | null {
   const missing: string[] = [];
   if (!hasScope(scopes, GOOGLE_SEARCH_CONSOLE_SCOPE)) missing.push('Search Console');
   if (!hasScope(scopes, GOOGLE_ANALYTICS_SCOPE)) missing.push('Analytics');
-  if (!hasScope(scopes, GOOGLE_ADS_SCOPE)) missing.push('Ads');
   if (missing.length === 0) return null;
   return `Google OAuth is missing: ${missing.join(', ')}. Reconnect to grant access.`;
 }
@@ -165,66 +163,11 @@ export function buildConnectorStatuses(input: ProjectConnectorSnapshotInput): Co
     };
   })();
 
-  const ads: ConnectorStatus = (() => {
-    const def = getConnectorDefinition('google_ads');
-    if (!input.googleConnected) {
-      return {
-        connectorId: 'google_ads',
-        state: 'disconnected',
-        label: def.label,
-        resourceLabel: null,
-        availableSignals: [],
-        lastSyncAt: null,
-        usedInAudit: false,
-        message: 'Connect Google (with Ads access) to map an Ads account.',
-        partialReason: null,
-      };
-    }
-    if (!hasScope(input.googleScopes, GOOGLE_ADS_SCOPE)) {
-      return {
-        connectorId: 'google_ads',
-        state: 'partial',
-        label: def.label,
-        resourceLabel: null,
-        availableSignals: [],
-        lastSyncAt: null,
-        usedInAudit: false,
-        message: 'Reconnect Google to grant Ads readonly access.',
-        partialReason: 'Missing Ads OAuth scope.',
-      };
-    }
-    if (!input.adsSelected) {
-      return {
-        connectorId: 'google_ads',
-        state: 'partial',
-        label: def.label,
-        resourceLabel: null,
-        availableSignals: [],
-        lastSyncAt: null,
-        usedInAudit: false,
-        message: 'Google connected — select a Google Ads account.',
-        partialReason: partialGoogle,
-      };
-    }
-    const hasData = input.dataFlags?.adsHasData;
-    return {
-      connectorId: 'google_ads',
-      state: hasData === false ? 'partial' : 'connected',
-      label: def.label,
-      resourceLabel: input.adsLabel,
-      availableSignals: def.signals,
-      lastSyncAt: lastSync,
-      usedInAudit: Boolean(input.usedInLatestAudit.google_ads),
-      message: hasData === false ? 'Account mapped, but the last audit had little Ads data.' : null,
-      partialReason: hasData === false ? 'Low or empty Ads data in the last audit.' : null,
-    };
-  })();
-
   return [
     website,
     ga4,
     searchConsole,
-    ads,
+    buildComingSoon('google_ads'),
     buildComingSoon('instagram'),
     buildComingSoon('x'),
     buildComingSoon('youtube'),
